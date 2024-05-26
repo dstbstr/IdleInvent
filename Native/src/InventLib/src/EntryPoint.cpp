@@ -1,0 +1,49 @@
+#include "InventLib/EntryPoint.h"
+#include "Core/DesignPatterns/ServiceLocator.h"
+#include "Core/DesignPatterns/PubSub.h"
+#include "Core/Instrumentation/Logging.h"
+#include "Core/Utilities/IRandom.h"
+
+#include "InventLib/Achievements/Achievements.h"
+
+#include "InventLib/GameState/GameState.h"
+
+#include "InventLib/Resources/Resource.h"
+
+#include "InventLib/Mechanics/Achievement.h"
+#include "InventLib/Mechanics/Unlockable.h"
+
+#include "InventLib/Technology/Technology.h"
+#include "InventLib/Technology/Invention.h"
+
+#include <vector>
+#include <unordered_map>
+#include <string>
+
+#include <ranges>
+
+namespace Invent {
+	void Initialize() {
+		auto& services = ServiceLocator::Get();
+		Log::Initialize();
+
+		services.SetThisAsThat<DefaultRandom, IRandom>();
+		services.Set<GameState>();
+		services.CreateIfMissing<std::unordered_map<std::string, Unlockable>>();
+		services.CreateIfMissing<std::unordered_map<std::string, Purchasable>>();
+		services.CreateIfMissing<PubSub<Unlockable>>();
+
+		Achievements::Initialize();
+		Technologies::Initialize();
+	}
+
+	void Tick() {
+		Log::Flush();
+		static auto& gameState = ServiceLocator::Get().GetRequired<GameState>();
+
+		Unlockables::Tick();
+		Purchasables::Tick();
+
+		gameState.Tick();
+	}
+}
