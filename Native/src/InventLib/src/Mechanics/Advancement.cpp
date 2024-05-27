@@ -4,8 +4,8 @@
 #include "Core/DesignPatterns/PubSub.h"
 
 namespace Invent {
-	void Advancement::Tick() {
-		CurrentExp += Progress.GetProgress();
+	void Advancement::Tick(std::chrono::milliseconds elapsed) {
+		CurrentExp += Progress.GetProgress(elapsed);
 		if(CurrentExp < ExpToNextLevel) return;
 
 		auto& ps = ServiceLocator::Get().GetRequired<PubSub<Advancement>>();

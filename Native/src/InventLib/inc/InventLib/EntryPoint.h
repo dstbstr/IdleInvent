@@ -1,8 +1,10 @@
 #pragma once
 
+#include "InventLib/GameState/GameTime.h"
+
 #include "Core/DesignPatterns/ServiceLocator.h"
 
-namespace Invent {
+namespace Invent::EntryPoint {
 	void Initialize();
-	void Tick();
+	void Tick(BaseTime elapsed);
 }

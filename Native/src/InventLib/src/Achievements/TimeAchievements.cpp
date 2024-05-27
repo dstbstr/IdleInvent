@@ -10,7 +10,7 @@
 namespace {
 	using namespace Invent;
 
-	std::vector<std::pair<std::string, size_t>> AchievementLevels {
+	std::vector<std::pair<std::string, BaseTime>> AchievementLevels {
 		{"First Minute", OneMinute},
 		{"Ten Minutes", OneMinute * 10},
 		{"One Hour", OneHour},
@@ -21,12 +21,12 @@ namespace {
 		{"Three Months", OneDay * 90}
 	};
 
-	size_t GetCurrentTime() {
+	BaseTime GetCurrentTime() {
 		static auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
-		return gameState.ElapsedTicks;
+		return gameState.TimeElapsed;
 	}
 
-	Unlockable MakeUnlockable(const std::string& current, std::optional<std::string> next, size_t requiredTime) {
+	Unlockable MakeUnlockable(const std::string& current, std::optional<std::string> next, BaseTime requiredTime) {
 		return Unlockable{
 			current,
 			[requiredTime]() { return GetCurrentTime() >= requiredTime; },

@@ -94,8 +94,9 @@ namespace Invent {
 		});
 	}
 
-	void GameState::Tick() {
-		++ElapsedTicks;
+	void GameState::Tick(std::chrono::milliseconds elapsed) {
+		CurrentResources.Tick(elapsed);
+
 		/*
 		for (auto& [name, resource] : Resources) {
 			resource.Tick();

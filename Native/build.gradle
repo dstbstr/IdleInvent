@@ -16,7 +16,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                targets 'Core', 'InventLib'
+                targets 'Core', 'InventLib', 'CoreTest', 'InventLibTest'
             }
         }
     }

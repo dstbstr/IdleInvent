@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Core/NumTypes.h"
 #include "InventLib/Mechanics/Effect.h"
+#include "InventLib/GameState/GameTime.h"
+
+#include "Core/NumTypes.h"
 
 #include <string>
 #include <vector>
@@ -24,9 +26,9 @@ namespace Invent
 	namespace RandomEvents {
 		void Tick();
 
-		void RegisterEvent(const RandomEvent& event, size_t chance);
+		void RegisterEvent(const RandomEvent& event, BaseTime chance);
 		void UnregisterEvent(const RandomEvent& event);
-		size_t GetEventChance(const RandomEvent& randomEvent);
+		BaseTime GetEventChance(const RandomEvent& randomEvent);
 	}
 }
 

@@ -6,6 +6,7 @@
 #include <string>
 #include <functional>
 #include <memory>
+#include <chrono>
 
 namespace Invent {
 	namespace AdvancementCosts {
@@ -48,6 +49,6 @@ namespace Invent {
 			ExpToNextLevel = NextLevelCost(CurrentLevel);
 		}
 
-		void Tick();
+		void Tick(std::chrono::milliseconds);
 	};
 }

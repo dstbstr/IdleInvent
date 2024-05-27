@@ -1,25 +1,45 @@
 #pragma once
 
+#include "InventLib/GameState/GameTime.h"
+
 #include "Core/NumTypes.h"
 
 #include <vector>
 #include <numeric>
 
 namespace Invent {
+
+	struct Modifier {
+        s64 Add{0};
+        f32 Mul{1.0f};
+        BaseTime Duration{OneYear * 100};
+    };
+
 	struct Progression {
-		s64 BaseProgress{ 1 };
-		std::vector<s64> AddMods{};
-		std::vector<f32> MulMods{};
+		std::vector<Modifier> Modifiers{};
 
-		constexpr s64 GetProgress() const {
-			auto addBonus = std::accumulate(AddMods.begin(), AddMods.end(), 0ll, std::plus<s64>());
-			auto mulBonus = std::accumulate(MulMods.begin(), MulMods.end(), 1.0f, std::multiplies<f32>());
-			return static_cast<s64>((BaseProgress + addBonus) * mulBonus);
+		constexpr s64 GetProgress(BaseTime elapsed) {
+            Modifier bonuses = {};
+            for(int i = static_cast<int>(Modifiers.size() - 1); i >= 0; i--) {
+                auto& mod = Modifiers[i];
+                mod.Duration -= elapsed;
+                if(mod.Duration.count() <= 0) {
+                    std::swap(Modifiers[i], Modifiers.back());
+                    Modifiers.pop_back();
+                    continue;
+                }
+                bonuses.Add += mod.Add;
+                bonuses.Mul *= mod.Mul;
+			}
+
+			auto seconds = static_cast<f32>(elapsed.count()) / 1000.0f;
+			auto progress = (bonuses.Add * bonuses.Mul * seconds) + m_Remainder;
+
+			m_Remainder = progress - static_cast<s64>(progress);
+			return static_cast<s64>(progress);
 		}
 
-		constexpr void Reset() {
-			AddMods.clear();
-			MulMods.clear();
-		}
+	private:
+		f32 m_Remainder{ 0.0f };
 	};
 }

@@ -1,9 +1,11 @@
 #include "CommonTest.h"
 #include "InventLib/Achievements/Achievements.h"
-#include "Core/DesignPatterns/PubSub.h"
-#include "Core/DesignPatterns/ServiceLocator.h"
 #include "InventLib/GameState/GameState.h"
 #include "InventLib/Mechanics/Unlockable.h"
+#include "InventLib/GameState/GameTime.h"
+
+#include "Core/DesignPatterns/PubSub.h"
+#include "Core/DesignPatterns/ServiceLocator.h"
 
 namespace Invent {
 	struct AchievementListener {
@@ -38,7 +40,7 @@ namespace Invent {
 	};
 
 	TEST_F(AchievementsTest, TimeAchievement_AfterOneSecond_DoesNotUnlock) {
-		gameState->ElapsedTicks = 1;
+		gameState->TimeElapsed = OneSecond;
 		Unlockables::Tick();
 
 		ASSERT_TRUE(listener.ReceivedAchievements.empty());
@@ -46,7 +48,7 @@ namespace Invent {
 
 	TEST_F(AchievementsTest, TimeAchievement_AfterOneMinute_Unlocks) {
 		ASSERT_TRUE(listener.ReceivedAchievements.empty());
-		gameState->ElapsedTicks = 60;
+		gameState->TimeElapsed = OneMinute;
 		Unlockables::Tick();
 
 		ASSERT_EQ(listener.ReceivedAchievements.size(), 1);
@@ -54,7 +56,7 @@ namespace Invent {
 
 	TEST_F(AchievementsTest, TimeAchievement_AfterOneHour_UnlocksOneAtATime) {
 		ASSERT_TRUE(listener.ReceivedAchievements.empty());
-		gameState->ElapsedTicks = 3600;
+		gameState->TimeElapsed = OneHour;
 		
 		Unlockables::Tick();
 		ASSERT_EQ(listener.ReceivedAchievements.size(), 1);

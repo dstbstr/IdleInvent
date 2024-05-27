@@ -1,18 +1,12 @@
 #include "Engine.h"
-#include "Platform/GameLog.h"
-
-#include "InventLib/EntryPoint.h"
-
-#include "Core/DesignPatterns/PubSub.h"
-#include "Core/Instrumentation/Logging.h"
 
 #include <android_native_app_glue.h>
 
 #include <string>
+#include <memory>
 
 std::unique_ptr<Engine> engine;
 std::unique_ptr<Platform> platform;
-std::unique_ptr<GameLog> logListener;
 
 static void handleAppCmd(android_app* app, int32_t appCmd) {
     switch(appCmd) {
@@ -46,21 +40,11 @@ static void handleAppCmd(android_app* app, int32_t appCmd) {
 }
 
 void android_main(android_app* app) {
-    Log::Initialize();
-    logListener = std::make_unique<GameLog>(Log::Filter());
-    Log::Info("Logging initialized.");
-
-#ifdef DEBUG
-    Log::Info("Debug Mode");
-#else
-    Log::Info("Release Mode");
-#endif
-
     app->onAppCmd = handleAppCmd;
 
     while(true) {
         int events;
-        struct android_poll_source* source;
+        android_poll_source* source;
         while(ALooper_pollOnce(engine ? 0 : 1, nullptr, &events, (void**)&source) >= 0) {
             if(source) source->process(app, source);
 
@@ -73,6 +57,5 @@ void android_main(android_app* app) {
         if(engine) {
           engine->Tick();
         }
-        Log::Flush();
     }
 }

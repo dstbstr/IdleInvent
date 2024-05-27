@@ -7,6 +7,7 @@
 #include "InventLib/Achievements/Achievements.h"
 
 #include "InventLib/GameState/GameState.h"
+#include "InventLib/GameState/GameTime.h"
 
 #include "InventLib/Resources/Resource.h"
 
@@ -22,13 +23,17 @@
 
 #include <ranges>
 
-namespace Invent {
+namespace {
+	Invent::GameState* gameState{nullptr};
+}
+
+namespace Invent::EntryPoint {
 	void Initialize() {
 		auto& services = ServiceLocator::Get();
 		Log::Initialize();
 
 		services.SetThisAsThat<DefaultRandom, IRandom>();
-		services.Set<GameState>();
+		gameState = &services.GetOrCreate<GameState>();
 		services.CreateIfMissing<std::unordered_map<std::string, Unlockable>>();
 		services.CreateIfMissing<std::unordered_map<std::string, Purchasable>>();
 		services.CreateIfMissing<PubSub<Unlockable>>();
@@ -37,13 +42,10 @@ namespace Invent {
 		Technologies::Initialize();
 	}
 
-	void Tick() {
-		Log::Flush();
-		static auto& gameState = ServiceLocator::Get().GetRequired<GameState>();
-
+	void Tick(BaseTime elapsed) {
 		Unlockables::Tick();
 		Purchasables::Tick();
 
-		gameState.Tick();
+		gameState->Tick(elapsed);
 	}
 }

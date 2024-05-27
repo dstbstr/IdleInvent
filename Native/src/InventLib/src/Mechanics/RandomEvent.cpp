@@ -1,4 +1,6 @@
 #include "InventLib/Mechanics/RandomEvent.h"
+#include "InventLib/GameState/GameTime.h"
+
 #include "Core/DesignPatterns/ServiceLocator.h"
 #include "Core/DesignPatterns/PubSub.h"
 #include "Core/Utilities/IRandom.h"
@@ -7,10 +9,11 @@
 #include <optional>
 
 namespace {
-	std::unordered_map<Invent::RandomEvent, size_t> EventChances{};
+	using namespace Invent;
+	std::unordered_map<Invent::RandomEvent, BaseTime> EventChances{};
 	// Event to [current, target]
-	std::unordered_map<Invent::RandomEvent, std::pair<size_t, size_t>> EventCurrentSlot{};
-	std::optional<std::pair<Invent::RandomEvent, size_t>> ActiveEvent;
+	std::unordered_map<RandomEvent, std::pair<BaseTime, BaseTime>> EventCurrentSlot{};
+	std::optional<std::pair<RandomEvent, BaseTime>> ActiveEvent;
 
 	size_t GetRandomNumber(size_t max) {
 		static auto& random = ServiceLocator::Get().GetRequired<IRandom>();
@@ -20,9 +23,12 @@ namespace {
 
 namespace Invent {
 	namespace RandomEvents {
-		void RegisterEvent(const RandomEvent& randomEvent, size_t chance) {
+        using namespace std::chrono_literals;
+
+		void RegisterEvent(const RandomEvent& randomEvent, BaseTime chance) {
 			EventChances.emplace(randomEvent, chance);
-			EventCurrentSlot.emplace(randomEvent, std::make_pair(0, GetRandomNumber(chance)));
+			auto triggerTime = BaseTime{GetRandomNumber(chance.count())};
+            EventCurrentSlot.emplace(randomEvent, std::make_pair(0s, triggerTime));
 		}
 
 		void UnregisterEvent(const RandomEvent& randomEvent) {
@@ -30,31 +36,31 @@ namespace Invent {
 			EventCurrentSlot.erase(randomEvent);
 		}
 
-		size_t GetEventChance(const RandomEvent& randomEvent) {
+		BaseTime GetEventChance(const RandomEvent& randomEvent) {
 			return EventChances[randomEvent];
 		}
 
-		void Tick() {
+		void Tick(BaseTime elapsed) {
 			if (ActiveEvent.has_value()) {
 				auto& [event, duration] = ActiveEvent.value();
-				if (duration == 0) {
+				if (duration <= 0s) {
 					ActiveEvent.reset();
 				}
 				else {
 					ServiceLocator::Get().GetRequired<PubSub<RandomEvent>>().Publish(event);
-					duration--;
+					duration -= elapsed;
 				}
 			}
 			else {
 				for (auto& [event, chance] : EventCurrentSlot) {
 					auto& [current, target] = chance;
-					current++;
-					if (current == target) {
-						ActiveEvent.emplace(event, event.Duration);
-					}
-					else if (current == EventChances[event]) {
-						current = 0;
-						target = GetRandomNumber(EventChances[event]);
+					
+					if(current <= target && current + elapsed >= target) {
+                        ActiveEvent.emplace(event, event.Duration);
+                    }
+					else if (current >= EventChances[event]) {
+						current = 0s;
+                        target = BaseTime{GetRandomNumber(EventChances[event].count())};
 					}
 				}
 			}

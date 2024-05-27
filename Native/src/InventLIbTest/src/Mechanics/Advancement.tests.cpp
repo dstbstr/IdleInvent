@@ -8,6 +8,8 @@
 
 
 namespace Invent {
+    using namespace std::chrono_literals;
+
 	struct AdvancementListener {
 		AdvancementListener() {
 			ServiceLocator::Get().GetOrCreate<PubSub<Advancement>>().Subscribe([this](const Advancement& advancement) {
@@ -29,55 +31,59 @@ namespace Invent {
 
 		Advancement advancement{ "Test", Progression{}, AdvancementCosts::Linear<10> };
 
+		void SetProgress(s64 add, f32 mul) {
+            advancement.Progress.Modifiers.push_back(Modifier{.Add = add, .Mul = mul});
+		}
+
 		AdvancementListener listener;
 	};
 
 	TEST_F(AdvancementTest, Tick_WithNoProgress_DoesNotChangeLevel) {
-		advancement.Tick();
+		advancement.Tick(1s);
 
 		ASSERT_TRUE(listener.Events.empty());
 	}
 
 	TEST_F(AdvancementTest, Tick_WithNoProgress_DoesNotIncreaseLevelCost) {
 		auto original = advancement.ExpToNextLevel;
-		advancement.Tick();
+		advancement.Tick(1s);
 
 		ASSERT_EQ(original, 10);
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneLevelProgress_PublishesLevel) {
-		advancement.Progress.BaseProgress = advancement.ExpToNextLevel;
-		advancement.Tick();
+        SetProgress(advancement.ExpToNextLevel, 1);
+		advancement.Tick(1s);
 
 		ASSERT_EQ(listener.Events.size(), 1);
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneLevelProgress_ResetsProgress) {
-		advancement.Progress.BaseProgress = advancement.ExpToNextLevel;
-		advancement.Tick();
+        SetProgress(advancement.ExpToNextLevel, 1);
+		advancement.Tick(1s);
 
 		ASSERT_EQ(advancement.CurrentExp, 0);
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneAndAHalfLevels_KeepsTheChange) {
-		auto tickAmount = static_cast<size_t>(advancement.ExpToNextLevel * 1.5F);
-		advancement.Progress.BaseProgress = tickAmount;
+        auto tickAmount = static_cast<size_t>(advancement.ExpToNextLevel * 1.5F);
+		SetProgress(tickAmount, 1);
 		auto changeAmount = tickAmount - advancement.ExpToNextLevel;
-		advancement.Tick();
+		advancement.Tick(1s);
 
 		ASSERT_EQ(advancement.CurrentExp, changeAmount );
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneLevelProgress_IncreasesNextLevelCost) {
-		advancement.Progress.BaseProgress = advancement.ExpToNextLevel;
-		advancement.Tick();
+		SetProgress(advancement.ExpToNextLevel, 1);
+		advancement.Tick(1s);
 
 		ASSERT_EQ(advancement.ExpToNextLevel, 20); // 10 base + 10 linear growth
 	}
 
 	TEST_F(AdvancementTest, Tick_WithMultipleLevelsProgress_PublishesMultipleEvents) {
-		advancement.Progress.BaseProgress = advancement.ExpToNextLevel * 100;
-		advancement.Tick();
+		SetProgress(advancement.ExpToNextLevel, 100);
+		advancement.Tick(1s);
 
 		ASSERT_TRUE(listener.Events.size() > 2);
 	}

@@ -11,13 +11,13 @@ namespace Invent {
 		void MakeLessCommon(RandomEvent event);
 
 		namespace Rarity {
-			constexpr size_t Regular = OneMinute;
-			constexpr size_t Common = OneMinute * 5;
-			constexpr size_t Uncommon = OneMinute * 10;
-			constexpr size_t Rare = OneMinute * 30;
-			constexpr size_t VeryRare = OneHour;
-			constexpr size_t Legendary = OneDay;
-			constexpr size_t Mythic = OneDay * 7;
+			constexpr auto Regular = OneMinute;
+			constexpr auto Common = OneMinute * 5;
+			constexpr auto Uncommon = OneMinute * 10;
+			constexpr auto Rare = OneMinute * 30;
+			constexpr auto VeryRare = OneHour;
+			constexpr auto Legendary = OneDay;
+			constexpr auto Mythic = OneDay * 7;
 		}
 
 		namespace NaturalEvents {

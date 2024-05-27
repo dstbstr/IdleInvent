@@ -1,21 +1,10 @@
 #include "InventLib/Resources/Resource.h"
 
+#include "Core/Instrumentation/Logging.h"
+
 namespace Invent {
-	void Resource::Tick() {
-		//temporarily add TempProgress to Progress
-		auto originalAddSize = Progress.AddMods.size();
-		auto originalMulSize = Progress.MulMods.size();
-
-		Progress.AddMods.insert_range(Progress.AddMods.end(), TempProgress.AddMods);
-		Progress.MulMods.insert_range(Progress.MulMods.end(), TempProgress.MulMods);
-
-		Current = std::min(Max, Current + Progress.GetProgress());
-
-		//remove TempProgress from Progress
-		Progress.AddMods.erase(Progress.AddMods.begin() + originalAddSize);
-		Progress.MulMods.erase(Progress.MulMods.begin() + originalMulSize);
-
-		TempProgress.Reset();
+	void Resource::Tick(BaseTime elapsed) {
+		Current = std::min(Max, Current + Progress.GetProgress(elapsed));
 	}
 
 	std::vector<ResourceName> GetRelativeResources(ResourceName resourceName) {
@@ -25,9 +14,15 @@ namespace Invent {
 		case ResourceName::Wealth: return { ResourceName::Wealth, ResourceName::Knowledge, ResourceName::Magic, ResourceName::Labor, ResourceName::Influence };
 		case ResourceName::Knowledge: return { ResourceName::Knowledge, ResourceName::Magic, ResourceName::Labor, ResourceName::Influence, ResourceName::Wealth };
 		case ResourceName::Magic: return { ResourceName::Magic, ResourceName::Labor, ResourceName::Influence, ResourceName::Wealth, ResourceName::Knowledge };
-		default: throw "Wat?";
+        default: DR_ASSERT_MSG(false, "Invalid resource name"); return { ResourceName::Unset };
 		}
 	}
+
+	void ResourceCollection::Tick(BaseTime elapsed) {
+        for(auto& [name, resource]: m_Resources) {
+            resource.Tick(elapsed);
+        }
+    }
 
 	ResourceCollection GetResourceCosts(ResourceName resource, size_t difficulty) {
 		auto r = GetRelativeResources(resource);
@@ -43,24 +38,24 @@ namespace Invent {
 	}
 
 	s64& ResourceCollection::operator[](ResourceName resource) {
-		return m_Resources[resource];
+		return m_Resources[resource].Current;
 	}
 
 	const s64& ResourceCollection::operator[](ResourceName resource) const {
-		return m_Resources.at(resource);
+		return m_Resources.at(resource).Current;
 	}
 
 	bool ResourceCollection::operator<(const ResourceCollection& rhs) const {
-		for (const auto& [resource, amount] : m_Resources) {
-			if (amount >= rhs.m_Resources.at(resource)) {
+		for (const auto& [name, resource] : m_Resources) {
+			if (resource.Current >= rhs.m_Resources.at(name).Current) {
 				return false;
 			}
 		}
 		return true;
 	}
 	bool ResourceCollection::operator==(const ResourceCollection& rhs) const {
-		for (const auto& [resource, amount] : m_Resources) {
-			if (amount != rhs.m_Resources.at(resource)) {
+		for (const auto& [name, resource] : m_Resources) {
+			if (resource.Current != rhs.m_Resources.at(name).Current) {
 				return false;
 			}
 		}
@@ -71,8 +66,8 @@ namespace Invent {
 		return !(*this == rhs);
 	}
 	bool ResourceCollection::operator<=(const ResourceCollection& rhs) const {
-		for (const auto& [resource, amount] : m_Resources) {
-			if (amount > rhs.m_Resources.at(resource)) {
+		for (const auto& [name, resource] : m_Resources) {
+			if (resource.Current > rhs.m_Resources.at(name).Current) {
 				return false;
 			}
 		}
@@ -86,8 +81,8 @@ namespace Invent {
 	}
 
 	ResourceCollection& ResourceCollection::operator+=(const ResourceCollection& rhs) {
-		for (const auto& [resource, amount] : rhs.m_Resources) {
-			m_Resources[resource] += amount;
+		for (const auto& [name, resource] : rhs.m_Resources) {
+			m_Resources[name].Current += resource.Current;
 		}
 		return *this;
 	}
@@ -99,8 +94,8 @@ namespace Invent {
 	}
 
 	ResourceCollection& ResourceCollection::operator-= (const ResourceCollection& rhs) {
-		for (const auto& [resource, amount] : rhs.m_Resources) {
-			m_Resources[resource] -= amount;
+		for (const auto& [name, resource] : rhs.m_Resources) {
+			m_Resources[name].Current -= resource.Current;
 		}
 		return *this;
 	}
@@ -112,8 +107,8 @@ namespace Invent {
 	}
 
 	ResourceCollection& ResourceCollection::operator/=(size_t divisor) {
-		for (auto& [resource, cost] : m_Resources) {
-			cost /= divisor;
+		for (auto& [name, resource] : m_Resources) {
+			resource.Current /= divisor;
 		}
 
 		return *this;
@@ -121,16 +116,16 @@ namespace Invent {
 
 	ResourceCollection ResourceCollection::operator/(size_t divisor) {
 		auto result = *this;
-		for (auto& [resource, cost] : result.m_Resources) {
-			cost /= divisor;
+		for (auto& [name, resource] : result.m_Resources) {
+			resource.Current /= divisor;
 		}
 
 		return result;
 	}
 
 	ResourceCollection& ResourceCollection::operator*=(size_t multiplier) {
-		for (auto& [resource, cost] : m_Resources) {
-			cost *= multiplier;
+		for (auto& [name, resource] : m_Resources) {
+			resource.Current *= multiplier;
 		}
 
 		return *this;
@@ -138,8 +133,8 @@ namespace Invent {
 
 	ResourceCollection ResourceCollection::operator*(size_t multiplier) {
 		auto result = *this;
-		for (auto& [resource, cost] : result.m_Resources) {
-			cost *= multiplier;
+		for (auto& [name, resource] : result.m_Resources) {
+			resource.Current *= multiplier;
 		}
 
 		return result;

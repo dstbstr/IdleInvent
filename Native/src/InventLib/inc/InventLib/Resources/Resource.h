@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <chrono>
 
 namespace Invent {
 	enum struct ResourceName {
@@ -28,30 +29,27 @@ namespace Invent {
 	std::vector<ResourceName> GetRelativeResources(ResourceName resourceName);
 
 	struct Resource {
-		Resource(ResourceName resourceType, Progression progress) : ResourceType(resourceType), Progress(progress) {}
-
-		ResourceName ResourceType{ ResourceName::Unset };
-
 		s64 Current{ 0 };
 		s64 Max{ 100 };
 
 		Progression Progress{};
-		Progression TempProgress{};
 
-		void Tick();
+		void Tick(BaseTime elapsed);
 	};
 
 	class ResourceCollection {
-		std::unordered_map<ResourceName, s64> m_Resources{};
+		std::unordered_map<ResourceName, Resource> m_Resources{};
 
 	public:
 		ResourceCollection() {
 			for (auto resource : AllResources) {
-				m_Resources[resource] = 0;
+                m_Resources[resource] = {};
 			}
 		}
 
-		ResourceCollection(const std::unordered_map<ResourceName, s64>& resources) : m_Resources(resources) {}
+		void Tick(BaseTime elapsed);
+        void AddProgressMod(ResourceName resource, s64 add, f32 mul);
+		void AddTempMod(ResourceName resource, s64 add, f32 mul);
 
 		s64& operator[](ResourceName resource);
 		const s64& operator[](ResourceName resource) const;
