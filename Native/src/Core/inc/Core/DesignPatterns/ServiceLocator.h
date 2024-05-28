@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-//#include <unordered_map>
 #include <map>
 
 struct ServiceLocator {
@@ -36,13 +35,9 @@ struct ServiceLocator {
 	}
 
     void ResetAll() {
-        //erase in reverse order of a std::map
-
-
         for (auto it = services.rbegin(); it != services.rend();) {
 			services.erase(std::next(it).base()); 
         }
-        //services.clear();
     }
 
     template<typename T>
@@ -86,7 +81,6 @@ private:
     ServiceLocator() = default;
 
     // must be shared_ptr because unique_ptr can't delete void*
-    //std::unordered_map<size_t, std::shared_ptr<void>> services;
     std::map<size_t, std::shared_ptr<void>> services;
 
     template<typename T>
