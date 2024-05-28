@@ -4,8 +4,6 @@
 
 #include "InventLib/Resources/Resource.h"
 #include "InventLib/Resources/Storage.h"
-#include "InventLib/Resources/StorageCollection.h" // TODO: Combine with storage?
-
 
 namespace Invent {
 	struct GameState {
@@ -14,7 +12,7 @@ namespace Invent {
 		void Tick(BaseTime elapsed);
 
 		ResourceCollection CurrentResources{};
-		StorageCollection CurrentStorages{};
+		std::unordered_map<ResourceName, Storage> Storages{};
 		BaseTime TimeElapsed{};
 	};
 }

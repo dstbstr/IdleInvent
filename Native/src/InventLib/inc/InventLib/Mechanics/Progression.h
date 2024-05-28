@@ -16,7 +16,7 @@ namespace Invent {
     };
 
 	struct Progression {
-		std::vector<Modifier> Modifiers{};
+        std::vector<Modifier> Modifiers{{1, 1.0F}};
         bool Active{false};
 
 		constexpr s64 GetProgress(BaseTime elapsed) {

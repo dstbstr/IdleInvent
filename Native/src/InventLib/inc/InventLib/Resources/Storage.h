@@ -3,6 +3,7 @@
 #include "Core/NumTypes.h"
 #include "InventLib/Resources/Resource.h"
 #include "InventLib/Mechanics/Progression.h"
+#include "InventLib/Mechanics/Advancement.h"
 
 #include <string>
 #include <vector>
@@ -10,21 +11,16 @@
 
 namespace Invent {
 	struct Storage {
-		Storage(ResourceName resourceType, Progression progress) : ResourceType(resourceType), ExpProgress(progress) {}
+		Storage(ResourceName resourceType, Advancement advance) : ResourceType(resourceType), ResourcesToLevel{GetResourceCosts(resourceType, 1)}, Advance(advance) {}
 		
 		ResourceName ResourceType{ ResourceName::Unset };
-
-		s64 CurrentLevel{ 0 };
-		s64 CurrentExp{ 0 };
-		s64 ExpToLevel{ 100 };
-
 		ResourceCollection ResourcesToLevel{};
 
-		Progression ExpProgress{};
-		Progression TempExpProgress{};
+		size_t CurrentLevel{1};
+        Advancement Advance{"Unset", AdvancementCosts::Linear<2>, {}};
 
 		bool CanLevelUp() const;
 		void LevelUp();
-		void Tick();
+		void Tick(BaseTime elapsed);
 	};
 }

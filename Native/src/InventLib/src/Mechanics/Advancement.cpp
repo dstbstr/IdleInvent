@@ -4,7 +4,7 @@
 #include "Core/DesignPatterns/PubSub.h"
 
 namespace Invent {
-	void Advancement::Tick(std::chrono::milliseconds elapsed) {
+	void Advancement::Tick(BaseTime elapsed) {
 		CurrentExp += Progress.GetProgress(elapsed);
 		if(CurrentExp < ExpToNextLevel) return;
 

@@ -29,10 +29,12 @@ namespace Invent {
 			ServiceLocator::Get().ResetAll();
 		}
 
-		Advancement advancement{ "Test", Progression{}, AdvancementCosts::Linear<10> };
+		Advancement advancement{ "Test", AdvancementCosts::Linear<10> };
 
-		void SetProgress(s64 add, f32 mul) {
+		void SetProgress(s64 add, f32 mul, bool active) {
+			advancement.Progress.Modifiers.clear();
             advancement.Progress.Modifiers.push_back(Modifier{.Add = add, .Mul = mul});
+            advancement.Progress.Active = active;
 		}
 
 		AdvancementListener listener;
@@ -52,14 +54,14 @@ namespace Invent {
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneLevelProgress_PublishesLevel) {
-        SetProgress(advancement.ExpToNextLevel, 1);
+        SetProgress(advancement.ExpToNextLevel, 1, true);
 		advancement.Tick(1s);
 
 		ASSERT_EQ(listener.Events.size(), 1);
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneLevelProgress_ResetsProgress) {
-        SetProgress(advancement.ExpToNextLevel, 1);
+        SetProgress(advancement.ExpToNextLevel, 1, true);
 		advancement.Tick(1s);
 
 		ASSERT_EQ(advancement.CurrentExp, 0);
@@ -67,7 +69,7 @@ namespace Invent {
 
 	TEST_F(AdvancementTest, Tick_WithOneAndAHalfLevels_KeepsTheChange) {
         auto tickAmount = static_cast<size_t>(advancement.ExpToNextLevel * 1.5F);
-		SetProgress(tickAmount, 1);
+		SetProgress(tickAmount, 1, true);
 		auto changeAmount = tickAmount - advancement.ExpToNextLevel;
 		advancement.Tick(1s);
 
@@ -75,17 +77,24 @@ namespace Invent {
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneLevelProgress_IncreasesNextLevelCost) {
-		SetProgress(advancement.ExpToNextLevel, 1);
+		SetProgress(advancement.ExpToNextLevel, 1, true);
 		advancement.Tick(1s);
 
 		ASSERT_EQ(advancement.ExpToNextLevel, 20); // 10 base + 10 linear growth
 	}
 
 	TEST_F(AdvancementTest, Tick_WithMultipleLevelsProgress_PublishesMultipleEvents) {
-		SetProgress(advancement.ExpToNextLevel, 100);
+		SetProgress(advancement.ExpToNextLevel, 100, true);
 		advancement.Tick(1s);
 
 		ASSERT_TRUE(listener.Events.size() > 2);
+	}
+
+	TEST_F(AdvancementTest, Tick_WithDisabledProgress_DoesNotLevel) {
+		SetProgress(advancement.ExpToNextLevel, 1, false);
+		advancement.Tick(1s);
+
+		ASSERT_EQ(advancement.CurrentLevel, 1);
 	}
 
 	TEST(AdvancementCosts, Constant_WithAnyLevel_ReturnsConstant) {

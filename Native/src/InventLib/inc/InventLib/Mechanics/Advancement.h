@@ -40,7 +40,7 @@ namespace Invent {
 		size_t ExpToNextLevel{ 0 };
 		Progression Progress{};
 
-		Advancement(const std::string& name, Progression progress, std::function<size_t(size_t)> levelCosts ) 
+		Advancement(const std::string& name, std::function<size_t(size_t)> levelCosts, Progression progress = {}) 
 			: Name(name)
 			, NextLevelCost(levelCosts)
 			, ExpToNextLevel(levelCosts(1))
@@ -49,6 +49,6 @@ namespace Invent {
 			ExpToNextLevel = NextLevelCost(CurrentLevel);
 		}
 
-		void Tick(std::chrono::milliseconds);
+		void Tick(BaseTime elapsed);
 	};
 }

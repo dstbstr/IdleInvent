@@ -30,4 +30,4 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Resources/Resource.tests.cpp
 
   src/Technology/Technology.test.cpp
-)
+ "src/Resources/Storage.tests.cpp")

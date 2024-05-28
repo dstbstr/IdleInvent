@@ -1,6 +1,10 @@
 #include "InventLib/Resources/Resource.h"
 
+#include "InventLib/Resources/Storage.h"
+
 #include "Core/Instrumentation/Logging.h"
+#include "Core/DesignPatterns/ServiceLocator.h"
+#include "Core/DesignPatterns/PubSub.h"
 
 namespace Invent {
 	void Resource::Tick(BaseTime elapsed) {
@@ -20,11 +24,18 @@ namespace Invent {
 
 	ResourceCollection::ResourceCollection() {
 		auto progress = Progression{};
-        progress.Modifiers.push_back({1, 1});
         for(auto resource: AllResources) {
             m_Resources[resource] = {0, 100, progress};
         }
+
+		m_PsHandle = ServiceLocator::Get().GetOrCreate<PubSub<Storage>>().Subscribe([this](const Storage& e) { m_Resources.at(e.ResourceType).Max *= 2; });
     }
+
+	ResourceCollection::~ResourceCollection() {
+        if(auto* ps = ServiceLocator::Get().Get<PubSub<Storage>>()) {
+			ps->Unsubscribe(m_PsHandle);
+		}
+	}
 
 	void ResourceCollection::Tick(BaseTime elapsed) {
         for(auto& [name, resource]: m_Resources) {

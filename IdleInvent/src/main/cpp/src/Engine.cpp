@@ -11,6 +11,7 @@
 
 #include "InventLib/EntryPoint.h"
 #include "InventLib/GameState/GameTime.h"
+#include "InventLib/GameState/GameState.h"
 
 #include <format>
 #include <chrono>
@@ -35,6 +36,12 @@ Engine::Engine(Platform& platform) {
 
     ServiceLocator::Get().CreateIfMissing<EngineState>();
     Invent::EntryPoint::Initialize();
+
+    // Cheating
+    auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
+    for(auto& [name, resource] : gameState.CurrentResources) {
+        resource.Progress.Modifiers.push_back({2, 5.0F});
+    }
 }
 
 Engine::~Engine() {

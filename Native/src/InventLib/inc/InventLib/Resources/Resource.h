@@ -9,6 +9,8 @@
 #include <chrono>
 
 namespace Invent {
+    struct Storage;
+
 	enum struct ResourceName {
 		Unset,
 		Labor,
@@ -50,9 +52,11 @@ namespace Invent {
 
 	class ResourceCollection {
 		std::unordered_map<ResourceName, Resource> m_Resources{};
+        size_t m_PsHandle{0};
 
 	public:
         ResourceCollection();
+        ~ResourceCollection();
 
 		void Tick(BaseTime elapsed);
 

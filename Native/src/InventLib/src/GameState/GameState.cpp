@@ -70,12 +70,11 @@ namespace Invent {
 	// This means that the ServiceLocator will be shutting down when this is destroyed
 	// So we can't unsubscribe from the PubSubs, so we don't bother to capture the subscription handles
 	GameState::GameState() {
-		/*
+        auto storageAdvancement = Advancement{"", AdvancementCosts::MakePunctuated<10>(AdvancementCosts::Logarithmic<10>)};
 		for (auto name : AllResources) {
-			CurrentResources.emplace(name, Resource{ name, Progression{} });
-			Storages.emplace(name, Storage(name, Progression{}));
+            storageAdvancement.Name = ToString(name) + " Storage";
+			Storages.emplace(name, Storage(name, storageAdvancement));
 		}
-		*/
 
 		auto& services = ServiceLocator::Get();
 		auto& achievements = services.GetOrCreate<PubSub<Achievement>>();
@@ -96,11 +95,8 @@ namespace Invent {
 
 	void GameState::Tick(std::chrono::milliseconds elapsed) {
 		CurrentResources.Tick(elapsed);
-
-		/*
-		for (auto& [name, resource] : Resources) {
-			resource.Tick();
+		for (auto& [name, storage] : Storages) {
+				storage.Tick(elapsed);
 		}
-		*/
 	}
 }

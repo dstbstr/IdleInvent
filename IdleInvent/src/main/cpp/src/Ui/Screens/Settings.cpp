@@ -17,6 +17,11 @@ namespace Ui::Screens::Settings {
     void Render() { 
         ImGui::Begin("Settings", nullptr, BaseFlags);
         ImGui::Checkbox("Show FPS", &gameSettings->showFps);
+        ImGui::Button("Mute");
+        ImGui::Button("Hard Reset");
+        ImGui::Button("Export");
+        ImGui::Button("Import");
+        ImGui::Button("Save");
         ImGui::End();
     }
 }

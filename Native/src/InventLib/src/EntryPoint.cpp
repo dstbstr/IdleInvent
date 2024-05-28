@@ -30,13 +30,16 @@ namespace {
 namespace Invent::EntryPoint {
 	void Initialize() {
 		auto& services = ServiceLocator::Get();
-		Log::Initialize();
 
 		services.SetThisAsThat<DefaultRandom, IRandom>();
 		gameState = &services.GetOrCreate<GameState>();
 		services.CreateIfMissing<std::unordered_map<std::string, Unlockable>>();
 		services.CreateIfMissing<std::unordered_map<std::string, Purchasable>>();
 		services.CreateIfMissing<PubSub<Unlockable>>();
+		services.CreateIfMissing<PubSub<Storage>>();
+		services.CreateIfMissing<PubSub<InventionLevel>>();
+		services.CreateIfMissing<PubSub<Achievement>>();
+		services.CreateIfMissing<PubSub<Advancement>>();
 
 		Achievements::Initialize();
 		Technologies::Initialize();
