@@ -24,23 +24,26 @@ namespace Ui::BottomBar {
     }
 
     void Render() {
-        auto spacing = ImGui::GetContentRegionAvail().x / 2;
-        auto leftEdge = spacing / 2;
-
         ImGui::Begin("BottomBar", nullptr, BaseFlags);
-        ImGui::SetCursorPosX(leftEdge);
+
+        ImGui::BeginTable("NavTable", 5, ImGuiTableFlags_SizingStretchSame);
+        ImGui::TableNextColumn();
+        ImGui::TableNextColumn();
         if (ImGui::ImageButton("ResourceIcon", (void*)(intptr_t)ResourcesIcon.TextureId, { IconSize, IconSize })) {
             Screens::SetActiveScreen(Screen::Resources);
         }
-        ImGui::SameLine(spacing + leftEdge + IconSize);
+        ImGui::TableNextColumn();
         if (ImGui::ImageButton("StorageIcon", (void*)(intptr_t)StorageIcon.TextureId, { IconSize, IconSize })) {
             Screens::SetActiveScreen(Screen::Storages);
         }
-        ImGui::SameLine(((spacing + IconSize) * 2) + leftEdge);
+        ImGui::TableNextColumn();
         if (ImGui::ImageButton("AchievementIcon", (void*)(intptr_t)AchievementIcon.TextureId, { IconSize, IconSize })) {
             Screens::SetActiveScreen(Screen::Achievements);
         }
-        
+
+        ImGui::TableNextColumn();
+        ImGui::EndTable();
+
         ImGui::End();
     }
 }

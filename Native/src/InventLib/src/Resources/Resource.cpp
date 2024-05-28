@@ -18,6 +18,14 @@ namespace Invent {
 		}
 	}
 
+	ResourceCollection::ResourceCollection() {
+		auto progress = Progression{};
+        progress.Modifiers.push_back({1, 1});
+        for(auto resource: AllResources) {
+            m_Resources[resource] = {0, 100, progress};
+        }
+    }
+
 	void ResourceCollection::Tick(BaseTime elapsed) {
         for(auto& [name, resource]: m_Resources) {
             resource.Tick(elapsed);
@@ -28,21 +36,21 @@ namespace Invent {
 		auto r = GetRelativeResources(resource);
 		ResourceCollection result{};
 
-		result[r[0]] = static_cast<size_t>(std::pow(10, difficulty + 1));
-		result[r[1]] = result[r[0]] / 5;
-		result[r[2]] = result[r[1]] / 2;
-		result[r[3]] = result[r[2]] / 5;
-		result[r[4]] = result[r[3]] / 2;
+		result[r[0]].Current = static_cast<size_t>(std::pow(10, difficulty + 1));
+		result[r[1]].Current = result[r[0]].Current / 5;
+		result[r[2]].Current = result[r[1]].Current / 2;
+		result[r[3]].Current = result[r[2]].Current / 5;
+		result[r[4]].Current = result[r[3]].Current / 2;
 
 		return result;
 	}
 
-	s64& ResourceCollection::operator[](ResourceName resource) {
-		return m_Resources[resource].Current;
+	Resource& ResourceCollection::operator[](ResourceName resource) {
+		return m_Resources[resource];
 	}
 
-	const s64& ResourceCollection::operator[](ResourceName resource) const {
-		return m_Resources.at(resource).Current;
+	const Resource& ResourceCollection::operator[](ResourceName resource) const {
+		return m_Resources.at(resource);
 	}
 
 	bool ResourceCollection::operator<(const ResourceCollection& rhs) const {

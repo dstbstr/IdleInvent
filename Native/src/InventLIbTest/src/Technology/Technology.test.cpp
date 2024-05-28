@@ -52,8 +52,8 @@ namespace Invent {
 	}
 
 	TEST_F(TechnologyTest, Unlockables_AfterUnlockingAnInvention_StillContainsOtherUnlockables) {
-		gameState->CurrentResources[ResourceName::Influence] = 1000;
-		gameState->CurrentResources[ResourceName::Wealth] = 1;
+		gameState->CurrentResources[ResourceName::Influence].Current = 1000;
+		gameState->CurrentResources[ResourceName::Wealth].Current = 1;
 
 		Unlockables::Tick();
 
@@ -61,8 +61,8 @@ namespace Invent {
 	}
 
 	TEST_F(TechnologyTest, Purchasables_AfterUnlockingAnInvention_ContainsOneElement) {
-		gameState->CurrentResources[ResourceName::Influence] = 1000;
-		gameState->CurrentResources[ResourceName::Wealth] = 1;
+		gameState->CurrentResources[ResourceName::Influence].Current = 1000;
+		gameState->CurrentResources[ResourceName::Wealth].Current = 1;
 
 		Unlockables::Tick();
 
@@ -70,9 +70,9 @@ namespace Invent {
 	}
 
 	TEST_F(TechnologyTest, Unlockables_AfterPurchasingStoneAgeTech_RemovesOtherStoneAgeTechs) {
-		gameState->CurrentResources[ResourceName::Influence] = 1000;
-		gameState->CurrentResources[ResourceName::Wealth] = 2;
-		gameState->CurrentResources[ResourceName::Knowledge] = 1;
+		gameState->CurrentResources[ResourceName::Influence].Current = 1000;
+		gameState->CurrentResources[ResourceName::Wealth].Current = 2;
+		gameState->CurrentResources[ResourceName::Knowledge].Current = 1;
 
 		std::vector<std::string> unlockableNames = *unlockables | std::views::keys | std::ranges::to<std::vector<std::string>>();
 		Unlockables::Tick();

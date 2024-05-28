@@ -30,7 +30,7 @@ namespace Invent {
         ResourceCollection LargeCollection = []() {
             ResourceCollection collection;
             for(auto resource: AllResources) {
-                collection[resource] = 1000;
+                collection[resource].Current = 1000;
             }
             return collection;
         }();
@@ -42,24 +42,20 @@ namespace Invent {
     };
 
     TEST_F(PurchasableTest, CanPurchase_MissingResources_ReturnsFalse) {
-        auto p = TestPurchasable{LargeCollection, []() {
-                                 }};
+        auto p = TestPurchasable{LargeCollection, []() {}};
 
         ASSERT_FALSE(p.CanPurchase(EmptyCollection));
     }
 
     TEST_F(PurchasableTest, CanPurchase_WithResources_ReturnsTrue) {
-        auto p = TestPurchasable{EmptyCollection, []() {
-                                 }};
+        auto p = TestPurchasable{EmptyCollection, []() {}};
 
         ASSERT_TRUE(p.CanPurchase(LargeCollection));
     }
 
     TEST_F(PurchasableTest, Purchase_WithoutResources_TriggersOnPurchase) {
         bool purchased = false;
-        auto p = TestPurchasable{EmptyCollection, [&purchased]() {
-                                     purchased = true;
-                                 }};
+        auto p = TestPurchasable{EmptyCollection, [&purchased]() {purchased = true;}};
         RegisterPurchasable(p);
 
         p.Purchase(EmptyCollection);
@@ -68,22 +64,20 @@ namespace Invent {
     }
 
     TEST_F(PurchasableTest, Purchase_WithoutResources_SetsValuesNegative) {
-        auto p = TestPurchasable{LargeCollection, []() {
-                                 }};
+        auto p = TestPurchasable{LargeCollection, []() {}};
         RegisterPurchasable(p);
 
         p.Purchase(EmptyCollection);
 
-        ASSERT_EQ(EmptyCollection[ResourceName::Influence], -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Knowledge], -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Labor], -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Magic], -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Wealth], -1000);
+        ASSERT_EQ(EmptyCollection[ResourceName::Influence].Current, -1000);
+        ASSERT_EQ(EmptyCollection[ResourceName::Knowledge].Current, -1000);
+        ASSERT_EQ(EmptyCollection[ResourceName::Labor].Current, -1000);
+        ASSERT_EQ(EmptyCollection[ResourceName::Magic].Current, -1000);
+        ASSERT_EQ(EmptyCollection[ResourceName::Wealth].Current, -1000);
     }
 
     TEST_F(PurchasableTest, Purchasables_AfterPurchase_DoesNotContainPurchasable) {
-        auto p = TestPurchasable{EmptyCollection, []() {
-                                 }};
+        auto p = TestPurchasable{EmptyCollection, []() {}};
         RegisterPurchasable(p);
         ASSERT_TRUE(IsRegistered(p));
         p.Purchase(LargeCollection);
@@ -94,9 +88,7 @@ namespace Invent {
     TEST_F(PurchasableTest, TryPurchase_WithoutResources_DoesNotTriggerPurchase) {
         ServiceLocator::Get().CreateIfMissing<GameState>();
         bool purchased = false;
-        auto p = TestPurchasable{LargeCollection, [&purchased]() {
-                                     purchased = true;
-                                 }};
+        auto p = TestPurchasable{LargeCollection, [&purchased]() {purchased = true;}};
         RegisterPurchasable(p);
 
         Purchasables::TryPurchase(p.Name);
@@ -107,9 +99,7 @@ namespace Invent {
 
     TEST_F(PurchasableTest, TryPurchase_WithResources_TriggersPurchase) {
         bool purchased = false;
-        auto p = TestPurchasable{EmptyCollection, [&purchased]() {
-                                     purchased = true;
-                                 }};
+        auto p = TestPurchasable{EmptyCollection, [&purchased]() {purchased = true;}};
         RegisterPurchasable(p);
 
         Purchasables::TryPurchase(p.Name);

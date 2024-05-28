@@ -207,7 +207,7 @@ namespace Graphics {
 
     void Render() {
         ImGuiIO& io = ImGui::GetIO();
-        static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        static ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
         // Start the ImGui frame
         ImGui_ImplOpenGL3_NewFrame();

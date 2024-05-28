@@ -26,7 +26,7 @@ namespace {
         "%s\n" // Msg
     };
 
-    constexpr auto LogTag = "Minimalist";
+    constexpr auto LogTag = "IdleInvent";
 } // namespace
 
 GameLog::GameLog(Log::Filter filter) : ISink(filter) {}

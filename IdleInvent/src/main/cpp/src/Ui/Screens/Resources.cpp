@@ -10,19 +10,23 @@
 
 #include <format>
 
+namespace {
+    Invent::GameState* gameState{nullptr};
+}
+
 namespace Ui::Screens::Resources {
     bool Initialize() {
+        gameState = &ServiceLocator::Get().GetRequired<Invent::GameState>();
         return true;
     }
     void Render() { 
-        static auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
-
-        ImGui::Begin("ResourceScreen", nullptr, BaseFlags);
-        ImGui::Text("%s", std::format("Labor: {}", gameState.CurrentResources[Invent::ResourceName::Labor]).c_str());
-        ImGui::Text("%s", std::format("Knowledge: {}", gameState.CurrentResources[Invent::ResourceName::Knowledge]).c_str());
-        ImGui::Text("%s", std::format("Wealth: {}", gameState.CurrentResources[Invent::ResourceName::Wealth]).c_str());
-        ImGui::Text("%s", std::format("Influence: {}", gameState.CurrentResources[Invent::ResourceName::Influence]).c_str());
-        ImGui::Text("%s", std::format("Magic: {}", gameState.CurrentResources[Invent::ResourceName::Magic]).c_str());
+        ImGui::Begin("ActiveResources", nullptr, BaseFlags);
+        for(auto& [name, resource] : gameState->CurrentResources) {
+            ImGui::Checkbox(ToString(name).c_str(), &resource.Progress.Active);
+        
+        }
         ImGui::End();
+
+#undef DoResource
     }
 }

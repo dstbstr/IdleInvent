@@ -17,8 +17,13 @@ namespace Invent {
 
 	struct Progression {
 		std::vector<Modifier> Modifiers{};
+        bool Active{false};
 
 		constexpr s64 GetProgress(BaseTime elapsed) {
+            if(!Active) {
+                return 0;
+            }
+            
             Modifier bonuses = {};
             for(int i = static_cast<int>(Modifiers.size() - 1); i >= 0; i--) {
                 auto& mod = Modifiers[i];

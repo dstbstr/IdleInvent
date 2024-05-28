@@ -27,17 +27,17 @@ namespace Ui {
         }
 
         auto [width, height] = Graphics::GetScreenSize();
-        auto topBorderHeight = height / 5;
-        auto topBorderPos = topBorderHeight;
-        auto bottomBorderHeight = height / 5;
-        auto bottomBorderPos = height - bottomBorderHeight;
+        auto topBorderHeight = height / 10;
+        auto topBorderPos = topBorderHeight + 50;
+        auto bottomBorderHeight = height / 10;
+        auto bottomBorderPos = height - bottomBorderHeight - 50;
 
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowPos(ImVec2(0, 50));
         ImGui::SetNextWindowSize(ImVec2(width, topBorderHeight));
         TopBar::Render();
 
         ImGui::SetNextWindowPos(ImVec2(0, topBorderPos));
-        ImGui::SetNextWindowSize(ImVec2(width, height - bottomBorderHeight - topBorderHeight));
+        ImGui::SetNextWindowSize(ImVec2(width, height - bottomBorderHeight - topBorderHeight - 100));
         Screens::RenderActiveScreen();
 
         ImGui::SetNextWindowPos(ImVec2(0, bottomBorderPos));

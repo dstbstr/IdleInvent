@@ -7,7 +7,7 @@ namespace Invent {
     ResourceCollection MakeCollection(s64 count) {
         ResourceCollection collection;
         for(auto resource: AllResources) {
-            collection[resource] = count;
+            collection[resource].Current = count;
         }
         return collection;
     }
@@ -15,7 +15,7 @@ namespace Invent {
     TEST(ResourceCollection, ResourceCollection_OnConstruction_HasAllResources) {
         ResourceCollection collection;
         for(auto resource: AllResources) {
-            ASSERT_EQ(collection[resource], 0);
+            ASSERT_EQ(collection[resource].Current, 0);
         }
     }
 
@@ -27,7 +27,7 @@ namespace Invent {
     TEST(ResourceCollection, Equals_WithDifferentResources_ReturnsFalse) {
         ResourceCollection collection1;
         ResourceCollection collection2;
-        collection2[ResourceName::Labor] = 1;
+        collection2[ResourceName::Labor].Current = 1;
         ASSERT_FALSE(collection1 == collection2);
     }
 
@@ -45,15 +45,15 @@ namespace Invent {
     TEST(ResourceCollection, LessThan_WithMoreResources_ReturnsFalse) {
         ResourceCollection collection1;
         ResourceCollection collection2;
-        collection1[ResourceName::Labor] = 1;
+        collection1[ResourceName::Labor].Current = 1;
         ASSERT_FALSE(collection1 < collection2);
     }
 
     TEST(ResourceCollection, LessThan_WithLessAndMoreResources_ReturnsFalse) {
         ResourceCollection collection1;
         ResourceCollection collection2;
-        collection1[ResourceName::Labor] = 1;
-        collection2[ResourceName::Knowledge] = 1;
+        collection1[ResourceName::Labor].Current = 1;
+        collection2[ResourceName::Knowledge].Current = 1;
 
         // Note: This property means these cannot be sorted
         ASSERT_FALSE(collection1 < collection2);

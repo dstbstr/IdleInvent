@@ -18,6 +18,17 @@ namespace Invent {
 		Magic
 	};
 
+	constexpr std::string ToString(ResourceName name) {
+		switch (name) {
+		case ResourceName::Labor: return "Labor";
+		case ResourceName::Knowledge: return "Knowledge";
+		case ResourceName::Wealth: return "Wealth";
+		case ResourceName::Influence: return "Influence";
+		case ResourceName::Magic: return "Magic";
+		default: return "Unset";
+		}
+	}
+
 	inline static const std::vector<ResourceName> AllResources = {
 		ResourceName::Labor,
 		ResourceName::Knowledge,
@@ -41,18 +52,12 @@ namespace Invent {
 		std::unordered_map<ResourceName, Resource> m_Resources{};
 
 	public:
-		ResourceCollection() {
-			for (auto resource : AllResources) {
-                m_Resources[resource] = {};
-			}
-		}
+        ResourceCollection();
 
 		void Tick(BaseTime elapsed);
-        void AddProgressMod(ResourceName resource, s64 add, f32 mul);
-		void AddTempMod(ResourceName resource, s64 add, f32 mul);
 
-		s64& operator[](ResourceName resource);
-		const s64& operator[](ResourceName resource) const;
+		Resource& operator[](ResourceName resource);
+		const Resource& operator[](ResourceName resource) const;
 
 		bool operator==(const ResourceCollection& rhs) const;
 		bool operator!=(const ResourceCollection& rhs) const;
@@ -72,6 +77,16 @@ namespace Invent {
 
 		ResourceCollection& operator/=(size_t divisor);
 		ResourceCollection operator/(size_t divisor);
+
+		//begin/end
+		auto begin() { return m_Resources.begin(); }
+		auto end() { return m_Resources.end(); }
+		auto begin() const { return m_Resources.begin(); }
+		auto end() const { return m_Resources.end(); }
+		auto cbegin() { return m_Resources.cbegin(); }
+		auto cend() { return m_Resources.cend(); }
+
+		size_t size() const { return m_Resources.size(); }
 	};
 
 	ResourceCollection GetResourceCosts(ResourceName resource, size_t difficulty);
