@@ -126,7 +126,7 @@ namespace {
 			}
 
 			for (auto i = 0u; i < limit; i++) {
-				result.push_back(CreatePermanent(r[i], target, bonuses[i]));
+				result.push_back(Create(r[i], target, bonuses[i], OneYear * 100));
 			}
 		}
 		else {
@@ -136,7 +136,7 @@ namespace {
 				bonuses[i % limit] = Buff::Next(bonuses[i % limit]);
 			}
 			for (auto i = 0u; i < limit; i++) {
-				result.push_back(CreatePermanent(r[i], target, bonuses[i]));
+				result.push_back(Create(r[i], target, bonuses[i], OneYear * 100));
 			}
 		}
 
@@ -148,28 +148,28 @@ namespace {
 
 		if (level == 2) {
 			switch (age) {
-			case 1: return { CreateTemp([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::War); }) };
-			case 2: return { CreateTemp([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Famine); }) };
-			case 3: return { CreateTemp([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Plague); }) };
-			case 4: return { CreateTemp([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::TradeDeal); }) };
-			case 5: return { CreateTemp([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Alliance); }) };
-			case 6: return { CreateTemp([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Prosperity); }) };
-			case 7: return { CreateTemp([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::War); }) };
-			case 8: return { CreateTemp([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Famine); }) };
-			case 9: return { CreateTemp([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Plague); }) };
-			case 10: return { CreateTemp([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::TradeDeal); }) };
-			case 11: return { CreateTemp([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Alliance); }) };
-			case 12: return { CreateTemp([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Prosperity); }) };
-			case 13: return { CreateTemp([]() {
+			case 1: return { Create([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::War); }, OneInstant) };
+			case 2: return { Create([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Famine); }, OneInstant) };
+			case 3: return { Create([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Plague); }, OneInstant) };
+			case 4: return { Create([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::TradeDeal); }, OneInstant) };
+			case 5: return { Create([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Alliance); }, OneInstant) };
+			case 6: return { Create([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Prosperity); }, OneInstant) };
+			case 7: return { Create([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::War); }, OneInstant) };
+			case 8: return { Create([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Famine); }, OneInstant) };
+			case 9: return { Create([]() { RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Plague); }, OneInstant) };
+			case 10: return { Create([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::TradeDeal); }, OneInstant) };
+			case 11: return { Create([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Alliance); }, OneInstant) };
+			case 12: return { Create([]() { RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Prosperity); }, OneInstant) };
+			case 13: return { Create([]() {
 				RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::War);
 				RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Famine);
 				RandomEvents::MakeLessCommon(RandomEvents::InfluenceEvents::Plague);
-				}) };
-			case 14: return { CreateTemp([]() {
+				}, OneInstant )};
+			case 14: return { Create([]() {
 				RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::TradeDeal);
 				RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Alliance);
 				RandomEvents::MakeMoreCommon(RandomEvents::InfluenceEvents::Prosperity);
-				}) };
+				}, OneInstant) };
 
 			}
 		}

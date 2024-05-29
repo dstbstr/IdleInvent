@@ -1,5 +1,6 @@
 #include "Ui/Screens.h"
 #include "Ui/Screens/Achievements.h"
+#include "Ui/Screens/Purchases.h"
 #include "Ui/Screens/Resources.h"
 #include "Ui/Screens/Splash.h"
 #include "Ui/Screens/Storages.h"
@@ -16,6 +17,7 @@ namespace Ui::Screens {
             Resources::Initialize() &&
             Storages::Initialize() &&
             Achievements::Initialize() &&
+            Purchases::Initialize() &&
             Settings::Initialize();
     }
 
@@ -32,6 +34,9 @@ namespace Ui::Screens {
                 break;
             case Screen::Achievements:
                 Achievements::Render();
+                break;
+            case Screen::Purchases:
+                Purchases::Render();
                 break;
             case Screen::Settings:
                 Settings::Render();

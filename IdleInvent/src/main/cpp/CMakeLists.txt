@@ -96,6 +96,7 @@ PRIVATE
     src/Ui/TopBar.cpp
     src/Ui/Screens.cpp
     src/Ui/Screens/Achievements.cpp
+    src/Ui/Screens/Purchases.cpp
     src/Ui/Screens/Resources.cpp
     src/Ui/Screens/Settings.cpp
     src/Ui/Screens/Splash.cpp

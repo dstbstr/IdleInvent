@@ -9,16 +9,12 @@ namespace {
 			return store;
 		}
 
-		static void Initialize() {			
-			ServiceLocator::Get().CreateIfMissing<PubSub<Log::Entry>>();
-		}
-
 		void Flush() {
 			auto* pubSub = ServiceLocator::Get().Get<PubSub<Log::Entry>>();
-			if (!pubSub) return;
-
-			for (const auto& log : m_Logs) {
-				pubSub->Publish(log);
+			if(pubSub) {
+				for (const auto& log : m_Logs) {
+					pubSub->Publish(log);
+				}
 			}
 
 			m_Logs.clear();
@@ -39,10 +35,6 @@ namespace {
 }
 
 namespace Log {
-	void Initialize() {
-		Store::Initialize();
-	}
-
 	void Flush() {
 		Store::Get().Flush();
 	}

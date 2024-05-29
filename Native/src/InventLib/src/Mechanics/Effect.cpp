@@ -2,62 +2,29 @@
 
 namespace Invent {
 	namespace Effects {
-		Effect CreateTemp(ResourceName resource, EffectTarget target, s64 add) {
+		Effect Create(ResourceName resource, EffectTarget target, s64 add, BaseTime duration) {
 			return Effect{
-				.Sentiment = add > 0 ? EffectSentiment::Positive : EffectSentiment::Negative,
 				.Resource = resource,
-				.Target = target,
-				.Permanent = false,
+				.Target = target, 
+				.Duration = duration,
 				.Add = add
 			};
 		}
 
-		Effect CreateTemp(ResourceName resource, EffectTarget target, f32 mul) {
+		Effect Create(ResourceName resource, EffectTarget target, f32 mul, BaseTime duration) {
 			return Effect{
-				.Sentiment = mul > 1.0f ? EffectSentiment::Positive : EffectSentiment::Negative,
 				.Resource = resource,
-				.Target = target,
-				.Permanent = false,
+				.Target = target, 
+				.Duration = duration,
 				.Mul = mul
 			};
 		}
 
-		Effect CreateTemp(std::function<void()> effect, EffectSentiment sentiment) {
+		Effect Create(std::function<void()> effect, BaseTime duration) {
 			return Effect{
-				.Sentiment = sentiment,
 				.Resource = ResourceName::Unset,
-				.Target = EffectTarget::Resources, // not really though
-				.Permanent = false,
-				.OtherEffects = effect
-			};
-		}
-
-		Effect CreatePermanent(ResourceName resource, EffectTarget target, s64 add) {
-			return Effect{
-				.Sentiment = add > 0 ? EffectSentiment::Positive : EffectSentiment::Negative,
-				.Resource = resource,
-				.Target = target,
-				.Permanent = true,
-				.Add = add
-			};
-		}
-
-		Effect CreatePermanent(ResourceName resource, EffectTarget target, f32 mul) {
-			return Effect{
-				.Sentiment = mul > 1.0f ? EffectSentiment::Positive : EffectSentiment::Negative,
-				.Resource = resource,
-				.Target = target,
-				.Permanent = true,
-				.Mul = mul
-			};
-		}
-
-		Effect CreatePermanent(std::function<void()> effect, EffectSentiment sentiment) {
-			return Effect{
-				.Sentiment = sentiment,
-				.Resource = ResourceName::Unset,
-				.Target = EffectTarget::Resources, // not really though
-				.Permanent = true,
+				.Target = EffectTarget::Unset,
+                .Duration = duration,
 				.OtherEffects = effect
 			};
 		}

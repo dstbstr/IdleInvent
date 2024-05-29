@@ -78,20 +78,33 @@ namespace Invent {
 
 		auto& services = ServiceLocator::Get();
 		auto& achievements = services.GetOrCreate<PubSub<Achievement>>();
-		achievements.Subscribe([this](const Achievement& achievement) {
+        m_AchivementHandle = achievements.Subscribe([this](const Achievement& achievement) {
 			OnAchievement(*this, achievement);
 		});
 
 		auto& technologies = services.GetOrCreate<PubSub<InventionLevel>>();
-		technologies.Subscribe([this](const InventionLevel& inventionLevel) {
+		m_TechHandle = technologies.Subscribe([this](const InventionLevel& inventionLevel) {
 			OnTechnology(*this, inventionLevel);
 		});
 
 		auto& randomEvents = services.GetOrCreate<PubSub<RandomEvent>>();
-		randomEvents.Subscribe([this](const RandomEvent& randomEvent) {
+		m_EventHandle = randomEvents.Subscribe([this](const RandomEvent& randomEvent) {
 			OnRandomEvent(*this, randomEvent);
 		});
 	}
+
+	GameState::~GameState() {
+        auto& services = ServiceLocator::Get();
+        if(auto* ps = services.Get<PubSub<Achievement>>()) {
+			ps->Unsubscribe(m_AchivementHandle);
+		}
+        if(auto* ps = services.Get<PubSub<InventionLevel>>()) {
+			ps->Unsubscribe(m_TechHandle);
+		}
+		if (auto* ps = services.Get<PubSub<RandomEvent>>()) {
+			ps->Unsubscribe(m_EventHandle);
+		}
+    }
 
 	void GameState::Tick(std::chrono::milliseconds elapsed) {
 		CurrentResources.Tick(elapsed);

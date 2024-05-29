@@ -41,6 +41,29 @@ TEST_F(ServiceLocatorTest, Get_AfterDifferentQueryAndSet_ReturnsSetValue) {
     ASSERT_FALSE(loc.IsSet<long>());
 }
 
+TEST_F(ServiceLocatorTest, ResetAll_RemovesEntries_InReverse) {
+    static std::vector<std::string> order;
+    struct A {
+        ~A() {
+            order.push_back("A");
+        }
+    };
+    struct B {
+        ~B() {
+			order.push_back("B");
+		}
+	};
+
+    loc.Set<A>();
+    loc.Set<B>();
+
+	loc.ResetAll();
+
+    ASSERT_EQ(2, order.size());
+    ASSERT_EQ("B", order[0]);
+    ASSERT_EQ("A", order[1]);
+}
+
 struct IFoo {
     virtual ~IFoo() = default;
     virtual int Get() const = 0;

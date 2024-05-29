@@ -16,14 +16,12 @@ struct TestLogSink : public Log::ISink {
 
 struct LoggingTest : public testing::Test {
 	void SetUp() override {
-		Log::Initialize();
-
 		WarnFilter.WithLevel(Log::Level::Warning);
 		ErrorFilter.WithLevel(Log::Level::Error);
 	}
 
 	void TearDown() override {
-		
+		ServiceLocator::Get().ResetAll();
 	}
 
 	bool DoesLog(Log::Level messageLevel, Log::Filter filter) {

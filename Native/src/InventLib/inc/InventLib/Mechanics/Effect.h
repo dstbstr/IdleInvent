@@ -7,20 +7,15 @@
 
 namespace Invent {
 	enum struct EffectTarget {
+		Unset,
 		Resources,
 		Storages
 	};
 
-	enum struct EffectSentiment {
-		Positive,
-		Negative,
-	};
-
 	struct Effect {
-		EffectSentiment Sentiment;
 		ResourceName Resource;
 		EffectTarget Target;
-		bool Permanent{ false };
+        BaseTime Duration;
 
 		s64 Add{ 0 };
 		f32 Mul{ 1.0f };
@@ -28,13 +23,9 @@ namespace Invent {
 	};
 
 	namespace Effects {
-		Effect CreateTemp(ResourceName resource, EffectTarget target, s64 add);
-		Effect CreateTemp(ResourceName resource, EffectTarget target, f32 mul);
-		Effect CreateTemp(std::function<void()> effect);
-
-		Effect CreatePermanent(ResourceName resource, EffectTarget target, s64 add);
-		Effect CreatePermanent(ResourceName resource, EffectTarget target, f32 mul);
-		Effect CreatePermanent(std::function<void()> effect);
+		Effect Create(ResourceName resource, EffectTarget target, s64 add, BaseTime duration);
+		Effect Create(ResourceName resource, EffectTarget target, f32 mul, BaseTime duration);
+		Effect Create(std::function<void()> effect, BaseTime duration);
 
 		namespace Buff {
 			namespace Add {

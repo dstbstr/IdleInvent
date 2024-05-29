@@ -51,19 +51,19 @@ namespace {
 		switch (level) {
 		case 0:
 			return {
-				{CreatePermanent(r[0], EffectTarget::Resources, Buff::Add::Small)}
+				{Create(r[0], EffectTarget::Resources, Buff::Add::Small, Forever)}
 			};
 		case 1:
 			return {
-				{CreatePermanent(r[0], EffectTarget::Resources, Buff::Add::Medium)},
-				{CreatePermanent(r[1], EffectTarget::Resources, Buff::Add::Small)},
-				{CreatePermanent(r[2], EffectTarget::Resources, Buff::Add::Small)}
+				{Create(r[0], EffectTarget::Resources, Buff::Add::Medium, Forever)},
+				{Create(r[1], EffectTarget::Resources, Buff::Add::Small, Forever)},
+				{Create(r[2], EffectTarget::Resources, Buff::Add::Small, Forever)}
 			};
 		case 2:
 			return {
-				{CreatePermanent(r[0], EffectTarget::Resources, Buff::Mul::Large)},
-				{CreatePermanent(r[1], EffectTarget::Resources, Buff::Mul::Medium)},
-				{CreatePermanent(r[2], EffectTarget::Resources, Buff::Mul::Small)}
+				{Create(r[0], EffectTarget::Resources, Buff::Mul::Large, Forever)},
+				{Create(r[1], EffectTarget::Resources, Buff::Mul::Medium, Forever)},
+				{Create(r[2], EffectTarget::Resources, Buff::Mul::Small, Forever)}
 			};
 		default:
 			return {};

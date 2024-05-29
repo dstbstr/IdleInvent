@@ -6,9 +6,6 @@
 #include <format>
 
 #include "Core/Instrumentation/DebugContext.h"
-#include "Core/DesignPatterns/ServiceLocator.h"
-
-struct ServiceLocator;
 
 namespace Log {
 	enum struct Level {

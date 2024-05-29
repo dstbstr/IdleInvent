@@ -10,34 +10,31 @@ namespace Invent {
 			RandomEvent Famine{
 				.Headline = "Famine",
 				.Description = "Our food stores are gone.  You look tasty.",
-				.Duration = 3,
 				.Effects = {
-					CreateTemp(ResourceName::Labor, EffectTarget::Resources, Penalty::Add::XLarge),
-					CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Penalty::Add::XLarge)
+					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Add::XLarge, OneSecond * 3),
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Add::XLarge, OneSecond * 3)
 				}
 			};
 
 			RandomEvent War{
 				.Headline = "War!",
 				.Description = "Well, they've declared war on us.  Guess we're passed the 'can we talk about this' stage.",
-				.Duration = 20,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Penalty::Mul::Large),
-					Effects::CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::XLarge),
-					Effects::CreateTemp(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large)
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Penalty::Mul::Large, OneSecond * 20),
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::XLarge, OneSecond * 20),
+					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large, OneSecond * 20)
 				}
 			};
 
 			RandomEvent Plague{
 				.Headline = "Plague!",
 				.Description = "We've been hiding from disease for too long, and now it's found us.",
-				.Duration = 100,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Small),
-					Effects::CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::Small),
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Penalty::Mul::Small),
-					Effects::CreateTemp(ResourceName::Knowledge, EffectTarget::Resources, Penalty::Mul::Small),
-					Effects::CreateTemp(ResourceName::Magic, EffectTarget::Resources, Penalty::Mul::Small)
+					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Knowledge, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Magic, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2)
 				}
 			};
 
@@ -45,31 +42,28 @@ namespace Invent {
 			RandomEvent TradeDeal{
 				.Headline = "Trade Deal",
 				.Description = "If you scratch my back, I'll scratch yours.",
-				.Duration = 10,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Medium),
-					Effects::CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Small)
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 10),
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Small, OneSecond * 10)
 				}
 			};
 
 			RandomEvent Alliance{
 				.Headline = "Alliance",
 				.Description = "I'd like to make you an offer you can't refuse.",
-				.Duration = 100,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium),
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Small)
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium, OneMinute * 2),
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Small, OneMinute * 2)
 				}
 			};
 
 			RandomEvent Prosperity{
 				.Headline = "Prosperity",
 				.Description = "We find ourselves on the receiving end of other's good fortune.",
-				.Duration = 5,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Large),
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Large),
-					Effects::CreateTemp(ResourceName::Knowledge, EffectTarget::Resources, Buff::Mul::Large)
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 5),
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 5),
+					Effects::Create(ResourceName::Knowledge, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 5)
 				}
 			};
 
@@ -77,34 +71,31 @@ namespace Invent {
 			RandomEvent Revolution{
 				.Headline = "Revolution",
 				.Description = "The pitchforks are coming; this will certainly change things",
-				.Duration = 10,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium),
-					Effects::CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::XLarge),
-					Effects::CreateTemp(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Medium),
-					Effects::CreateTemp(ResourceName::Knowledge, EffectTarget::Resources, Buff::Mul::Medium)
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 10),
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::XLarge, OneSecond * 10),
+					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Medium, OneSecond * 10),
+					Effects::Create(ResourceName::Knowledge, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 10)
 				}
 			};
 
 			RandomEvent Coronation{
 				.Headline = "Coronation",
 				.Description = "A new royal has just been crowned.  Let's party!",
-				.Duration = 1,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::XLarge),
-					Effects::CreateTemp(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::XLarge),
-					Effects::CreateTemp(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large)
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::XLarge, OneSecond),
+					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::XLarge, OneSecond),
+					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large, OneSecond)
 				}
 			};
 
 			RandomEvent Wedding{
 				.Headline = "Wedding",
 				.Description = "I always cry at weddings, especially when they ruin society.",
-				.Duration = 3,
 				.Effects = {
-					Effects::CreateTemp(ResourceName::Magic, EffectTarget::Resources, Buff::Mul::Large),
-					Effects::CreateTemp(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large),
-					Effects::CreateTemp(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium)
+					Effects::Create(ResourceName::Magic, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 3),
+					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large, OneSecond * 3),
+					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 3)
 				}
 			};
 

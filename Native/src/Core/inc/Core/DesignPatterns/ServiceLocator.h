@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Instrumentation/Logging.h"
+
 #include <memory>
 #include <map>
 
@@ -24,7 +26,7 @@ struct ServiceLocator {
     template<typename TThis, typename TThat, typename... Args>
     void SetThisAsThat(Args&&... args) {
         auto id = TypeId<TThat>();
-        if(services.contains(id)) abort();
+        DR_ASSERT_MSG(!services.contains(id), "Service already set");
 
         services[id] = std::make_shared<TThis>(std::forward<Args>(args)...);
     }
@@ -57,7 +59,11 @@ struct ServiceLocator {
 
     template<typename T>
     T& GetRequired() const {
-        return *static_cast<T*>(services.at(TypeId<T>()).get());
+        auto id = TypeId<T>();
+        DR_ASSERT_MSG(services.contains(id), "Service not set");
+        auto* ptr = static_cast<T*>(services.at(id).get());
+        DR_ASSERT_MSG(ptr, "Service not set");
+        return *ptr;
     }
 
     template<typename T, typename... Args>

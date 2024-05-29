@@ -8,7 +8,7 @@
 namespace Invent {
     struct StorageTest : public ::testing::Test {
 		void SetUp() override {
-			ServiceLocator::Get().Set<GameState>();
+			ServiceLocator::Get().CreateIfMissing<GameState>();
 		}
 
 		void TearDown() override {

@@ -24,7 +24,6 @@ namespace {
 }
 
 Engine::Engine(Platform& platform) {
-    Log::Initialize();
 #ifdef DEBUG
     Log::Info("Debug Mode");
 #else

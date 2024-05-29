@@ -56,7 +56,8 @@ namespace Invent {
 					auto& [current, target] = chance;
 					
 					if(current <= target && current + elapsed >= target) {
-                        ActiveEvent.emplace(event, event.Duration);
+						// TODO: This assumes that all effects have the same duration
+                        ActiveEvent.emplace(event, event.Effects[0].Duration);
                     }
 					else if (current >= EventChances[event]) {
 						current = 0s;

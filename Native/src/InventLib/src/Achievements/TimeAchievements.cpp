@@ -42,7 +42,7 @@ namespace {
 
 	Achievement MakeAchievement(const std::string& name, const std::string description) {
 		auto MakeEffect = [](ResourceName resource) {
-			return Effects::CreatePermanent(resource, EffectTarget::Resources, Effects::Buff::Mul::Small);
+			return Effects::Create(resource, EffectTarget::Resources, Effects::Buff::Mul::Small, OneYear * 100);
 		};
 
 		return Achievement{ .Name = name, .Description = description, .Effects = {

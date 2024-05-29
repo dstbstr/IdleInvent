@@ -1,7 +1,7 @@
 #pragma once
 
 namespace Ui {
-    enum struct Screen { Splash, Resources, Storages, Achievements, Settings };
+    enum struct Screen { Splash, Resources, Storages, Achievements, Purchases, Settings };
 
     namespace Screens {
         bool InitializeScreens();

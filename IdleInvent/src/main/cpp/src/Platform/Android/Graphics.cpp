@@ -194,6 +194,7 @@ namespace Graphics {
     bool LoadImage(const char* file, Image& outImage) {
         stbi_uc* fileData;
         auto dataSize = PlatformPtr->GetAsset(file, (void**)&fileData);
+        if(dataSize == 0) return false;
 
         auto* data = stbi_load_from_memory(fileData, dataSize, &outImage.Width, &outImage.Height, &outImage.Channels, 0);
         if(!data) return false;

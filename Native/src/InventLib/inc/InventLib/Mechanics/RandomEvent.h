@@ -14,8 +14,6 @@ namespace Invent
 	struct RandomEvent {
 		std::string Headline{};
 		std::string Description{};
-		size_t Duration{ 0 };
-
 		std::vector<Effect> Effects{};
 
 		constexpr bool operator==(const RandomEvent& other) const {
