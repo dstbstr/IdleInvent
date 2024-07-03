@@ -1,115 +1,122 @@
 #include "InventLib/GameState/GameState.h"
 
-#include "Core/DesignPatterns/PubSub.h"
+#include "InventLib/Character/Death.h"
 #include "InventLib/Mechanics/Achievement.h"
-#include "InventLib/Technology/Technology.h"
 #include "InventLib/RandomEvents/RandomEvents.h"
+#include "InventLib/Technology/Technology.h"
+#include "InventLib/Technology/TechAge.h"
+
+#include "Core/DesignPatterns/ServiceLocator.h"
+#include "Core/DesignPatterns/PubSub.h"
+
 
 namespace {
 	using namespace Invent;
 
-	void ApplyEffect(GameState& /*gameState*/, const Effect& /*effect*/) {
-		/*
+	void ApplyEffect(GameState&, const Effect& effect) {
 		if (effect.OtherEffects) effect.OtherEffects();
+        if(effect.Resource == ResourceName::Unset) return;
 
-		switch (effect.Target) {
-		case EffectTarget::ResourceCount: {
-			auto& resource = gameState.CurrentResources[effect.Resource];
-			resource += effect.Add;
-			resource = static_cast<s64>(resource * effect.Mul);
-			break;
-		}
-		case EffectTarget::ResourceProgress: {
-			auto& resourceProgress = [&]() -> Progression& {
-				return effect.Permanent ? gameState.Resources[effect.Resource].Progress : gameState.Resources.at(effect.Resource).TempProgress;
-				}();
-			resourceProgress.AddMods.push_back(effect.Add);
-			resourceProgress.MulMods.push_back(effect.Mul);
-			break;
-		}
-		case EffectTarget::StorageExp: {
-			auto& exp = gameState.Storages.at(effect.Resource).CurrentExp;
-			exp += effect.Add;
-			exp = static_cast<s64>(exp * effect.Mul);
-			break;
-		}
-		case EffectTarget::StorageProgress: {
-			auto& storageProgress = [&]() -> Progression& {
-				return effect.Permanent ? gameState.Storages.at(effect.Resource).ExpProgress : gameState.Storages.at(effect.Resource).TempExpProgress;
-			}();
-
-			storageProgress.AddMods.push_back(effect.Add);
-			storageProgress.MulMods.push_back(effect.Mul);
-			break;
-		}
-		}
-		*/
+        // TODO: Move this to Life
+		//auto mod = Modifier{.Add = effect.Add, .Mul = effect.Mul, .Duration = effect.Duration};
+		//auto& resource = gameState.Character.CurrentResources.at(effect.Resource);
+        //resource.Progress.AddModifier(mod);
 	}
 
-	void OnAchievement(GameState& gameState, const Achievement& achievement) {
-		for (const auto& effect : achievement.Effects) {
-			ApplyEffect(gameState, effect);
-		}
-	}
+	size_t BaseLifeSpan = 25;
 
-	void OnTechnology(Invent::GameState& gameState, const Invent::InventionLevel& invention) {
-		for (const auto& effect : invention.Effects) {
-			ApplyEffect(gameState, effect);
-		}
-	}
+	auto DecayTimer = BaseTime::zero();
+	auto DecayFrequency = OneGameYear;
+	auto DecayAmount = 0.9;
 
-	void OnRandomEvent(Invent::GameState& gameState, const Invent::RandomEvent& randomEvent) {
-		for (const auto& effect : randomEvent.Effects) {
-			ApplyEffect(gameState, effect);
-		}
+	void TickDecay(BaseTime elapsed, StorageCollection& storages) {
+        DecayTimer += elapsed;
+        if(DecayTimer < DecayFrequency) return;
+        DecayTimer -= DecayFrequency;
+
+        for(auto& [name, storage]: storages) {
+            storage.Stored = static_cast<size_t>(storage.Stored * DecayAmount);
+        }
 	}
 }
 
 namespace Invent {
-	// GameState is a global state object which lives for the duration of the application
-	// This means that the ServiceLocator will be shutting down when this is destroyed
-	// So we can't unsubscribe from the PubSubs, so we don't bother to capture the subscription handles
-	GameState::GameState() {
-        auto storageAdvancement = Advancement{"", AdvancementCosts::MakePunctuated<10>(AdvancementCosts::Logarithmic<10>)};
-		for (auto name : AllResources) {
-            storageAdvancement.Name = ToString(name) + " Storage";
-			Storages.emplace(name, Storage(name, storageAdvancement));
-		}
+	GameState::GameState() : CurrentLife() {
+        SetupSubscriptions();
+	}
 
-		auto& services = ServiceLocator::Get();
-		auto& achievements = services.GetOrCreate<PubSub<Achievement>>();
-        m_AchivementHandle = achievements.Subscribe([this](const Achievement& achievement) {
-			OnAchievement(*this, achievement);
-		});
 
-		auto& technologies = services.GetOrCreate<PubSub<InventionLevel>>();
-		m_TechHandle = technologies.Subscribe([this](const InventionLevel& inventionLevel) {
-			OnTechnology(*this, inventionLevel);
-		});
+	void GameState::Load(const GameStateSave& save) {
+        //Character.Load(save.CharacterSave);
+		TimeElapsed = save.ElapsedSeconds * OneSecond;
+		CurrentRunElapsed = save.RunElapsedSeconds * OneSecond;
 
-		auto& randomEvents = services.GetOrCreate<PubSub<RandomEvent>>();
-		m_EventHandle = randomEvents.Subscribe([this](const RandomEvent& randomEvent) {
-			OnRandomEvent(*this, randomEvent);
-		});
+		Storages = {};
+        Storages.Load(save.StorageSave);
 	}
 
 	GameState::~GameState() {
         auto& services = ServiceLocator::Get();
-        if(auto* ps = services.Get<PubSub<Achievement>>()) {
-			ps->Unsubscribe(m_AchivementHandle);
+        if(auto* ps = services.Get<PubSub<std::vector<Effect>>>()) {
+			ps->Unsubscribe(m_EffectHandle);
 		}
-        if(auto* ps = services.Get<PubSub<InventionLevel>>()) {
-			ps->Unsubscribe(m_TechHandle);
+        if(auto* ps = services.Get<PubSub<Storage>>()) {
+            ps->Unsubscribe(m_StorageHandle);
 		}
-		if (auto* ps = services.Get<PubSub<RandomEvent>>()) {
-			ps->Unsubscribe(m_EventHandle);
+        if(auto* ps = services.Get<PubSub<TechAge>>()) {
+            ps->Unsubscribe(m_AgeHandle);
+        }
+		if(auto* ps = services.Get<PubSub<Death>>()) {
+			ps->Unsubscribe(m_DeathHandle);
 		}
     }
 
-	void GameState::Tick(std::chrono::milliseconds elapsed) {
-		CurrentResources.Tick(elapsed);
-		for (auto& [name, storage] : Storages) {
-				storage.Tick(elapsed);
-		}
+    void GameState::Save(GameStateSave& save) const {
+		save.ElapsedSeconds = static_cast<u32>(TimeElapsed / OneSecond);
+        save.RunElapsedSeconds = static_cast<u32>(CurrentRunElapsed / OneSecond);
+        Storages.Save(save.StorageSave);
+        //Character.Save(save.CharacterSave);
+    }
+
+	void GameState::SetupSubscriptions() {
+        auto& services = ServiceLocator::Get();
+
+        m_EffectHandle =
+            services.GetOrCreate<PubSub<std::vector<Effect>>>().Subscribe([this](const std::vector<Effect>& effects) {
+                for(const auto& effect: effects) {
+                    ApplyEffect(*this, effect);
+                }
+            });
+
+        auto& storegeEvents = services.GetOrCreate<PubSub<InventionLevel>>();
+        m_StorageHandle = storegeEvents.Subscribe([this](const InventionLevel& invention) {
+            if(invention.Name.find("Storage") == std::string::npos) return;
+            Storages.at(invention.Resource).UpgradeCapacity(invention.Level);
+        });
+
+        auto& ageEvents = services.GetOrCreate<PubSub<TechAge>>();
+        m_AgeHandle = ageEvents.Subscribe([](const TechAge& age) {
+            Log::Info(std::format("Age advanced to {}", age.Name));
+            BaseLifeSpan += 5;
+        });
+
+        auto& deathEvents = services.GetOrCreate<PubSub<Death>>();
+        m_DeathHandle = deathEvents.Subscribe([this](const Death&) {
+            for(const auto& name: AllResources) {
+                auto& resource = CurrentLife.Resources.at(name);
+                resource.Current = Storages.at(name).Stored;
+                Storages.at(name).Stored = 0;
+            }
+            //Character.CharacterDeath = GenerateDeath(BaseLifeSpan);
+            //Character.CurrentAge = 16 * OneGameYear;
+        });
+	}
+
+	void GameState::Tick(BaseTime elapsed) {
+        TimeElapsed += elapsed;
+		CurrentRunElapsed += elapsed;
+		
+        CurrentLife.Tick(elapsed);
+        TickDecay(elapsed, Storages);
 	}
 }

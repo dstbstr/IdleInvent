@@ -33,6 +33,7 @@ GameLog::GameLog(Log::Filter filter) : ISink(filter) {}
 
 void GameLog::Write(const Log::Entry& entry) {
     switch(entry.LogLevel) {
+    case Log::Level::Debug: __android_log_print(ANDROID_LOG_DEBUG, LogTag, InfoLineFormat, entry.Context.FileName.c_str(), entry.Context.LineNumber, entry.Message.c_str()); break;
     case Log::Level::Info: __android_log_print(ANDROID_LOG_INFO, LogTag, InfoLineFormat, entry.Context.FileName.c_str(), entry.Context.LineNumber, entry.Message.c_str()); break;
     case Log::Level::Warning: __android_log_print(ANDROID_LOG_WARN, LogTag, ErrorLineFormat, entry.Context.FileName.c_str(), entry.Context.LineNumber, entry.Context.Function.c_str(), entry.Message.c_str()); break;
     case Log::Level::Error:

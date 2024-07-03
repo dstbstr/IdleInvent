@@ -10,6 +10,8 @@ struct IRandom {
 	virtual size_t GetNext() = 0;
 	virtual size_t GetNext(size_t max) = 0;
 	virtual size_t GetNext(size_t min, size_t max) = 0;
+
+	virtual f32 GetNextFloat() = 0;
 };
 
 struct DefaultRandom : IRandom {
@@ -21,6 +23,10 @@ struct DefaultRandom : IRandom {
 	}
 	size_t GetNext(size_t min, size_t max) override {
 		return dist(gen) % (max - min) + min;
+	}
+
+	f32 GetNextFloat() override {
+		return static_cast<f32>(dist(gen)) / static_cast<f32>(std::numeric_limits<size_t>::max());
 	}
 
 private:

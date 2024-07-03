@@ -1,18 +1,22 @@
-#include "InventLib/Mechanics/Purchasable.h"
-
 #include "CommonTest.h"
+#include "TestGameState.h"
+
+#include "InventLib/Mechanics/Purchasable.h"
 #include "InventLib/GameState/GameState.h"
 
 namespace Invent {
     struct TestPurchasable : public Purchasable {
-        TestPurchasable(ResourceCollection costs, Purchasable::OnPurchaseFn onPurchase) : Purchasable("TestPurchasable", costs, onPurchase) {}
+        TestPurchasable(ResourceCollection costs, Purchasable::OnPurchaseFn onPurchase)
+            : Purchasable("TestPurchasable", "Test Description", "Cost Description", costs, onPurchase) {}
     };
 
     struct PurchasableTest : public testing::Test {
         void SetUp() override {
+            GenerateTestGameState();
             auto& services = ServiceLocator::Get();
             purchasables = &services.GetOrCreate<std::unordered_map<std::string, Purchasable>>();
             gameState = &services.GetOrCreate<GameState>();
+            services.CreateIfMissing<PubSub<FileOperation>>();
         }
 
         void TearDown() override {
@@ -68,12 +72,9 @@ namespace Invent {
         RegisterPurchasable(p);
 
         p.Purchase(EmptyCollection);
-
-        ASSERT_EQ(EmptyCollection[ResourceName::Influence].Current, -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Knowledge].Current, -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Labor].Current, -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Magic].Current, -1000);
-        ASSERT_EQ(EmptyCollection[ResourceName::Wealth].Current, -1000);
+        for (auto resource : SecondaryResources) {
+            ASSERT_EQ(EmptyCollection[resource].Current, -1000);
+        }
     }
 
     TEST_F(PurchasableTest, Purchasables_AfterPurchase_DoesNotContainPurchasable) {

@@ -13,10 +13,10 @@ namespace {
 	std::unordered_map<Invent::RandomEvent, BaseTime> EventChances{};
 	// Event to [current, target]
 	std::unordered_map<RandomEvent, std::pair<BaseTime, BaseTime>> EventCurrentSlot{};
-	std::optional<std::pair<RandomEvent, BaseTime>> ActiveEvent;
+	std::optional<RandomEvent> ActiveEvent;
 
 	size_t GetRandomNumber(size_t max) {
-		static auto& random = ServiceLocator::Get().GetRequired<IRandom>();
+		auto& random = ServiceLocator::Get().GetRequired<IRandom>();
 		return random.GetNext(1, max);
 	}
 }
@@ -29,6 +29,8 @@ namespace Invent {
 			EventChances.emplace(randomEvent, chance);
 			auto triggerTime = BaseTime{GetRandomNumber(chance.count())};
             EventCurrentSlot.emplace(randomEvent, std::make_pair(0s, triggerTime));
+
+			Log::Info(std::format("Registered random event: {} which will trigger in {} seconds", randomEvent.Headline, triggerTime.count() / OneSecond.count()));
 		}
 
 		void UnregisterEvent(const RandomEvent& randomEvent) {
@@ -36,33 +38,35 @@ namespace Invent {
 			EventCurrentSlot.erase(randomEvent);
 		}
 
+		bool IsEventRegistered(const RandomEvent& randomEvent) {
+			return EventChances.contains(randomEvent);
+		}
+
 		BaseTime GetEventChance(const RandomEvent& randomEvent) {
-			return EventChances[randomEvent];
+			return EventChances.at(randomEvent);
 		}
 
 		void Tick(BaseTime elapsed) {
 			if (ActiveEvent.has_value()) {
-				auto& [event, duration] = ActiveEvent.value();
-				if (duration <= 0s) {
-					ActiveEvent.reset();
-				}
-				else {
-					ServiceLocator::Get().GetRequired<PubSub<RandomEvent>>().Publish(event);
-					duration -= elapsed;
-				}
+                ServiceLocator::Get().GetRequired<PubSub<RandomEvent>>().Publish(ActiveEvent.value());
+				ServiceLocator::Get().GetRequired<PubSub<std::vector<Effect>>>().Publish(ActiveEvent.value().Effects);
+				ActiveEvent.reset();
 			}
 			else {
 				for (auto& [event, chance] : EventCurrentSlot) {
 					auto& [current, target] = chance;
 					
 					if(current <= target && current + elapsed >= target) {
-						// TODO: This assumes that all effects have the same duration
-                        ActiveEvent.emplace(event, event.Effects[0].Duration);
+                        ActiveEvent = event;
+						Log::Info(std::format("Triggering random event: {} for {} seconds", event.Headline, std::chrono::duration_cast<std::chrono::seconds>(event.Effects[0].Duration).count()));
                     }
 					else if (current >= EventChances[event]) {
 						current = 0s;
                         target = BaseTime{GetRandomNumber(EventChances[event].count())};
+                        Log::Info(std::format("Reseting random event: {} which will trigger in {} seconds", event.Headline, target.count() / OneSecond.count()));
 					}
+
+					current += elapsed;
 				}
 			}
 		}

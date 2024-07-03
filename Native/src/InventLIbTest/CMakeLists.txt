@@ -30,4 +30,4 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Resources/Resource.tests.cpp
 
   src/Technology/Technology.test.cpp
- "src/Resources/Storage.tests.cpp")
+  "src/Technology/InfluenceTechs.tests.cpp" "inc/TestGameState.h" "src/Resources/Storage.tests.cpp" "src/Mechanics/Progression.tests.cpp" "src/Resources/ResourceConversion.tests.cpp")

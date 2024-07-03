@@ -6,15 +6,8 @@
 #include <functional>
 
 namespace Invent {
-	enum struct EffectTarget {
-		Unset,
-		Resources,
-		Storages
-	};
-
 	struct Effect {
 		ResourceName Resource;
-		EffectTarget Target;
         BaseTime Duration;
 
 		s64 Add{ 0 };
@@ -23,26 +16,26 @@ namespace Invent {
 	};
 
 	namespace Effects {
-		Effect Create(ResourceName resource, EffectTarget target, s64 add, BaseTime duration);
-		Effect Create(ResourceName resource, EffectTarget target, f32 mul, BaseTime duration);
+		Effect Create(ResourceName resource, s64 add, BaseTime duration);
+		Effect Create(ResourceName resource, f32 mul, BaseTime duration);
 		Effect Create(std::function<void()> effect, BaseTime duration);
 
 		namespace Buff {
 			namespace Add {
 				constexpr s64 None = 0;
-				constexpr s64 Small = 10;
-				constexpr s64 Medium = 100;
-				constexpr s64 Large = 1000;
-				constexpr s64 XLarge = 10000;
-				constexpr s64 XXLarge = 100000;
+				constexpr s64 Small = 1;
+				constexpr s64 Medium = 3;
+				constexpr s64 Large = 5;
+				constexpr s64 XLarge = 10;
+				constexpr s64 XXLarge = 25;
 			}
 			namespace Mul {
 				constexpr f32 None = 1.0f;
 				constexpr f32 Small = 1.1f;
-				constexpr f32 Medium = 1.5f;
-				constexpr f32 Large = 2.0f;
-				constexpr f32 XLarge = 3.0f;
-				constexpr f32 XXLarge = 10.0f;
+				constexpr f32 Medium = 1.3f;
+				constexpr f32 Large = 1.5f;
+				constexpr f32 XLarge = 2.f;
+				constexpr f32 XXLarge = 3.f;
 			}
 
 			constexpr s64 Next(s64 current) {
@@ -52,7 +45,7 @@ namespace Invent {
 				case Buff::Add::Medium: return Buff::Add::Large;
 				case Buff::Add::Large: return Buff::Add::XLarge;
 				case Buff::Add::XLarge: return Buff::Add::XXLarge;
-				default: return current * 10;
+				default: return static_cast<s64>(current * 1.5);
 				}
 			}
 			constexpr f32 Next(f32 current) {
@@ -67,16 +60,16 @@ namespace Invent {
 
 		namespace Penalty {
 			namespace Add {
-				constexpr s64 Small = -10;
-				constexpr s64 Medium = -100;
-				constexpr s64 Large = -1000;
-				constexpr s64 XLarge = -10000;
+				constexpr s64 Small = -1;
+				constexpr s64 Medium = -2;
+				constexpr s64 Large = -5;
+				constexpr s64 XLarge = -10;
 			}
 			namespace Mul {
-				constexpr f32 Small = 0.9f;
-				constexpr f32 Medium = 0.5f;
-				constexpr f32 Large = 0.1f;
-				constexpr f32 XLarge = 0.0f;
+				constexpr f32 Small = -0.3f;
+				constexpr f32 Medium = -0.5f;
+				constexpr f32 Large = -1.0f;
+				constexpr f32 XLarge = -2.0f;
 			}
 		}
 	}

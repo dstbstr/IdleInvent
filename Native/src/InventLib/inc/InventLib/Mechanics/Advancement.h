@@ -34,19 +34,23 @@ namespace Invent {
 	}
 	struct Advancement {
 		std::string Name{};
+        size_t InitialCost{0};
 		size_t CurrentLevel{ 1 };
+        size_t MaxLevel{100};
+
 		size_t CurrentExp{ 0 };
 		std::function<size_t(size_t)> NextLevelCost = AdvancementCosts::Logarithmic<2>;
 		size_t ExpToNextLevel{ 0 };
 		Progression Progress{};
 
-		Advancement(const std::string& name, std::function<size_t(size_t)> levelCosts, Progression progress = {}) 
+		Advancement(const std::string& name, size_t maxLevel, std::function<size_t(size_t)> levelCosts, size_t initialLevelCost, Progression progress = {}) 
 			: Name(name)
+			, InitialCost(initialLevelCost)
+			, MaxLevel(maxLevel)
 			, NextLevelCost(levelCosts)
-			, ExpToNextLevel(levelCosts(1))
+			, ExpToNextLevel(initialLevelCost + levelCosts(1))
 			, Progress(progress)
 		{
-			ExpToNextLevel = NextLevelCost(CurrentLevel);
 		}
 
 		void Tick(BaseTime elapsed);

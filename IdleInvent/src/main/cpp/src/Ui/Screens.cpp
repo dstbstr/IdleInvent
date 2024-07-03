@@ -1,9 +1,8 @@
 #include "Ui/Screens.h"
 #include "Ui/Screens/Achievements.h"
 #include "Ui/Screens/Purchases.h"
-#include "Ui/Screens/Resources.h"
+#include "Ui/Screens/Home.h"
 #include "Ui/Screens/Splash.h"
-#include "Ui/Screens/Storages.h"
 #include "Ui/Screens/Settings.h"
 
 namespace {
@@ -13,12 +12,19 @@ namespace {
 namespace Ui::Screens {
 
     bool InitializeScreens() {
-        return 
-            Resources::Initialize() &&
-            Storages::Initialize() &&
+        return
+            Home::Initialize() &&
             Achievements::Initialize() &&
             Purchases::Initialize() &&
             Settings::Initialize();
+    }
+
+    void ShutDownScreens() {
+        Home::ShutDown();
+        Achievements::ShutDown();
+        Purchases::ShutDown();
+        Settings::ShutDown();
+        activeScreen = Screen::Splash;
     }
 
     void RenderActiveScreen() {
@@ -26,11 +32,8 @@ namespace Ui::Screens {
             case Screen::Splash:
                 Splash::Render();
                 break;
-            case Screen::Resources:
-                Resources::Render();
-                break;
-            case Screen::Storages:
-                Storages::Render();
+            case Screen::Home:
+                Home::Render();
                 break;
             case Screen::Achievements:
                 Achievements::Render();

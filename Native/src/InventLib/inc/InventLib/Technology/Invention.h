@@ -11,11 +11,14 @@
 
 namespace Invent {
 	struct InventionLevel {
-		InventionLevel(ResourceName resource, size_t age, size_t level, std::string name, std::string description, const std::vector<Effect>& effects, std::function<void()> extraOnUnlock = {}, std::function<void()> extraOnPurchase = {});
+		InventionLevel(ResourceName resource, size_t age, size_t level, std::string name, std::string description, std::vector<std::string> prereq, const std::vector<Effect>& effects, std::function<void()> extraOnUnlock = {}, std::function<void()> extraOnPurchase = {});
 
 		std::string Name{};
+		ResourceName Resource{ ResourceName::Unset };
+        size_t Age{0};
+        size_t Level{0};
 		std::string Description{};
-		size_t UnlockTechCount{};
+		std::vector<std::string> Prerequisites{};
 		ResourceCollection PurchaseResourceCosts{};
 		ResourceCollection UnlockResourceCosts{};
 		std::vector<Effect> Effects{};
@@ -32,4 +35,8 @@ namespace Invent {
 		Unlockable MakeUnlockable(size_t level) const;
 		Purchasable MakePurchasable(size_t level) const;
 	};
+
+	namespace Inventions {
+        void Reset();
+    } // namespace Inventions
 }

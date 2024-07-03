@@ -1,5 +1,6 @@
 #include "InventLib/Mechanics/Unlockable.h"
 #include "Core/DesignPatterns/PubSub.h"
+#include "Core/Instrumentation/Logging.h"
 
 namespace Invent {
 	bool Unlockable::TryUnlock(std::vector<Unlockable>& outNewUnlockables) {
@@ -7,6 +8,7 @@ namespace Invent {
 			return false;
 		}
 
+		Log::Info("Unlocking: " + Name);
 		auto result = OnUnlock();
 		outNewUnlockables.insert(outNewUnlockables.end(), result.begin(), result.end());
 		return true;
@@ -16,6 +18,7 @@ namespace Invent {
 		void Tick() {
 			auto& unlockables = ServiceLocator::Get().GetRequired<std::unordered_map<std::string, Unlockable>>();
 
+			Log::Debug(std::format("Ticking unlockables: {}", unlockables.size()));
 			std::vector<std::string> unlocked;
 			std::vector<Unlockable> newUnlockables;
 			for (auto& [name, unlockable] : unlockables) {

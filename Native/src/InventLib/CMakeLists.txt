@@ -12,12 +12,16 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Achievements/Achievements.cpp
 	src/Achievements/TimeAchievements.cpp
 
+	src/Character/Death.cpp
+	src/Character/GameCharacter.cpp
+
 	src/GameState/GameState.cpp
 
 	src/Mechanics/Advancement.cpp
 	src/Mechanics/RandomEvent.cpp
 	src/Mechanics/Unlockable.cpp
 	src/Mechanics/Effect.cpp
+	src/Mechanics/Progression.cpp
 	src/Mechanics/Purchasable.cpp
 
 	src/RandomEvents/RandomEvents.cpp
@@ -39,4 +43,5 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Technology/Inventions/MagicTechs.cpp
 	src/Technology/Invention.cpp
 	src/Technology/Technology.cpp
-)
+	src/Technology/Inventions/StorageTechs.cpp	
+ "src/Character/Life.cpp" "src/Resources/ResourceConversion.cpp")

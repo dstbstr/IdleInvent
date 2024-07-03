@@ -9,5 +9,6 @@ using ::testing::StartsWith;
 using ::testing::EndsWith;
 using ::testing::Contains;
 using ::testing::HasSubstr;
+using ::testing::Not;
 
 using namespace std::string_literals;

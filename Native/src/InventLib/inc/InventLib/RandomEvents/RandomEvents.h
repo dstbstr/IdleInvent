@@ -5,19 +5,26 @@
 
 namespace Invent {
 	namespace RandomEvents {
+
+		struct SaveState {
+            u8 Specialty{};
+		};
+
 		void Initialize();
+		void Load(const SaveState& save);
+		void Save(SaveState& save);
 
 		void MakeMoreCommon(RandomEvent event);
 		void MakeLessCommon(RandomEvent event);
 
 		namespace Rarity {
 			constexpr auto Regular = OneMinute;
-			constexpr auto Common = OneMinute * 5;
-			constexpr auto Uncommon = OneMinute * 10;
-			constexpr auto Rare = OneMinute * 30;
-			constexpr auto VeryRare = OneHour;
-			constexpr auto Legendary = OneDay;
-			constexpr auto Mythic = OneDay * 7;
+			constexpr auto Common = OneMinute * 3;
+			constexpr auto Uncommon = OneMinute * 5;
+			constexpr auto Rare = OneMinute * 10;
+			constexpr auto VeryRare = OneMinute * 30;
+			constexpr auto Legendary = OneHour;
+			constexpr auto Mythic = OneHour * 2;
 		}
 
 		namespace NaturalEvents {

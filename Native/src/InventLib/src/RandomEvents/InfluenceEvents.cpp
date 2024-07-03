@@ -1,6 +1,7 @@
 #include "InventLib/RandomEvents/RandomEvents.h"
 #include "InventLib/GameState/GameTime.h"
 
+/*
 namespace Invent {
 	namespace RandomEvents {
 		namespace InfluenceEvents {
@@ -11,8 +12,8 @@ namespace Invent {
 				.Headline = "Famine",
 				.Description = "Our food stores are gone.  You look tasty.",
 				.Effects = {
-					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Add::XLarge, OneSecond * 3),
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Add::XLarge, OneSecond * 3)
+					Effects::Create(ResourceName::Labor, Penalty::Add::XLarge, OneSecond * 3),
+					Effects::Create(ResourceName::Wealth, Penalty::Add::XLarge, OneSecond * 3)
 				}
 			};
 
@@ -20,9 +21,9 @@ namespace Invent {
 				.Headline = "War!",
 				.Description = "Well, they've declared war on us.  Guess we're passed the 'can we talk about this' stage.",
 				.Effects = {
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Penalty::Mul::Large, OneSecond * 20),
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::XLarge, OneSecond * 20),
-					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large, OneSecond * 20)
+					Effects::Create(ResourceName::Influence, Penalty::Mul::Large, OneSecond * 20),
+					Effects::Create(ResourceName::Wealth, Penalty::Mul::XLarge, OneSecond * 20),
+					Effects::Create(ResourceName::Labor, Penalty::Mul::Large, OneSecond * 20)
 				}
 			};
 
@@ -30,11 +31,11 @@ namespace Invent {
 				.Headline = "Plague!",
 				.Description = "We've been hiding from disease for too long, and now it's found us.",
 				.Effects = {
-					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
-					Effects::Create(ResourceName::Knowledge, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2),
-					Effects::Create(ResourceName::Magic, EffectTarget::Resources, Penalty::Mul::Small, OneMinute * 2)
+					Effects::Create(ResourceName::Labor, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Wealth, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Influence, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Knowledge, Penalty::Mul::Small, OneMinute * 2),
+					Effects::Create(ResourceName::Magic, Penalty::Mul::Small, OneMinute * 2)
 				}
 			};
 
@@ -43,8 +44,8 @@ namespace Invent {
 				.Headline = "Trade Deal",
 				.Description = "If you scratch my back, I'll scratch yours.",
 				.Effects = {
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 10),
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Small, OneSecond * 10)
+					Effects::Create(ResourceName::Wealth, Buff::Mul::Medium, OneSecond * 10),
+					Effects::Create(ResourceName::Wealth, Buff::Mul::Small, OneSecond * 10)
 				}
 			};
 
@@ -52,8 +53,8 @@ namespace Invent {
 				.Headline = "Alliance",
 				.Description = "I'd like to make you an offer you can't refuse.",
 				.Effects = {
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium, OneMinute * 2),
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Small, OneMinute * 2)
+					Effects::Create(ResourceName::Influence, Buff::Mul::Medium, OneMinute * 2),
+					Effects::Create(ResourceName::Influence, Buff::Mul::Small, OneMinute * 2)
 				}
 			};
 
@@ -61,9 +62,9 @@ namespace Invent {
 				.Headline = "Prosperity",
 				.Description = "We find ourselves on the receiving end of other's good fortune.",
 				.Effects = {
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 5),
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 5),
-					Effects::Create(ResourceName::Knowledge, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 5)
+					Effects::Create(ResourceName::Wealth, Buff::Mul::Large, OneSecond * 5),
+					Effects::Create(ResourceName::Influence, Buff::Mul::Large, OneSecond * 5),
+					Effects::Create(ResourceName::Knowledge, Buff::Mul::Large, OneSecond * 5)
 				}
 			};
 
@@ -72,10 +73,10 @@ namespace Invent {
 				.Headline = "Revolution",
 				.Description = "The pitchforks are coming; this will certainly change things",
 				.Effects = {
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 10),
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Penalty::Mul::XLarge, OneSecond * 10),
-					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Medium, OneSecond * 10),
-					Effects::Create(ResourceName::Knowledge, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 10)
+					Effects::Create(ResourceName::Influence, Buff::Mul::Medium, OneSecond * 10),
+					Effects::Create(ResourceName::Wealth, Penalty::Mul::XLarge, OneSecond * 10),
+					Effects::Create(ResourceName::Labor, Penalty::Mul::Medium, OneSecond * 10),
+					Effects::Create(ResourceName::Knowledge, Buff::Mul::Medium, OneSecond * 10)
 				}
 			};
 
@@ -83,9 +84,9 @@ namespace Invent {
 				.Headline = "Coronation",
 				.Description = "A new royal has just been crowned.  Let's party!",
 				.Effects = {
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::XLarge, OneSecond),
-					Effects::Create(ResourceName::Wealth, EffectTarget::Resources, Buff::Mul::XLarge, OneSecond),
-					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large, OneSecond)
+					Effects::Create(ResourceName::Influence, Buff::Mul::XLarge, OneSecond),
+					Effects::Create(ResourceName::Wealth, Buff::Mul::XLarge, OneSecond),
+					Effects::Create(ResourceName::Labor, Penalty::Mul::Large, OneSecond)
 				}
 			};
 
@@ -93,9 +94,9 @@ namespace Invent {
 				.Headline = "Wedding",
 				.Description = "I always cry at weddings, especially when they ruin society.",
 				.Effects = {
-					Effects::Create(ResourceName::Magic, EffectTarget::Resources, Buff::Mul::Large, OneSecond * 3),
-					Effects::Create(ResourceName::Labor, EffectTarget::Resources, Penalty::Mul::Large, OneSecond * 3),
-					Effects::Create(ResourceName::Influence, EffectTarget::Resources, Buff::Mul::Medium, OneSecond * 3)
+					Effects::Create(ResourceName::Magic, Buff::Mul::Large, OneSecond * 3),
+					Effects::Create(ResourceName::Labor, Penalty::Mul::Large, OneSecond * 3),
+					Effects::Create(ResourceName::Influence, Buff::Mul::Medium, OneSecond * 3)
 				}
 			};
 
@@ -115,3 +116,4 @@ namespace Invent {
 		}
 	}
 }
+*/

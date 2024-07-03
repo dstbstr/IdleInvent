@@ -9,8 +9,7 @@
 #include <vector>
 #include <unordered_map>
 
-namespace Invent
-{
+namespace Invent {
 	struct RandomEvent {
 		std::string Headline{};
 		std::string Description{};
@@ -22,8 +21,9 @@ namespace Invent
 	};
 
 	namespace RandomEvents {
-		void Tick();
+		void Tick(BaseTime elapsed);
 
+		bool IsEventRegistered(const RandomEvent& randomEvent);
 		void RegisterEvent(const RandomEvent& event, BaseTime chance);
 		void UnregisterEvent(const RandomEvent& event);
 		BaseTime GetEventChance(const RandomEvent& randomEvent);

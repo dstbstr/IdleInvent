@@ -3,14 +3,25 @@
 #include "InventLib/Mechanics/Achievement.h"
 #include "InventLib/Mechanics/Unlockable.h"
 
+#include "Core/NumTypes.h"
+
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace Invent {
 	namespace Achievements {
-		void Initialize();
+		struct SaveState {
+            u64 Achievements0; // 0-63
+		};
 
+		void Initialize();
+		void Load(const SaveState& save);
+		void Save(SaveState& save);
+
+		extern std::vector<Achievement> All;
+        extern std::vector<Achievement> Time;
+        /*
 		extern std::string FirstTimeAchievement;
 		extern std::unordered_map<std::string, std::pair<Unlockable, Achievement>> TimeAchievements;
 
@@ -28,5 +39,6 @@ namespace Invent {
 
 		extern std::string FirstHiddenAchievement;
 		extern std::unordered_map<std::string, std::pair<Unlockable, Achievement>> HiddenAchievements;
+		*/
 	}
 }

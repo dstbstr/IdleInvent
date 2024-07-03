@@ -78,6 +78,11 @@ namespace {
         return true;
     }
 
+    void FreeTexture(Image& image) {
+        glDeleteTextures(1, &image.TextureId);
+        image.TextureId = 0;
+    }
+
     bool InitializeEgl() {
         Log::Info("Initializing EGL");
 
@@ -204,6 +209,10 @@ namespace Graphics {
         stbi_image_free(data);
 
         return success;
+    }
+
+    void UnloadImage(Image& image) {
+        FreeTexture(image);
     }
 
     void Render() {

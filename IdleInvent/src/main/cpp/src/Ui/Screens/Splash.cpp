@@ -13,36 +13,35 @@
 #include <chrono>
 
 namespace {
+    EngineState* Engine{nullptr};
+
     Image SplashScreen;
 }
 
 namespace Ui::Screens::Splash {
+    bool Initialize() {
+        Engine = &ServiceLocator::Get().GetOrCreate<EngineState>();
+        return Graphics::LoadImage("SplashScreen.jpg", SplashScreen);
+    }
+
+    void ShutDown() {
+        Graphics::UnloadImage(SplashScreen);
+    }
+
     void Render() {
         using namespace std::chrono_literals;
 
-        auto& engineState = ServiceLocator::Get().GetRequired<EngineState>();
-        static bool initialized = [](){
-            Graphics::LoadImage("SplashScreen.jpg", SplashScreen);
-            return true;
-        }();
-        DR_ASSERT_MSG(initialized, "Failed to load splash screen image");
-
-        bool closeSplash = engineState.FrameNum > 1;
+        bool closeSplash = Engine->FrameNum > 1;
 #ifndef DEBUG
-        closeSplash = engineState.ElapsedTime >= 2s;
+        closeSplash = Engine->ElapsedTime >= 2s;
 #endif
         if(closeSplash) {
-            Screens::SetActiveScreen(Screen::Resources);
+            Screens::SetActiveScreen(Screen::Home);
             return;
         }   
 
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        auto screenPair = Graphics::GetScreenSize();
-        auto screenSize = ImVec2(screenPair.first, screenPair.second);
-        ImGui::SetNextWindowSize(screenSize);
-
         ImGui::Begin("SplashScreen", nullptr, ImageFlags);
-        ImGui::Image((void*)(intptr_t)SplashScreen.TextureId, screenSize);
+        ImGui::Image((void*)(intptr_t)SplashScreen.TextureId, ImGui::GetContentRegionAvail());
         ImGui::End();
     }
 }

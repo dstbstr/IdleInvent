@@ -45,6 +45,6 @@
 */
 namespace Invent {
 	namespace Technologies {
-		std::vector<Unlockable> MagicTechs = {};
+		std::vector<Invention> MagicTechs = {};
 	}
 }

@@ -6,15 +6,15 @@
 #include "Core/DesignPatterns/ServiceLocator.h"
 #include "Core/DesignPatterns/PubSub.h"
 #include "InventLib/GameState/GameState.h"
-#include "InventLib/RandomEvents/RandomEvents.h"
 
 #include <ranges>
 
+/*
 namespace {
 	using namespace Invent;
 
 	Invention CreateInvention(ResourceName resource, const std::string& name, const std::vector<std::string>& descriptions);
-	void ClearStoneAge();
+	void ClearStoneAge(ResourceName resource);
 
 	std::vector<Invention> AllInventions{{
 		CreateInvention(ResourceName::Influence, "Tribes", {
@@ -51,19 +51,19 @@ namespace {
 		switch (level) {
 		case 0:
 			return {
-				{Create(r[0], EffectTarget::Resources, Buff::Add::Small, Forever)}
+				{Create(r[0], Buff::Add::Small, Forever)}
 			};
 		case 1:
 			return {
-				{Create(r[0], EffectTarget::Resources, Buff::Add::Medium, Forever)},
-				{Create(r[1], EffectTarget::Resources, Buff::Add::Small, Forever)},
-				{Create(r[2], EffectTarget::Resources, Buff::Add::Small, Forever)}
+				{Create(r[0], Buff::Add::Medium, Forever)},
+				{Create(r[1], Buff::Add::Small, Forever)},
+				{Create(r[2], Buff::Add::Small, Forever)}
 			};
 		case 2:
 			return {
-				{Create(r[0], EffectTarget::Resources, Buff::Mul::Large, Forever)},
-				{Create(r[1], EffectTarget::Resources, Buff::Mul::Medium, Forever)},
-				{Create(r[2], EffectTarget::Resources, Buff::Mul::Small, Forever)}
+				{Create(r[0], Buff::Mul::Large, Forever)},
+				{Create(r[1], Buff::Mul::Medium, Forever)},
+				{Create(r[2], Buff::Mul::Small, Forever)}
 			};
 		default:
 			return {};
@@ -72,33 +72,14 @@ namespace {
 
 	std::vector<InventionLevel> MakeLevels(ResourceName resource, std::string name, std::vector<std::string> descriptions) {
 		std::vector<InventionLevel> result{};
-		auto OnPurchase = [resource]() {
-			ClearStoneAge();
-			switch (resource) {
-			case ResourceName::Labor:
-				RandomEvents::LaborEvents::RegisterAll();
-				break;
-			case ResourceName::Wealth:
-				RandomEvents::WealthEvents::RegisterAll();
-				break;
-			case ResourceName::Influence:
-				RandomEvents::InfluenceEvents::RegisterAll();
-				break;
-			case ResourceName::Knowledge:
-				RandomEvents::KnowledgeEvents::RegisterAll();
-				break;
-			case ResourceName::Magic:
-				RandomEvents::MagicEvents::RegisterAll();
-				break;
-			case ResourceName::Unset:
-				throw "Wat?";
-			}
-		};
+		std::vector<std::string> prereqs{};
 
-		result.push_back(InventionLevel{ resource, 0, 0, name, descriptions[0], GetEffects(0, resource), {}, OnPurchase });
+		auto OnPurchase = [resource]() { ClearStoneAge(resource); };
+
+		result.push_back(InventionLevel{resource, 0, 0, name, descriptions[0], prereqs, GetEffects(0, resource), {}, OnPurchase});
 
 		for (const auto& description : descriptions | std::views::drop(1)) {
-			result.push_back(InventionLevel{ resource, 0ull, result.size(), name, description, GetEffects(result.size(), resource) });
+            result.push_back(InventionLevel{resource, 0ull, result.size(), name, description, prereqs, GetEffects(result.size(), resource)});
 		}
 		return result;
 	}
@@ -106,25 +87,30 @@ namespace {
 	Invention CreateInvention(ResourceName resource, const std::string& name, const std::vector<std::string>& descriptions) {
 		return Invention{
 			.Name = name,
+			.Resource = resource,
 			.Levels = MakeLevels(resource, name, descriptions)
 		};
 	}
 
-	void ClearStoneAge() {
+	void ClearStoneAge(ResourceName resource) {
 		auto& services = ServiceLocator::Get();
 		auto& purchasables = services.GetRequired<std::unordered_map<std::string, Purchasable>>();
 		auto& unlockables = services.GetRequired<std::unordered_map<std::string, Unlockable>>();
 		for (const auto& invention : AllInventions) {
-			purchasables.erase(invention.Levels[0].Name);
-			unlockables.erase(invention.Levels[0].Name);
+            if(invention.Resource == resource) continue;
+
+            for(const auto& level : invention.Levels) {
+				purchasables.erase(level.Name);
+				unlockables.erase(level.Name);
+			}
 		}
 	}
 }
 
 namespace Invent {
 	namespace Technologies {
-		std::vector<Unlockable> StoneAgeTechs = AllInventions |
-			std::ranges::views::transform([](const Invention& i) { return i.MakeUnlockable(0); }) |
-			std::ranges::to<std::vector<Unlockable>>();
+        std::vector<Invention> StoneAgeTechs = AllInventions;
 	}
 }
+
+*/

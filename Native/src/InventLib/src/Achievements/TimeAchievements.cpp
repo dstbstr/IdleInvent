@@ -1,8 +1,10 @@
 #include "InventLib/Achievements/Achievements.h"
-#include "Core/DesignPatterns/PubSub.h"
-#include "Core/DesignPatterns/ServiceLocator.h"
 #include "InventLib/GameState/GameState.h"
 #include "InventLib/GameState/GameTime.h"
+#include "InventLib/Mechanics/Effect.h"
+
+#include "Core/DesignPatterns/PubSub.h"
+#include "Core/DesignPatterns/ServiceLocator.h"
 
 #include <vector>
 #include <optional>
@@ -10,73 +12,51 @@
 namespace {
 	using namespace Invent;
 
-	std::vector<std::pair<std::string, BaseTime>> AchievementLevels {
-		{"First Minute", OneMinute},
-		{"Ten Minutes", OneMinute * 10},
-		{"One Hour", OneHour},
-		{"Twelve Hours", OneHour * 12},
-		{"One Day", OneDay},
-		{"One Week", OneDay * 7},
-		{"One Month", OneDay * 28},
-		{"Three Months", OneDay * 90}
-	};
-
 	BaseTime GetCurrentTime() {
-		static auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
+		auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
 		return gameState.TimeElapsed;
 	}
 
-	Unlockable MakeUnlockable(const std::string& current, std::optional<std::string> next, BaseTime requiredTime) {
-		return Unlockable{
-			current,
-			[requiredTime]() { return GetCurrentTime() >= requiredTime; },
-			[current, next]() -> std::vector<Unlockable> {
-				ServiceLocator::Get().GetRequired<PubSub<Achievement>>().Publish(Achievements::TimeAchievements.at(current).second);
-				if (next.has_value()) {
-					return { Achievements::TimeAchievements.at(next.value()).first };
-				}
-				return {};
-			}
-		};
+	std::vector<Effect> Effects = []() {
+        std::vector<Effect> result;
+        for(auto resource: AllResources) {
+            result.push_back(Effects::Create(resource, Effects::Buff::Mul::Small, Forever));
+        }
+		return result;
+    }();
+
+	Unlockable MakeUnlockable(const std::string& name, size_t current, BaseTime requiredTime) {
+        return Unlockable(
+            name,
+            [requiredTime]() { return GetCurrentTime() >= requiredTime; },
+            [current]() -> std::vector<Unlockable> {
+                auto& services = ServiceLocator::Get();
+                services.GetRequired<PubSub<Achievement>>().Publish(Achievements::Time[current]);
+                services.GetRequired<PubSub<std::vector<Effect>>>().Publish(Effects);
+                return {};
+            }
+        );
 	}
 
-	Achievement MakeAchievement(const std::string& name, const std::string description) {
-		auto MakeEffect = [](ResourceName resource) {
-			return Effects::Create(resource, EffectTarget::Resources, Effects::Buff::Mul::Small, OneYear * 100);
-		};
+	Achievement MakeAchievement(const std::string& name, const std::string description, BaseTime requiredTime) {
+        static size_t achievementIndex = 0;
+		auto unlock = MakeUnlockable(name, achievementIndex++, requiredTime);
 
-		return Achievement{ .Name = name, .Description = description, .Effects = {
-			MakeEffect(ResourceName::Influence),
-			MakeEffect(ResourceName::Knowledge),
-			MakeEffect(ResourceName::Wealth),
-			MakeEffect(ResourceName::Labor),
-			MakeEffect(ResourceName::Magic)
-			}
-		};
-	}
-
-	std::pair<std::string, std::pair<Unlockable, Achievement>> MakePair(size_t index, const std::string& description) {
-		auto [current, requiredTime] = AchievementLevels[index];
-		auto next = index + 1 < AchievementLevels.size() ? std::make_optional(AchievementLevels[index + 1].first) : std::nullopt;
-		return std::make_pair(current, std::make_pair(
-			MakeUnlockable(current, next, requiredTime ), 
-			MakeAchievement(current, description)));
+		return Achievement{ .Name = name, .Description = description, .Unlock = unlock };
 	}
 }
 
 namespace Invent {
 	namespace Achievements {
-		std::string FirstTimeAchievement = AchievementLevels[0].first;
-
-		std::unordered_map<std::string, std::pair<Unlockable, Achievement>> TimeAchievements{
-			MakePair(0, "How have you survived an entire minute?  Have this achievement."),
-			MakePair(1, "Certainly you have something better to do with your time."),
-			MakePair(2, "Hate to be the bearer of bad news, but you've wasted an hour of your life here.  You'll never get it back."),
-			MakePair(3, "You've spent half a day here.  You should probably go outside."),
-			MakePair(4, "24 hours gone.  Think of what you could have accomplished."),
-			MakePair(5, "Playing games for 7 days makes one WEEK!  Hah, I crack myself up."),
-			MakePair(6, "I think you've been here longer than I spent working on this game..."),
-			MakePair(7, "You've been here for 3 months.  You should write your own game if you haven't yet.")
+        std::vector<Achievement> Time{
+			MakeAchievement("First Minute", "How have you survived an entire minute?  Have this achievement.", OneMinute),
+			MakeAchievement("Ten Minutes", "Certainly you have something better to do with your time.", OneMinute * 10),
+			MakeAchievement("One Hour", "Hate to be the bearer of bad news, but you've wasted an hour of your life here.  You'll never get it back.", OneHour),
+			MakeAchievement("Twelve Hours", "You've spent half a day here.  You should probably go outside.", OneHour * 12),
+			MakeAchievement("One Day", "24 hours gone.  Think of what you could have accomplished.", OneDay),
+			MakeAchievement("One Week", "Playing games for 7 days makes one WEEK!  Hah, I crack myself up.", OneDay * 7),
+			MakeAchievement("One Month", "I think you've been here longer than I spent working on this game...", OneDay * 30),
+			MakeAchievement("Three Months", "You've been here for 3 months.  You should write your own game if you haven't yet.", OneDay * 90)
 		};
 	}
 }

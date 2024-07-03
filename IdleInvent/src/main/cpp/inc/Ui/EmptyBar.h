@@ -1,6 +1,8 @@
 #pragma once
 
-namespace Ui::Screens::Storages {
+namespace Ui::EmptyBar {
     bool Initialize();
+    void ShutDown();
+
     void Render();
 };

@@ -92,15 +92,19 @@ target_sources(${PROJECT_NAME}
 PRIVATE
     src/Engine.cpp
     src/Ui/Ui.cpp
-    src/Ui/BottomBar.cpp
+    src/Ui/EmptyBar.cpp
+    src/Ui/NavBar.cpp
+    src/Ui/ResourceBar.cpp
+    src/Ui/Popups.cpp
+    src/Ui/PrimaryResource.cpp
+    src/Ui/NewsFeed.cpp
     src/Ui/TopBar.cpp
     src/Ui/Screens.cpp
     src/Ui/Screens/Achievements.cpp
     src/Ui/Screens/Purchases.cpp
-    src/Ui/Screens/Resources.cpp
+    src/Ui/Screens/Home.cpp
     src/Ui/Screens/Settings.cpp
     src/Ui/Screens/Splash.cpp
-    src/Ui/Screens/Storages.cpp
 )
 
 if(ANDROID)

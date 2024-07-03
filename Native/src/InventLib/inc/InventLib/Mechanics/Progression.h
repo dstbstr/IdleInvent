@@ -3,48 +3,55 @@
 #include "InventLib/GameState/GameTime.h"
 
 #include "Core/NumTypes.h"
+#include "Core/Instrumentation/Logging.h"
 
 #include <vector>
 #include <numeric>
 
 namespace Invent {
+    struct ModifierSave {
+        u8 DurationInYears{};
+        u8 Add{0};
+        u16 Mul{0}; // fixed point, max value = 65535 = 65.535
+    };
+
+    struct ProgressionSave {
+        ModifierSave Permanent{};
+        ModifierSave Temporary[8]{}; // yuck
+        u8 TempCount : 3 {0};
+    };
 
 	struct Modifier {
         s64 Add{0};
         f32 Mul{1.0f};
         BaseTime Duration{OneYear * 100};
+        void Save(ModifierSave& save) const;
+
+        constexpr Modifier operator+(const Modifier& other) const {
+			return {Add + other.Add, Mul * other.Mul, Duration};
+		}
+        constexpr f32 GetBonus() const { return Add * Mul; }
     };
 
 	struct Progression {
-        std::vector<Modifier> Modifiers{{1, 1.0F}};
-        bool Active{false};
+        Progression() = default;
+        Progression(const ProgressionSave& save);
+        Progression(const Progression& other);
+        Progression& operator=(const Progression & other);
 
-		constexpr s64 GetProgress(BaseTime elapsed) {
-            if(!Active) {
-                return 0;
-            }
-            
-            Modifier bonuses = {};
-            for(int i = static_cast<int>(Modifiers.size() - 1); i >= 0; i--) {
-                auto& mod = Modifiers[i];
-                mod.Duration -= elapsed;
-                if(mod.Duration.count() <= 0) {
-                    std::swap(Modifiers[i], Modifiers.back());
-                    Modifiers.pop_back();
-                    continue;
-                }
-                bonuses.Add += mod.Add;
-                bonuses.Mul *= mod.Mul;
-			}
+        void Save(ProgressionSave& save) const;
 
-			auto seconds = static_cast<f32>(elapsed.count()) / 1000.0f;
-			auto progress = (bonuses.Add * bonuses.Mul * seconds) + m_Remainder;
+        void AddModifier(Modifier mod);
+        void ClearModifiers();
 
-			m_Remainder = progress - static_cast<s64>(progress);
-			return static_cast<s64>(progress);
-		}
+		s64 GetProgress(BaseTime elapsed);
 
 	private:
+        void CalcProgress();
+
 		f32 m_Remainder{ 0.0f };
+        Modifier m_Permanent {1, 1.0F};
+        std::vector<Modifier> m_Modifiers{};
+        f32 m_Progress{1.0f};
 	};
 }

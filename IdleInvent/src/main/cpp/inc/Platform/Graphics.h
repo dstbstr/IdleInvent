@@ -13,6 +13,7 @@ namespace Graphics {
 
     void SetFont(const char* fontName, float fontSize);
     bool LoadImage(const char* file, Image& outImage);
+    void UnloadImage(Image& image);
 
     std::pair<int, int> GetScreenSize();
 };

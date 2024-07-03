@@ -9,6 +9,7 @@
 
 namespace Log {
 	enum struct Level {
+		Debug,
 		Info,
 		Warning,
 		Error
@@ -31,6 +32,7 @@ namespace Log {
 	void Initialize();
 	void Flush();
 
+	void Debug(const std::string& message, std::source_location loc = std::source_location::current());
 	void Info(const std::string& message, std::source_location loc = std::source_location::current());
 	void Warn(const std::string& message, std::source_location loc = std::source_location::current());
 	void Error(const std::string& message, std::source_location loc = std::source_location::current());

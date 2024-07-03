@@ -1,6 +1,8 @@
 #pragma once
 
-namespace Ui::Screens::Resources {
+namespace Ui::PrimaryResource {
     bool Initialize();
+    void ShutDown();
+
     void Render();
 };

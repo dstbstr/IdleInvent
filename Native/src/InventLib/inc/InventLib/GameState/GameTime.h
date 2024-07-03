@@ -7,8 +7,8 @@
 namespace Invent {
 	using BaseTime = std::chrono::milliseconds;
 
-	static inline constexpr BaseTime OneInstant = std::chrono::milliseconds(1);
-	static inline constexpr BaseTime OneSecond = std::chrono::milliseconds(1000);
+	static inline constexpr BaseTime OneInstant = BaseTime(1);
+	static inline constexpr BaseTime OneSecond = BaseTime(1000);
 	static inline constexpr BaseTime OneMinute = OneSecond * 60;
 	static inline constexpr BaseTime FiveMinutes = OneMinute * 5;
 	static inline constexpr BaseTime ThirtyMinutes = OneMinute * 30;
@@ -19,4 +19,7 @@ namespace Invent {
     static inline constexpr BaseTime OneWeek = OneDay * 7;
     static inline constexpr BaseTime OneYear = OneDay * 365;
     static inline constexpr BaseTime Forever = OneYear * 100;
+
+	//static inline constexpr BaseTime OneGameYear = OneMinute;
+    static inline constexpr BaseTime OneGameYear = OneSecond * 5;
 }

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "InventLib/GameState/SaveState.h"
+
+#include <optional>
+
 struct Platform {
     Platform(void* app);
     
@@ -10,4 +14,8 @@ struct Platform {
 
     // On all platforms?
     void ShowKeyboard() const;
+
+    void SaveGame(const Invent::SaveState& save) const;
+    std::optional<Invent::SaveState> LoadGame() const;
+    void DeleteGame() const;
 };

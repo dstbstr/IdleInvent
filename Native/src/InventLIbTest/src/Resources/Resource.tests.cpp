@@ -27,7 +27,7 @@ namespace Invent {
     TEST(ResourceCollection, Equals_WithDifferentResources_ReturnsFalse) {
         ResourceCollection collection1;
         ResourceCollection collection2;
-        collection2[ResourceName::Labor].Current = 1;
+        collection2[ResourceName::Knowledge].Current = 1;
         ASSERT_FALSE(collection1 == collection2);
     }
 
@@ -45,14 +45,14 @@ namespace Invent {
     TEST(ResourceCollection, LessThan_WithMoreResources_ReturnsFalse) {
         ResourceCollection collection1;
         ResourceCollection collection2;
-        collection1[ResourceName::Labor].Current = 1;
+        collection1[ResourceName::Knowledge].Current = 1;
         ASSERT_FALSE(collection1 < collection2);
     }
 
     TEST(ResourceCollection, LessThan_WithLessAndMoreResources_ReturnsFalse) {
         ResourceCollection collection1;
         ResourceCollection collection2;
-        collection1[ResourceName::Labor].Current = 1;
+        collection1[ResourceName::Money].Current = 1;
         collection2[ResourceName::Knowledge].Current = 1;
 
         // Note: This property means these cannot be sorted

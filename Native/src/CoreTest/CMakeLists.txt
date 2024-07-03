@@ -23,4 +23,7 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Instrumentation/DebugContext.test.cpp 
   src/Instrumentation/Logging.test.cpp
   src/Utilities/Format.test.cpp
-  src/Utilities/IRandom.test.cpp)
+  src/Utilities/IRandom.test.cpp 
+  src/Constexpr/ConstexprStrUtils.test.cpp
+ 
+)

@@ -1,6 +1,8 @@
 #pragma once
 
-namespace Ui::BottomBar {
+namespace Ui::NavBar {
     bool Initialize();
+    void ShutDown();
+
     void Render();
-};
+}

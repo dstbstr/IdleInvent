@@ -16,8 +16,10 @@ struct TestLogSink : public Log::ISink {
 
 struct LoggingTest : public testing::Test {
 	void SetUp() override {
-		WarnFilter.WithLevel(Log::Level::Warning);
-		ErrorFilter.WithLevel(Log::Level::Error);
+        auto ThisFile = [](const Log::Entry& entry) { return entry.Context.FileName == __FILE__; };
+        NoFilter.WithCustomMatcher(ThisFile);
+		WarnFilter.WithLevel(Log::Level::Warning).WithCustomMatcher(ThisFile);
+		ErrorFilter.WithLevel(Log::Level::Error).WithCustomMatcher(ThisFile);
 	}
 
 	void TearDown() override {
@@ -27,6 +29,7 @@ struct LoggingTest : public testing::Test {
 	bool DoesLog(Log::Level messageLevel, Log::Filter filter) {
 		TestLogSink sink(filter);
 		switch (messageLevel) {
+			case Log::Level::Debug: Log::Debug("Test Debug"); break;
 			case Log::Level::Info: Log::Info("Test Info"); break;
 			case Log::Level::Warning: Log::Warn("Test Warning"); break;
 			case Log::Level::Error: Log::Error("Test Error"); break;

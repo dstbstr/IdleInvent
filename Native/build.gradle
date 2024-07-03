@@ -8,8 +8,6 @@ android {
     namespace 'com.durandal.Native'
 
     defaultConfig {
-        versionCode 1
-        versionName "1.0"
 
         minSdkVersion 21
         targetSdkVersion 34
