@@ -9,7 +9,7 @@ namespace Graphics {
     bool Initialize(Platform& platform);
     void Shutdown();
 
-    void Render();
+    void Render(void(*rederFn)());
 
     void SetFont(const char* fontName, float fontSize);
     bool LoadImage(const char* file, Image& outImage);

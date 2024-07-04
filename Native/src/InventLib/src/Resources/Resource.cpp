@@ -48,7 +48,7 @@ namespace Invent {
         }
     }
 
-    void Resource::Clamp() { Current = std::max(0ll, std::min(Capacity, Current)); }
+    void Resource::Clamp() { Current = std::max(s64(0), std::min(Capacity, Current)); }
 
     ResourceCollection::ResourceCollection() {
         for(auto resource: AllResources) {

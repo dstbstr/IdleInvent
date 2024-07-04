@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Ui::Screens::Splash {
+namespace Ui::Layout {
     bool Initialize();
-    
     void ShutDown();
+    
     void Render();
-};
+}

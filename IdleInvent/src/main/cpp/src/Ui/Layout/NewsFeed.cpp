@@ -1,4 +1,4 @@
-#include "Ui/NewsFeed.h"
+#include "Ui/Layout/NewsFeed.h"
 
 #include "Ui/Ui.h"
 

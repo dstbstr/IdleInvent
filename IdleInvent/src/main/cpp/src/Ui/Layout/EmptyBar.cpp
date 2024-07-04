@@ -1,4 +1,4 @@
-#include "Ui/EmptyBar.h"
+#include "Ui/Layout/EmptyBar.h"
 #include "Ui/Ui.h"
 
 namespace Ui::EmptyBar {

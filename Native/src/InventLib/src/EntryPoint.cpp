@@ -39,8 +39,6 @@ namespace Invent::EntryPoint {
 
         services.CreateIfMissing<PubSub<Achievement>>();
         services.CreateIfMissing<PubSub<Advancement>>();
-        //services.CreateIfMissing<PubSub<Death>>();
-        //services.CreateIfMissing<PubSub<NearDeath>>();
         services.CreateIfMissing<PubSub<FileOperation>>();
         services.CreateIfMissing<PubSub<InventionLevel>>();
         services.CreateIfMissing<PubSub<RandomEvent>>();

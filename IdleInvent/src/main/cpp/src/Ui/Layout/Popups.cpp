@@ -1,4 +1,4 @@
-#include "Ui/Popups.h"
+#include "Ui/Layout/Popups.h"
 
 #include "Ui/Ui.h"
 
@@ -36,6 +36,7 @@ namespace Ui::Popups {
             PopupAppeared = std::chrono::steady_clock::now();
         });
 
+        /*
         services.GetRequired<PubSub<Invent::Death>>().Subscribe([](const Invent::Death& death) {
             CurrentEvent = ToString(death);
             PopupAppeared = std::chrono::steady_clock::now();
@@ -45,7 +46,7 @@ namespace Ui::Popups {
             CurrentEvent = nearDeath.WarningMessage;
             PopupAppeared = std::chrono::steady_clock::now();
         });
-
+        */
         return true;
     }
 

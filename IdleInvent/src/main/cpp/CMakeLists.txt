@@ -91,20 +91,25 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_sources(${PROJECT_NAME}
 PRIVATE
     src/Engine.cpp
+
     src/Ui/Ui.cpp
-    src/Ui/EmptyBar.cpp
-    src/Ui/NavBar.cpp
-    src/Ui/ResourceBar.cpp
-    src/Ui/Popups.cpp
-    src/Ui/PrimaryResource.cpp
-    src/Ui/NewsFeed.cpp
-    src/Ui/TopBar.cpp
-    src/Ui/Screens.cpp
+    src/Ui/Splash.cpp
+
+    src/Ui/Layout/EmptyBar.cpp
+    src/Ui/Layout/Layout.cpp
+    src/Ui/Layout/NavBar.cpp
+    src/Ui/Layout/NewsFeed.cpp
+    src/Ui/Layout/Popups.cpp
+    src/Ui/Layout/PrimaryResource.cpp
+    src/Ui/Layout/ResourceBar.cpp
+    src/Ui/Layout/TopBar.cpp
+
     src/Ui/Screens/Achievements.cpp
-    src/Ui/Screens/Purchases.cpp
     src/Ui/Screens/Home.cpp
+    src/Ui/Screens/Purchases.cpp
+    src/Ui/Screens/Screens.cpp
     src/Ui/Screens/Settings.cpp
-    src/Ui/Screens/Splash.cpp
+    src/Ui/Screens/StartLife.cpp
 )
 
 if(ANDROID)

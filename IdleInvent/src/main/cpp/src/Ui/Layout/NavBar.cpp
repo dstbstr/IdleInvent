@@ -1,7 +1,7 @@
-#include "Ui/NavBar.h"
+#include "Ui/Layout/NavBar.h"
 
 #include "Ui/Ui.h"
-#include "Ui/Screens.h"
+#include "Ui/Screens/Screens.h"
 
 #include "Graphics/Image.h"
 #include "Platform/Graphics.h"

@@ -4,6 +4,8 @@
 #include "Platform/Graphics.h"
 #include "Platform/Platform.h"
 #include "Platform/GameLog.h"
+#include "Ui/Splash.h"
+#include "Ui/Ui.h"
 
 #include "InventLib/EntryPoint.h"
 #include "InventLib/GameState/SaveState.h"
@@ -57,6 +59,10 @@ Engine::Engine(Platform& inPlatform, Invent::SaveState& inSaveState) {
     DR_ASSERT_MSG(Graphics::Initialize(inPlatform), "Failed to initialize platform");
 
     engineState = &ServiceLocator::Get().GetOrCreate<EngineState>();
+    
+    DR_ASSERT_MSG(Ui::Splash::Initialize(), "Failed to initialize splash screen");
+    Graphics::Render(Ui::Splash::Render);
+
     DR_ASSERT_MSG(Ui::Initialize(), "Failed to initialize UI");
 
     services->GetOrCreate<PubSub<Invent::FileOperation>>().Subscribe([](const Invent::FileOperation& request) {
@@ -96,6 +102,7 @@ Engine::~Engine() {
     Log::Info("Tearing down engine");
 
     Ui::ShutDown();
+    Ui::Splash::ShutDown();
     Graphics::Shutdown();
     Log::Flush();
 
@@ -116,7 +123,7 @@ void Engine::Tick() const {
     LastTickTime = now;
 
     Invent::EntryPoint::Tick(elapsed);
-    Graphics::Render();
+    Graphics::Render(Ui::Render);
 
     if(now - LastSaveTime > 30s) {
         LastSaveTime = now;

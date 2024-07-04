@@ -1,4 +1,4 @@
-#include "Ui/ResourceBar.h"
+#include "Ui/Layout/ResourceBar.h"
 
 #include "Ui/Ui.h"
 

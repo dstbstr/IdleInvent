@@ -1,4 +1,4 @@
-#include "Ui/PrimaryResource.h"
+#include "Ui/Layout/PrimaryResource.h"
 
 #include "Ui/Ui.h"
 

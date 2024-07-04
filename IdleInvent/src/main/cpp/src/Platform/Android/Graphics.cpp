@@ -215,7 +215,7 @@ namespace Graphics {
         FreeTexture(image);
     }
 
-    void Render() {
+    void Render(void (*renderFn)()) {
         ImGuiIO& io = ImGui::GetIO();
         static ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
@@ -224,7 +224,8 @@ namespace Graphics {
         ImGui_ImplAndroid_NewFrame();
         ImGui::NewFrame();
 
-        Ui::Render();
+        //Ui::Render();
+        renderFn();
 
         ImGui::Render();
         glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);

@@ -1,6 +1,6 @@
-#include "Ui/TopBar.h"
+#include "Ui/Layout/TopBar.h"
 #include "Ui/Ui.h"
-#include "Ui/Screens.h"
+#include "Ui/Screens/Screens.h"
 
 #include "InventLib/GameState/GameState.h"
 #include "InventLib/Technology/TechAge.h"
@@ -17,6 +17,11 @@ namespace {
     Invent::GameState* gameState {nullptr};
     Invent::GameSettings* gameSettings {nullptr};
     std::string era {"Stone Age"};
+
+    void TextCentered(const char* text) {
+        ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(text).x) / 2);
+        ImGui::Text("%s", text);
+    }
 }
 
 namespace Ui::TopBar {
@@ -41,11 +46,12 @@ namespace Ui::TopBar {
         ImGui::Begin("TopBar", nullptr, BaseFlags);
         
         if(gameSettings->showFps){
-            ImGui::SameLine(ImGui::GetContentRegionAvail().x / 2);
-            ImGui::Text("%.1f FPS", frameRate);
+            TextCentered(std::format("{:.1f} FPS", frameRate).c_str());
         } else {
             ImGui::Text("");
         }
+
+        TextCentered(Ui::ToString(Screens::GetActiveScreen()).c_str());
 
         /*
         ImGui::TableNextColumn();
