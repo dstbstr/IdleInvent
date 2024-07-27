@@ -4,6 +4,7 @@
 
 #include "InventLib/Mechanics/Unlockable.h"
 #include "InventLib/Mechanics/Purchasable.h"
+#include "InventLib/Character/Society.h"
 #include "InventLib/GameState/GameState.h"
 #include "InventLib/Settings/GameSettings.h"
 
@@ -19,8 +20,9 @@
 namespace {
     std::unordered_map<std::string, Invent::Purchasable>* Purchasables{};
     std::unordered_map<std::string, Invent::Unlockable>* Unlockables{};
-    Invent::GameState* GameState{nullptr};
+    //Invent::GameState* GameState{nullptr};
     Invent::GameSettings* Settings{nullptr};
+    Invent::Society* Society{nullptr};
 }
 
 namespace Ui::Screens::Purchases {
@@ -28,7 +30,8 @@ namespace Ui::Screens::Purchases {
         auto& services = ServiceLocator::Get();
         Purchasables = &services.GetRequired<std::unordered_map<std::string, Invent::Purchasable>>();
         Unlockables = &services.GetRequired<std::unordered_map<std::string, Invent::Unlockable>>();
-        GameState = &services.GetRequired<Invent::GameState>();
+        //GameState = &services.GetRequired<Invent::GameState>();
+        Society = &services.GetRequired<Invent::Society>();
         Settings = &services.GetOrCreate<Invent::GameSettings>();
 
         return true;
@@ -40,15 +43,15 @@ namespace Ui::Screens::Purchases {
         ImGui::Begin("PurchasesScreen", nullptr, BaseFlags);
 
         std::vector<Invent::Purchasable> purchasables = *Purchasables | 
-        std::views::values | 
-        std::ranges::to<std::vector<Invent::Purchasable>>();
+            std::views::values | 
+            std::ranges::to<std::vector<Invent::Purchasable>>();
         std::ranges::sort(purchasables, {}, &Invent::Purchasable::Name);
 
         auto windowSize = ImGui::GetContentRegionAvail();
         windowSize.y = 300;
 
         for(auto& purchasable : purchasables) {
-            auto disabled = !purchasable.CanPurchase(GameState->CurrentLife.Resources);
+            auto disabled = !purchasable.CanPurchase(Society->CurrentLife.Resources);
             if(disabled) {
                 ImGui::BeginDisabled();
             }

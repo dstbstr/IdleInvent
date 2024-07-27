@@ -14,6 +14,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/Character/Death.cpp
 	src/Character/GameCharacter.cpp
+	src/Character/Life.cpp
+	src/Character/Society.cpp
 
 	src/GameState/GameState.cpp
 
@@ -24,6 +26,11 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Mechanics/Progression.cpp
 	src/Mechanics/Purchasable.cpp
 
+	src/Projects/Building.cpp
+	src/Projects/Expeditions.cpp
+	src/Projects/Project.cpp
+	src/Projects/Research.cpp
+
 	src/RandomEvents/RandomEvents.cpp
 	src/RandomEvents/NaturalEvents.cpp
 	src/RandomEvents/InfluenceEvents.cpp
@@ -33,6 +40,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/RandomEvents/MagicEvents.cpp
 	
 	src/Resources/Resource.cpp
+	src/Resources/ResourceConversion.cpp
 	src/Resources/Storage.cpp
 
 	src/Technology/Inventions/StoneAge.cpp
@@ -44,4 +52,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Technology/Invention.cpp
 	src/Technology/Technology.cpp
 	src/Technology/Inventions/StorageTechs.cpp	
- "src/Character/Life.cpp" "src/Resources/ResourceConversion.cpp")
+ "src/Mechanics/Modifier.cpp" "src/Projects/Population.cpp" "src/Character/RebirthBenefits.cpp")

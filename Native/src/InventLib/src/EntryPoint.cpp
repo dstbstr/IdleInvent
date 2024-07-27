@@ -1,6 +1,7 @@
 #include "InventLib/EntryPoint.h"
 
 #include "InventLib/Achievements/Achievements.h"
+#include "InventLib/Character/Society.h"
 #include "InventLib/GameState/GameState.h"
 #include "InventLib/GameState/GameTime.h"
 #include "InventLib/GameState/SaveState.h"
@@ -9,6 +10,7 @@
 #include "InventLib/Mechanics/Unlockable.h"
 #include "InventLib/RandomEvents/RandomEvents.h"
 #include "InventLib/Resources/Resource.h"
+#include "InventLib/Resources/ResourceConverters.h"
 #include "InventLib/Technology/Invention.h"
 #include "InventLib/Technology/Technology.h"
 #include "InventLib/Settings/GameSettings.h"
@@ -25,7 +27,7 @@
 
 namespace {
     Invent::GameState* gameState{nullptr};
-    Invent::Life* life{nullptr};
+    Invent::Society* society{nullptr};
     Invent::GameSettings* gameSettings{nullptr};
 }
 
@@ -49,13 +51,11 @@ namespace Invent::EntryPoint {
         services.CreateIfMissing<std::unordered_map<std::string, Unlockable>>();
         services.CreateIfMissing<std::unordered_map<std::string, Purchasable>>();
 
-        life = &services.GetOrCreate<Life>();
-        life->Start(ResourceName::Money);
+        society = &services.GetOrCreate<Society>();
         gameState = &services.GetOrCreate<GameState>();
         gameSettings = &services.GetOrCreate<GameSettings>();
         auto& inventionPs = services.GetRequired<PubSub<InventionLevel>>();
 
-        //Technologies::Initialize();
         Achievements::Initialize();
         RandomEvents::Initialize();
         
@@ -124,7 +124,7 @@ namespace Invent::EntryPoint {
             randomEvents->clear();
         }
 
-        Inventions::Reset();
+        //Inventions::Reset();
     }
 
     void Tick(BaseTime elapsed) {
@@ -133,6 +133,6 @@ namespace Invent::EntryPoint {
         RandomEvents::Tick(elapsed);
 
         gameState->Tick(elapsed);
-        life->Tick(elapsed);
+        society->Tick(elapsed);
     }
 } // namespace Invent::EntryPoint

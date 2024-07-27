@@ -20,7 +20,7 @@ namespace {
 Platform::Platform(void* app) {
     App = static_cast<android_app*>(app);
     App->onInputEvent = [](android_app*, AInputEvent* e) -> int {
-        return Inputs::HandleInput((void*)e);
+        return Inputs::HandleInput(static_cast<void*>(e));
     };
 }
 
@@ -54,7 +54,7 @@ void Platform::ShowKeyboard() const {
     JavaVM* javaVm = App->activity->vm;
     JNIEnv* env = nullptr;
 
-    DR_ASSERT_MSG(javaVm->GetEnv((void**)&env, JNI_VERSION_1_6) == JNI_OK, "GetEnv failed");
+    DR_ASSERT_MSG(javaVm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) == JNI_OK, "GetEnv failed");
     DR_ASSERT_MSG(javaVm->AttachCurrentThread(&env, nullptr) == JNI_OK, "AttachCurrentThread Failed");
 
     jclass activityClass = env->GetObjectClass(App->activity->clazz);

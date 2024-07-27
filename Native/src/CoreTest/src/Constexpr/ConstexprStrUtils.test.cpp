@@ -35,3 +35,21 @@ static_assert(Constexpr::HumanReadable(1'234'567) == "1.23M");
 static_assert(Constexpr::HumanReadable(12'345'678) == "12.34M");
 static_assert(Constexpr::HumanReadable(123'456'789) == "123.45M");
 
+static_assert(Constexpr::TrimStart(" \n Hello") == "Hello");
+static_assert(Constexpr::TrimStart("Hello") == "Hello");
+static_assert(Constexpr::TrimStart("Hello ") == "Hello ");
+
+static_assert(Constexpr::TrimEnd("Hello \n ") == "Hello");
+static_assert(Constexpr::TrimEnd("Hello") == "Hello");
+static_assert(Constexpr::TrimEnd(" Hello") == " Hello");
+
+static_assert(Constexpr::Trim(" \n Hello \n ") == "Hello");
+static_assert(Constexpr::Trim("Hello") == "Hello");
+static_assert(Constexpr::Trim(" Hello ") == "Hello");
+
+static_assert(Constexpr::Trim("Hello World", {'H', 'd'}) == "ello Worl");
+
+static_assert(Constexpr::TimeString(3'400) == "3s");
+static_assert(Constexpr::TimeString(1000 * 60) == "1m");
+static_assert(Constexpr::TimeString(1000 * 60 * 60) == "1h");
+static_assert(Constexpr::TimeString(1000 * 60 * 60 * 24) == "1d");

@@ -137,12 +137,17 @@ namespace {
 }
 
 namespace Graphics {
+    float ScreenHeight = 0;
+    float ScreenWidth = 0;
+
     bool Initialize(Platform& platform) {
         Window = static_cast<ANativeWindow*>(platform.GetWindow());
         PlatformPtr = &platform;
 
         ANativeWindow_acquire(Window);
         ScreenSize = ImVec2(ANativeWindow_getWidth(Window), ANativeWindow_getHeight(Window));
+        ScreenHeight = ScreenSize.y;
+        ScreenWidth = ScreenSize.x;
 
         if(!InitializeEgl()) return false;
 
@@ -198,7 +203,7 @@ namespace Graphics {
 
     bool LoadImage(const char* file, Image& outImage) {
         stbi_uc* fileData;
-        auto dataSize = PlatformPtr->GetAsset(file, (void**)&fileData);
+        auto dataSize = PlatformPtr->GetAsset(file, reinterpret_cast<void**>(&fileData));
         if(dataSize == 0) return false;
 
         auto* data = stbi_load_from_memory(fileData, dataSize, &outImage.Width, &outImage.Height, &outImage.Channels, 0);
@@ -246,7 +251,7 @@ namespace Graphics {
             // ImGui::Begin("Texture Test");
             //ImGui::Begin("Texture Test", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
             // ImGui::Text("Size: %d x %d", image.width, image.height);
-            //ImGui::Image((void*)(intptr_t)image.TextureId, ImVec2(image.Width, image.Height));
+            //ImGui::Image(image.ToHandle(), ImVec2(image.Width, image.Height));
             //ImGui::End();
 
             // create window in code

@@ -3,7 +3,7 @@
 #include <string>
 
 namespace Ui {
-    enum struct Screen { StartLife, Home, Achievements, Purchases, Settings };
+    enum struct Screen { StartLife, Home, Achievements, Purchases, Settings, Build, Explore, Research };
 
     std::string ToString(Screen screen);
 

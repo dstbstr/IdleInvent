@@ -44,6 +44,6 @@
 */
 namespace Invent {
 	namespace Technologies {
-		std::vector<Invention> WealthTechs = {};
+		//std::vector<Invention> WealthTechs = {};
 	}
 }

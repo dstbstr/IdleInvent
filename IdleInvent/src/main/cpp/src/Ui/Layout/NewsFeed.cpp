@@ -32,8 +32,7 @@ namespace Ui::NewsFeed {
         
         auto& services = ServiceLocator::Get();
         services.GetRequired<PubSub<Invent::RandomEvent>>().Subscribe([](const Invent::RandomEvent& event) {
-            auto duration = event.Effects[0].Duration / Invent::OneGameYear;
-            AddNews(event.Headline + " Has Started and will last " + std::to_string(duration) + " years.");
+            AddNews(event.Headline + " Has Started");
             AddNews(event.Description);
         });
 

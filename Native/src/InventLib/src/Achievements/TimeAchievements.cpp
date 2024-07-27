@@ -13,16 +13,12 @@ namespace {
 	using namespace Invent;
 
 	BaseTime GetCurrentTime() {
-		auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
+		const auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
 		return gameState.TimeElapsed;
 	}
 
-	std::vector<Effect> Effects = []() {
-        std::vector<Effect> result;
-        for(auto resource: AllResources) {
-            result.push_back(Effects::Create(resource, Effects::Buff::Mul::Small, Forever));
-        }
-		return result;
+	std::vector<Effect> Effects = []() -> std::vector<Effect> {
+        return {{.Target = EffectTarget::AllSecondaryRate, .Modifier = Effects::Increase::Mul::Small}};
     }();
 
 	Unlockable MakeUnlockable(const std::string& name, size_t current, BaseTime requiredTime) {
@@ -38,7 +34,7 @@ namespace {
         );
 	}
 
-	Achievement MakeAchievement(const std::string& name, const std::string description, BaseTime requiredTime) {
+	Achievement MakeAchievement(const std::string& name, const std::string& description, BaseTime requiredTime) {
         static size_t achievementIndex = 0;
 		auto unlock = MakeUnlockable(name, achievementIndex++, requiredTime);
 

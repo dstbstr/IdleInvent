@@ -27,6 +27,7 @@ namespace Invent {
 		std::function<void()> ExtraOnPurchase{};
 	};
 
+	/*
 	struct Invention {
 		std::string Name{};
 		ResourceName Resource{ ResourceName::Unset };
@@ -39,4 +40,5 @@ namespace Invent {
 	namespace Inventions {
         void Reset();
     } // namespace Inventions
+	*/
 }

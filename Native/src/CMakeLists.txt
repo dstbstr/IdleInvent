@@ -51,15 +51,16 @@ set(dist_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../dist)
 
 function(make_native_lib)
     add_library(${PROJECT_NAME})
+    set(out_DIR ${dist_DIR}/${ANDROID_ABI}/${PROJECT_NAME})
 
     target_include_directories(${PROJECT_NAME} PUBLIC inc)
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${dist_DIR}/${PROJECT_NAME}/lib/${ANDROID_ABI})
+    set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${out_DIR}/lib)
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/inc
-        ${dist_DIR}/${PROJECT_NAME}/inc    
+        ${out_DIR}/inc
     )
 endfunction()
 

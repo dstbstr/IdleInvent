@@ -16,4 +16,6 @@ namespace Graphics {
     void UnloadImage(Image& image);
 
     std::pair<int, int> GetScreenSize();
+    extern float ScreenHeight;
+    extern float ScreenWidth;
 };

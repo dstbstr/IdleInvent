@@ -17,7 +17,7 @@ namespace Invent {
 	}
 
 	StorageCollection::StorageCollection() {
-		for (const auto& resource : AllResources) {
+		for (const auto& resource : AllResources()) {
 			m_Storages.emplace(resource, Storage(resource));
 		}
 	}
@@ -25,7 +25,7 @@ namespace Invent {
 	void StorageCollection::Load(const StorageSave& save) {
         Log::Info("Loading storage");
 		for (size_t i = 0; i < 5; ++i) {
-            auto resource = AllResources[i];
+            auto resource = AllResources()[i];
 			auto store = Storage(resource);
 			store.Stored = Constexpr::Decompress<size_t>(save.Stored[i]);
 
@@ -41,7 +41,7 @@ namespace Invent {
 	void StorageCollection::Save(StorageSave& save) const {
         Log::Info("Saving storage");
         for(size_t i = 0; i < 5; ++i) {
-            auto resource = AllResources[i];
+            auto resource = AllResources()[i];
 			auto capacity = std::distance(capacities.begin(), std::find(capacities.begin(), capacities.end(), m_Storages.at(resource).Capacity));
 			save.Capacity |= capacity << (i * 3);
             save.Stored[i] = Constexpr::Compress(m_Storages.at(resource).Stored);

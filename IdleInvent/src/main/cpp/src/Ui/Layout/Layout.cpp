@@ -18,8 +18,6 @@
 #include <vector>
 
 namespace {
-    float screenWidth = 0;
-    float screenHeight = 0;
 
     class UiBuilder {
     public:
@@ -33,10 +31,10 @@ namespace {
             float startY = 0;
             for(auto i = 0u; i < m_Parts.size(); ++i) {
                 ImGui::SetNextWindowPos(ImVec2(0, startY));
-                ImGui::SetNextWindowSize(ImVec2(screenWidth, m_Heights[i]));
+                ImGui::SetNextWindowSize(ImVec2(Graphics::ScreenWidth, m_Heights[i]));
                 m_Parts[i]();
                 startY += m_Heights[i];
-                DR_ASSERT_MSG(startY <= screenHeight, "UI parts exceed window height");
+                DR_ASSERT_MSG(startY <= Graphics::ScreenHeight, "UI parts exceed window height");
             }
         }
 
@@ -48,10 +46,6 @@ namespace {
 
 namespace Ui::Layout {
     bool Initialize() {
-        auto [w, h] = Graphics::GetScreenSize();
-        screenWidth = static_cast<float>(w);
-        screenHeight = static_cast<float>(h);
-
         return EmptyBar::Initialize() &&
                 NavBar::Initialize() &&
                 NewsFeed::Initialize() &&
@@ -74,14 +68,14 @@ namespace Ui::Layout {
     }
 
     void Render() {
+        auto screenHeight = Graphics::ScreenHeight;
         UiBuilder()
             .AddPart(screenHeight * 0.03F, EmptyBar::Render)
-            .AddPart(screenHeight * 0.03F, TopBar::Render)
-            .AddPart(screenHeight * 0.7F, Screens::Render)
+            .AddPart(screenHeight * 0.08F, TopBar::Render)
+            .AddPart(screenHeight * 0.65F, Screens::Render)
             .AddPart(screenHeight * 0.07F, ResourceBar::Render)
             .AddPart(screenHeight * 0.065F, NavBar::Render)
             .AddPart(screenHeight * 0.08F, PrimaryResource::Render)
             .Build();
-
     }
 }

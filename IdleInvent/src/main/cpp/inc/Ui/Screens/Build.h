@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Ui::Screens::StartLife {
+namespace Ui::Screens::Build {
     bool Initialize();
     void ShutDown();
     

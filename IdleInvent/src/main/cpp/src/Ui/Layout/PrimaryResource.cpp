@@ -3,6 +3,7 @@
 #include "Ui/Ui.h"
 
 #include "InventLib/Character/Life.h"
+#include "InventLib/Character/Society.h"
 
 #include "Core/DesignPatterns/ServiceLocator.h"
 
@@ -12,7 +13,7 @@ namespace {
 
 namespace Ui::PrimaryResource {
     bool Initialize() {
-        life = &ServiceLocator::Get().GetRequired<Invent::Life>();
+        life = &ServiceLocator::Get().GetRequired<Invent::Society>().CurrentLife;
         return true;
     }
 
@@ -25,7 +26,7 @@ namespace Ui::PrimaryResource {
         const auto& resource = life->Resources.at(primary);
         auto progress = static_cast<f32>(resource.Current) / static_cast<f32>(resource.Capacity);
         ImGui::Begin("Primary Resource", nullptr, BaseFlags);
-        ImGui::ProgressBar(progress, ImVec2(-1, -1), std::format("{}: {}/{}", ToString(primary), resource.Current, resource.Capacity).c_str());
+        ImGui::ProgressBar(progress, ImVec2(-1, -1), std::format("Work: {}/{}", resource.Current, resource.Capacity).c_str());
         ImGui::End();
     }
 }

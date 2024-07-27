@@ -13,6 +13,8 @@ namespace Invent {
 	struct ResourceSave {
         u16 Current[4]{}; // consider compressing this to u8
         u16 Capacity[4]{}; // maybe store the index of the progression instead of the value
+		u16 BaseCapacity[4]{};
+		ModifierSave CapacityModifiers[4]{}; // only keep permanent modifiers
 	};
 
 	enum struct ResourceName {
@@ -35,28 +37,22 @@ namespace Invent {
 		}
 	}
 
-	inline static const std::vector<ResourceName> AllResources = {
-		ResourceName::Primary,
-        ResourceName::Followers, 
-		ResourceName::Knowledge, 
-		ResourceName::Money,
-		ResourceName::Power
-	};
-
-	inline static const std::vector<ResourceName> SecondaryResources = {
-		ResourceName::Followers,
-		ResourceName::Knowledge,
-		ResourceName::Money,
-		ResourceName::Power
-	};
-
+	std::vector<ResourceName> AllResources();
+	std::vector<ResourceName> SecondaryResources();
 	std::vector<ResourceName> GetRelativeResources(ResourceName resourceName);
 
 	struct Resource {
 		s64 Current{ 0 };
-		s64 Capacity{ 100 };
+        s64 BaseCapacity{100};
+		s64 Capacity{ BaseCapacity };
 
 		void Clamp();
+        void AddCapacityModifier(Modifier modifier);
+        void RemoveCapacityModifier(Modifier modifier);
+
+    private:
+        std::vector<Modifier> CapacityModifiers{};
+        void CalculateCapacity();
 	};
 
 	class ResourceCollection {
@@ -76,26 +72,34 @@ namespace Invent {
 		Resource& operator[](ResourceName resource);
 		const Resource& operator[](ResourceName resource) const;
 
-		bool operator==(const ResourceCollection& rhs) const;
-		bool operator!=(const ResourceCollection& rhs) const;
-		bool operator<(const ResourceCollection& rhs) const;
-		bool operator<=(const ResourceCollection& rhs) const;
-		bool operator>(const ResourceCollection& rhs) const;
-		bool operator>=(const ResourceCollection& rhs) const;
+		friend bool operator==(const ResourceCollection& lhs, const ResourceCollection& rhs);
+		friend bool operator!=(const ResourceCollection& lhs, const ResourceCollection& rhs);
+		friend bool operator<(const ResourceCollection& lhs, const ResourceCollection& rhs);
+		friend bool operator<=(const ResourceCollection& lhs, const ResourceCollection& rhs);
+		friend bool operator>(const ResourceCollection& lhs, const ResourceCollection& rhs);
+		friend bool operator>=(const ResourceCollection& lhs, const ResourceCollection& rhs);
 
 		ResourceCollection& operator+=(const ResourceCollection& rhs);
-		ResourceCollection operator+(const ResourceCollection& rhs) const;
+        friend ResourceCollection operator+(const ResourceCollection& lhs, const ResourceCollection& rhs);
 
 		ResourceCollection& operator-= (const ResourceCollection& rhs);
-		ResourceCollection operator-(const ResourceCollection& rhs) const;
+		friend ResourceCollection operator-(const ResourceCollection& lhs, const ResourceCollection& rhs);
 
 		ResourceCollection& operator*=(size_t multiplier);
-		ResourceCollection operator*(size_t multiplier) const;
+		friend ResourceCollection operator*(const ResourceCollection& lhs, size_t multiplier);
+
         ResourceCollection& operator*=(f32 multiplier);
-		ResourceCollection operator*(f32 multiplier) const;
+        ResourceCollection& operator*=(f64 multiplier);
+		friend ResourceCollection operator*(const ResourceCollection& lhs, f32 multiplier);
+        friend ResourceCollection operator*(const ResourceCollection& lhs, f64 multiplier);
 
 		ResourceCollection& operator/=(size_t divisor);
-		ResourceCollection operator/(size_t divisor) const;
+		friend ResourceCollection operator/(const ResourceCollection& lhs, size_t divisor);
+
+		ResourceCollection& operator/=(f32 divisor);
+        ResourceCollection& operator/=(f64 divisor);
+		friend ResourceCollection operator/(const ResourceCollection& lhs, f32 divisor);
+        friend ResourceCollection operator/(const ResourceCollection& lhs, f64 divisor);
 
 		//begin/end
 		auto begin() { return m_Resources.begin(); }

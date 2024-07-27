@@ -26,7 +26,9 @@ namespace Ui::Screens::Achievements {
     void Render() {
         ImGui::Begin("AchievementsScreen", nullptr, BaseFlags);
         for(const auto& achievement : unlocked) {
-            ImGui::TextWrapped("%s", std::format("{}: {}", achievement.Name, achievement.Description).c_str());
+            if(ImGui::CollapsingHeader(achievement.Name.c_str())) {
+                ImGui::TextWrapped("%s", achievement.Description.c_str());
+            }
         }
         ImGui::End();
     }

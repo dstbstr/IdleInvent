@@ -4,6 +4,7 @@
 #include "InventLib/Mechanics/Purchasable.h"
 #include "InventLib/GameState/GameState.h"
 
+/*
 namespace Invent {
     struct TestPurchasable : public Purchasable {
         TestPurchasable(ResourceCollection costs, Purchasable::OnPurchaseFn onPurchase)
@@ -109,3 +110,4 @@ namespace Invent {
         ASSERT_TRUE(purchased);
     }
 } // namespace Invent
+*/

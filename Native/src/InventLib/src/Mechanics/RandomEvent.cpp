@@ -58,7 +58,7 @@ namespace Invent {
 					
 					if(current <= target && current + elapsed >= target) {
                         ActiveEvent = event;
-						Log::Info(std::format("Triggering random event: {} for {} seconds", event.Headline, std::chrono::duration_cast<std::chrono::seconds>(event.Effects[0].Duration).count()));
+						//Log::Info(std::format("Triggering random event: {} for {} seconds", event.Headline, std::chrono::duration_cast<std::chrono::seconds>(event.Effects[0].Duration).count()));
                     }
 					else if (current >= EventChances[event]) {
 						current = 0s;

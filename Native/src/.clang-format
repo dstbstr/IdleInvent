@@ -20,7 +20,7 @@ AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
 # AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
-# AlwaysBreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 #BitFieldColonSpacing: After

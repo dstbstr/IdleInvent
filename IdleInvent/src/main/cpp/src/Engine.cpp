@@ -5,6 +5,7 @@
 #include "Platform/Platform.h"
 #include "Platform/GameLog.h"
 #include "Ui/Splash.h"
+#include "Ui/StartLife.h"
 #include "Ui/Ui.h"
 
 #include "InventLib/EntryPoint.h"
@@ -63,7 +64,9 @@ Engine::Engine(Platform& inPlatform, Invent::SaveState& inSaveState) {
     DR_ASSERT_MSG(Ui::Splash::Initialize(), "Failed to initialize splash screen");
     Graphics::Render(Ui::Splash::Render);
 
+    DR_ASSERT_MSG(Ui::StartLife::Initialize(), "Failed to initialize start life screen");
     DR_ASSERT_MSG(Ui::Initialize(), "Failed to initialize UI");
+    // TODO: Set Life started based on save data
 
     services->GetOrCreate<PubSub<Invent::FileOperation>>().Subscribe([](const Invent::FileOperation& request) {
         switch(request) {
@@ -85,17 +88,7 @@ Engine::Engine(Platform& inPlatform, Invent::SaveState& inSaveState) {
         }
     });
     // Cheating
-    /*
-    for(auto& [name, resource] : services->GetRequired<Invent::GameState>().Character.CurrentResources) {
-        resource.Progress.Active = true;
-    }
-     */
-    /*
-    auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
-    for(auto& [name, resource] : gameState.CurrentResources) {
-        resource.Progress.Modifiers.push_back({2, 100.0F});
-    }
-    */
+    
 }
 
 Engine::~Engine() {
@@ -103,6 +96,7 @@ Engine::~Engine() {
 
     Ui::ShutDown();
     Ui::Splash::ShutDown();
+    Ui::StartLife::ShutDown();
     Graphics::Shutdown();
     Log::Flush();
 
@@ -123,11 +117,11 @@ void Engine::Tick() const {
     LastTickTime = now;
 
     Invent::EntryPoint::Tick(elapsed);
-    Graphics::Render(Ui::Render);
+    Ui::StartLife::IsDone() ? Graphics::Render(Ui::Render) : Graphics::Render(Ui::StartLife::Render);
 
     if(now - LastSaveTime > 30s) {
         LastSaveTime = now;
-        services->GetRequired<PubSub<Invent::FileOperation>>().Publish(Invent::FileOperation::Save);
+        //services->GetRequired<PubSub<Invent::FileOperation>>().Publish(Invent::FileOperation::Save);
     }
     // TODO: Sleep to set FPS
 }

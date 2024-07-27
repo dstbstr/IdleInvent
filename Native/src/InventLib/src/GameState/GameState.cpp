@@ -13,16 +13,6 @@
 namespace {
 	using namespace Invent;
 
-	void ApplyEffect(GameState&, const Effect& effect) {
-		if (effect.OtherEffects) effect.OtherEffects();
-        if(effect.Resource == ResourceName::Unset) return;
-
-        // TODO: Move this to Life
-		//auto mod = Modifier{.Add = effect.Add, .Mul = effect.Mul, .Duration = effect.Duration};
-		//auto& resource = gameState.Character.CurrentResources.at(effect.Resource);
-        //resource.Progress.AddModifier(mod);
-	}
-
 	size_t BaseLifeSpan = 25;
 
 	auto DecayTimer = BaseTime::zero();
@@ -41,7 +31,7 @@ namespace {
 }
 
 namespace Invent {
-	GameState::GameState() : CurrentLife() {
+	GameState::GameState() {
         SetupSubscriptions();
 	}
 
@@ -81,12 +71,14 @@ namespace Invent {
 	void GameState::SetupSubscriptions() {
         auto& services = ServiceLocator::Get();
 
+        /*
         m_EffectHandle =
             services.GetOrCreate<PubSub<std::vector<Effect>>>().Subscribe([this](const std::vector<Effect>& effects) {
                 for(const auto& effect: effects) {
                     ApplyEffect(*this, effect);
                 }
             });
+            */
 
         auto& storegeEvents = services.GetOrCreate<PubSub<InventionLevel>>();
         m_StorageHandle = storegeEvents.Subscribe([this](const InventionLevel& invention) {
@@ -99,24 +91,13 @@ namespace Invent {
             Log::Info(std::format("Age advanced to {}", age.Name));
             BaseLifeSpan += 5;
         });
-
-        auto& deathEvents = services.GetOrCreate<PubSub<Death>>();
-        m_DeathHandle = deathEvents.Subscribe([this](const Death&) {
-            for(const auto& name: AllResources) {
-                auto& resource = CurrentLife.Resources.at(name);
-                resource.Current = Storages.at(name).Stored;
-                Storages.at(name).Stored = 0;
-            }
-            //Character.CharacterDeath = GenerateDeath(BaseLifeSpan);
-            //Character.CurrentAge = 16 * OneGameYear;
-        });
 	}
 
 	void GameState::Tick(BaseTime elapsed) {
         TimeElapsed += elapsed;
 		CurrentRunElapsed += elapsed;
 		
-        CurrentLife.Tick(elapsed);
+        //CurrentLife.Tick(elapsed);
         TickDecay(elapsed, Storages);
 	}
 }

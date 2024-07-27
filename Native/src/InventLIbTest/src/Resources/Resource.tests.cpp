@@ -6,7 +6,7 @@ namespace Invent {
 
     ResourceCollection MakeCollection(s64 count) {
         ResourceCollection collection;
-        for(auto resource: AllResources) {
+        for(auto resource: AllResources()) {
             collection[resource].Current = count;
         }
         return collection;
@@ -14,7 +14,7 @@ namespace Invent {
 
     TEST(ResourceCollection, ResourceCollection_OnConstruction_HasAllResources) {
         ResourceCollection collection;
-        for(auto resource: AllResources) {
+        for(auto resource: AllResources()) {
             ASSERT_EQ(collection[resource].Current, 0);
         }
     }

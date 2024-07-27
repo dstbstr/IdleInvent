@@ -1,0 +1,4 @@
+IdleInvent\src\main\cpp\src\Platform\Android\GameLog.cpp,41,style,unreachableCode"Statements following noreturn function 'raise()' will never be executed."
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp,147,style,knownConditionTrueFalse"Condition '!InitializeEgl()' is always false"
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp,48,style,redundantInitialization"Redundant initialization for 'closeSplash'. The initialized value is overwritten before it is read."
+Native\src\InventLib\src\Technology\Invention.cpp,56,style,constVariableReference"Variable 'gameState' can be declared as reference to const"

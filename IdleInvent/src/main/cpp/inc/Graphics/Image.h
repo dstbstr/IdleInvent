@@ -11,4 +11,8 @@ struct Image {
     constexpr int GetSize() const {
         return Width * Height * Channels;
     }
+
+    void* ToHandle() const {
+        return reinterpret_cast<void*>(static_cast<intptr_t>(TextureId));
+    }
 };

@@ -44,12 +44,14 @@ endif()
 set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
+set(DistDir ${NativeDir}/dist/${ANDROID_ABI})
+
 add_library(${PROJECT_NAME} SHARED)
 
 add_library(Core STATIC IMPORTED)
-set_target_properties(Core PROPERTIES IMPORTED_LOCATION ${NativeDir}/dist/Core/lib/${ANDROID_ABI}/libCore.a)
+set_target_properties(Core PROPERTIES IMPORTED_LOCATION ${DistDir}/Core/lib/libCore.a)
 add_library(InventLib STATIC IMPORTED)
-set_target_properties(InventLib PROPERTIES IMPORTED_LOCATION ${NativeDir}/dist/InventLib/lib/${ANDROID_ABI}/libInventLib.a)
+set_target_properties(InventLib PROPERTIES IMPORTED_LOCATION ${DistDir}/InventLib/lib/libInventLib.a)
 
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -80,8 +82,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ExternalDir}/imgui
     ${ExternalDir}/stb-image
 
-    ${NativeDir}/dist/Core/inc
-    ${NativeDir}/dist/InventLib/inc
+    ${DistDir}/Core/inc
+    ${DistDir}/InventLib/inc
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -94,6 +96,9 @@ PRIVATE
 
     src/Ui/Ui.cpp
     src/Ui/Splash.cpp
+    src/Ui/StartLife.cpp
+
+    src/Ui/Components/ProjectComponent.cpp
 
     src/Ui/Layout/EmptyBar.cpp
     src/Ui/Layout/Layout.cpp
@@ -105,11 +110,13 @@ PRIVATE
     src/Ui/Layout/TopBar.cpp
 
     src/Ui/Screens/Achievements.cpp
+    src/Ui/Screens/Build.cpp
+    src/Ui/Screens/Explore.cpp
     src/Ui/Screens/Home.cpp
     src/Ui/Screens/Purchases.cpp
+    src/Ui/Screens/Research.cpp
     src/Ui/Screens/Screens.cpp
     src/Ui/Screens/Settings.cpp
-    src/Ui/Screens/StartLife.cpp
 )
 
 if(ANDROID)

@@ -1,6 +1,7 @@
 #include "Ui/Ui.h"
 
 #include "Ui/Layout/Layout.h"
+#include "Platform/Graphics.h"
 
 #include "Core/Instrumentation/Logging.h"
 #include "imgui.h"

@@ -1,14 +1,27 @@
 #pragma once
 
 #include "InventLib/Resources/Resource.h"
+#include "InventLib/Mechanics/Modifier.h"
 
 namespace Invent {
+
     struct ResourceConversion {
         std::string Name;
+        void Convert(ResourceCollection& target, size_t maxTimes = 1ull) const;
+        size_t GetMaxCount(const ResourceCollection& target) const;
+
+        void ModifyTo(const Modifier& effect);
+        void ModifyFrom(const Modifier& effect);
+
+    private:
+        ResourceConversion(const std::string& name, ResourceCollection from, ResourceCollection to)
+			: Name(name)
+			, From(from)
+			, To(to) {}
+        friend class ResourceConversionBuilder;
+
         ResourceCollection From;
         ResourceCollection To;
-
-        void Convert(ResourceCollection& target, size_t maxTimes = 1ull) const;
     };
 
     class ResourceConversionBuilder {

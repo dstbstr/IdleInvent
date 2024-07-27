@@ -1,0 +1,1080 @@
+IdleInvent\src\main\cpp\src\Engine.cpp:1:0: information: Include file: "Engine.h" not found. [missingInclude]
+#include "Engine.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:2:0: information: Include file: "EngineState.h" not found. [missingInclude]
+#include "EngineState.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:4:0: information: Include file: "Platform/Graphics.h" not found. [missingInclude]
+#include "Platform/Graphics.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:5:0: information: Include file: "Platform/Platform.h" not found. [missingInclude]
+#include "Platform/Platform.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:6:0: information: Include file: "Platform/GameLog.h" not found. [missingInclude]
+#include "Platform/GameLog.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:7:0: information: Include file: "Ui/Splash.h" not found. [missingInclude]
+#include "Ui/Splash.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:8:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:10:0: information: Include file: "InventLib/EntryPoint.h" not found. [missingInclude]
+#include "InventLib/EntryPoint.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:11:0: information: Include file: "InventLib/GameState/SaveState.h" not found. [missingInclude]
+#include "InventLib/GameState/SaveState.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:12:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:13:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:14:0: information: Include file: "InventLib/GameState/FileOperation.h" not found. [missingInclude]
+#include "InventLib/GameState/FileOperation.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:16:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:17:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:18:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:19:0: information: Include file: "Core/NumTypes.h" not found. [missingInclude]
+#include "Core/NumTypes.h"
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:21:0: information: Include file: <format> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <format>
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:22:0: information: Include file: <chrono> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <chrono>
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:23:0: information: Include file: <memory> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <memory>
+^
+IdleInvent\src\main\cpp\src\Engine.cpp:0:0: error: Internal Error. MathLib::toLongNumber: input was not completely consumed: 30s [cppcheckError]
+
+^
+IdleInvent\src\main\cpp\src\Platform\Android\GameLog.cpp:2:0: information: Include file: "Platform/GameLog.h" not found. [missingInclude]
+#include "Platform/GameLog.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\GameLog.cpp:4:0: information: Include file: <android/log.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <android/log.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\GameLog.cpp:8:0: information: Include file: <signal.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <signal.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\GameLog.cpp:41:9: style: Statements following noreturn function 'raise()' will never be executed. [unreachableCode]
+        __android_log_print(ANDROID_LOG_ERROR, LogTag, ErrorLineFormat, entry.Context.FileName.c_str(), entry.Context.LineNumber, entry.Context.Function.c_str(), entry.Message.c_str());
+        ^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:1:0: information: Include file: "Platform/Graphics.h" not found. [missingInclude]
+#include "Platform/Graphics.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:4:0: information: Include file: "Graphics/Image.h" not found. [missingInclude]
+#include "Graphics/Image.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:6:0: information: Include file: <EGL/egl.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <EGL/egl.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:7:0: information: Include file: <GLES3/gl3.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <GLES3/gl3.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:9:0: information: Include file: "backends/imgui_impl_android.h" not found. [missingInclude]
+#include "backends/imgui_impl_android.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:10:0: information: Include file: "backends/imgui_impl_opengl3.h" not found. [missingInclude]
+#include "backends/imgui_impl_opengl3.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:11:0: information: Include file: <android_native_app_glue.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <android_native_app_glue.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:13:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:16:0: information: Include file: <stb_image.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <stb_image.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:18:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:201:53: style: C-style pointer casting [cstyleCast]
+        auto dataSize = PlatformPtr->GetAsset(file, (void**)&fileData);
+                                                    ^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:147:12: style: Condition '!InitializeEgl()' is always false [knownConditionTrueFalse]
+        if(!InitializeEgl()) return false;
+           ^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:147:26: note: Calling function 'InitializeEgl' returns 1
+        if(!InitializeEgl()) return false;
+                         ^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:147:12: note: Condition '!InitializeEgl()' is always false
+        if(!InitializeEgl()) return false;
+           ^
+IdleInvent\src\main\cpp\src\Platform\Android\Inputs.cpp:1:0: information: Include file: "Platform/Inputs.h" not found. [missingInclude]
+#include "Platform/Inputs.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Inputs.cpp:3:0: information: Include file: "backends/imgui_impl_android.h" not found. [missingInclude]
+#include "backends/imgui_impl_android.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Main.cpp:1:0: information: Include file: "Engine.h" not found. [missingInclude]
+#include "Engine.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Main.cpp:3:0: information: Include file: "InventLib/GameState/SaveState.h" not found. [missingInclude]
+#include "InventLib/GameState/SaveState.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Main.cpp:5:0: information: Include file: <android_native_app_glue.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <android_native_app_glue.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Main.cpp:7:0: information: Include file: <string> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <string>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Main.cpp:8:0: information: Include file: <memory> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <memory>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Main.cpp:74:66: style: C-style pointer casting [cstyleCast]
+        while(ALooper_pollOnce(engine ? 0 : 1, nullptr, &events, (void**)&source) >= 0) {
+                                                                 ^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:3:0: information: Include file: "Platform/Platform.h" not found. [missingInclude]
+#include "Platform/Platform.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:5:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:6:0: information: Include file: "Platform/Inputs.h" not found. [missingInclude]
+#include "Platform/Inputs.h"
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:8:0: information: Include file: <android_native_app_glue.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <android_native_app_glue.h>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:9:0: information: Include file: <imgui.h> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <imgui.h> // for IM_ALLOC
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:11:0: information: Include file: <fstream> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <fstream>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:23:36: style: C-style pointer casting [cstyleCast]
+        return Inputs::HandleInput((void*)e);
+                                   ^
+IdleInvent\src\main\cpp\src\Platform\Android\Platform.cpp:57:34: style: C-style pointer casting [cstyleCast]
+    DR_ASSERT_MSG(javaVm->GetEnv((void**)&env, JNI_VERSION_1_6) == JNI_OK, "GetEnv failed");
+                                 ^
+IdleInvent\src\main\cpp\src\Ui\Layout\EmptyBar.cpp:1:0: information: Include file: "Ui/Layout/EmptyBar.h" not found. [missingInclude]
+#include "Ui/Layout/EmptyBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\EmptyBar.cpp:2:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:1:0: information: Include file: "Ui/Layout/Layout.h" not found. [missingInclude]
+#include "Ui/Layout/Layout.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:3:0: information: Include file: "Ui/Layout/EmptyBar.h" not found. [missingInclude]
+#include "Ui/Layout/EmptyBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:4:0: information: Include file: "Ui/Layout/NavBar.h" not found. [missingInclude]
+#include "Ui/Layout/NavBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:5:0: information: Include file: "Ui/Layout/NewsFeed.h" not found. [missingInclude]
+#include "Ui/Layout/NewsFeed.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:6:0: information: Include file: "Ui/Layout/Popups.h" not found. [missingInclude]
+#include "Ui/Layout/Popups.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:7:0: information: Include file: "Ui/Layout/PrimaryResource.h" not found. [missingInclude]
+#include "Ui/Layout/PrimaryResource.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:8:0: information: Include file: "Ui/Layout/ResourceBar.h" not found. [missingInclude]
+#include "Ui/Layout/ResourceBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:9:0: information: Include file: "Ui/Layout/TopBar.h" not found. [missingInclude]
+#include "Ui/Layout/TopBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:10:0: information: Include file: "Ui/Screens/Screens.h" not found. [missingInclude]
+#include "Ui/Screens/Screens.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:11:0: information: Include file: "Platform/Graphics.h" not found. [missingInclude]
+#include "Platform/Graphics.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:13:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:15:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:17:0: information: Include file: <functional> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <functional>
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Layout.cpp:18:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:1:0: information: Include file: "Ui/Layout/NavBar.h" not found. [missingInclude]
+#include "Ui/Layout/NavBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:4:0: information: Include file: "Ui/Screens/Screens.h" not found. [missingInclude]
+#include "Ui/Screens/Screens.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:6:0: information: Include file: "Graphics/Image.h" not found. [missingInclude]
+#include "Graphics/Image.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:7:0: information: Include file: "Platform/Graphics.h" not found. [missingInclude]
+#include "Platform/Graphics.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:9:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:40:44: style: C-style pointer casting [cstyleCast]
+        if (ImGui::ImageButton("HomeIcon", (void*)(intptr_t)HomeIcon.TextureId, { IconSize, IconSize })) {
+                                           ^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:44:51: style: C-style pointer casting [cstyleCast]
+        if (ImGui::ImageButton("AchievementIcon", (void*)(intptr_t)AchievementIcon.TextureId, { IconSize, IconSize })) {
+                                                  ^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:49:48: style: C-style pointer casting [cstyleCast]
+        if(ImGui::ImageButton("PurchasesIcon", (void*)(intptr_t)PurchasesIcon.TextureId, { IconSize, IconSize })) {
+                                               ^
+IdleInvent\src\main\cpp\src\Ui\Layout\NavBar.cpp:54:47: style: C-style pointer casting [cstyleCast]
+        if(ImGui::ImageButton("SettingsIcon", (void*)(intptr_t)SettingsIcon.TextureId, { IconSize, IconSize })) {
+                                              ^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:1:0: information: Include file: "Ui/Layout/NewsFeed.h" not found. [missingInclude]
+#include "Ui/Layout/NewsFeed.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:5:0: information: Include file: "InventLib/Mechanics/Achievement.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Achievement.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:6:0: information: Include file: "InventLib/Mechanics/RandomEvent.h" not found. [missingInclude]
+#include "InventLib/Mechanics/RandomEvent.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:7:0: information: Include file: "InventLib/Character/Death.h" not found. [missingInclude]
+#include "InventLib/Character/Death.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:8:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:9:0: information: Include file: "InventLib/GameState/FileOperation.h" not found. [missingInclude]
+#include "InventLib/GameState/FileOperation.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:11:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:12:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\NewsFeed.cpp:14:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:1:0: information: Include file: "Ui/Layout/Popups.h" not found. [missingInclude]
+#include "Ui/Layout/Popups.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:5:0: information: Include file: "InventLib/Mechanics/Achievement.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Achievement.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:6:0: information: Include file: "InventLib/Mechanics/RandomEvent.h" not found. [missingInclude]
+#include "InventLib/Mechanics/RandomEvent.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:7:0: information: Include file: "InventLib/Character/Death.h" not found. [missingInclude]
+#include "InventLib/Character/Death.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:9:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:10:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:12:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\Popups.cpp:14:0: information: Include file: <optional> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <optional>
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\PrimaryResource.cpp:1:0: information: Include file: "Ui/Layout/PrimaryResource.h" not found. [missingInclude]
+#include "Ui/Layout/PrimaryResource.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\PrimaryResource.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\PrimaryResource.cpp:5:0: information: Include file: "InventLib/Character/Life.h" not found. [missingInclude]
+#include "InventLib/Character/Life.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\PrimaryResource.cpp:7:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\ResourceBar.cpp:1:0: information: Include file: "Ui/Layout/ResourceBar.h" not found. [missingInclude]
+#include "Ui/Layout/ResourceBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\ResourceBar.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\ResourceBar.cpp:5:0: information: Include file: "InventLib/Resources/Resource.h" not found. [missingInclude]
+#include "InventLib/Resources/Resource.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\ResourceBar.cpp:6:0: information: Include file: "InventLib/Character/Life.h" not found. [missingInclude]
+#include "InventLib/Character/Life.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\ResourceBar.cpp:8:0: information: Include file: "Core/Constexpr/ConstexprStrUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprStrUtils.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\ResourceBar.cpp:9:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\ResourceBar.cpp:11:0: information: Include file: <format> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <format>
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:1:0: information: Include file: "Ui/Layout/TopBar.h" not found. [missingInclude]
+#include "Ui/Layout/TopBar.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:2:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:3:0: information: Include file: "Ui/Screens/Screens.h" not found. [missingInclude]
+#include "Ui/Screens/Screens.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:5:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:6:0: information: Include file: "InventLib/Technology/TechAge.h" not found. [missingInclude]
+#include "InventLib/Technology/TechAge.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:7:0: information: Include file: "InventLib/Settings/GameSettings.h" not found. [missingInclude]
+#include "InventLib/Settings/GameSettings.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:9:0: information: Include file: "Core/Constexpr/ConstexprStrUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprStrUtils.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:10:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:11:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:12:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Layout\TopBar.cpp:14:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Achievements.cpp:1:0: information: Include file: "Ui/Screens/Achievements.h" not found. [missingInclude]
+#include "Ui/Screens/Achievements.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Achievements.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Achievements.cpp:5:0: information: Include file: "InventLib/Mechanics/Achievement.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Achievement.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Achievements.cpp:7:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Achievements.cpp:8:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Achievements.cpp:10:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:1:0: information: Include file: "Ui/Screens/Home.h" not found. [missingInclude]
+#include "Ui/Screens/Home.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:5:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:6:0: information: Include file: "InventLib/Character/Life.h" not found. [missingInclude]
+#include "InventLib/Character/Life.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:8:0: information: Include file: "Core/Constexpr/ConstexprStrUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprStrUtils.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:9:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:11:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Home.cpp:13:0: information: Include file: <format> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <format>
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:1:0: information: Include file: "Ui/Screens/Purchases.h" not found. [missingInclude]
+#include "Ui/Screens/Purchases.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:5:0: information: Include file: "InventLib/Mechanics/Unlockable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Unlockable.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:6:0: information: Include file: "InventLib/Mechanics/Purchasable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Purchasable.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:7:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:8:0: information: Include file: "InventLib/Settings/GameSettings.h" not found. [missingInclude]
+#include "InventLib/Settings/GameSettings.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:10:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:11:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:13:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:15:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:16:0: information: Include file: <algorithm> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <algorithm>
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Purchases.cpp:17:0: information: Include file: <ranges> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <ranges>
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Screens.cpp:1:0: information: Include file: "Ui/Screens/Screens.h" not found. [missingInclude]
+#include "Ui/Screens/Screens.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Screens.cpp:3:0: information: Include file: "Ui/Screens/Achievements.h" not found. [missingInclude]
+#include "Ui/Screens/Achievements.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Screens.cpp:4:0: information: Include file: "Ui/Screens/Home.h" not found. [missingInclude]
+#include "Ui/Screens/Home.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Screens.cpp:5:0: information: Include file: "Ui/Screens/Purchases.h" not found. [missingInclude]
+#include "Ui/Screens/Purchases.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Screens.cpp:6:0: information: Include file: "Ui/Screens/Settings.h" not found. [missingInclude]
+#include "Ui/Screens/Settings.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Screens.cpp:7:0: information: Include file: "Ui/Screens/StartLife.h" not found. [missingInclude]
+#include "Ui/Screens/StartLife.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Screens.cpp:9:0: information: Include file: <functional> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <functional>
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Settings.cpp:1:0: information: Include file: "Ui/Screens/Settings.h" not found. [missingInclude]
+#include "Ui/Screens/Settings.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Settings.cpp:2:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Settings.cpp:4:0: information: Include file: "InventLib/Settings/GameSettings.h" not found. [missingInclude]
+#include "InventLib/Settings/GameSettings.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Settings.cpp:5:0: information: Include file: "InventLib/GameState/FileOperation.h" not found. [missingInclude]
+#include "InventLib/GameState/FileOperation.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Settings.cpp:7:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\Settings.cpp:8:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\StartLife.cpp:1:0: information: Include file: "Ui/Screens/StartLife.h" not found. [missingInclude]
+#include "Ui/Screens/StartLife.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\StartLife.cpp:3:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\StartLife.cpp:4:0: information: Include file: "Ui/Screens/Screens.h" not found. [missingInclude]
+#include "Ui/Screens/Screens.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\StartLife.cpp:6:0: information: Include file: "InventLib/Resources/Resource.h" not found. [missingInclude]
+#include "InventLib/Resources/Resource.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\StartLife.cpp:7:0: information: Include file: "InventLib/Character/Life.h" not found. [missingInclude]
+#include "InventLib/Character/Life.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Screens\StartLife.cpp:9:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:1:0: information: Include file: "Ui/Splash.h" not found. [missingInclude]
+#include "Ui/Splash.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:3:0: information: Include file: "Ui/Screens/Screens.h" not found. [missingInclude]
+#include "Ui/Screens/Screens.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:4:0: information: Include file: "Platform/Graphics.h" not found. [missingInclude]
+#include "Platform/Graphics.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:5:0: information: Include file: "Graphics/Image.h" not found. [missingInclude]
+#include "Graphics/Image.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:7:0: information: Include file: "EngineState.h" not found. [missingInclude]
+#include "EngineState.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:8:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:10:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:11:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:13:0: information: Include file: <chrono> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <chrono>
+^
+IdleInvent\src\main\cpp\src\Ui\Splash.cpp:0:0: error: Internal Error. MathLib::toLongNumber: input was not completely consumed: 2s [cppcheckError]
+
+^
+IdleInvent\src\main\cpp\src\Ui\Ui.cpp:1:0: information: Include file: "Ui/Ui.h" not found. [missingInclude]
+#include "Ui/Ui.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Ui.cpp:3:0: information: Include file: "Ui/Layout/Layout.h" not found. [missingInclude]
+#include "Ui/Layout/Layout.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Ui.cpp:5:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+IdleInvent\src\main\cpp\src\Ui\Ui.cpp:6:0: information: Include file: "imgui.h" not found. [missingInclude]
+#include "imgui.h"
+^
+Native\src\Core\src\Constexpr\ConstexprMath.test.cpp:1:0: information: Include file: "Core/Constexpr/ConstexprMath.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprMath.h"
+^
+Native\src\Core\src\Constexpr\ConstexprSaveUtils.test.cpp:1:0: information: Include file: "Core/Constexpr/ConstexprSaveUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprSaveUtils.h"
+^
+Native\src\Core\src\Constexpr\ConstexprSaveUtils.test.cpp:2:0: information: Include file: "Core/NumTypes.h" not found. [missingInclude]
+#include "Core/NumTypes.h"
+^
+Native\src\Core\src\Constexpr\ConstexprSaveUtils.test.cpp:3:0: information: Include file: <limits> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <limits>
+^
+Native\src\Core\src\Instrumentation\ISink.cpp:1:0: information: Include file: "Core/Instrumentation/ISink.h" not found. [missingInclude]
+#include "Core/Instrumentation/ISink.h"
+^
+Native\src\Core\src\Instrumentation\ISink.cpp:2:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\Core\src\Instrumentation\LogWriter\StdOutLogWriter.cpp:1:0: information: Include file: "Core/Instrumentation/LogWriter/StdOutLogWriter.h" not found. [missingInclude]
+#include "Core/Instrumentation/LogWriter/StdOutLogWriter.h"
+^
+Native\src\Core\src\Instrumentation\Logging.cpp:1:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+Native\src\Core\src\Instrumentation\Logging.cpp:3:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\Core\src\Instrumentation\Logging.cpp:4:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Achievements\Achievements.cpp:1:0: information: Include file: "InventLib/Achievements/Achievements.h" not found. [missingInclude]
+#include "InventLib/Achievements/Achievements.h"
+^
+Native\src\InventLib\src\Achievements\Achievements.cpp:3:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Achievements\Achievements.cpp:4:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Achievements\Achievements.cpp:6:0: information: Include file: "InventLib/Mechanics/Unlockable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Unlockable.h"
+^
+Native\src\InventLib\src\Achievements\Achievements.cpp:8:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\Achievements\Achievements.cpp:9:0: information: Include file: <ranges> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <ranges>
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:1:0: information: Include file: "InventLib/Achievements/Achievements.h" not found. [missingInclude]
+#include "InventLib/Achievements/Achievements.h"
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:2:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:3:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:4:0: information: Include file: "InventLib/Mechanics/Effect.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Effect.h"
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:6:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:7:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:9:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:10:0: information: Include file: <optional> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <optional>
+^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:41:73: performance: Function parameter 'description' should be passed by const reference. [passedByValue]
+ Achievement MakeAchievement(const std::string& name, const std::string description, BaseTime requiredTime) {
+                                                                        ^
+Native\src\InventLib\src\Achievements\TimeAchievements.cpp:16:9: style: Variable 'gameState' can be declared as reference to const [constVariableReference]
+  auto& gameState = ServiceLocator::Get().GetRequired<Invent::GameState>();
+        ^
+Native\src\InventLib\src\Character\Death.cpp:1:0: information: Include file: "InventLib/Character/Death.h" not found. [missingInclude]
+#include "InventLib/Character/Death.h"
+^
+Native\src\InventLib\src\Character\Death.cpp:3:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Character\Death.cpp:4:0: information: Include file: "Core/NumTypes.h" not found. [missingInclude]
+#include "Core/NumTypes.h"
+^
+Native\src\InventLib\src\Character\Death.cpp:5:0: information: Include file: "Core/Utilities/IRandom.h" not found. [missingInclude]
+#include "Core/Utilities/IRandom.h"
+^
+Native\src\InventLib\src\Character\GameCharacter.cpp:1:0: information: Include file: "InventLib/Character/GameCharacter.h" not found. [missingInclude]
+#include "InventLib/Character/GameCharacter.h"
+^
+Native\src\InventLib\src\Character\GameCharacter.cpp:3:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Character\GameCharacter.cpp:4:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Character\GameCharacter.cpp:5:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+Native\src\InventLib\src\Character\Life.cpp:1:0: information: Include file: "InventLib/Character/Life.h" not found. [missingInclude]
+#include "InventLib/Character/Life.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:1:0: information: Include file: "InventLib/EntryPoint.h" not found. [missingInclude]
+#include "InventLib/EntryPoint.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:3:0: information: Include file: "InventLib/Achievements/Achievements.h" not found. [missingInclude]
+#include "InventLib/Achievements/Achievements.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:4:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:5:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:6:0: information: Include file: "InventLib/GameState/SaveState.h" not found. [missingInclude]
+#include "InventLib/GameState/SaveState.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:7:0: information: Include file: "InventLib/Mechanics/Achievement.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Achievement.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:8:0: information: Include file: "InventLib/Mechanics/RandomEvent.h" not found. [missingInclude]
+#include "InventLib/Mechanics/RandomEvent.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:9:0: information: Include file: "InventLib/Mechanics/Unlockable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Unlockable.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:10:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:11:0: information: Include file: "InventLib/Resources/Resource.h" not found. [missingInclude]
+#include "InventLib/Resources/Resource.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:12:0: information: Include file: "InventLib/Technology/Invention.h" not found. [missingInclude]
+#include "InventLib/Technology/Invention.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:13:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:14:0: information: Include file: "InventLib/Settings/GameSettings.h" not found. [missingInclude]
+#include "InventLib/Settings/GameSettings.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:16:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:17:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:18:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:19:0: information: Include file: "Core/Utilities/IRandom.h" not found. [missingInclude]
+#include "Core/Utilities/IRandom.h"
+^
+Native\src\InventLib\src\EntryPoint.cpp:21:0: information: Include file: <ranges> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <ranges>
+^
+Native\src\InventLib\src\EntryPoint.cpp:22:0: information: Include file: <string> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <string>
+^
+Native\src\InventLib\src\EntryPoint.cpp:23:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\EntryPoint.cpp:24:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\GameState\GameState.cpp:1:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+Native\src\InventLib\src\GameState\GameState.cpp:3:0: information: Include file: "InventLib/Character/Death.h" not found. [missingInclude]
+#include "InventLib/Character/Death.h"
+^
+Native\src\InventLib\src\GameState\GameState.cpp:4:0: information: Include file: "InventLib/Mechanics/Achievement.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Achievement.h"
+^
+Native\src\InventLib\src\GameState\GameState.cpp:5:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\GameState\GameState.cpp:6:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\GameState\GameState.cpp:7:0: information: Include file: "InventLib/Technology/TechAge.h" not found. [missingInclude]
+#include "InventLib/Technology/TechAge.h"
+^
+Native\src\InventLib\src\GameState\GameState.cpp:9:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\GameState\GameState.cpp:10:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Mechanics\Advancement.cpp:1:0: information: Include file: "InventLib/Mechanics/Advancement.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Advancement.h"
+^
+Native\src\InventLib\src\Mechanics\Advancement.cpp:3:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Mechanics\Advancement.cpp:4:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Mechanics\Effect.cpp:1:0: information: Include file: "InventLib/Mechanics/Effect.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Effect.h"
+^
+Native\src\InventLib\src\Mechanics\Progression.cpp:1:0: information: Include file: "InventLib/Mechanics/Progression.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Progression.h"
+^
+Native\src\InventLib\src\Mechanics\Purchasable.cpp:1:0: information: Include file: "InventLib/Mechanics/Purchasable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Purchasable.h"
+^
+Native\src\InventLib\src\Mechanics\Purchasable.cpp:2:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+Native\src\InventLib\src\Mechanics\Purchasable.cpp:4:0: information: Include file: <optional> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <optional>
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:1:0: information: Include file: "InventLib/Mechanics/RandomEvent.h" not found. [missingInclude]
+#include "InventLib/Mechanics/RandomEvent.h"
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:2:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:4:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:5:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:6:0: information: Include file: "Core/Utilities/IRandom.h" not found. [missingInclude]
+#include "Core/Utilities/IRandom.h"
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:8:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:9:0: information: Include file: <optional> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <optional>
+^
+Native\src\InventLib\src\Mechanics\RandomEvent.cpp:0:0: error: Internal Error. MathLib::toLongNumber: input was not completely consumed: 0s [cppcheckError]
+
+^
+Native\src\InventLib\src\Mechanics\Unlockable.cpp:1:0: information: Include file: "InventLib/Mechanics/Unlockable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Unlockable.h"
+^
+Native\src\InventLib\src\Mechanics\Unlockable.cpp:2:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Mechanics\Unlockable.cpp:3:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+Native\src\InventLib\src\RandomEvents\InfluenceEvents.cpp:1:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\RandomEvents\InfluenceEvents.cpp:2:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\RandomEvents\KnowledgeEvents.cpp:1:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\RandomEvents\KnowledgeEvents.cpp:2:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\RandomEvents\LaborEvents.cpp:1:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\RandomEvents\LaborEvents.cpp:2:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\RandomEvents\MagicEvents.cpp:1:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\RandomEvents\MagicEvents.cpp:2:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\RandomEvents\NaturalEvents.cpp:1:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\RandomEvents\NaturalEvents.cpp:3:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:1:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:3:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:4:0: information: Include file: "InventLib/Mechanics/RandomEvent.h" not found. [missingInclude]
+#include "InventLib/Mechanics/RandomEvent.h"
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:5:0: information: Include file: "InventLib/Technology/Invention.h" not found. [missingInclude]
+#include "InventLib/Technology/Invention.h"
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:7:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:8:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\RandomEvents\WealthEvents.cpp:1:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\RandomEvents\WealthEvents.cpp:2:0: information: Include file: "InventLib/GameState/GameTime.h" not found. [missingInclude]
+#include "InventLib/GameState/GameTime.h"
+^
+Native\src\InventLib\src\Resources\Resource.cpp:1:0: information: Include file: "InventLib/Resources/Resource.h" not found. [missingInclude]
+#include "InventLib/Resources/Resource.h"
+^
+Native\src\InventLib\src\Resources\Resource.cpp:2:0: information: Include file: "InventLib/Resources/Storage.h" not found. [missingInclude]
+#include "InventLib/Resources/Storage.h"
+^
+Native\src\InventLib\src\Resources\Resource.cpp:4:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Resources\Resource.cpp:5:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Resources\Resource.cpp:6:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+Native\src\InventLib\src\Resources\Resource.cpp:7:0: information: Include file: "Core/Constexpr/ConstexprSaveUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprSaveUtils.h"
+^
+Native\src\InventLib\src\Resources\Resource.cpp:9:0: information: Include file: <array> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <array>
+^
+Native\src\InventLib\src\Resources\ResourceConversion.cpp:1:0: information: Include file: "InventLib/Resources/ResourceConversion.h" not found. [missingInclude]
+#include "InventLib/Resources/ResourceConversion.h"
+^
+Native\src\InventLib\src\Resources\Storage.cpp:1:0: information: Include file: "InventLib/Resources/Storage.h" not found. [missingInclude]
+#include "InventLib/Resources/Storage.h"
+^
+Native\src\InventLib\src\Resources\Storage.cpp:3:0: information: Include file: "Core/Constexpr/ConstexprSaveUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprSaveUtils.h"
+^
+Native\src\InventLib\src\Resources\Storage.cpp:4:0: information: Include file: <array> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <array>
+^
+Native\src\InventLib\src\Technology\Invention.cpp:1:0: information: Include file: "InventLib/Technology/Invention.h" not found. [missingInclude]
+#include "InventLib/Technology/Invention.h"
+^
+Native\src\InventLib\src\Technology\Invention.cpp:2:0: information: Include file: "InventLib/Mechanics/Unlockable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Unlockable.h"
+^
+Native\src\InventLib\src\Technology\Invention.cpp:3:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+Native\src\InventLib\src\Technology\Invention.cpp:4:0: information: Include file: "InventLib/Resources/Resource.h" not found. [missingInclude]
+#include "InventLib/Resources/Resource.h"
+^
+Native\src\InventLib\src\Technology\Invention.cpp:6:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Technology\Invention.cpp:7:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Technology\Invention.cpp:8:0: information: Include file: "Core/Constexpr/ConstexprStrUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprStrUtils.h"
+^
+Native\src\InventLib\src\Technology\Invention.cpp:10:0: information: Include file: <array> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <array>
+^
+Native\src\InventLib\src\Technology\Invention.cpp:11:0: information: Include file: <unordered_set> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_set>
+^
+Native\src\InventLib\src\Technology\Invention.cpp:56:19: style: Variable 'gameState' can be declared as reference to const [constVariableReference]
+            auto& gameState = ServiceLocator::Get().GetRequired<GameState>();
+                  ^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:1:0: information: Include file: "InventLib/Achievements/Achievements.h" not found. [missingInclude]
+#include "InventLib/Achievements/Achievements.h"
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:2:0: information: Include file: "InventLib/RandomEvents/RandomEvents.h" not found. [missingInclude]
+#include "InventLib/RandomEvents/RandomEvents.h"
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:3:0: information: Include file: "InventLib/Technology/Invention.h" not found. [missingInclude]
+#include "InventLib/Technology/Invention.h"
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:4:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:5:0: information: Include file: "InventLib/Technology/TechAge.h" not found. [missingInclude]
+#include "InventLib/Technology/TechAge.h"
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:7:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:8:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:10:0: information: Include file: <ranges> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <ranges>
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:11:0: information: Include file: <string> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <string>
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:12:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\Technology\Inventions\InfluenceTechs.cpp:13:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\Technology\Inventions\KnowledgeTechs.cpp:1:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Inventions\KnowledgeTechs.cpp:3:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\Technology\Inventions\KnowledgeTechs.cpp:4:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\Technology\Inventions\KnowledgeTechs.cpp:5:0: information: Include file: <string> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <string>
+^
+Native\src\InventLib\src\Technology\Inventions\LaborTechs.cpp:1:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Inventions\LaborTechs.cpp:3:0: information: Include file: <string> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <string>
+^
+Native\src\InventLib\src\Technology\Inventions\LaborTechs.cpp:4:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\Technology\Inventions\LaborTechs.cpp:5:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\Technology\Inventions\MagicTechs.cpp:1:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Inventions\MagicTechs.cpp:3:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\Technology\Inventions\MagicTechs.cpp:4:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\Technology\Inventions\MagicTechs.cpp:5:0: information: Include file: <string> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <string>
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:1:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:3:0: information: Include file: "InventLib/Technology/Invention.h" not found. [missingInclude]
+#include "InventLib/Technology/Invention.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:4:0: information: Include file: "InventLib/Mechanics/Purchasable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Purchasable.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:5:0: information: Include file: "InventLib/Mechanics/Unlockable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Unlockable.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:6:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:7:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:8:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StoneAge.cpp:10:0: information: Include file: <ranges> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <ranges>
+^
+Native\src\InventLib\src\Technology\Inventions\StorageTechs.cpp:1:0: information: Include file: "InventLib/Technology/Invention.h" not found. [missingInclude]
+#include "InventLib/Technology/Invention.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StorageTechs.cpp:2:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StorageTechs.cpp:3:0: information: Include file: "InventLib/Resources/Storage.h" not found. [missingInclude]
+#include "InventLib/Resources/Storage.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StorageTechs.cpp:5:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StorageTechs.cpp:6:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Technology\Inventions\StorageTechs.cpp:8:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\Technology\Inventions\StorageTechs.cpp:9:0: information: Include file: <array> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <array>
+^
+Native\src\InventLib\src\Technology\Inventions\WealthTechs.cpp:1:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Inventions\WealthTechs.cpp:3:0: information: Include file: <vector> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <vector>
+^
+Native\src\InventLib\src\Technology\Inventions\WealthTechs.cpp:4:0: information: Include file: <unordered_map> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <unordered_map>
+^
+Native\src\InventLib\src\Technology\Inventions\WealthTechs.cpp:5:0: information: Include file: <string> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <string>
+^
+Native\src\InventLib\src\Technology\Technology.cpp:1:0: information: Include file: "InventLib/Technology/Technology.h" not found. [missingInclude]
+#include "InventLib/Technology/Technology.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:3:0: information: Include file: "InventLib/GameState/GameState.h" not found. [missingInclude]
+#include "InventLib/GameState/GameState.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:4:0: information: Include file: "InventLib/Mechanics/Purchasable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Purchasable.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:5:0: information: Include file: "InventLib/Mechanics/Unlockable.h" not found. [missingInclude]
+#include "InventLib/Mechanics/Unlockable.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:6:0: information: Include file: "InventLib/Resources/Resource.h" not found. [missingInclude]
+#include "InventLib/Resources/Resource.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:8:0: information: Include file: "Core/Instrumentation/Logging.h" not found. [missingInclude]
+#include "Core/Instrumentation/Logging.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:9:0: information: Include file: "Core/DesignPatterns/PubSub.h" not found. [missingInclude]
+#include "Core/DesignPatterns/PubSub.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:10:0: information: Include file: "Core/DesignPatterns/ServiceLocator.h" not found. [missingInclude]
+#include "Core/DesignPatterns/ServiceLocator.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:11:0: information: Include file: "Core/Constexpr/ConstexprStrUtils.h" not found. [missingInclude]
+#include "Core/Constexpr/ConstexprStrUtils.h"
+^
+Native\src\InventLib\src\Technology\Technology.cpp:13:0: information: Include file: <ranges> not found. Please note: Cppcheck does not need standard library headers to get proper results. [missingIncludeSystem]
+#include <ranges>
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Graphics.cpp:154:0: style: The function 'Shutdown' is never used. [unusedFunction]
+    void Shutdown() {
+^
+IdleInvent\src\main\cpp\src\Platform\Android\Main.cpp:68:0: style: The function 'android_main' is never used. [unusedFunction]
+void android_main(android_app* app) {
+^
+Native\src\InventLib\src\RandomEvents\KnowledgeEvents.cpp:22:0: style: The function 'RegisterAll' is never used. [unusedFunction]
+   void RegisterAll() {
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:69:0: style: The function 'MakeMoreCommon' is never used. [unusedFunction]
+        void MakeMoreCommon(RandomEvent event) {
+^
+Native\src\InventLib\src\RandomEvents\RandomEvents.cpp:76:0: style: The function 'MakeLessCommon' is never used. [unusedFunction]
+        void MakeLessCommon(RandomEvent event) {
+^
+Native\src\InventLib\src\Resources\Resource.cpp:17:0: style: The function 'GetRelativeResources' is never used. [unusedFunction]
+    std::vector<ResourceName> GetRelativeResources(ResourceName resourceName) {
+^

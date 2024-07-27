@@ -23,7 +23,7 @@ namespace Invent {
 
 		void Tick(BaseTime elapsed);
         //GameCharacter Character;
-        Life CurrentLife;
+        //Life CurrentLife;
 
 		StorageCollection Storages;
 		BaseTime TimeElapsed{};

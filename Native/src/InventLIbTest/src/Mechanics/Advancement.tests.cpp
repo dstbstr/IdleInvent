@@ -2,6 +2,7 @@
 
 #include "InventLib/Mechanics/Advancement.h"
 #include "InventLib/Mechanics/Progression.h"
+#include "InventLib/Mechanics/ScaleFunc.h"
 
 #include "Core/DesignPatterns/ServiceLocator.h"
 #include "Core/DesignPatterns/PubSub.h"
@@ -27,12 +28,11 @@ namespace Invent {
 			ServiceLocator::Get().ResetAll();
 		}
 		
-		Advancement advancement{"Test", 10, AdvancementCosts::Linear<10>, 0 };
+		Advancement advancement{"Test", 10, Scale::Linear<int, 10>, 0 };
 
 		void SetProgress(s64 add, f32 mul) {
             advancement.Progress.ClearModifiers();
-			// need to subtract one from add because of permanent progress
-            advancement.Progress.AddModifier(Modifier{.Add = add - 1, .Mul = mul});
+            advancement.Progress.AddPermanent(Modifier{.Add = add, .Mul = mul});
 		}
 
 		AdvancementListener listener;
@@ -86,29 +86,5 @@ namespace Invent {
 		advancement.Tick(OneSecond);
 
 		ASSERT_TRUE(listener.Events.size() > 2);
-	}
-
-	TEST(AdvancementCosts, Constant_WithAnyLevel_ReturnsConstant) {
-		auto costs = AdvancementCosts::Constant<10>;
-		ASSERT_EQ(costs(0), 10);
-		ASSERT_EQ(costs(10), 10);
-		ASSERT_EQ(costs(200), 10);
-	}
-
-	TEST(AdvancementCosts, Linear_WithBase10AndLevel3_Returns30) {
-		ASSERT_EQ(AdvancementCosts::Linear<10>(3), 30);
-	}
-
-	TEST(AdvancementCosts, Logarithmic_WithBase2AndLevel3_Returns8) {
-		ASSERT_EQ(AdvancementCosts::Logarithmic<2>(3), 8);
-	}
-
-	TEST(AdvancementCosts, Logarithmic_WithBase10AndLevel3_Returns1000) {
-		ASSERT_EQ(AdvancementCosts::Logarithmic<10>(3), 1000);
-	}
-
-	TEST(AdvancementCosts, Punctuated_WithStep2AndLinearBase10AndLevel3_Returns20) {
-		std::function<size_t(size_t)> costs = AdvancementCosts::MakePunctuated<2>(AdvancementCosts::Linear<10>);
-		ASSERT_EQ(costs(3), 20); // 10, 10, 20, 20, 30, 30
 	}
 }

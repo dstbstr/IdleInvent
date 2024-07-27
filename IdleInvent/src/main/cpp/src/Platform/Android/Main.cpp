@@ -71,7 +71,7 @@ void android_main(android_app* app) {
     while(true) {
         int events;
         android_poll_source* source;
-        while(ALooper_pollOnce(engine ? 0 : 1, nullptr, &events, (void**)&source) >= 0) {
+        while(ALooper_pollOnce(engine ? 0 : 1, nullptr, &events, reinterpret_cast<void**>(&source)) >= 0) {
             if(source) source->process(app, source);
 
             if(app->destroyRequested != 0) {

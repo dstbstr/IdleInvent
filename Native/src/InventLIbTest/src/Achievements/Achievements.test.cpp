@@ -34,6 +34,7 @@ namespace Invent {
             auto& services = ServiceLocator::Get();
             gameState = &services.GetOrCreate<GameState>();
             unlockables = &services.GetOrCreate<std::unordered_map<std::string, Unlockable>>();
+            services.CreateIfMissing<PubSub<std::vector<Effect>>>();
         }
 
         void TearDown() override { unlockables->clear(); }

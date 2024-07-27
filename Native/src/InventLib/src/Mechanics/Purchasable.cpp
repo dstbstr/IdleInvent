@@ -11,8 +11,8 @@ namespace Invent {
 	namespace Purchasables {
 		void Tick() {
 			if (ToPurchase.has_value()) {
-                auto& gameState = ServiceLocator::Get().GetRequired<GameState>();
-				ToPurchase->Purchase(gameState.CurrentLife.Resources);
+                //auto& gameState = ServiceLocator::Get().GetRequired<GameState>();
+				//ToPurchase->Purchase(gameState.CurrentLife.Resources);
 				ToPurchase.reset();
 			}
 		}
@@ -22,6 +22,7 @@ namespace Invent {
 			auto& purchasables = services.GetRequired<std::unordered_map<std::string, Purchasable>>();
 
 			if (purchasables.contains(name)) {
+                /*
 				auto& purchasable = purchasables.at(name);
 				Log::Info("Trying to purchase: " + name);
 				if (purchasable.CanPurchase(services.GetRequired<GameState>().CurrentLife.Resources)) {
@@ -30,6 +31,7 @@ namespace Invent {
 				} else {
 					Log::Info("Purchase failed");
 				}
+				*/
 			}
 		}
 	}

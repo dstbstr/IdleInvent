@@ -14,7 +14,7 @@ namespace {
     constexpr const std::array LevelSuffixes = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
 
 	std::unordered_set<std::string> PurchasedTechs{};
-	auto ResourceSpecialty = Invent::ResourceName::Unset;
+	//auto ResourceSpecialty = Invent::ResourceName::Unset;
 }
 
 
@@ -27,7 +27,7 @@ namespace Invent {
 		, Description(description)
 		, Prerequisites(prereqs)
 		//, PurchaseResourceCosts(GetResourceCosts(resource, age))
-		, UnlockResourceCosts(PurchaseResourceCosts / 2)
+		, UnlockResourceCosts(PurchaseResourceCosts / 2.0F)
 		, Effects(effects) 
 		, ExtraOnUnlock(extraOnUnlock)
 		, ExtraOnPurchase(extraOnPurchase)
@@ -37,6 +37,7 @@ namespace Invent {
 		}
 	}
 
+	/*
 	Unlockable Invention::MakeUnlockable(size_t level) const {
 		Log::Debug(std::format("Making unlockable for {} level {}", Name, level));
 
@@ -110,4 +111,5 @@ namespace Invent {
             ResourceSpecialty = ResourceName::Unset;
         }
     } // namespace Inventions
+	*/
 }

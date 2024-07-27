@@ -1,46 +1,33 @@
-Primary Resource: Work
-	Work is gained over time, with a cap
-	Secondary Resources: Knowledge, Money, Followers, Power
-	Choose a specialty for the life
-	Projects: Invent, Build
-	Study, Earn, Recruit, Train
-		Specialty conversion rate is better
-	Project benefits
-		work cap
-		work rate
-		secondary resource cap
-		secondary resource conversion
-		Invention rate
-		Building rate
-	Invention Rate is primarily Knowledge based
-	Building Rate is equally based
-
 Inventory:
 	Creates items used for building projects
 	Consumables?
 
 Equipment:
-	Improves/unlocks inventing
+	Improves/unlocks inventing/exploration
+
+Exploration:
+	Success chances (resources, artifact, nothing, losses)
+	
 
 Time Travel:
-	Finishing a specialty will unlock a unique 'power' or 1 global multiplier
-		Influence: Increase base lifespan by 5 years
-		Knowledge: Can see the costs of purchasables
-		Labor: Gain 1 extra automation worker
-		Magic: Can divine your age of death
-		Wealth: Storage stops losing resources
+	Finishing a specialty will unlock a unique 'power'
+		Followers: City is always max population
+		Knowledge: Invest All
+		Money: Convert All
+		Power: Automatically move workers to new projects
+		Repeatable: 
+			Increased time piece storage (Repeatable)
+			Improved exploration chances (Repeatable)
+			Increase population bonus on projects (Repeatable)
+			Two extra workers (Repeatable)
+			Tick speed bonus (Repeatable)
+			Resource Conversion bonus (Repeatable)
 
 Idling:
 	Progress is only made while active
-	Idle time is collected with a cap of 4 hours
-	Idle time can be spent as workers (each worker consumes 1 second per second)
-
-Busy Work:
-	Hide an icon on a page
-	Clicking on it gives a small reward
+	Collect Time Pieces while offline
+	Warp 10, 30, or 60 minutes
 
 Save/Load/Reset
-	Save slots?
-	Saving occurs manually or on certain events (purchase, death, app close)
-	Load occurs on game load
-	Reset deletes save data and starts a new game
+	Save slots? Save/Load screen?
+	Saving occurs manually or on certain events (build, invent, explore, app close)
