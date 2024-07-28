@@ -58,9 +58,6 @@ namespace Ui::Screens::Purchases {
             ImGui::BeginChild(purchasable.Name.c_str(), windowSize, ImGuiChildFlags_Border);
             ImGui::TextWrapped("%s", purchasable.Name.c_str());
             ImGui::TextWrapped("%s", purchasable.Description.c_str());
-            if(Settings->showResourceCosts) {
-                ImGui::TextWrapped("Costs: %s", purchasable.CostDescription.c_str());
-            }
             if(ImGui::Button("Purchase")) {
                 Invent::Purchasables::TryPurchase(purchasable.Name);
             }

@@ -13,10 +13,10 @@ namespace {
         ResourceName Specialty{ResourceName::Unset};
         ResourceName Weakness {ResourceName::Unset};
 
-        Life ToLife(Society& society) const { 
+        Life ToLife(Society& society, const GameSettings& settings) const { 
             society.Specialty = Specialty;
             society.Weakness = Weakness;
-            Life result {&society};
+            Life result {&society, settings};
             for(const auto& benefit: Benefits) {
 				result.ApplyEffect(benefit);
 			}
@@ -89,15 +89,15 @@ namespace {
 } // namespace
 
 namespace Invent {
-    void Society::Start(ResourceName specialty) {
+    void Society::Start(ResourceName specialty, const GameSettings& settings) {
         Specialty = specialty;
         Active = true;
 
         switch(specialty) {
-            case ResourceName::Followers: CurrentLife = FollowerEffects.ToLife(*this); break;
-            case ResourceName::Knowledge: CurrentLife = KnowledgeEffects.ToLife(*this); break;
-            case ResourceName::Money: CurrentLife = MoneyEffects.ToLife(*this); break;
-            case ResourceName::Power: CurrentLife = PowerEffects.ToLife(*this); break;
+            case ResourceName::Followers: CurrentLife = FollowerEffects.ToLife(*this, settings); break;
+            case ResourceName::Knowledge: CurrentLife = KnowledgeEffects.ToLife(*this, settings); break;
+            case ResourceName::Money: CurrentLife = MoneyEffects.ToLife(*this, settings); break;
+            case ResourceName::Power: CurrentLife = PowerEffects.ToLife(*this, settings); break;
             default: DR_ASSERT_MSG(false, "Invalid specialty"); break;
         }
 

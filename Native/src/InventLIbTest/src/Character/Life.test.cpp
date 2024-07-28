@@ -5,14 +5,16 @@
 #include "InventLib/Character/Society.h"
 #include "InventLib/Projects/Population.h"
 #include "InventLib/Projects/Project.h"
+#include "InventLib/Settings/GameSettings.h"
 
 namespace Invent {
     struct LifeTest : public ::testing::Test {
         Society society{};
         Life* life;
+        GameSettings settings{};
 
         void SetUp() override {
-            society.Start(ResourceName::Money);
+            society.Start(ResourceName::Money, settings);
             life = &society.CurrentLife;
         }
     };

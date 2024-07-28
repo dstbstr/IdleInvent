@@ -12,6 +12,7 @@
 
 namespace {
     Invent::Society* society = nullptr;
+    Invent::GameSettings* gameSettings = nullptr;
     int specialty = 0;
     std::string specialtyDescription = "";
 }
@@ -19,6 +20,7 @@ namespace {
 namespace Ui::StartLife {
     bool Initialize() {
         society = &ServiceLocator::Get().GetRequired<Invent::Society>();
+        gameSettings = &ServiceLocator::Get().GetRequired<Invent::GameSettings>();
         return true;
     }
 
@@ -48,9 +50,12 @@ namespace Ui::StartLife {
         if(specialty > 0) {
             ImGui::TextWrapped("%s", specialtyDescription.c_str());
             if(ImGui::Button("Start", buttonSize)) {
-                society->Start(static_cast<Invent::ResourceName>(specialty));
+                society->Start(static_cast<Invent::ResourceName>(specialty), *gameSettings);
                 //cheating
                 society->CurrentLife.CurrentPopulation = 5;
+                society->HasWorkerShift = true;
+                society->HasConvertAll = true;
+                society->HasInvestAll = true;
             }
         }
 

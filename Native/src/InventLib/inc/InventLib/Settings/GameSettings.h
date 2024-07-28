@@ -1,29 +1,37 @@
 #pragma once
 
+#include "InventLib/Projects/Project.h"
+
 #include "Core/NumTypes.h"
+
+#include <vector>
 
 namespace Invent {
     struct GameSettingsSave {
-        u8 showFps : 1;
-        u8 showDeathDetails : 1;
-        u8 showResourceCosts : 1;
+        u8 ProjectPriority;
+        u8 ShowFps : 1;
     };
 
     struct GameSettings {
-        bool showFps{true};
-        bool showDeathDetails{false};
-        bool showResourceCosts{false};
+        bool ShowFps{true};
+        bool EnableWorkerShift{false};
+        std::vector<ProjectType> ProjectPriority {ProjectType::Build, ProjectType::Research, ProjectType::Explore, ProjectType::Population};
 
         void Load(const GameSettingsSave& save) {
-            showFps = save.showFps;
-            showDeathDetails = save.showDeathDetails;
-            showResourceCosts = save.showResourceCosts;
+            ShowFps = save.ShowFps;
+            if(save.ProjectPriority > 0) {
+                ProjectPriority.clear();
+                for(auto i = 0; i < 4; i++) {
+                    ProjectPriority.push_back(static_cast<ProjectType>((save.ProjectPriority >> (i * 2)) & 0b11));
+                }
+            }
         }
 
         void Save(GameSettingsSave& save) const {
-            save.showFps = showFps;
-            save.showDeathDetails = showDeathDetails;
-            save.showResourceCosts = showResourceCosts;
+            save.ShowFps = ShowFps;
+            for(auto i = 0; i < 4; i++) {
+                save.ProjectPriority |= static_cast<u8>(ProjectPriority[i]) << (i * 2);
+            }
         }
     };
 

@@ -50,7 +50,7 @@ namespace Ui::TopBar {
         }
 
         ImGui::SameLine();
-        if(gameSettings->showFps){
+        if(gameSettings->ShowFps){
             const auto& frameRate = ImGui::GetIO().Framerate;
             TextCentered(std::format("{:.1f} FPS", frameRate).c_str());
         } else {

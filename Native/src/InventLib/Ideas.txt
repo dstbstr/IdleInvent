@@ -1,33 +1,26 @@
+Exploration:
+	Success chances (resources, artifact, nothing, losses)
+	One per research
+	Can run any number of times, but artifact can only be found once
+	Artifact is used to unlock next research
+
 Inventory:
 	Creates items used for building projects
 	Consumables?
 
 Equipment:
-	Improves/unlocks inventing/exploration
+	Used in exploration
+	Improves odds, reduces losses, increases rewards, reduces time, etc.
+	Consumable
+	Fixed number per exploration
+	Upgrade through combination?
 
-Exploration:
-	Success chances (resources, artifact, nothing, losses)
-	
-
-Time Travel:
-	Finishing a specialty will unlock a unique 'power'
-		Followers: City is always max population
-		Knowledge: Invest All
-		Money: Convert All
-		Power: Automatically move workers to new projects
-		Repeatable: 
-			Increased time piece storage (Repeatable)
-			Improved exploration chances (Repeatable)
-			Increase population bonus on projects (Repeatable)
-			Two extra workers (Repeatable)
-			Tick speed bonus (Repeatable)
-			Resource Conversion bonus (Repeatable)
 
 Idling:
 	Progress is only made while active
-	Collect Time Pieces while offline
+	Collect Time Shards while offline
 	Warp 10, 30, or 60 minutes
 
 Save/Load/Reset
 	Save slots? Save/Load screen?
-	Saving occurs manually or on certain events (build, invent, explore, app close)
+	Saving occurs manually or on certain events (project complete, app close)

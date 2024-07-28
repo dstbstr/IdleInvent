@@ -4,6 +4,8 @@
 
 #include "InventLib/Character/Society.h"
 #include "InventLib/Mechanics/Effect.h"
+#include "InventLib/Projects/Building.h"
+#include "InventLib/Projects/Expeditions.h"
 #include "InventLib/Projects/Population.h"
 
 namespace {
@@ -18,19 +20,17 @@ namespace {
     }
 
     void AddProject(Invent::Life& life, Invent::Project&& project) {
-        project.TimeCost = Invent::BaseTime(life.ProjectTimeCostModifiers.at(project.Type).Apply(project.TimeCost.count()));
+        project.TimeCost =
+            Invent::BaseTime(life.ProjectTimeCostModifiers.at(project.Type).Apply(project.TimeCost.count()));
         for(auto& [name, resource]: project.ResourceCost) {
-			resource.Current = life.ProjectResourceCostModifiers.at(project.Type).Apply(resource.Current);
-		}
+            resource.Current = life.ProjectResourceCostModifiers.at(project.Type).Apply(resource.Current);
+        }
 
         life.Projects.at(project.Type).push_back(project);
     }
 
     void CompleteInvention(
-        const Invent::Project& project,
-        Invent::Life& life,
-        const Invent::Society& society,
-        std::vector<Invent::Project>& outNewProjects
+        const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects
     ) {
         auto invention = Invent::InventionFromString(project.Name);
         if(!invention.has_value()) {
@@ -40,21 +40,16 @@ namespace {
 
         auto v = invention.value();
         life.Inventions.push_back(v);
-        auto next = Invent::GetResearchProject(society.Specialty, life.Inventions.size());
-        if(next.has_value()) {
-            outNewProjects.push_back(next.value());
-            outNewProjects.back().Active = project.Active;
-        } else {
-            life.AvailableWorkers += project.Active;
-        }
+
         for(auto b: Invent::GetBuildings({v})) {
-            life.Buildings[b] = 0;
+            life.Buildings[ToString(b)] = 0;
             outNewProjects.push_back(Invent::GetBuildingProject(b, 0));
         }
+
+        outNewProjects.push_back(Invent::CreateExpedition(v));
     }
 
-    void
-    CompleteBuilding(const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects) {
+    void CompleteBuilding(const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects) {
         auto building = Invent::BuildingFromString(project.Name);
         if(!building.has_value()) {
             DR_ASSERT_MSG(false, std::format("Building {} not found", project.Name));
@@ -62,63 +57,107 @@ namespace {
         }
         auto b = building.value();
 
-        life.Buildings.at(b)++;
+        life.Buildings.at(project.Name)++;
         auto effects = Invent::GetEffectsForBuilding(b);
-        Log::Info(std::format("Finished building {}, now at level {}", ToString(b), life.Buildings.at(b)));
+        Log::Info(std::format("Finished building {}, now at level {}", ToString(b), life.Buildings.at(project.Name)));
         for(const auto& effect: effects) {
             life.ApplyEffect(effect);
         }
 
-        outNewProjects.push_back(Invent::GetBuildingProject(b, life.Buildings.at(b)));
-        outNewProjects.back().Active = project.Active;
+        outNewProjects.push_back(Invent::GetBuildingProject(b, life.Buildings.at(project.Name)));
+        outNewProjects.back().CurrentWorkers = project.CurrentWorkers;
     }
 
     void CompletePopulation(
-        const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects
+        const Invent::Project& project,
+        Invent::Life& life,
+        const Invent::Society& society,
+        std::vector<Invent::Project>& outNewProjects
     ) {
         if(project.Name == Invent::Population::PopulationName) {
             life.CurrentPopulation++;
             if(life.CurrentPopulation < life.MaxPopulation) {
                 outNewProjects.push_back(Invent::GetPopulationIncreaseProject(life.CurrentPopulation));
-                outNewProjects.back().Active = project.Active;
+                outNewProjects.back().CurrentWorkers = project.CurrentWorkers;
             } else {
-                life.AvailableWorkers += project.Active;
+                life.AvailableWorkers += project.CurrentWorkers;
             }
         } else {
-            if(life.CurrentPopulation == life.MaxPopulation) {
+            if(!society.AlwaysMaxPopulation && life.CurrentPopulation == life.MaxPopulation) {
                 outNewProjects.push_back(Invent::GetPopulationIncreaseProject(life.CurrentPopulation));
             }
             life.MaxPopulation *= 10;
             outNewProjects.push_back(Invent::GetPopulationCapacityProject(life.MaxPopulation));
-            outNewProjects.back().Active = project.Active;
+            outNewProjects.back().CurrentWorkers = project.CurrentWorkers;
+
+            if(society.AlwaysMaxPopulation) {
+                life.CurrentPopulation = life.MaxPopulation;
+            }
         }
     }
 
     void CompleteExploration(
-        const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects
+        const Invent::Project& project,
+        Invent::Life& life,
+        const Invent::Society& society,
+        std::vector<Invent::Project>& outNewProjects
     ) {
-        (void)project;
-        (void)life;
-        (void)outNewProjects;
-        DR_ASSERT_MSG(false, "Exploration not implemented");
+        auto expedition = Invent::ExpeditionFromString(project.Name);
+        if(!expedition.has_value()) {
+            DR_ASSERT_MSG(false, std::format("Expedition {} not found", project.Name));
+            return;
+        }
+        auto artifactFound =
+            std::find(life.Artifacts.begin(), life.Artifacts.end(), project.EffectDescription) == life.Artifacts.end();
+        // TODO: This allows expedition result to be influenced after expedition started
+        auto outcome = Invent::GetExpeditionOutcome(expedition.value(), artifactFound);
+
+        outNewProjects.push_back(Invent::CreateExpedition(life.Inventions.back()));
+
+        // TODO: Raise news event of the outcome
+        switch(outcome) {
+        case Invent::ExpeditionOutcome::Artifact: {
+            life.Artifacts.push_back(project.EffectDescription);
+            auto next = Invent::GetResearchProject(society.Specialty, life.Inventions.size());
+            if(next.has_value()) {
+                outNewProjects.push_back(next.value());
+            }
+            life.AvailableWorkers += project.CurrentWorkers;
+            break;
+        }
+        case Invent::ExpeditionOutcome::Resources: {
+            auto reward = project.ResourceCost * size_t(3);
+            life.Resources += reward;
+            life.AvailableWorkers += project.CurrentWorkers;
+            break;
+        }
+        case Invent::ExpeditionOutcome::Nothing: {
+            life.AvailableWorkers += project.CurrentWorkers;
+            break;
+        }
+        case Invent::ExpeditionOutcome::Trajedy: {
+            // Lost the workers
+            break;
+        }
+        }
     }
 
     void CompleteProject(
         const Invent::Project& project,
         Invent::Life& life,
-        Invent::Society& society,
+        const Invent::Society& society,
         std::vector<Invent::Project>& outNewProjects
     ) {
         switch(project.Type) {
-        case Invent::ProjectType::Research: CompleteInvention(project, life, society, outNewProjects); break;
+        case Invent::ProjectType::Research: CompleteInvention(project, life, outNewProjects); break;
         case Invent::ProjectType::Build: CompleteBuilding(project, life, outNewProjects); break;
-        case Invent::ProjectType::Population: CompletePopulation(project, life, outNewProjects); break;
-        case Invent::ProjectType::Explore: CompleteExploration(project, life, outNewProjects); break;
+        case Invent::ProjectType::Population: CompletePopulation(project, life, society, outNewProjects); break;
+        case Invent::ProjectType::Explore: CompleteExploration(project, life, society, outNewProjects); break;
         default: DR_ASSERT_MSG(false, "Unsupported project completed"); break;
         }
     }
 
-    void TickProjects(Invent::BaseTime elapsed, Invent::Life& life, Invent::Society& society) {
+    void TickProjects(Invent::BaseTime elapsed, Invent::Life& life, const Invent::Society& society) {
         std::vector<Invent::Project> newProjects;
         bool dirty = false;
 
@@ -143,12 +182,13 @@ namespace {
 
         if(dirty) {
             life.SortProjects();
+            life.ShiftWorkers();
         }
     }
 } // namespace
 
 namespace Invent {
-    Life::Life(Society* society) : m_Society(society) {
+    Life::Life(Society* society, const GameSettings& settings) : m_Society(society), m_Settings(&settings) {
         if(!society) return;
 
         for(auto name: AllResources()) {
@@ -165,18 +205,22 @@ namespace Invent {
 
         AddProject(*this, GetResearchProject(society->Specialty, 0).value());
         AddProject(*this, GetPopulationCapacityProject(MaxPopulation));
-        AddProject(*this, GetPopulationIncreaseProject(CurrentPopulation));
+        if(!society->AlwaysMaxPopulation) {
+            AddProject(*this, GetPopulationIncreaseProject(CurrentPopulation));
+        } else {
+            CurrentPopulation = MaxPopulation;
+        }
 
         SortProjects();
         auto GetCost = [&](ResourceName name) -> size_t {
             return society->Specialty == name ? 5 : society->Weakness == name ? 15 : 10;
-		};
+        };
         auto MakeConverter = [&](ResourceName resource, const std::string name) -> ResourceConversion {
-			return ResourceConversionBuilder(name)
-				.WithCost(ResourceName::Primary, GetCost(resource))
-				.WithProduct(resource, 5)
-				.Build();
-		};
+            return ResourceConversionBuilder(name)
+                .WithCost(ResourceName::Primary, GetCost(resource))
+                .WithProduct(resource, 5)
+                .Build();
+        };
         ResourceConverters.push_back(MakeConverter(ResourceName::Followers, "Recruit"));
         ResourceConverters.push_back(MakeConverter(ResourceName::Knowledge, "Study"));
         ResourceConverters.push_back(MakeConverter(ResourceName::Money, "Earn"));
@@ -184,6 +228,7 @@ namespace Invent {
     }
 
     void Life::Tick(BaseTime elapsed) {
+        elapsed = BaseTime(TickModifier.Apply(elapsed.count()));
         Work(elapsed);
         TickResources(elapsed, *this);
         TickProjects(elapsed, *this, *this->m_Society);
@@ -217,16 +262,16 @@ namespace Invent {
             }
         };
         auto modProjectsEfficiency = [this](const Modifier& mod) {
-			for(auto& [type, modifier]: ProjectResourceCostModifiers) {
-				modifier += mod;
-			}
-		};
+            for(auto& [type, modifier]: ProjectResourceCostModifiers) {
+                modifier += mod;
+            }
+        };
 
         auto modConversionPower = [this](const Modifier& mod) {
-			for(auto& converter: ResourceConverters) {
+            for(auto& converter: ResourceConverters) {
                 converter.ModifyTo(mod);
-			}
-		};
+            }
+        };
 
         auto& primary = Resources[ResourceName::Primary];
         auto mod = effect.Modifier;
@@ -267,6 +312,42 @@ namespace Invent {
         case EffectTarget::TickPower: TickModifier += mod; break;
         case EffectTarget::ExploreSuccessRate: break;
         }
+    }
+
+    void Life::ShiftWorkers() {
+        if(!m_Society->HasWorkerShift) return;
+        
+        // first unassign any workers that are no longer needed
+        for(auto& [type, projects]: Projects) {
+            for(auto& project: projects) {
+                if(project.CurrentWorkers > 0 && project.TimeProgress == project.TimeCost) {
+                    AvailableWorkers += project.CurrentWorkers;
+                    project.CurrentWorkers = 0;
+                }
+            }
+        }
+
+        while(AvailableWorkers > 0) {
+            // then assign workers to the highest priority projects (skipping projects that don't need more time)
+            for(const auto type: m_Settings->ProjectPriority) {
+                for(auto& project: Projects.at(type)) {
+                    if(project.TimeProgress == project.TimeCost) continue;
+
+                    project.CurrentWorkers++;
+                    AvailableWorkers--;
+                    if(AvailableWorkers == 0) return;
+                }
+            }
+        }
+    }
+
+    void Life::ClearWorkers() {
+        for(auto& [type, projects]: Projects) {
+            for(auto& project: projects) {
+                project.CurrentWorkers = 0;
+            }
+        }
+        AvailableWorkers = MaxProjects;
     }
 
     void Life::SortProjects() {

@@ -6,5 +6,6 @@ namespace Invent {
 }
 
 namespace Ui::Components::Project {
-    void Render(Invent::Life& life, Invent::Project& project);
+    enum struct StartCondition { None, RequireResources};
+    void Render(Invent::Life& life, Invent::Project& project, StartCondition startCondition = StartCondition::None);
 } // namespace Ui::Components::Project

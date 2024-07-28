@@ -114,6 +114,24 @@ namespace Invent {
         }
     }
 
+    bool ResourceCollection::AreAllLessThan(const ResourceCollection& other) const {
+		for(const auto& [name, resource]: m_Resources) {
+			if(resource.Current >= other.m_Resources.at(name).Current) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+    bool ResourceCollection::AreAnyLessThan(const ResourceCollection& other) const {
+        for(const auto& [name, resource]: m_Resources) {
+            if(resource.Current < other.m_Resources.at(name).Current) {
+				return true;
+			}
+		}
+        return false;
+	}
+    
     Resource& ResourceCollection::at(ResourceName resource) { return m_Resources.at(resource); }
     const Resource& ResourceCollection::at(ResourceName resource) const { return m_Resources.at(resource); }
 

@@ -1,6 +1,18 @@
 #include "InventLib/Projects/Project.h"
 
 namespace Invent {
+    std::string ToString(ProjectType type) {
+		switch (type) {
+			case ProjectType::Research: return "Research";
+			case ProjectType::Build: return "Build";
+			case ProjectType::Explore: return "Explore";
+			case ProjectType::Population: return "Population";
+		}
+
+        DR_ASSERT_MSG(false, "Unknown ProjectType");
+		return "Unknown";
+	}
+
     std::vector<ProjectType> AllProjectTypes() {
         static std::vector<ProjectType> allProjectTypes = {
             ProjectType::Research, ProjectType::Build, ProjectType::Explore, ProjectType::Population
@@ -13,7 +25,8 @@ namespace Invent {
 	}
 
 	void Project::Tick(BaseTime elapsed) {
-        if(Active) TimeProgress = std::min(TimeCost, TimeProgress += elapsed);
+        auto scaled = BaseTime(elapsed * CurrentWorkers);
+        TimeProgress = std::min(TimeCost, TimeProgress + scaled);
 
 		// TODO: Decay?
 	}

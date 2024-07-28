@@ -25,7 +25,7 @@ namespace Ui::Screens::Build {
         ImGui::Begin("BuildScreen", nullptr, BaseFlags);
 
         for(auto& project : Society->CurrentLife.Projects.at(Invent::ProjectType::Build)) {
-            if(ImGui::CollapsingHeader(project.Name.c_str())) {
+            if(ImGui::CollapsingHeader(std::format("{} ({})", project.Name, Society->CurrentLife.Buildings.at(project.Name)).c_str())) {
                 Ui::Components::Project::Render(Society->CurrentLife, project);
                 ImGui::Separator();
             }

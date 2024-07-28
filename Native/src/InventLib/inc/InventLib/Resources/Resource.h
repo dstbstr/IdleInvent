@@ -65,6 +65,8 @@ namespace Invent {
 		void Save(ResourceSave& save) const;
         std::string Describe() const;
         void Clamp();
+        bool AreAllLessThan(const ResourceCollection& other) const;
+		bool AreAnyLessThan(const ResourceCollection& other) const;
 
 		Resource& at(ResourceName resource);
 		const Resource& at(ResourceName resource) const;

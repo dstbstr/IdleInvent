@@ -2,15 +2,16 @@
 
 #include "InventLib/Resources/Resource.h"
 #include "InventLib/Character/Life.h"
+#include "InventLib/Settings/GameSettings.h"
 
 namespace Invent {
     struct Society {
         ResourceName Specialty{ResourceName::Unset};
         ResourceName Weakness{ResourceName::Unset};
-        Life CurrentLife{nullptr};
+        Life CurrentLife{nullptr, {}};
         bool Active{false};
 
-        void Start(ResourceName specialty);
+        void Start(ResourceName specialty, const GameSettings& settings);
         void Retire();
         void Tick(BaseTime elapsed);
 
