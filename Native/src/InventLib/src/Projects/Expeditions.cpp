@@ -1,5 +1,6 @@
 #include "InventLib/Projects/Expeditions.h"
 
+#include "Core/Instrumentation/Logging.h"
 #include "Core/Constexpr/ConstexprMath.h"
 
 #include <array>
@@ -93,12 +94,6 @@ namespace {
         DR_ASSERT_MSG(false, std::format("Unknown expedition: {}", static_cast<int>(expedition)));
         return "Unknown";
     }
-
-    struct Odds {
-        f32 Artifact{0};
-        f32 Success{0};
-        f32 Nothing{0};
-    };
 
     constexpr std::array<Odds, 7> BaseOddsValues = {
         {{0.3F, 0.3F, 0.3F},
@@ -279,13 +274,36 @@ namespace Invent {
         return p;
     }
 
-    ExpeditionOutcome GetExpeditionOutcome(Expeditions expedition, bool artifactFound) {
+    Odds GetExpeditionOdds(Expeditions expedition, Modifier mod) {
+		auto result = BaseOdds[expedition];
+		result.Artifact = mod.Apply(result.Artifact);
+		result.Success = mod.Apply(result.Success);
+		result.Nothing = mod.Apply(result.Nothing);
+		return result;
+    }
+
+    Odds ToRelativeOdds(const Odds& odds) {
+        Odds result{};
+        result.Artifact = std::min(1.0F, odds.Artifact);
+        auto remainder = 1.0F - result.Artifact;
+        result.Success = std::min(remainder, odds.Success);
+        remainder -= result.Success;
+        result.Nothing = std::min(remainder, odds.Nothing);
+        remainder -= result.Nothing;
+        result.Tragedy = std::max(0.0F, remainder);
+
+        return result;
+    }
+
+    ExpeditionOutcome GetExpeditionOutcome(Expeditions expedition, bool artifactFound, Modifier mod) {
         auto baseOdds = BaseOdds[expedition];
-        // apply modifiers
+        baseOdds.Artifact = mod.Apply(baseOdds.Artifact);
+        baseOdds.Success = mod.Apply(baseOdds.Success);
+        baseOdds.Nothing = mod.Apply(baseOdds.Nothing);
 
         auto roll = dist(gen);
-        roll -= baseOdds.Artifact;
-        if((roll -= baseOdds.Artifact) < 0 && !artifactFound) return ExpeditionOutcome::Artifact;        
+
+        if((roll -= baseOdds.Artifact) < 0 && !artifactFound) return ExpeditionOutcome::Artifact;
         else if((roll -= baseOdds.Success) < 0) return ExpeditionOutcome::Resources;
         else if((roll -= baseOdds.Nothing) < 0) return ExpeditionOutcome::Nothing;
         else return ExpeditionOutcome::Trajedy;

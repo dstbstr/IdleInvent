@@ -3,33 +3,53 @@
 Language:        Cpp
 # BasedOnStyle:  LLVM
 AccessModifierOffset: -4
-AlignAfterOpenBracket: Align
+#AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: Left
 AlignOperands:   true
 AlignTrailingComments: false
-AllowAllConstructorInitializersOnNextLine: false #unsupported?
-AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortBlocksOnASingleLine: true
+# AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: Empty
-AllowShortIfStatementsOnASingleLine: true
-AllowShortLambdasOnASingleLine: Inline
-AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterReturnType: None
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+# AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 #BitFieldColonSpacing: After
-BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Attach
+#BreakBeforeBraces: Custom
+# BraceWrapping:
+#   AfterCaseLabel:      false
+#   AfterClass:      false
+#   AfterControlStatement: Multiline
+#   AfterEnum:       false
+#   AfterFunction:   false
+#   AfterNamespace:  false
+#   AfterObjCDeclaration: false
+#   AfterStruct:     false
+#   AfterUnion:      false
+#   BeforeCatch:     false
+#   BeforeElse:      false
+#   BeforeLambdaBody  false
+#   BeforeWhile:    false
+#   IndentBraces:    false
+#   SplitEmptyFunction: false
+#   SplitEmptyRecord: false
+#   SplitEmptyNamespace: false
+BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: BeforeComma
 BreakStringLiterals: true
-ColumnLimit:     250
+ColumnLimit:     120
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
@@ -47,15 +67,19 @@ ForEachMacros:
 IncludeBlocks:   Regroup
 IncludeCategories: 
   - Regex:           '^"pch.h"'
-    Priority:        -1
-  - Regex:           '^"(gtest|gmock)(/|\\)'
+    Priority:        -10
+  - Regex:           '^"Common'
     Priority:        1
-  - Regex:           '^"'
+  - Regex:           '^"Invent'
     Priority:        2
-  - Regex:           '^<'
+  - Regex:           '^"Core'
     Priority:        3
+  - Regex:           '^"'
+    Priority:        0
+  - Regex:           '^<'
+    Priority:        5
   - Regex:           '.*'
-    Priority:        4
+    Priority:        6
 IncludeIsMainRegex: '(.tests?)?$'
 IndentCaseBlocks: false
 IndentCaseLabels: false
@@ -63,7 +87,10 @@ IndentGotoLabels: false
 IndentPPDirectives: None
 IndentWidth:     4
 IndentWrappedFunctionNames: false
+InsertBraces: false
 InsertTrailingCommas: None
+IntegerLiteralSeparator:
+  Decimal: 3
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: false
 KeepEmptyLinesAtTheStartOfBlocks: false
@@ -81,7 +108,8 @@ PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 60
 PointerAlignment: Left
 ReflowComments:  true
-SortIncludes:    true
+SeparateDefinitionBlocks: Leave
+SortIncludes:    CaseInsensitive
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
@@ -102,7 +130,7 @@ SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard:        Auto
-TabWidth:        8
+TabWidth:        4
 UseCRLF: true
 UseTab:          Never
 

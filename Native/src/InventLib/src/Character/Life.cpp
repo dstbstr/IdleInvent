@@ -1,12 +1,15 @@
 #include "InventLib/Character/Life.h"
 
-#include <algorithm>
-
 #include "InventLib/Character/Society.h"
 #include "InventLib/Mechanics/Effect.h"
 #include "InventLib/Projects/Building.h"
 #include "InventLib/Projects/Expeditions.h"
 #include "InventLib/Projects/Population.h"
+
+#include "Core/DesignPatterns/PubSub.h"
+#include "Core/DesignPatterns/ServiceLocator.h"
+
+#include <algorithm>
 
 namespace {
     void TickResources(Invent::BaseTime elapsed, Invent::Life& life) {
@@ -32,6 +35,7 @@ namespace {
     void CompleteInvention(
         const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects
     ) {
+        life.AvailableWorkers += project.CurrentWorkers;
         auto invention = Invent::InventionFromString(project.Name);
         if(!invention.has_value()) {
             DR_ASSERT_MSG(false, std::format("Invention {} not found", project.Name));
@@ -49,7 +53,8 @@ namespace {
         outNewProjects.push_back(Invent::CreateExpedition(v));
     }
 
-    void CompleteBuilding(const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects) {
+    void
+    CompleteBuilding(const Invent::Project& project, Invent::Life& life, std::vector<Invent::Project>& outNewProjects) {
         auto building = Invent::BuildingFromString(project.Name);
         if(!building.has_value()) {
             DR_ASSERT_MSG(false, std::format("Building {} not found", project.Name));
@@ -76,6 +81,11 @@ namespace {
     ) {
         if(project.Name == Invent::Population::PopulationName) {
             life.CurrentPopulation++;
+            auto newMaxWorkers = life.CurrentPopulation / life.WorkerDensity;
+            if(newMaxWorkers > life.MaxWorkers) {
+                life.AvailableWorkers += newMaxWorkers - life.MaxWorkers;
+                life.MaxWorkers = newMaxWorkers;
+            }
             if(life.CurrentPopulation < life.MaxPopulation) {
                 outNewProjects.push_back(Invent::GetPopulationIncreaseProject(life.CurrentPopulation));
                 outNewProjects.back().CurrentWorkers = project.CurrentWorkers;
@@ -108,13 +118,14 @@ namespace {
             return;
         }
         auto artifactFound =
-            std::find(life.Artifacts.begin(), life.Artifacts.end(), project.EffectDescription) == life.Artifacts.end();
-        // TODO: This allows expedition result to be influenced after expedition started
-        auto outcome = Invent::GetExpeditionOutcome(expedition.value(), artifactFound);
+            std::find(life.Artifacts.begin(), life.Artifacts.end(), project.EffectDescription) != life.Artifacts.end();
+        auto outcome = Invent::GetExpeditionOutcome(expedition.value(), artifactFound, life.CurrentExplorationSuccessModifier);
+        life.CurrentExplorationSuccessModifier = life.BaseExplorationSuccessModifier; // reset for next time
 
         outNewProjects.push_back(Invent::CreateExpedition(life.Inventions.back()));
+        life.AvailableWorkers += project.CurrentWorkers;
 
-        // TODO: Raise news event of the outcome
+        ServiceLocator::Get().GetRequired<PubSub<Invent::ExpeditionOutcome>>().Publish(outcome);
         switch(outcome) {
         case Invent::ExpeditionOutcome::Artifact: {
             life.Artifacts.push_back(project.EffectDescription);
@@ -122,21 +133,19 @@ namespace {
             if(next.has_value()) {
                 outNewProjects.push_back(next.value());
             }
-            life.AvailableWorkers += project.CurrentWorkers;
             break;
         }
         case Invent::ExpeditionOutcome::Resources: {
             auto reward = project.ResourceCost * size_t(3);
             life.Resources += reward;
-            life.AvailableWorkers += project.CurrentWorkers;
             break;
         }
         case Invent::ExpeditionOutcome::Nothing: {
-            life.AvailableWorkers += project.CurrentWorkers;
             break;
         }
         case Invent::ExpeditionOutcome::Trajedy: {
             // Lost the workers
+            life.AvailableWorkers -= project.CurrentWorkers;
             break;
         }
         }
@@ -239,7 +248,8 @@ namespace Invent {
         if(primary.Current >= primary.Capacity) return;
 
         auto progress = ResourceProgressions.at(ResourceName::Primary).GetProgress(elapsed);
-        progress *= CurrentPopulation;
+        progress *= MaxWorkers;
+        // progress *= CurrentPopulation;
         primary.Current += progress;
         primary.Clamp();
     }
@@ -289,10 +299,11 @@ namespace Invent {
         case EffectTarget::ResearchEfficiency: ProjectResourceCostModifiers[ProjectType::Research] += mod; break;
         case EffectTarget::PopulationRate: ProjectTimeCostModifiers[ProjectType::Population] += mod; break;
         case EffectTarget::PopulationCap: MaxPopulation = mod.Apply(MaxPopulation); break;
-        case EffectTarget::ProjectCount: {
-            auto working = MaxProjects - AvailableWorkers;
-            MaxProjects = mod.Apply(MaxProjects);
-            AvailableWorkers = MaxProjects - working;
+        case EffectTarget::WorkerDensity: {
+            auto working = MaxWorkers - AvailableWorkers;
+            WorkerDensity = std::max(u8(1), mod.Apply(WorkerDensity));
+            MaxWorkers = CurrentPopulation / WorkerDensity;
+            AvailableWorkers = MaxWorkers - working;
             break;
         }
         case EffectTarget::PrimaryRate: ResourceProgressions[ResourceName::Primary].AddPermanent(mod); break;
@@ -310,13 +321,13 @@ namespace Invent {
         case EffectTarget::ConversionPower: modConversionPower(mod); break;
         case EffectTarget::TimeShardCap: MaxTimeShards = mod.Apply(MaxTimeShards); break;
         case EffectTarget::TickPower: TickModifier += mod; break;
-        case EffectTarget::ExploreSuccessRate: break;
+        case EffectTarget::ExploreSuccessRate: BaseExplorationSuccessModifier += mod; break;
         }
     }
 
     void Life::ShiftWorkers() {
         if(!m_Society->HasWorkerShift) return;
-        
+
         // first unassign any workers that are no longer needed
         for(auto& [type, projects]: Projects) {
             for(auto& project: projects) {
@@ -347,7 +358,7 @@ namespace Invent {
                 project.CurrentWorkers = 0;
             }
         }
-        AvailableWorkers = MaxProjects;
+        AvailableWorkers = MaxWorkers;
     }
 
     void Life::SortProjects() {

@@ -18,7 +18,7 @@ namespace {
 	}
 
 	std::vector<Effect> Effects = []() -> std::vector<Effect> {
-        return {{.Target = EffectTarget::AllSecondaryRate, .Modifier = Effects::Increase::Mul::Small}};
+        return {{.Target = EffectTarget::AllSecondaryRate, .Modifier = Effects::Increase::Add::Small}};
     }();
 
 	Unlockable MakeUnlockable(const std::string& name, size_t current, BaseTime requiredTime) {

@@ -46,7 +46,7 @@ namespace {
         .Benefits =
             {{{EffectTarget::AllSecondaryRate, iml},
               {EffectTarget::BuildRate, imm},
-              {EffectTarget::ProjectCount, ias}}},
+              {EffectTarget::PopulationRate, ias}}},
         .Penalties =
             {{{EffectTarget::ResearchRate, dmm},
               {EffectTarget::ExploreRate, dmm}}},
@@ -67,7 +67,7 @@ namespace {
     constexpr SpecialtyEffects MoneyEffects{
         .Benefits =
             {{{EffectTarget::AllSecondaryCap, iml},
-              {EffectTarget::ProjectCount, iam},
+              {EffectTarget::PopulationRate, iam},
               {EffectTarget::BuildRate, ims}}},
         .Penalties = 
             {{{EffectTarget::ExploreRate, dmm},
@@ -82,7 +82,7 @@ namespace {
               {EffectTarget::ExploreRate, ims}}},
         .Penalties = 
             {{{EffectTarget::ResearchRate, dmm}, 
-            {EffectTarget::ProjectCount, das}}},
+            {EffectTarget::PopulationRate, das}}},
         .Specialty = ResourceName::Power,
         .Weakness = ResourceName::Knowledge
     };
@@ -114,7 +114,7 @@ namespace Invent {
             CurrentLife.Resources[ResourceName::Primary].Capacity,
             CurrentLife.ResourceProgressions[ResourceName::Followers].GetProgress(OneSecond),
             CurrentLife.Resources[ResourceName::Followers].Capacity,
-            CurrentLife.MaxProjects,
+            CurrentLife.MaxWorkers,
             CurrentLife.ProjectTimeCostModifiers[ProjectType::Build].Mul,
             CurrentLife.ProjectTimeCostModifiers[ProjectType::Explore].Mul,
             CurrentLife.ProjectTimeCostModifiers[ProjectType::Research].Mul

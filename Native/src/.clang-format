@@ -68,18 +68,18 @@ IncludeBlocks:   Regroup
 IncludeCategories: 
   - Regex:           '^"pch.h"'
     Priority:        -10
-  - Regex:           '^"(gtest|gmock)(/|\\)'
-    Priority:        -1
   - Regex:           '^"Common'
     Priority:        1
-  - Regex:           '^"Invent(/|\\)'
+  - Regex:           '^"Invent'
     Priority:        2
   - Regex:           '^"Core'
     Priority:        3
+  - Regex:           '^"'
+    Priority:        0
   - Regex:           '^<'
-    Priority:        4
-  - Regex:           '.*'
     Priority:        5
+  - Regex:           '.*'
+    Priority:        6
 IncludeIsMainRegex: '(.tests?)?$'
 IndentCaseBlocks: false
 IndentCaseLabels: false

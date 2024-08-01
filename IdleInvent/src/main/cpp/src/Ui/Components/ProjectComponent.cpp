@@ -8,7 +8,7 @@
 #include <imgui.h>
 
 namespace Ui::Components::Project {
-    void Render(Invent::Life& life, Invent::Project& project, StartCondition startCondition) {
+    void Render(Invent::Life& life, Invent::Project& project, Invent::PurchaseAmount purchaseAmount, StartCondition startCondition) {
         ImGui::PushID(&project);
 
         auto disableWorkers = startCondition == StartCondition::RequireResources && project.ResourceProgress.AreAnyLessThan(project.ResourceCost);
@@ -20,8 +20,9 @@ namespace Ui::Components::Project {
             ImGui::BeginDisabled();
         }
         if(ImGui::SmallButton("-")) {
-            project.CurrentWorkers--;
-            life.AvailableWorkers++;
+            auto count = Invent::GetPurchaseCount(project.CurrentWorkers, purchaseAmount);
+            project.CurrentWorkers -= count;
+            life.AvailableWorkers += count;
         }
         if(disableMinus) {
             ImGui::EndDisabled();
@@ -35,8 +36,9 @@ namespace Ui::Components::Project {
             ImGui::BeginDisabled();
         }
         if(ImGui::SmallButton("+")) {
-            project.CurrentWorkers++;
-            life.AvailableWorkers--;
+            auto count = Invent::GetPurchaseCount(life.AvailableWorkers, purchaseAmount);
+            project.CurrentWorkers += count;
+            life.AvailableWorkers -= count;
         }
         if(disablePlus) {
             ImGui::EndDisabled();

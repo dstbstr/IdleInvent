@@ -15,19 +15,22 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Character/Death.cpp
 	src/Character/GameCharacter.cpp
 	src/Character/Life.cpp
+	src/Character/RebirthBenefits.cpp
 	src/Character/Society.cpp
 
 	src/GameState/GameState.cpp
 
 	src/Mechanics/Advancement.cpp
-	src/Mechanics/RandomEvent.cpp
-	src/Mechanics/Unlockable.cpp
 	src/Mechanics/Effect.cpp
+	src/Mechanics/Modifier.cpp 
 	src/Mechanics/Progression.cpp
 	src/Mechanics/Purchasable.cpp
+	src/Mechanics/RandomEvent.cpp
+	src/Mechanics/Unlockable.cpp
 
 	src/Projects/Building.cpp
 	src/Projects/Expeditions.cpp
+	src/Projects/Population.cpp 
 	src/Projects/Project.cpp
 	src/Projects/Research.cpp
 
@@ -52,4 +55,5 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Technology/Invention.cpp
 	src/Technology/Technology.cpp
 	src/Technology/Inventions/StorageTechs.cpp	
- "src/Mechanics/Modifier.cpp" "src/Projects/Population.cpp" "src/Character/RebirthBenefits.cpp")
+	
+ "src/Inventory/Item.cpp" "src/Settings/PurchaseAmount.cpp")

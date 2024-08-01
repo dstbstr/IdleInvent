@@ -41,9 +41,9 @@ namespace {
 
     BaseTime GetTimeCost(size_t level) {
         switch(level) {
-        case 0: return OneMinute;
+        case 0: return OneMinute * 3;
         case 1: return OneMinute * 30;
-        case 2: return OneHour;
+        case 2: return OneHour * 2;
         case 3: return OneHour * 4;
         case 4: return OneDay;
         case 5: return OneDay * 3;
@@ -56,7 +56,7 @@ namespace {
         ResourceCollection result{};
         auto val = 0;
         switch(level) {
-        case 0: val = 200; break;
+        case 0: val = 100; break;
         case 1: val = 2'000; break;
         case 2: val = 5'000; break;
         case 3: val = 10'000; break;

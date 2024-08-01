@@ -1,5 +1,6 @@
 #include "CommonTest.h"
 
+#include "InventLib/Mechanics/Effect.h"
 #include "InventLib/Character/Society.h"
 #include "InventLib/Settings/GameSettings.h"
 

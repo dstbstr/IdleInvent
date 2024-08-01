@@ -52,10 +52,18 @@ namespace Ui::StartLife {
             if(ImGui::Button("Start", buttonSize)) {
                 society->Start(static_cast<Invent::ResourceName>(specialty), *gameSettings);
                 //cheating
-                society->CurrentLife.CurrentPopulation = 5;
-                society->HasWorkerShift = true;
-                society->HasConvertAll = true;
-                society->HasInvestAll = true;
+                for(auto resource : Invent::SecondaryResources()) {
+                    society->CurrentLife.Resources[resource].Current = 10000;
+                    society->CurrentLife.Resources[resource].Capacity = 10000;
+                }
+                society->CurrentLife.MaxPopulation = 1000;
+                society->CurrentLife.CurrentPopulation = society->CurrentLife.MaxPopulation;
+                society->CurrentLife.MaxWorkers = 1000;
+                society->CurrentLife.AvailableWorkers = society->CurrentLife.MaxWorkers;
+                //society->CurrentLife.CurrentPopulation = 5;
+                //society->HasWorkerShift = true;
+                //society->HasConvertAll = true;
+                //society->HasInvestAll = true;
             }
         }
 

@@ -8,12 +8,13 @@
 #include "InventLib/Mechanics/Achievement.h"
 #include "InventLib/Mechanics/RandomEvent.h"
 #include "InventLib/Mechanics/Unlockable.h"
+#include "InventLib/Projects/Expeditions.h"
 #include "InventLib/RandomEvents/RandomEvents.h"
 #include "InventLib/Resources/Resource.h"
 #include "InventLib/Resources/ResourceConverters.h"
+#include "InventLib/Settings/GameSettings.h"
 #include "InventLib/Technology/Invention.h"
 #include "InventLib/Technology/Technology.h"
-#include "InventLib/Settings/GameSettings.h"
 
 #include "Core/DesignPatterns/PubSub.h"
 #include "Core/DesignPatterns/ServiceLocator.h"
@@ -29,7 +30,7 @@ namespace {
     Invent::GameState* gameState{nullptr};
     Invent::Society* society{nullptr};
     Invent::GameSettings* gameSettings{nullptr};
-}
+} // namespace
 
 namespace Invent::EntryPoint {
     void Initialize() {
@@ -47,6 +48,7 @@ namespace Invent::EntryPoint {
         services.CreateIfMissing<PubSub<Storage>>();
         services.CreateIfMissing<PubSub<Unlockable>>();
         services.CreateIfMissing<PubSub<std::vector<Effect>>>();
+        services.CreateIfMissing<PubSub<ExpeditionOutcome>>();
         services.CreateIfMissing<std::unordered_map<std::string, RandomEvent>>();
         services.CreateIfMissing<std::unordered_map<std::string, Unlockable>>();
         services.CreateIfMissing<std::unordered_map<std::string, Purchasable>>();
@@ -58,9 +60,9 @@ namespace Invent::EntryPoint {
 
         Achievements::Initialize();
         RandomEvents::Initialize();
-        
-        inventionPs.Subscribe([](const InventionLevel& invention) { 
-            ServiceLocator::Get().GetRequired<PubSub<std::vector<Effect>>>().Publish(invention.Effects); 
+
+        inventionPs.Subscribe([](const InventionLevel& invention) {
+            ServiceLocator::Get().GetRequired<PubSub<std::vector<Effect>>>().Publish(invention.Effects);
         });
 
         /*
@@ -88,43 +90,41 @@ namespace Invent::EntryPoint {
         */
     }
 
-    void ShutDown() { 
-        ServiceLocator::Get().ResetAll();
-    }
+    void ShutDown() { ServiceLocator::Get().ResetAll(); }
 
     void Load(const SaveState& saveState) {
         Log::Info("Loading InventLib");
-		gameState->Load(saveState.GameStateSaveState);
+        gameState->Load(saveState.GameStateSaveState);
         gameSettings->Load(saveState.GameSettingsSaveState);
-		Achievements::Load(saveState.AchievementState);
-		RandomEvents::Load(saveState.RandomEventState);
-		//Technologies::Load(saveState.TechSaveState);
-	}
+        Achievements::Load(saveState.AchievementState);
+        RandomEvents::Load(saveState.RandomEventState);
+        // Technologies::Load(saveState.TechSaveState);
+    }
 
     void Save(SaveState& saveState) {
         Log::Info("Saving InventLib");
-		gameState->Save(saveState.GameStateSaveState);
+        gameState->Save(saveState.GameStateSaveState);
         gameSettings->Save(saveState.GameSettingsSaveState);
-		Achievements::Save(saveState.AchievementState);
-		RandomEvents::Save(saveState.RandomEventState);
-		//Technologies::Save(saveState.TechSaveState);
-	}
+        Achievements::Save(saveState.AchievementState);
+        RandomEvents::Save(saveState.RandomEventState);
+        // Technologies::Save(saveState.TechSaveState);
+    }
 
     void Reset() {
         Log::Info("Resetting InventLib");
 
         auto& services = ServiceLocator::Get();
         if(auto* unlockables = services.Get<std::unordered_map<std::string, Unlockable>>()) {
-			unlockables->clear();
-		}
+            unlockables->clear();
+        }
         if(auto* purchasables = services.Get<std::unordered_map<std::string, Purchasable>>()) {
             purchasables->clear();
         }
-        if (auto* randomEvents = services.Get<std::unordered_map<std::string, RandomEvent>>()) {
+        if(auto* randomEvents = services.Get<std::unordered_map<std::string, RandomEvent>>()) {
             randomEvents->clear();
         }
 
-        //Inventions::Reset();
+        // Inventions::Reset();
     }
 
     void Tick(BaseTime elapsed) {

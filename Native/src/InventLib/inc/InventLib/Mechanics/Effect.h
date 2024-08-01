@@ -17,7 +17,6 @@ namespace Invent {
         ExploreSuccessRate,
         ResearchRate,
         ResearchEfficiency,
-        ProjectCount,
         PrimaryRate,
         PrimaryCap,
         AllSecondaryRate,
@@ -34,7 +33,8 @@ namespace Invent {
         PopulationCap,
         ConversionPower,
         TimeShardCap,
-        TickPower
+        TickPower,
+        WorkerDensity
     };
 
     std::string ToString(EffectTarget target);

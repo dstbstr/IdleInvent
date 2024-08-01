@@ -24,10 +24,23 @@ target_sources(${PROJECT_NAME} PRIVATE
   
   src/Achievements/Achievements.test.cpp
 
-  src/Mechanics/Purchasable.test.cpp
+  src/Character/Life.test.cpp
+  src/Character/Society.test.cpp
+
   src/Mechanics/Advancement.tests.cpp
+  src/Mechanics/Purchasable.test.cpp
+  src/Mechanics/Progression.tests.cpp
+  src/Mechanics/ScaleFunc.tests.cpp
+
+  src/Projects/Building.test.cpp
+  src/Projects/Expeditions.test.cpp
+  src/Projects/Project.test.cpp
 
   src/Resources/Resource.tests.cpp
+  src/Resources/ResourceConversion.tests.cpp
+  src/Resources/Storage.tests.cpp
 
   src/Technology/Technology.test.cpp
-  "src/Technology/InfluenceTechs.tests.cpp" "inc/TestGameState.h" "src/Resources/Storage.tests.cpp" "src/Mechanics/Progression.tests.cpp" "src/Resources/ResourceConversion.tests.cpp" "src/Character/Society.test.cpp" "src/Mechanics/ScaleFunc.tests.cpp" "src/Character/Life.test.cpp" "src/Projects/Project.test.cpp" "src/Projects/Building.test.cpp")
+  src/Technology/InfluenceTechs.tests.cpp
+
+)

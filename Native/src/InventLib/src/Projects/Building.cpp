@@ -156,7 +156,7 @@ namespace {
         {0, MakeEffect(EffectTarget::PrimaryCap, Effects::Increase::Mul::Small)},
         {1, MakeEffect(EffectTarget::AllSecondaryCap, Effects::Increase::Mul::Small)},
         {2, MakeEffect(EffectTarget::PrimaryRate, Effects::Increase::Add::Small)},
-        {3, MakeEffect(EffectTarget::ProjectCount, Effects::Increase::Add::Small)},
+        {3, MakeEffect(EffectTarget::PopulationCap, Effects::Increase::Add::Small)},
         {4, MakeEffects(
              {{EffectTarget::ExploreRate, Effects::Increase::Mul::Small},
               {EffectTarget::ExploreEfficiency, Effects::Increase::Mul::Small}}
@@ -183,7 +183,7 @@ namespace {
               {EffectTarget::ExploreRate, Effects::Increase::Add::Medium},
               {EffectTarget::ResearchRate, Effects::Increase::Add::Medium}}
         )},
-        {14, MakeEffect(EffectTarget::ProjectCount, Effects::Increase::Add::XLarge)},
+        {14, MakeEffect(EffectTarget::PopulationCap, Effects::Increase::Add::XLarge)},
         {15, MakeEffects(
              {{EffectTarget::BuildEfficiency, Effects::Increase::Mul::Medium},
               {EffectTarget::ExploreEfficiency, Effects::Increase::Mul::Medium},
@@ -420,8 +420,8 @@ namespace {
         {Building::SpaceStation, TimeCosts[6]}
     };
 
-    static const auto quickRate = Scale::FixedPointLog<f64, 115, 100>;
-    static const auto normalRate = Scale::FixedPointLog<f64, 123, 100>;
+    static const auto quickRate = Scale::FixedPointLog<f64, 120, 100>;
+    static const auto normalRate = Scale::FixedPointLog<f64, 130, 100>;
     static const auto slowRate = Scale::FixedPointLog<f64, 150, 100>;
 
     std::unordered_map<Building, std::function<f64(size_t)>> BuildingTimeScale{

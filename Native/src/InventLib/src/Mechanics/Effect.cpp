@@ -17,7 +17,6 @@ namespace Invent {
 			case EffectTarget::ExploreSuccessRate: return "Exploration Success Rate";
 			case EffectTarget::ResearchRate: return "Research Rate";
 			case EffectTarget::ResearchEfficiency: return "Research Efficiency";
-			case EffectTarget::ProjectCount: return "Max Project Workers";
 			case EffectTarget::PrimaryRate: return "Work Rate";
 			case EffectTarget::PrimaryCap: return "Work Cap";
 			case EffectTarget::AllSecondaryRate: return "Resource Rates";
@@ -35,7 +34,7 @@ namespace Invent {
 			case EffectTarget::ConversionPower: return "Conversion Power";
 			case EffectTarget::TickPower: return "Tick Power";
 			case EffectTarget::TimeShardCap: return "Time Shard Cap";
-
+            case EffectTarget::WorkerDensity: return "Worker Density";
         }
 
 		DR_ASSERT_MSG(false, "Unhandled effect target");

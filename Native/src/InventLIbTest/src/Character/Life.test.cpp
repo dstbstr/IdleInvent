@@ -3,6 +3,7 @@
 #include "CommonTest.h"
 
 #include "InventLib/Character/Society.h"
+#include "InventLib/Mechanics/Effect.h"
 #include "InventLib/Projects/Population.h"
 #include "InventLib/Projects/Project.h"
 #include "InventLib/Settings/GameSettings.h"
@@ -29,18 +30,18 @@ namespace Invent {
 
     TEST_F(LifeTest, PrimaryResource_AfterOneSecond_IsMoreThanZero) {
         life->Tick(OneSecond);
-		ASSERT_TRUE(life->Resources[ResourceName::Primary].Current > 0);
+        ASSERT_TRUE(life->Resources[ResourceName::Primary].Current > 0);
     }
 
     TEST_F(LifeTest, CurrentPopulation_AfterFinishingPopulationIncreaseProject_InreasesByOne) {
         auto& projects = life->Projects.at(ProjectType::Population);
-        auto expected = Project { .Name = Invent::Population::PopulationName, .Type = ProjectType::Population };
+        auto expected = Project{.Name = Invent::Population::PopulationName, .Type = ProjectType::Population};
         auto project = std::find(projects.begin(), projects.end(), expected);
         ASSERT_NE(projects.end(), project);
 
         project->ResourceProgress = project->ResourceCost;
         project->TimeProgress = project->TimeCost;
-        
+
         auto original = life->CurrentPopulation;
         life->Tick(OneSecond);
 

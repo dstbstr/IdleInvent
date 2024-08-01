@@ -33,4 +33,9 @@ namespace Constexpr {
         }
     }
 
+    template<typename T>
+    constexpr T Clamp(T value, T bottom, T top) {
+        return value < bottom ? bottom : (value > top ? top : value);
+        //return std::min(std::max(bottom, value), top);
+	}
 }

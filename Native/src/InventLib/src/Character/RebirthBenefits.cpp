@@ -3,7 +3,7 @@
 namespace {
     using namespace Invent;
     std::unordered_map<std::string, Effect> benefits{
-        {"Extra Projects", Effect{.Target = EffectTarget::ProjectCount, .Modifier = {.Add = 2, .Mul = 1.0f}}},
+        {"Worker Density", Effect{.Target = EffectTarget::WorkerDensity, .Modifier = {.Add = -1, .Mul = 1.0f}}},
         {"Project Efficiency", Effect{.Target = EffectTarget::AllProjectEfficiency, .Modifier = {.Add = 1, .Mul = 1.0F}}},
         {"Project Rate", Effect{.Target = EffectTarget::AllProjectRate, .Modifier = {.Add = 1, .Mul = 1.0F}}},
 		{"Extra Time Shards", Effect{.Target = EffectTarget::TimeShardCap, .Modifier = {.Add = 1, .Mul = 1.0F}}},

@@ -1,9 +1,3 @@
-Exploration:
-	Success chances (resources, artifact, nothing, losses)
-	One per research
-	Can run any number of times, but artifact can only be found once
-	Artifact is used to unlock next research
-
 Inventory:
 	Creates items used for building projects
 	Consumables?
@@ -15,6 +9,13 @@ Equipment:
 	Fixed number per exploration
 	Upgrade through combination?
 
+Jobs:
+	3rd level buildings
+	costs workers
+		Investors invest in projects
+		Operators operate converters
+		Managers fire workers (put them back in the pool)
+	Act like projects in that they have a time to activate (more workers speed up process)
 
 Idling:
 	Progress is only made while active
