@@ -8,6 +8,6 @@ namespace Invent {
 }
 
 namespace Ui::Components::Project {
-    enum struct StartCondition { None, RequireResources};
-    void Render(Invent::Life& life, Invent::Project& project, Invent::PurchaseAmount purchaseAmount, StartCondition startCondition = StartCondition::None);
+    void RenderPlusMinus(size_t& available, size_t& spent, Invent::PurchaseAmount purchaseAmount);
+    void Render(Invent::Life& life, Invent::Project& project, Invent::PurchaseAmount purchaseAmount);
 } // namespace Ui::Components::Project

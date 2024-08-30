@@ -57,7 +57,7 @@ namespace Ui::StartLife {
                     society->CurrentLife.Resources[resource].Capacity = 10000;
                 }
                 society->CurrentLife.MaxPopulation = 1000;
-                society->CurrentLife.CurrentPopulation = society->CurrentLife.MaxPopulation;
+                society->CurrentLife.CurrentPopulation = society->CurrentLife.MaxPopulation - 1;
                 society->CurrentLife.MaxWorkers = 1000;
                 society->CurrentLife.AvailableWorkers = society->CurrentLife.MaxWorkers;
                 //society->CurrentLife.CurrentPopulation = 5;

@@ -25,5 +25,6 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Utilities/Format.test.cpp
   src/Utilities/IRandom.test.cpp 
   src/Constexpr/ConstexprStrUtils.test.cpp
+  src/Constexpr/ConstexprMath.test.cpp
+)
  
- "src/Constexpr/ConstexprMath.test.cpp")

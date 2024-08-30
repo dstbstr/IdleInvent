@@ -8,44 +8,44 @@
 #include <imgui.h>
 
 namespace Ui::Components::Project {
-    void Render(Invent::Life& life, Invent::Project& project, Invent::PurchaseAmount purchaseAmount, StartCondition startCondition) {
-        ImGui::PushID(&project);
-
-        auto disableWorkers = startCondition == StartCondition::RequireResources && project.ResourceProgress.AreAnyLessThan(project.ResourceCost);
-        if(disableWorkers) {
-            ImGui::BeginDisabled();
-        }
-        auto disableMinus = project.CurrentWorkers == 0;
+    void RenderPlusMinus(size_t& available, size_t& spent, Invent::PurchaseAmount purchaseAmount) {
+        auto disableMinus = spent == 0;
         if(disableMinus) {
             ImGui::BeginDisabled();
         }
         if(ImGui::SmallButton("-")) {
-            auto count = Invent::GetPurchaseCount(project.CurrentWorkers, purchaseAmount);
-            project.CurrentWorkers -= count;
-            life.AvailableWorkers += count;
+            auto count = Invent::GetPurchaseCount(spent, purchaseAmount);
+            if(count == 0 && spent > 0) {
+                count = spent;
+            }
+            spent -= count;
+            available += count;
         }
         if(disableMinus) {
             ImGui::EndDisabled();
         }
 
         ImGui::SameLine();
-        ImGui::Text("%s", std::format("{}", project.CurrentWorkers).c_str());
+        ImGui::Text("%s", std::format("{}", spent).c_str());
         ImGui::SameLine();
-        auto disablePlus = life.AvailableWorkers == 0;
+        auto disablePlus = available == 0;
         if(disablePlus) {
             ImGui::BeginDisabled();
         }
         if(ImGui::SmallButton("+")) {
-            auto count = Invent::GetPurchaseCount(life.AvailableWorkers, purchaseAmount);
-            project.CurrentWorkers += count;
-            life.AvailableWorkers -= count;
+            auto count = Invent::GetPurchaseCount(available, purchaseAmount);
+            spent += count;
+            available -= count;
         }
         if(disablePlus) {
             ImGui::EndDisabled();
         }
-        if(disableWorkers) {
-            ImGui::EndDisabled();
-        }
+    }
+
+    void Render(Invent::Life& life, Invent::Project& project, Invent::PurchaseAmount purchaseAmount) {
+        ImGui::PushID(&project);
+
+        RenderPlusMinus(life.AvailableWorkers, project.CurrentWorkers, purchaseAmount);    
 
         ImGui::SameLine();
         ImGui::Text("%s", project.Name.c_str());

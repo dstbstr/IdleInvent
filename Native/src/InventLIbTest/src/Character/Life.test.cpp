@@ -48,6 +48,21 @@ namespace Invent {
         ASSERT_EQ(original + 1, life->CurrentPopulation);
     }
 
+    TEST_F(LifeTest, PopulationCap_AfterFinishingPopulationCapProject_IsMultipliedBy10) {
+        auto& projects = life->Projects.at(ProjectType::Population);
+        auto expected = Project{.Name = Invent::Population::CapacityName, .Type = ProjectType::Population};
+        auto project = std::find(projects.begin(), projects.end(), expected);
+        ASSERT_NE(projects.end(), project);
+
+        project->ResourceProgress = project->ResourceCost;
+        project->TimeProgress = project->TimeCost;
+
+        auto original = life->MaxPopulation;
+        life->Tick(OneSecond);
+
+        ASSERT_EQ(original * 10, life->MaxPopulation);
+    }
+
     TEST_F(LifeTest, Project_AfterCompletion_RemovesProject) {
         auto& projects = life->Projects.at(ProjectType::Research);
         projects.clear();

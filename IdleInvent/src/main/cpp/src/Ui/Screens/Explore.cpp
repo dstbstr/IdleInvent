@@ -17,6 +17,8 @@
 namespace {
     Invent::Society* Society{nullptr};
     Invent::Project* SelectedExpedition{nullptr};
+    Invent::GameSettings* Settings{nullptr};
+
     bool ProjectStarted{false};
     size_t DedicatedWorkers{0};
     std::vector<size_t> ExpeditionItems{};
@@ -34,29 +36,7 @@ namespace {
     void RenderPrepare() {
         auto& life = Society->CurrentLife;
 
-        auto disableMinus = DedicatedWorkers == 0;
-        if(disableMinus) {
-            ImGui::BeginDisabled();
-        }
-        if(ImGui::SmallButton("-")) {
-            DedicatedWorkers--;
-            life.AvailableWorkers++;
-        }
-        if(disableMinus) {
-            ImGui::EndDisabled();
-        }
-
-        ImGui::SameLine();
-        ImGui::Text("%s", std::format("{}", DedicatedWorkers).c_str());
-        ImGui::SameLine();
-
-        auto disablePlus = life.AvailableWorkers == 0;
-        if(disablePlus) ImGui::BeginDisabled();
-        if(ImGui::SmallButton("+")) {
-            DedicatedWorkers++;
-            life.AvailableWorkers--;
-        }
-        if(disablePlus) ImGui::EndDisabled();
+        Ui::Components::Project::RenderPlusMinus(life.AvailableWorkers, DedicatedWorkers, Settings->PurchaseChoice);
 
         ImGui::SameLine();
         ImGui::Text("%s", SelectedExpedition->Name.c_str());
@@ -190,8 +170,10 @@ namespace {
 
 namespace Ui::Screens::Explore {
     bool Initialize() {
-        Society = &ServiceLocator::Get().GetRequired<Invent::Society>();
-        ServiceLocator::Get().GetRequired<PubSub<Invent::ExpeditionOutcome>>().Subscribe(
+        auto& services = ServiceLocator::Get();
+        Society = &services.GetRequired<Invent::Society>();
+        Settings = &services.GetRequired<Invent::GameSettings>();
+        services.GetRequired<PubSub<Invent::ExpeditionOutcome>>().Subscribe(
             [](const Invent::ExpeditionOutcome& outcome) { LastExpeditionResult = ToString(outcome); }
         );
         return true;

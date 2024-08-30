@@ -34,6 +34,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
   src/Projects/Building.test.cpp
   src/Projects/Expeditions.test.cpp
+  src/Projects/Population.test.cpp
   src/Projects/Project.test.cpp
 
   src/Resources/Resource.tests.cpp
@@ -42,5 +43,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 
   src/Technology/Technology.test.cpp
   src/Technology/InfluenceTechs.tests.cpp
-
 )

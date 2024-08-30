@@ -20,6 +20,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/GameState/GameState.cpp
 
+	src/Inventory/Item.cpp 
+
 	src/Mechanics/Advancement.cpp
 	src/Mechanics/Effect.cpp
 	src/Mechanics/Modifier.cpp 
@@ -46,6 +48,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Resources/ResourceConversion.cpp
 	src/Resources/Storage.cpp
 
+	src/Settings/PurchaseAmount.cpp
+	
 	src/Technology/Inventions/StoneAge.cpp
 	src/Technology/Inventions/LaborTechs.cpp
 	src/Technology/Inventions/KnowledgeTechs.cpp
@@ -56,4 +60,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Technology/Technology.cpp
 	src/Technology/Inventions/StorageTechs.cpp	
 	
- "src/Inventory/Item.cpp" "src/Settings/PurchaseAmount.cpp")
+)

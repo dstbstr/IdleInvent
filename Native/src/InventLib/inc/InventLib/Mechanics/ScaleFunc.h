@@ -16,18 +16,18 @@ namespace Invent {
         }
 
         template<typename T, T... Values>
-        T Specified(size_t currentLevel) {
+        constexpr T Specified(size_t currentLevel) {
             static std::vector<T> values = {Values...};
             return values[currentLevel];
         }
 
         template<typename T, T Value>
-        T Constant(size_t) {
+        constexpr T Constant(size_t) {
             return Value;
         }
 
         template<typename T, T Mult>
-        T Linear(size_t currentLevel) {
+        constexpr T Linear(size_t currentLevel) {
             return static_cast<T>(currentLevel * Mult);
         }
 
@@ -35,5 +35,13 @@ namespace Invent {
         auto MakePunctuated(StepFn stepFn) {
             return [stepFn](size_t currentLevel) { return stepFn((currentLevel / Step) + 1); };
         }
+
+        template<typename T, size_t Base, typename StepFn>
+        constexpr auto MakeLogPunctuated(StepFn stepFn) {
+            return [stepFn](size_t currentLevel) {
+                auto log = std::log(static_cast<double>(currentLevel)) / std::log(static_cast<double>(Base));
+                return static_cast<T>(stepFn(static_cast<size_t>(log)));
+            };
+        };
     } // namespace AdvancementCosts
 } // namespace Invent

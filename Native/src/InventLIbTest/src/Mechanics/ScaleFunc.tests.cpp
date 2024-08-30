@@ -41,4 +41,18 @@ namespace Invent {
         auto scale = Scale::FixedPointLog<size_t, 123, 100>;
         ASSERT_EQ(expected, scale(30));
 	}
+
+    TEST(Scale, LogPunctuated_WithSpecifiedValueAndLogBase2_ReturnsSpecifiedValuesOnPowersOfTwo) {
+        auto fn = Scale::MakeLogPunctuated<int, 2>(Scale::Specified<int, 3, 4, 5>);
+        ASSERT_EQ(fn(1), 3);
+        ASSERT_EQ(fn(2), 4);
+        ASSERT_EQ(fn(4), 5);
+	}
+
+    TEST(Scale, LogPunctuated_WithSpecifiedValueAndLogBase10_RetursSpecifiedValueOnPowersOf10) {
+        auto fn = Scale::MakeLogPunctuated<int, 10>(Scale::Specified<int, 3, 4, 5>);
+		ASSERT_EQ(fn(1), 3);
+		ASSERT_EQ(fn(10), 4);
+		ASSERT_EQ(fn(100), 5);
+    }
 } // namespace Invent
