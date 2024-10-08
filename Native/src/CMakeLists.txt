@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1b)
+cmake_minimum_required(VERSION 3.10)
 project(NativeLibs)
 
 include(FetchContent)
@@ -68,3 +68,5 @@ add_subdirectory(Core)
 add_subdirectory(CoreTest)
 add_subdirectory(InventLib)
 add_subdirectory(InventLibTest)
+
+enable_testing()

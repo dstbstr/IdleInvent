@@ -12,8 +12,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	inc
 )
 
-enable_testing()
-
+include(GoogleTest)
+#gtest_discover_tests(${PROJECT_NAME})
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE
