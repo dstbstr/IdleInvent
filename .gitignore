@@ -1,11 +1,4 @@
-**/.gradle/*
-**/.idea/*
-**/.vs/*
-**/.vscode/*
-**/.cxx/*
 **/build/*
 **/out/*
-
-**/local.properties
-
-**/dist/*
+**/.vs/*
+**/.vscode/*

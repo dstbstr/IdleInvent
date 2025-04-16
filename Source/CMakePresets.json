@@ -1,0 +1,129 @@
+﻿{
+  "version": 9,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "cmake-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "environment": {
+        "CMAKE_CXX_FLAGS": "$env{PRESET_COMPILER_FLAGS}",
+        "CMAKE_EXE_LINKER_FLAGS": "$env{PRESET_LINK_FLAGS}"
+      }
+    },
+    {
+      "name": "msvc-x64",
+      "inherits": "cmake-base",
+      "hidden": true,
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "clang-x64",
+      "inherits": "cmake-base",
+      "hidden": true,
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64"
+        }
+      }
+    },
+    {
+      "name": "android-base",
+      "inherits": "cmake-base",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Android",
+        "ANDROID_NDK": "C:/Users/durandal/AppData/Local/Android/ndk/27.0.11718014",
+        "CMAKE_TOOLCHAIN_FILE": "$env{NDK_ROOT}\\build\\cmake\\android.toolchain.cmake",
+        "CMAKE_TRY_COMPILE_TARGET_TYPE": "STATIC_LIBRARY",
+        "CMAKE_SHARED_LINKER_FLAGS": "-u ANativeActivity_onCreate"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "android-clang-x64"
+        }
+      }
+    },
+    {
+      "name": "android-arm64-v8a",
+      "hidden": true,
+      "inherits": "android-base",
+      "architecture": {
+        "value": "arm64-v8a",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "ANDROID_ABI": "x86_64"
+      }
+    },
+    {
+      "name": "msvc-debug",
+      "displayName": "Msvc Debug",
+      "inherits": "msvc-x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "msvc-release",
+      "displayName": "Msvc Release",
+      "inherits": "msvc-x64",
+      "environment": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang-debug",
+      "displayName": "clang Debug",
+      "inherits": "clang-x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "environment": {
+        "PRESET_LINK_FLAGS": "-v"
+      }
+    },
+    {
+      "name": "clang-release",
+      "displayName": "clang Release",
+      "inherits": "clang-x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "android-debug",
+      "displayName": "Android Debug",
+      "inherits": "android-arm64-v8a",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ]
+} 
