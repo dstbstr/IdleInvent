@@ -80,7 +80,8 @@ D3dContext::D3dContext(Platform& platform) {
         auto desc = D3D12_DESCRIPTOR_HEAP_DESC{
             .Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
             .NumDescriptors = AppHeapSize,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE
+            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+            .NodeMask = 0
         };
         hr = Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&SrvHeap));
         EnsureOk(hr);
@@ -89,7 +90,10 @@ D3dContext::D3dContext(Platform& platform) {
 
     {
         auto desc = D3D12_COMMAND_QUEUE_DESC{
-            .Type = D3D12_COMMAND_LIST_TYPE_DIRECT, .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE, .NodeMask = 1
+            .Type = D3D12_COMMAND_LIST_TYPE_DIRECT, 
+            .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+            .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE, 
+            .NodeMask = 1
         };
         hr = Device->CreateCommandQueue(&desc, IID_PPV_ARGS(&CommandQueue));
         EnsureOk(hr);
@@ -280,13 +284,18 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
         .pResource = uploadBuf.Get(),
         .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
         .PlacedFootprint =
-            {.Footprint =
-                 {.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            {
+            .Offset = 0,
+            .Footprint =
+                 {
+                  .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                   .Width = static_cast<unsigned int>(width),
                   .Height = static_cast<unsigned int>(height),
                   .Depth = 1,
-                  .RowPitch = uploadPitch}}
-    };
+                  .RowPitch = uploadPitch
+                 }
+            }
+        };
 
     auto destLocation = D3D12_TEXTURE_COPY_LOCATION{
         .pResource = tex, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, .SubresourceIndex = 0
@@ -308,7 +317,10 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
     EnsureOk(hr);
 
     auto queueDesc = D3D12_COMMAND_QUEUE_DESC{
-        .Type = D3D12_COMMAND_LIST_TYPE_DIRECT, .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE, .NodeMask = 1
+        .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 1
     };
 
     ComPtr<ID3D12CommandQueue> cmdQueue;

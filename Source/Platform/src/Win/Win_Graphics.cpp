@@ -17,7 +17,6 @@
 namespace {
     std::unique_ptr<D3dContext> g_Ctx{nullptr};
     Platform* g_Platform = nullptr;
-    constexpr auto TestImage = "SplashScreen.jpg";
     
     bool InitializeDx(Platform& platform) {
         IMGUI_CHECKVERSION();
@@ -122,13 +121,6 @@ namespace Graphics {
         }
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
-
-        ////////
-        //(void)renderFn;
-        //ImGui::Begin("DirectX12 Texture Test");
-        //ImGui::Image(GetImageHandle(TestImage), ImVec2(256.F, 256.F), ImVec2(0, 0), ImVec2(1, 1));
-        //ImGui::End();
-        ////////////////////
         
         renderFn();
         

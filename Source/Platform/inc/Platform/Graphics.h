@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform.h"
+#include <imgui.h> // Do I want this dependency, or change ImTextureID to void*?
 #include <utility>
 
 namespace Graphics {
@@ -12,7 +13,7 @@ namespace Graphics {
 
     void SetFont(const char* fontName, float fontSize);
     bool TryLoadImageFile(const std::string& file);
-    void* GetImageHandle(const std::string& file);
+    ImTextureID GetImageHandle(const std::string& file);
 
     extern float ScreenHeight;
     extern float ScreenWidth;

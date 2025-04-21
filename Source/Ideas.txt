@@ -1,0 +1,159 @@
+Industry
+	Materials
+		Stone (none)
+		Wood (none)
+		Weaving (Farming)
+		Copper (Fire, Stone, Alchemy)
+		Bronze (Copper, Smelting)
+		Iron (Smelting, Geology, Furnace)
+		Glass (Fire, Chemistry)
+		Paper (Wood, Chemistry)
+		Steel (Iron, Smelting, Furnace)
+		Alloys (Fire, Physics, Geology)
+	Land
+		Hunting (none)
+		Fishing (none)
+		Farming (Herbalism, Agreculture)
+		Crop Rotation (Farming, Biology, Calendar)
+		Preservation (Physics, Chemistry, Iron)
+		Architecture (Drawing, Alloys, Writing)
+	Machines
+		Fire (none)
+		Wheel (Physics, Stone)
+		Pulley (Wheel, Weaving)
+		Lever (Wood, Stone, Physics)
+		Axle (Lever, Wheel)
+		Gears (Bronze, Wheel, Mathematics)
+		Furnace (Fire, Stone)
+		Turbine (Aerodynamics, Gears, Alloys)
+		Combustion (Fire, Chemestry)
+		Power Tools (Electronics)
+	Travel
+		Horseback (Domestication)
+		Wagon (Horseback, Wheel, Wood)
+		Car (Combustion, Gears, Steel)
+		Train (Combustion, Alloys, Time)
+		Raft (Wood)
+		Boat (Wood, Furnace)
+		Plane (Combustion, Aerodynamics, Electronics)
+		Jet (Plane, Aviation)
+		Rocket (Combustion, Ballistics)
+		Shuttle (Rocket, Cosmology, Cryology)
+		Warp Gate (Shuttle, Space Folding)
+Science
+	Physics
+		Astrology (none)
+		Geology (Stone)
+		Physics (Geology, Fire, Mathematics)
+		Aerodynamics (Physics)
+		Balistics (Aerodynamics, Calculus)
+		Electronics (Physics, Gears, Chemistry)
+		Cryology (Electronics, Preservation, Medicine)
+		Space Folding (Physics, Cosmology)
+	Biochem
+		Alchemy (none)
+		Herbalism (Alchemy)
+		Agreculture (Herbalism, Calendar)
+		Cooking (Fire, Time)
+		Domestication (Hunting, Wood)
+		Chemistry (Alchemy, Fire)
+		Biology (Chemistry, Domestication)
+		Medicine (Biology, Chemistry, Weaving)
+		Psychology (Language, Libraries, Education)
+		Sociology (Psychology, Diplomacy, University)
+	Astronomy
+		Calculus (Mathematics, Physics)
+		Lens (Fire, Glass)
+		Observatory (Lens, Loans)
+		Aviation (Aerodynamics, Cartography)
+		Cosmology (Physics, Calculus, University)
+Society
+	Philosophy
+		Mathematics (none)
+		Ethics (Language)
+		Calendar (Astrology, Writing)
+		Time (Mathematics, Calendar, Physics)
+	Communication
+		Language (none)
+		Traditions (Language)
+		Writing (Language, Paper)
+		Printing (Writing, Chemistry)
+		Binding (Paper, Weaving, Pulley)
+		Libraries (Binding, Traditions, City)
+		Telegraph (Electronics, Writing, State)
+		Telephone (Telegraph, Country)
+		Cellular (Telephone, Electronics, Physics)
+		Internet (Cellular, Libraries, University)
+		Global Language (Language, Internet)
+		Telepathy (Global Language, Sociology, Psychology)
+	Trade
+		Bartering (none)
+		Market (Bartering, Hamlet)
+		Gems (Stone, Geology)
+		Gold (Geology, Chemistry)
+		Coins (Gold, Lever, Drawing)
+		Loans (Writing, Law, City)
+		Stocks (Loans, Country)
+		Diplomacy (Government, Law, Language)
+		Globalization (Diplomacy, Internet)
+	Culture
+		Drawing
+		Painting
+		Carving
+		Clothing
+		Pottery
+		Singing
+		Instruments
+		Cartography
+	Civics
+		Police
+		Law
+		Government
+		Sanitation
+		Education
+		University
+	Population
+		Hamlet
+		Town
+		City
+		State
+		Country
+
+Warfare
+	Melee Weapons
+		Clubs
+		Swords
+	Ranged
+		Archery
+		Siege Weapons
+	Explosives
+		Muskets
+		Rifles
+		Missles
+		ICBM
+	Armor
+		Hide
+		Scale
+		Plate
+		Kevlar
+	Transport
+		Jeep
+		Tank
+		Battleship
+	Military
+		Militia
+		Strategy
+		Army
+		Navy
+		Air Force
+		Space Force
+
+
+Natural Resources:
+	Natural Spring
+	Good Harvest
+	Mines
+	Plains
+	Rivers
+	Oil Field
+	Lake
