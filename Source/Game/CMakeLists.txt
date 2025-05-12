@@ -9,7 +9,8 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} 
     Engine
-    InventLib
+    #InventLib
+    TechMazeLib
     IdlePlatform
 )
 

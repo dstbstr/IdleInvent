@@ -1,27 +1,32 @@
 #include <Platform/PlatformMain.h>
 #include <Engine.h>
-#include <InventLib/InventGame.h>
+//#include <InventLib/InventGame.h>
+#include <TechMaze/TechMazeGame.h>
 
 #include <memory>
 
-namespace {
-    std::unique_ptr<Engine> engine{nullptr};
-    std::unique_ptr<Invent::InventGame> game{nullptr};
-    Platform* ThePlatform{nullptr};
-}
+template<typename TGame>
+class GameState : public IGameState {
+public:
+    GameState(Platform& platform) 
+        : m_Platform(platform)
+        , m_Game(platform)
+        , m_Engine(m_Platform, m_Game)
+    {}
 
-bool Initialize(Platform& platform) {
-    ThePlatform = &platform;
-    game = std::make_unique<Invent::InventGame>(platform);
-    engine = std::make_unique<Engine>(platform, *game);
-
-    return engine->Initialize();
-}
-
-void Run() {
-    while(true) {
-        if(!ThePlatform->HandleInput()) break;
-        engine->Tick();
+    bool Initialize() override { return m_Engine.Initialize(); }
+    void Run() override {
+        while(m_Platform.HandleInput()) {
+            m_Engine.Tick();
+        }
     }
-    engine.reset();
+private:
+    Platform& m_Platform{nullptr};
+    TGame m_Game;
+    Engine m_Engine;
+};
+
+std::unique_ptr<IGameState> GetGameState(Platform& platform) {
+    using CurrentGame = GameState<TechMaze::TechMazeGame>;
+    return std::make_unique<CurrentGame>(platform);
 }

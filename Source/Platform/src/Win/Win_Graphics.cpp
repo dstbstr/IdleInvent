@@ -1,6 +1,5 @@
 #ifdef WIN32
 #include "Platform/Graphics.h"
-#include "Platform/Image.h"
 #include "D3dContext.h"
 
 #include "backends/imgui_impl_win32.h"
@@ -11,11 +10,11 @@
 #include <fstream>
 #include <unordered_map>
 
-//
-#include <iostream>
+// #include <iostream>
 
 namespace {
     std::unique_ptr<D3dContext> g_Ctx{nullptr};
+    std::unordered_map<std::string, ImFont*> g_Fonts{};
     Platform* g_Platform = nullptr;
     
     bool InitializeDx(Platform& platform) {
@@ -67,6 +66,26 @@ namespace Graphics {
             ScreenWidth = width;
             ScreenHeight = height;
         }
+    }
+
+    bool TryLoadFont(const std::string& id, const char* fontName, float fontSize) { const auto& io = ImGui::GetIO();
+        void* fontData;
+        size_t fontDataSize;
+        if(!g_Platform->TryGetAsset(fontName, &fontData, fontDataSize)) {
+            return false;
+        }
+
+        auto* font = io.Fonts->AddFontFromMemoryTTF(fontData, static_cast<int>(fontDataSize), fontSize);
+        if(font) {
+            g_Fonts.emplace(id, font);
+            return true;
+        }
+        return false;
+    }
+
+    ImFont* GetFont(const std::string& id) {
+        IM_ASSERT(g_Fonts.contains(id));
+        return g_Fonts.at(id);
     }
 
     void SetFont(const char* fontName, float fontSize) {

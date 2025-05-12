@@ -3,7 +3,6 @@
 
 #include "Instrumentation/Logging.h"
 #include <Platform/Graphics.h>
-#include <Platform/Image.h>
 #include <EngineState.h>
 #include <imgui.h>
 

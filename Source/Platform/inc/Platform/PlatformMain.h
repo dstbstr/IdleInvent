@@ -2,21 +2,26 @@
 
 #include <Platform/Platform.h>
 #include <Platform/Graphics.h>
+#include <memory>
 
-bool Initialize(Platform& platform);
-void Run();
+struct IGameState {
+    virtual ~IGameState() = default;
+    virtual bool Initialize() = 0;
+    virtual void Run() = 0;
+};
+
+std::unique_ptr<IGameState> GetGameState(Platform& platform);
+
 #ifdef WIN32
 int main(int, char**) {
     auto platform = Platform{nullptr};
     if(!Graphics::Initialize(platform)) {
         return -1;
     }
+    auto gameState = GetGameState(platform);
+    if(!gameState->Initialize()) return -1;
+    gameState->Run();
 
-    if(!Initialize(platform)) {
-        return -1;
-    }
-
-    Run();
     return 0;
 }
 #elif defined(__ANDROID__)
@@ -25,15 +30,11 @@ int main(int, char**) {
 
 void android_main(android_app* app) {
     auto platform = Platform{app};
-    /*
-    while(platform.GetWindow() == nullptr) {
-        platform.HandleInput();
-        sleep(10);
-    }
-        */
     platform.HandleInput();
-    if(Graphics::Initialize(platform) && Initialize(platform)) {
-        Run();
+
+    auto gameState = GetGameState(platform);
+    if(Graphics::Initialize(platform) && gameState->Initialize(platform)) {
+        gameState->Run();
     }
 }
 #else

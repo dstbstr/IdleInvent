@@ -14,10 +14,12 @@ if (WIN32)
     target_sources(${PROJECT_NAME} PRIVATE
         src/Win/Win_DebugStream.cpp
         src/Win/Win_Graphics.cpp
-        src/Win/Win_Image.cpp
+        #src/Win/Win_Image.cpp
         src/Win/Win_Platform.cpp
         src/Win/D3dAllocator.cpp
-        src/Win/D3dContext.cpp "src/Ui/Panel.cpp")
+        src/Win/D3dContext.cpp 
+        "src/Ui/Panel.cpp"
+    )
     target_link_libraries(${PROJECT_NAME} PRIVATE
         d3d12
         dxgi

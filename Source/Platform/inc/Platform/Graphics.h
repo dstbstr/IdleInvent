@@ -11,7 +11,9 @@ namespace Graphics {
 
     void Render(RenderFn renderFunc);
 
-    void SetFont(const char* fontName, float fontSize);
+    bool TryLoadFont(const std::string& id, const char* fontName, float fontSize);
+    ImFont* GetFont(const std::string& id);
+
     bool TryLoadImageFile(const std::string& file);
     ImTextureID GetImageHandle(const std::string& file);
 

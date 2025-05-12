@@ -8,8 +8,8 @@
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>
 #include <Instrumentation/Logging.h>
-#include <Platform/Image.h>
 #include <Platform/Graphics.h>
+#include <Ui/UiUtil.h>
 #include <imgui.h>
 
 namespace {
@@ -18,11 +18,6 @@ namespace {
     Invent::GameSettings* gameSettings{nullptr};
     //Image settingsIcon;
     Invent::Life* life{nullptr};
-
-    void TextCentered(const char* text) {
-        ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(text).x) / 2);
-        ImGui::Text("%s", text);
-    }
 
     void RenderSettings() {
         //if(ImGui::ImageButton("Settings", settingsIcon.ToHandle(), {64, 64})) {

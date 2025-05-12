@@ -1,5 +1,4 @@
 #pragma once
-#include "Platform/Image.h"
 
 struct DX12Image {
     DX12Image(int width, int height, long long textureId, ID3D12Resource* tex) 
@@ -19,9 +18,9 @@ struct DX12Image {
     int Width{0};
     int Height{0};
     int Channels{0};
-    long long TextureId{0}; // reinterpret cast as needed
+    UINT64 TextureId{0}; 
     
-    ImTextureID ToHandle() const { return reinterpret_cast<ImTextureID>(static_cast<unsigned __int64>(TextureId)); }
+    ImTextureID ToHandle() const { return static_cast<ImTextureID>(TextureId); }
     constexpr int GetSize() const { return Width * Height * Channels; }
 
     ID3D12Resource* Texture{nullptr};

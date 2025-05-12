@@ -157,3 +157,76 @@ Natural Resources:
 	Rivers
 	Oil Field
 	Lake
+
+
+Focuses:
+Science, Military, Technology, Labor, Culture, (Magic)
+
+Life Aspects:
+Transport, Health, Industry, Communication, Population, (Shelter)
+
+Science + Transport = Rocket
+Science + Health = Medicine
+Science + Industry = Electronics
+Science + Communication = Library
+Science + Population = Immortality
+
+Military + Transport = Jet
+Military + Health = Hospital
+Military + Industry = Factory
+Military + Communication = Cryptography
+Military + Population = Empire
+
+Technology + Transport = Vacuum Tubes
+Technology + Health = Nanobots
+Technology + Industry = Robotics
+Technology + Communication = Internet
+Technology + Population = Planetary Colonization
+
+Labor + Transport = Oliphants
+Labor + Health = Herbalism
+Labor + Industry = Public Works
+Labor + Communication = Megaphone
+Labor + Population = Natural Selection
+
+Culture + Transport = Showboat
+Culture + Health = Sanitation
+Culture + Industry = University
+Culture + Communication = Propaganda
+Culture + Population = Unification
+
+Unique Inventions:
+	Science + Military + Technology: Robosoldier
+	Science + Military + Labor: Conquest
+	Science + Military + Culture: Mutual Assured Destruction
+	Science + Technology + Labor: Robotics
+	Science + Technology + Culture: Social Media
+	Science + Labor + Culture: Public Education
+	Military + Technology + Labor: Armed Forces
+	Military + Technology + Culture: Propaganda
+	Military + Labor + Culture: Guilds
+	Technology + Labor + Culture: Art Museums
+
+Resources:
+Physical Materials, Productivity
+
+
+
+aMAZEing tech
+Settlement
+	Hamlet, Town, City, Metropolis, Kingdom, Empire
+Technology
+	Stone, Bronze, Iron, Steel, Electronic, Nano
+Communication
+	Verbal, Written, Printed, Digital, Global, Telepathic
+Military
+	Militia, Cavalry, Platoon, Regiment, Battalion, Armed Forces
+Transportation
+	Foot, Horse, Carriage, Ship, Plane, Rocket
+
+Storage: 8 bits for tech level(divided by 5), 4 bits for era
+Allows for over 1000 levels, and 16 eras
+1 chunk = 12 bytes. 5 chunks = 60 bytes
+Town(5): town == 1, 5 == 1.  0001 00000001 == 257
+Bronze(10): bronze == 2, 10 == 2.  0010 00000010 == 514
+Emprire(500): Empire == 5, 500 == 100.  0101 01100100 == 1384
