@@ -95,6 +95,24 @@ struct std::formatter<TechMaze::Transportation> : std::formatter<std::string> {
     }
 };
 
+template<>
+struct std::formatter<TechMaze::Power> : std::formatter<std::string> {
+    auto format(const TechMaze::Power& input, std::format_context& ctx) const {
+        std::string name;
+        switch(input) {
+            using enum TechMaze::Power;
+        case Human: name = "Human"; break;
+        case Animal: name = "Animal"; break;
+        case Steam: name = "Steam"; break;
+        case Combustion: name = "Combustion"; break;
+        case Fission: name = "Fission"; break;
+        case Fusion: name = "Fusion"; break;
+        default: name = "Unknown"; break;
+        }
+        return std::formatter<std::string>::format(std::format("{}", name), ctx);
+    }
+};
+
 inline std::ostream& operator<<(std::ostream& os, const TechMaze::Communication& e) {
     os << std::format("{}", e);
     return os;
