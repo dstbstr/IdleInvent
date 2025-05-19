@@ -30,6 +30,7 @@ namespace TechMaze::Ui::Screens::MainContent {
         static size_t s_MaxLevel{500};
 
         ImGui::Begin("Main Content", nullptr, BaseFlags);
+        // TODO: Remove maxed skills from activeSkills?
         for(auto i : s_ActiveSkills) {
             s_Levels[i] = std::min(s_MaxLevel, s_Levels[i] + 1);
             if(s_Levels[i] > 100 && s_Eras[i] < 5) {
@@ -38,9 +39,9 @@ namespace TechMaze::Ui::Screens::MainContent {
             }
         }
 
-        auto boxSize = Graphics::ScreenWidth / 6;
+        auto boxSize = ImGui::GetWindowHeight() / 7;
         auto halfBoxSize = boxSize / 2;
-        auto buffer = boxSize / 4;
+        auto buffer = boxSize / 6;
         auto halfBuffer = buffer / 2;
         auto MakeBox = [boxSize, halfBoxSize, buffer, halfBuffer](const char* label, size_t idx) {
             ImGui::SetCursorPosX(buffer);

@@ -1,5 +1,8 @@
 #include "TechMaze/Ui/Ui.h"
+#include "TechMaze/Ui/TopContent.h"
 #include "TechMaze/Ui/MainContent.h"
+#include "TechMaze/Ui/BottomContent.h"
+
 #include "Platform/Graphics.h"
 #include "Instrumentation/Logging.h"
 #include <functional>
@@ -45,9 +48,9 @@ namespace TechMaze::Ui {
         auto screenHeight = Graphics::ScreenHeight;
         auto emptyBar = []() {};
         UiBuilder()
-            .AddPart(screenHeight * 0.1f, emptyBar)
-            .AddPart(screenHeight * 0.8f, Screens::MainContent::Render)
-            .AddPart(screenHeight * 0.1f, emptyBar)
+            .AddPart(screenHeight * 0.05f, Screens::TopContent::Render)
+            .AddPart(screenHeight * 0.75f, Screens::MainContent::Render)
+            .AddPart(screenHeight * 0.2f, Screens::BottomContent::Render)
             .Build();
     }
 

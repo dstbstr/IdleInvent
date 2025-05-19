@@ -19,7 +19,7 @@ if (WIN32)
         src/Win/D3dAllocator.cpp
         src/Win/D3dContext.cpp 
         "src/Ui/Panel.cpp"
-    )
+     "src/Ui/UiUtil.cpp")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         d3d12
         dxgi
