@@ -16,4 +16,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Ui/MainContent.cpp 
     src/Ui/BottomContent.cpp 
     src/Ui/TopContent.cpp
-)
+ )
