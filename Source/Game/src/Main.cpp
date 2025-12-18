@@ -1,7 +1,8 @@
 #include <Platform/PlatformMain.h>
 #include <Engine.h>
 //#include <InventLib/InventGame.h>
-#include <TechMaze/TechMazeGame.h>
+//#include <TechMaze/TechMazeGame.h>
+#include <GhostHunter/GhostHunterGame.h>
 
 #include <memory>
 
@@ -27,6 +28,7 @@ private:
 };
 
 std::unique_ptr<IGameState> GetGameState(Platform& platform) {
-    using CurrentGame = GameState<TechMaze::TechMazeGame>;
+    //using CurrentGame = GameState<TechMaze::TechMazeGame>;
+    using CurrentGame = GameState<GhostHunter::GhostHunterGame>;
     return std::make_unique<CurrentGame>(platform);
 }
