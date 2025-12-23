@@ -1,6 +1,6 @@
 #pragma once
 
 namespace GhostHunter::Ui::Screens::MainContent {
-    void Initialize();
+    bool Initialize();
     void Render();
 }

@@ -1,6 +1,6 @@
 #pragma once
 
 namespace TechMaze::Ui::Screens::TopContent {
-    void Initialize();
+    bool Initialize();
     void Render();
 } // namespace TechMaze::Ui::Screens::TopContent

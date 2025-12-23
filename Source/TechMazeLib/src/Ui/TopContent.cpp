@@ -6,8 +6,9 @@
 #include <format>
 
 namespace TechMaze::Ui::Screens::TopContent {
-    void Initialize() {
+    bool Initialize() {
         // Initialization code here
+        return true;
     }
     void Render() {
         ImGui::Begin("Top Content", nullptr, BaseFlags);

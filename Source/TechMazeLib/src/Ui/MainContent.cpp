@@ -12,8 +12,9 @@
 #include <array>
 
 namespace TechMaze::Ui::Screens::MainContent {
-    void Initialize() {
+    bool Initialize() {
         // Initialization code here
+        return true;
     }
     void Render() {
         auto MakeColor = [](float hue) -> ImVec4 { return ImColor::HSV(hue, 0.7f, 0.7f); };

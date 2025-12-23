@@ -1,6 +1,6 @@
 #pragma once
 
 namespace GhostHunter::Ui::Screens::TopContent {
-    void Initialize();
+    bool Initialize();
     void Render();
 } // namespace GhostHunter::Ui::Screens::TopContent

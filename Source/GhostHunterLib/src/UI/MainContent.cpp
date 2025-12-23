@@ -10,8 +10,9 @@
 #include <array>
 
 namespace GhostHunter::Ui::Screens::MainContent {
-    void Initialize() {
+    bool Initialize() {
         // Initialization code here
+        return true;
     }
     void Render() {
         ImGui::Begin("Main Content", nullptr, BaseFlags);
