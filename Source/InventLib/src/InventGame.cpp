@@ -74,10 +74,6 @@ namespace Invent {
             ServiceLocator::Get().GetRequired<PubSub<std::vector<Effect>>>().Publish(invention.Effects);
         });
 
-        // TODO: The first loaded image is garbage
-        // so we load a throw-away one
-        Graphics::TryLoadImageFile("BugFix.png");
-
         DR_ASSERT_MSG(Ui::Splash::Initialize(), "Failed to initialize splash screen");
         Graphics::Render(Ui::Splash::Render);
 

@@ -9,7 +9,6 @@ namespace GhostHunter::Ui::Screens::Tools {
     void ShutDown() {}
 
     void Render() {
-        ImGui::Begin("Tools", nullptr, BaseFlags);
-        ImGui::End();
+        ImGui::Text("Tools");
     }
 } // namespace GhostHunter::Ui::Screens::Tools

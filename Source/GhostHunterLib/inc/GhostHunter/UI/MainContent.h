@@ -3,4 +3,5 @@
 namespace GhostHunter::Ui::Screens::MainContent {
     bool Initialize();
     void Render();
+    void ShutDown();
 }

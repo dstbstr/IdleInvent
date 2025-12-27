@@ -19,10 +19,14 @@ namespace {
 
         void Build() {
             float startY = 0;
+            std::string label;
             for(auto i = 0u; i < m_Parts.size(); ++i) {
                 ImGui::SetNextWindowPos(ImVec2(0, startY));
                 ImGui::SetNextWindowSize(ImVec2(Graphics::ScreenWidth, m_Heights[i]));
+                label = std::format("Section {}", i);
+                ImGui::Begin(label.c_str(), nullptr, GhostHunter::Ui::BaseFlags);
                 m_Parts[i]();
+                ImGui::End();
                 startY += m_Heights[i];
                 DR_ASSERT_MSG(startY <= Graphics::ScreenHeight, "UI parts exceed window height");
             }
@@ -56,7 +60,11 @@ namespace GhostHunter::Ui {
             .AddPart(screenHeight * 0.2f, Screens::BottomContent::Render)
             .Build();
     }
-
+    void ShutDown() {
+        Screens::TopContent::ShutDown();
+        Screens::MainContent::ShutDown();
+        Screens::BottomContent::ShutDown();
+    }
     ImFont* GetFont(FontSizes fontSize) {
         switch(fontSize) {
             using enum FontSizes;

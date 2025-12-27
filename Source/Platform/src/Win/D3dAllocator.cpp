@@ -15,7 +15,7 @@ D3dAllocator::D3dAllocator(
     HeapHandleIncrement = device->GetDescriptorHandleIncrementSize(HeapType);
     FreeIndicies.reserve(static_cast<int>(desc.NumDescriptors));
     for(int n = desc.NumDescriptors; n > 0; n--) {
-        FreeIndicies.push_back(n - 1);
+        FreeIndicies.push_back(n);
     }
 }
 

@@ -9,7 +9,6 @@ namespace GhostHunter::Ui::Screens::Media {
     void ShutDown() {}
 
     void Render() {
-        ImGui::Begin("Media", nullptr, BaseFlags);
-        ImGui::End();
+        ImGui::Text("Media");
     }
 } // namespace GhostHunter::Ui::Screens::Media

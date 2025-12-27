@@ -9,7 +9,6 @@ namespace GhostHunter::Ui::Screens::Journal {
     void ShutDown() {}
 
     void Render() {
-        ImGui::Begin("Journal", nullptr, BaseFlags);
-        ImGui::End();
+        ImGui::Text("Journal");
     }
 } // namespace GhostHunter::Ui::Screens::Journal

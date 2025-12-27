@@ -1,6 +1,7 @@
 #include "Platform/Graphics.h"
 #include "GhostHunter/Ui/MainContent.h"
 #include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/UI/Screens/Screens.h"
 
 #include <Ui/ChildBuilder.h>
 #include <Ui/UiUtil.h>
@@ -11,12 +12,12 @@
 
 namespace GhostHunter::Ui::Screens::MainContent {
     bool Initialize() {
-        // Initialization code here
-        return true;
+        return Screens::Initialize();
     }
     void Render() {
-        ImGui::Begin("Main Content", nullptr, BaseFlags);
-        ImGui::Text("Main Content Area");
-        ImGui::End();
+        Screens::Render();
+    }
+    void ShutDown() {
+        Screens::ShutDown(); 
     }
 } // namespace GhostHunter::Ui::Screens::MainContent

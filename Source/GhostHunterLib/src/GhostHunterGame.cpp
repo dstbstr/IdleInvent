@@ -1,11 +1,27 @@
 #include "Platform/Graphics.h"
 #include "GhostHunter/GhostHunterGame.h"
 #include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/GameState/GameSettings.h"
+
+#include <DesignPatterns/ServiceLocator.h>
+#include <DesignPatterns/PubSub.h>
+#include <Utilities/IRandom.h>
+
+namespace {
+    GhostHunter::GameSettings* gameSettings{nullptr};
+}
 
 namespace GhostHunter {
-    bool GhostHunterGame::Initialize() { return Ui::Initialize(); }
+    bool GhostHunterGame::Initialize() { 
+        auto& services = ServiceLocator::Get();
 
-    void GhostHunterGame::ShutDown() {}
+        services.SetThisAsThat<DefaultRandom, IRandom>();
+        gameSettings = &services.GetOrCreate<GameSettings>();
+
+        return Ui::Initialize(); 
+    }
+
+    void GhostHunterGame::ShutDown() { Ui::ShutDown(); }
 
     void GhostHunterGame::LoadGame() {}
 

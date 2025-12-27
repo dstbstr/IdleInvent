@@ -31,7 +31,6 @@ namespace GhostHunter::Ui::Screens::BottomContent {
         auto spacing = Graphics::ScreenWidth / 5;
         // auto spacing = 200.0F;
         // ImGui::Begin("NavBar", nullptr, BaseFlags | ImGuiWindowFlags_HorizontalScrollbar);
-        ImGui::Begin("NavBar", nullptr, BaseFlags);
         if(ImGui::ImageButton("CoinIcon", Graphics::GetImageHandle(CoinIcon), {IconSize, IconSize})) {
             Screens::SetActiveScreen(Screen::Media);
         }
@@ -51,6 +50,5 @@ namespace GhostHunter::Ui::Screens::BottomContent {
         if(ImGui::ImageButton("PrestigeIcon", Graphics::GetImageHandle(PrestigeIcon), {IconSize, IconSize})) {
             Screens::SetActiveScreen(Screen::Prestige);
         }
-        ImGui::End();
     }
 }

@@ -9,7 +9,6 @@ namespace GhostHunter::Ui::Screens::Location {
     void ShutDown() {}
 
     void Render() {
-        ImGui::Begin("Location", nullptr, BaseFlags);
-        ImGui::End();
+        ImGui::Text("Location");
     }
 } // namespace GhostHunter::Ui::Screens::Location

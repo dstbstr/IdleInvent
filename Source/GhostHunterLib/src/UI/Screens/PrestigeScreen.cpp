@@ -9,7 +9,6 @@ namespace GhostHunter::Ui::Screens::Prestige {
     void ShutDown() {}
 
     void Render() {
-        ImGui::Begin("Prestige", nullptr, BaseFlags);
-        ImGui::End();
+        ImGui::Text("Prestige");
     }
 } // namespace GhostHunter::Ui::Screens::Prestige
