@@ -68,6 +68,7 @@ if(IncludeTests)
 
     add_subdirectory(EngineTest)
     add_subdirectory(InventLibTest)
+    add_subdirectory(GhostHunterLibTest)
     enable_testing()
 endif()
 
