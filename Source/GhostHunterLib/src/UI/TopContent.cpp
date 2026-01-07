@@ -3,6 +3,8 @@
 #include "GhostHunter/UI/Screens/Screens.h"
 #include "GhostHunter/UI/Screens/SettingsScreen.h"
 #include "GhostHunter/GameState/GameSettings.h"
+#include "GhostHunter/Resources/GhostHunterResources.h"
+
 #include "Ui/UiUtil.h"
 
 #include <Platform/Graphics.h>
@@ -13,6 +15,7 @@
 
 namespace {
     GhostHunter::GameSettings* gameSettings{nullptr};
+    GhostHunter::GhostHunterResources* resources{nullptr};
 
     void RenderFps() {
         if(gameSettings->ShowFps) {
@@ -22,13 +25,26 @@ namespace {
             ImGui::Text("");
         }
     }
+
+    void RenderResources() {
+        auto resourceNames = GhostHunter::GetAllResourceNames();
+        ImGui::BeginTable("Current Resources", 2);
+        for(auto& name : resourceNames) {
+            ImGui::TableNextColumn();
+            ImGui::Text(GhostHunter::ToString(name).c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text(std::to_string(resources->GetResource(name)).c_str());
+        }
+        ImGui::EndTable();
+    }
 } // namespace
 
 namespace GhostHunter::Ui::Screens::TopContent {
     constexpr auto SettingsIcon = "Icon/SettingsIcon64.png";
     bool Initialize() {
         auto& services = ServiceLocator::Get();
-        gameSettings = &services.GetOrCreate<GhostHunter::GameSettings>();
+        gameSettings = services.Get<GhostHunter::GameSettings>();
+        resources = services.Get<GhostHunter::GhostHunterResources>();
 
         return Graphics::TryLoadImageFile(SettingsIcon);
     }
@@ -42,6 +58,9 @@ namespace GhostHunter::Ui::Screens::TopContent {
         }
         ImGui::SameLine();
         RenderFps();
+        ImGui::PushFont(Ui::GetFont(Ui::FontSizes::H3));
+        RenderResources();
+        ImGui::PopFont();
     }
     void ShutDown() {}
 } // namespace GhostHunter::Ui::Screens::TopContent
