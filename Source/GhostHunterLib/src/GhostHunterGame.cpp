@@ -4,24 +4,21 @@
 #include "GhostHunter/GameState/GameSettings.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Media/Media.h"
+#include "GhostHunter/Media/Market.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>
 #include <Utilities/IRandom.h>
-
-namespace {
-    GhostHunter::GameSettings* gameSettings{nullptr};
-    GhostHunter::GhostHunterResources* resources{nullptr};
-}
 
 namespace GhostHunter {
     bool GhostHunterGame::Initialize() { 
         auto& services = ServiceLocator::Get();
 
         services.SetThisAsThat<DefaultRandom, IRandom>();
-        gameSettings = &services.GetOrCreate<GameSettings>();
-        resources = &services.GetOrCreate<GhostHunterResources>();
+        services.CreateIfMissing<GameSettings>();
+        services.CreateIfMissing<GhostHunterResources>();
         services.CreateIfMissing<PubSub<Media>>();
+        services.CreateIfMissing<Market>();
 
         return Ui::Initialize(); 
     }

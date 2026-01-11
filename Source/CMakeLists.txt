@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(IdleGame)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 include(FetchContent)
 
 #################################
@@ -11,7 +14,7 @@ set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE) #disable cmake 3.5 warning in
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.11.0
+  GIT_TAG v1.17.0
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -29,6 +32,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(warnings "/W4 /WX /EHsc")
     list(APPEND compiler_definitions MSVC)
+    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/std:c++latest>)
 endif()
 if (NOT CONFIGURED_ONCE)
     set(CMAKE_CXX_FLAGS "${warnings}"
@@ -52,9 +56,6 @@ elseif(ANDROID)
     set(IncludeTests OFF)
     include(CMake/AndroidPackaging.cmake)
 endif()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(external)
 add_subdirectory(Platform)

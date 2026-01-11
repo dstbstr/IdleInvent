@@ -9,21 +9,7 @@ namespace {
     constexpr double DecayMultiplier = 0.95; // maybe make configurable for upgrades
     constexpr double MinimumValue = 1.0;
     constexpr BaseTime PayoutInterval = OneSecond;
-
-    BaseTime payoutAccumulator{BaseTime::zero()};
-    size_t mediaHandle = 0;
-    GhostHunter::GhostHunterResources* resources{nullptr};
-
-	struct MarketMedia {
-        GhostHunter::Media Media;
-        u32 CurrentValue{0};
-    };
     
-	std::vector<MarketMedia> marketMedia{};
-
-	void OnMediaSold(const GhostHunter::Media& media) {
-        marketMedia.emplace_back(MarketMedia{media, media.Value});
-    }
 
     struct PayoutBatch {
         u32 Cash{0};
@@ -31,32 +17,34 @@ namespace {
     };
 
     PayoutBatch FastForward(u32 currentValue, size_t ticks) {
-        auto pow = std::pow(DecayMultiplier, ticks);
-        auto ideal = static_cast<double>(currentValue) * (1.0 - pow) / (1.0 - DecayMultiplier);
-        auto cash = static_cast<u32>(ideal);
+        auto cash = 0ull;
 
         while(ticks-- && currentValue > 0) {
             cash += currentValue;
             currentValue = static_cast<u32>(currentValue * DecayMultiplier);
         }
 
-        return {cash, currentValue};        
+        // clamp to avoid overflow
+        cash = std::min<u64>(cash, std::numeric_limits<u32>::max());
+        return {static_cast<u32>(cash), currentValue};        
     }
 }
-namespace GhostHunter::Market {
-	void Init() {
+namespace GhostHunter {
+	Market::Market() {
         auto& services = ServiceLocator::Get();
-        mediaHandle = services.GetRequired<PubSub<Media>>().Subscribe(OnMediaSold);
+        mediaHandle = services.GetRequired<PubSub<Media>>().Subscribe([&](const Media& media) {
+            marketMedia.emplace_back(MarketMedia{media, media.Value});
+        });
 
 		resources = services.Get<GhostHunterResources>();
 	}
 
-	void ShutDown() {
+	Market::~Market() {
 		auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<Media>>();
 		pubSub.Unsubscribe(mediaHandle);
     }
 
-	void Update(BaseTime elapsed) {
+	void Market::Update(BaseTime elapsed) {
         payoutAccumulator += elapsed;
         auto ticks = payoutAccumulator / PayoutInterval;
         if(ticks == 0) return;
@@ -72,4 +60,8 @@ namespace GhostHunter::Market {
             return media.CurrentValue == 0; 
         });
 	}
+
+    void Market::Clear() {
+        marketMedia.clear();
+    }
 }

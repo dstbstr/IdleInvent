@@ -47,4 +47,10 @@ namespace GhostHunter {
             resources[name] = current - amount;
         }
     }
+
+    void GhostHunterResources::Clear() {
+        for(auto& [name, amount]: resources) {
+            amount = 0;
+        }
+    }   
 }

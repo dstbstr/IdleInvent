@@ -27,5 +27,6 @@ namespace GhostHunter {
         void SetResource(ResourceName name, u64 amount);
         void AddResource(ResourceName name, u64 amount);
         void SubtractResource(ResourceName name, u64 amount);
+        void Clear();
     };
 }
