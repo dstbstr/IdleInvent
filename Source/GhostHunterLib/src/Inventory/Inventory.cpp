@@ -1,4 +1,4 @@
-#include "GhostHunter/Media/Inventory.h"
+#include "GhostHunter/Inventory/Inventory.h"
 
 #include "DesignPatterns/PubSub.h"
 #include "DesignPatterns/ServiceLocator.h"

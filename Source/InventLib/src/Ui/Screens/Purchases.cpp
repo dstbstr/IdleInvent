@@ -15,7 +15,7 @@
 #include <ranges>
 
 namespace {
-    std::unordered_map<std::string, Purchasable>* purchaseables{};
+    //std::unordered_map<std::string, Purchasable>* purchaseables{};
     std::unordered_map<std::string, Unlockable>* unlockables{};
     //Invent::GameState* GameState{nullptr};
     Invent::GameSettings* Settings{nullptr};
@@ -25,7 +25,7 @@ namespace {
 namespace Ui::Screens::Purchases {
     bool Initialize() {
         auto& services = ServiceLocator::Get();
-        purchaseables = &services.GetRequired<std::unordered_map<std::string, Purchasable>>();
+        //purchaseables = &services.GetRequired<std::unordered_map<std::string, Purchasable>>();
         unlockables = &services.GetRequired<std::unordered_map<std::string, Unlockable>>();
         //GameState = &services.GetRequired<Invent::GameState>();
         Society = &services.GetRequired<Invent::Society>();
@@ -38,14 +38,17 @@ namespace Ui::Screens::Purchases {
 
     void Render() {
         ImGui::Begin("PurchasesScreen", nullptr, BaseFlags);
+        auto windowSize = ImGui::GetContentRegionAvail();
+        windowSize.y = 300;
 
+        //auto inventions = Purchasables::GetAvailable<InventionName, Invention>();
+        //auto& resources = Society->CurrentLife.Resources;
+        /*
         std::vector<Purchasable> purchasables = *purchaseables | 
             std::views::values | 
             std::ranges::to<std::vector<Purchasable>>();
         std::ranges::sort(purchasables, {}, &Purchasable::Name);
 
-        auto windowSize = ImGui::GetContentRegionAvail();
-        windowSize.y = 300;
 
         for(auto& purchasable : purchasables) {
             auto disabled = !purchasable.CanPurchase(Society->CurrentLife.Resources);
@@ -63,7 +66,7 @@ namespace Ui::Screens::Purchases {
                 ImGui::EndDisabled();
             }
         }
-
+        */
         ImGui::BeginDisabled();
         for(auto& [name, unlockable] : *unlockables) {
             ImGui::Text("%s", name.c_str());

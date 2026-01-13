@@ -16,7 +16,9 @@ namespace GhostHunter {
 
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<GameSettings>();
-        services.CreateIfMissing<GhostHunterResources>();
+        //services.CreateIfMissing<GhostHunterResources>();
+        auto& resources = services.GetOrCreate<ResourceCollection>();
+        resources = CreateRc<ResourceName>();
         services.CreateIfMissing<PubSub<Media>>();
         services.CreateIfMissing<Market>();
 

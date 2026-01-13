@@ -2,23 +2,28 @@
 
 #include "GameState/GameTime.h"
 #include "Mechanics/Progression.h"
+#include "Utilities/EnumUtils.h"
 
 #include <Platform/NumTypes.h>
 
 #include <string>
 #include <vector>
 #include <unordered_map>
-
+#include <concepts>
 
 
 //std::vector<ResourceName> AllResources();
 //std::vector<ResourceName> SecondaryResources();
 //std::vector<ResourceName> GetRelativeResources(ResourceName resourceName);
 
+template<typename E>
+concept ResourceEnum = CountEnum<E> && ToStringEnum<E>;
+
 struct Resource {
 	s64 Current{ 0 };
     s64 BaseCapacity{100};
 	s64 Capacity{ BaseCapacity };
+    std::string Name{"Unset"};
 
 	void Clamp();
     void AddCapacityModifier(Modifier modifier);
@@ -45,9 +50,26 @@ public:
 
 	Resource& at(u16 resource);
 	const Resource& at(u16 resource) const;
+
+	template<ResourceEnum E>
+	Resource& at(E e) {
+        return at(static_cast<u16>(e));
+	}
+	template<ResourceEnum E>
+	const Resource& at(E e) const {
+		return at(static_cast<u16>(e));
+    }
         
 	Resource& operator[](u16 resource);
 	const Resource& operator[](u16 resource) const;
+    template<ResourceEnum E>
+	Resource& operator[](E e) {
+        return operator[](static_cast<u16>(e));
+	}
+    template<ResourceEnum E>
+    const Resource& operator[](E e) const {
+		return operator[](static_cast<u16>(e));
+    }
 
 	friend bool operator==(const ResourceCollection& lhs, const ResourceCollection& rhs);
 	friend bool operator!=(const ResourceCollection& lhs, const ResourceCollection& rhs);
@@ -88,3 +110,14 @@ public:
 
 	size_t size() const { return m_Resources.size(); }
 };
+
+template<ResourceEnum E>
+ResourceCollection CreateRc() {
+	auto keys = Enum::GetAllValues<E>();
+	ResourceCollection rc;
+	for(const auto key : keys) {
+        rc[key].Name = ToString(static_cast<E>(key));
+    }
+
+	return rc;
+}

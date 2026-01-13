@@ -1,5 +1,5 @@
 #pragma once
-#include "Media.h"
+#include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Tools/Tools.h"
 
 #include <vector>

@@ -8,6 +8,7 @@
 #include "Ui/UiUtil.h"
 
 #include <Platform/Graphics.h>
+#include <Resources/Resource.h>
 #include <DesignPatterns/ServiceLocator.h>
 
 #include <imgui.h>
@@ -15,7 +16,7 @@
 
 namespace {
     GhostHunter::GameSettings* gameSettings{nullptr};
-    GhostHunter::GhostHunterResources* resources{nullptr};
+    ResourceCollection* resources{nullptr};
 
     void RenderFps() {
         if(gameSettings->ShowFps) {
@@ -27,13 +28,12 @@ namespace {
     }
 
     void RenderResources() {
-        auto resourceNames = GhostHunter::GetAllResourceNames();
         ImGui::BeginTable("Current Resources", 2);
-        for(auto& name : resourceNames) {
+        for(const auto& [id, resource] : *resources) {
             ImGui::TableNextColumn();
-            ImGui::Text(GhostHunter::ToString(name).c_str());
+            ImGui::Text(resource.Name.c_str());
             ImGui::TableNextColumn();
-            ImGui::Text(std::to_string(resources->GetResource(name)).c_str());
+            ImGui::Text(std::to_string(resource.Current).c_str());
         }
         ImGui::EndTable();
     }
@@ -44,7 +44,7 @@ namespace GhostHunter::Ui::Screens::TopContent {
     bool Initialize() {
         auto& services = ServiceLocator::Get();
         gameSettings = services.Get<GhostHunter::GameSettings>();
-        resources = services.Get<GhostHunter::GhostHunterResources>();
+        resources = services.Get<ResourceCollection>();
 
         return Graphics::TryLoadImageFile(SettingsIcon);
     }

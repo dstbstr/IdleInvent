@@ -1,6 +1,6 @@
 #include "GhostHunter/Ui/Screens/MediaScreen.h"
 #include "GhostHunter/Ui/Ui.h"
-#include "GhostHunter/Media/Inventory.h"
+#include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/Formatting.h"
 
 #include "DesignPatterns/ServiceLocator.h"

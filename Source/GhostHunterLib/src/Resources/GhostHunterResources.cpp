@@ -5,18 +5,8 @@ namespace GhostHunter {
         using enum ResourceName;
         return {Cash, Belief, Evidence, Essence};
     }
-    std::string ToString(ResourceName name) {
-        switch(name) {
-            using enum ResourceName;
-            case Cash: return "Cash";
-            case Belief: return "Belief";
-            case Evidence: return "Evidence";
-            case Essence: return "Essence";
-        }
-        DR_ASSERT_MSG(false, "Invalid resource name");
-        return "Unknown";
-    }
 
+    /*
     GhostHunterResources::GhostHunterResources() {
         using enum ResourceName;
         resources[Cash] = 0;
@@ -53,4 +43,5 @@ namespace GhostHunter {
             amount = 0;
         }
     }   
+    */
 }

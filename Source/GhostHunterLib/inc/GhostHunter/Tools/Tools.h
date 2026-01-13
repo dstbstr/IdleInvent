@@ -3,6 +3,9 @@
 #include <Platform/NumTypes.h>
 #include "Quality/Quality.h"
 
+#include <vector>
+#include <string>
+
 namespace GhostHunter {
     enum struct ToolName : u8 {
         Unset,
@@ -26,13 +29,20 @@ namespace GhostHunter {
         CrystalBall,
         MagicMirror,
         SeanceTable,
-        RitualCircle
+        RitualCircle,
+
+        COUNT
     };
+
+    std::string ToString(ToolName tool);
+    std::string Describe(ToolName tool);
 
     struct Tool {
         ToolName Name{ToolName::Unset};
         QualityType Quality{0};
         Tool() = default;
         Tool(ToolName name, QualityType quality) : Name(name), Quality(quality) {}
+
+        void Upgrade();
     };
 }

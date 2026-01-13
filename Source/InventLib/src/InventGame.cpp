@@ -61,7 +61,8 @@ namespace Invent {
         services.CreateIfMissing<PubSub<ExpeditionOutcome>>();
         services.CreateIfMissing<std::unordered_map<std::string, RandomEvent>>();
         services.CreateIfMissing<std::unordered_map<std::string, Unlockable>>();
-        services.CreateIfMissing<std::unordered_map<std::string, Purchasable>>();
+        //services.CreateIfMissing<std::unordered_map<std::string, Purchasable>>();
+        //services.CreateIfMissing<Purchase<InventionLevel>>();
 
         society = &services.GetOrCreate<Society>();
         gameSettings = &services.GetOrCreate<GameSettings>();
@@ -141,7 +142,7 @@ namespace Invent {
 
     void InventGame::Tick(BaseTime elapsed) {
         Unlockables::Tick();
-        Purchasables::Tick();
+        //Purchasables::Tick();
         //RandomEvents::Tick(elapsed);
 
         gameState->Tick(elapsed);

@@ -2,18 +2,20 @@
 
 #include "Locations/Locations.h"
 #include "Media/Media.h"
-#include "Tools/Tools.h"
+#include "Resources/GhostHunterResources.h"
 #include "Quality/Quality.h"
+#include "Tools/Tools.h"
 
 #include <format>
 #include <ostream>
 #include <string>
 
 namespace GhostHunter {
+    std::string ToString(LocationName location);
+    std::string ToString(MediaType type);
+    std::string ToString(ResourceName name);
     std::string ToString(QualityType quality);
     std::string ToString(ToolName tool);
-    std::string ToString(MediaType type);
-    std::string ToString(LocationName location);
 }
 
 #define STREAM_FROM_FORMAT(_Type) \
@@ -31,10 +33,11 @@ struct std::formatter<GhostHunter::_EnumType> : std::formatter<std::string> { \
 }; \
 STREAM_FROM_FORMAT(_EnumType)
 
+FORMAT_GHOSTHUNTER_ENUM(LocationName)
+FORMAT_GHOSTHUNTER_ENUM(MediaType)
+FORMAT_GHOSTHUNTER_ENUM(ResourceName)
 FORMAT_GHOSTHUNTER_ENUM(QualityType)
 FORMAT_GHOSTHUNTER_ENUM(ToolName)
-FORMAT_GHOSTHUNTER_ENUM(MediaType)
-FORMAT_GHOSTHUNTER_ENUM(LocationName)
 
 
 template<>

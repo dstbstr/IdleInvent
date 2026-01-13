@@ -26,10 +26,11 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/UI/Screens/SettingsScreen.cpp
     src/UI/Screens/ToolsScreen.cpp
     
-    src/Resources/GhostHunterResources.cpp
+    src/Inventory/Inventory.cpp
     src/Locations/Locations.cpp
     src/Media/Media.cpp
-    src/Tools/Tools.cpp
-    src/Media/Inventory.cpp 
+    src/Media/Market.cpp
     src/Quality/Quality.cpp
- "inc/GhostHunter/Media/Market.h" "src/Media/Market.cpp")
+    src/Resources/GhostHunterResources.cpp
+    src/Tools/Tools.cpp
+)

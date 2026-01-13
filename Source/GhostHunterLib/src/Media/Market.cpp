@@ -9,7 +9,6 @@ namespace {
     constexpr double DecayMultiplier = 0.95; // maybe make configurable for upgrades
     constexpr double MinimumValue = 1.0;
     constexpr BaseTime PayoutInterval = OneSecond;
-    
 
     struct PayoutBatch {
         u32 Cash{0};
@@ -36,7 +35,7 @@ namespace GhostHunter {
             marketMedia.emplace_back(MarketMedia{media, media.Value});
         });
 
-		resources = services.Get<GhostHunterResources>();
+        resources = services.Get<ResourceCollection>();
 	}
 
 	Market::~Market() {
@@ -53,7 +52,7 @@ namespace GhostHunter {
 
         for(auto& media : marketMedia) {
             auto batch = FastForward(media.CurrentValue, ticks);
-            resources->AddResource(ResourceName::Cash, batch.Cash);
+            resources->at(ResourceName::Cash).Current += batch.Cash;
             media.CurrentValue = batch.Remaining;
         }
         std::erase_if(marketMedia, [](const MarketMedia& media) {
