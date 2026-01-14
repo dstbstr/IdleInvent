@@ -5,12 +5,12 @@
 #include "InventLib/Ui/Components/ProjectComponent.h"
 #include "InventLib/Ui/Screens/Explore.h"
 #include "InventLib/Ui/Ui.h"
+#include "InventLib/Inventory/Item.h"
 
 #include <Constexpr/ConstexprStrUtils.h>
 #include <Constexpr/ConstexprMath.h>
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>
-#include <Inventory/Item.h>
 
 #include <format>
 

@@ -42,6 +42,11 @@ namespace Log {
 			Log::Error(std::format("ASSERT: '{}' {}", #condition, message)); \
 		}
 
+	#define DR_ASSERT_MSG_LAZY(condition, lambda) \
+		if(!(condition)) { \
+			Log::Error(std::format("ASSERT: '{}' {}", #condition, lambda())); \
+		}
+
 	#define DR_ASSERT(condition) DR_ASSERT_MSG(condition, "")
 }
 

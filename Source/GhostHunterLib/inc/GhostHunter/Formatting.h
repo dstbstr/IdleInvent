@@ -3,7 +3,7 @@
 #include "Locations/Locations.h"
 #include "Media/Media.h"
 #include "Resources/GhostHunterResources.h"
-#include "Quality/Quality.h"
+#include "GhostHunter/Quality/Quality.h"
 #include "Tools/Tools.h"
 
 #include <format>

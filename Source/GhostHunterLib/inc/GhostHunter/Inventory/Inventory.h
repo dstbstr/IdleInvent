@@ -10,4 +10,7 @@ namespace GhostHunter::Inventory {
     void SellMedia(size_t index);
 
     std::vector<Tool>& GetTools();
+
+    void Initialize();
+    void ShutDown();
 }

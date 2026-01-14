@@ -1,15 +1,10 @@
 #include "GhostHunter/Tools/Tools.h"
+#include "GhostHunter/Resources/GhostHunterResources.h"
+
+#include "Mechanics/Purchasable.h"
+#include "Resources/Resource.h"
 
 namespace GhostHunter {
-	std::vector<ToolName> GetAllToolNames() {
-		using enum ToolName;
-		return {
-			Flashlight, EmfDetector, ThermalCamera, EvpRecorder, LaserGrid, SpiritBox,
-			FogMachine, Costumes, Makeup, EffectCrew, CameraCrew, TourBus,
-			TarotDeck, AutomaticWritingKit, CrystalBall, MagicMirror, SeanceTable, RitualCircle
-		};
-    }
-
 	std::string Describe(ToolName tool) {
 		switch(tool) {
 			using enum ToolName;
@@ -39,4 +34,11 @@ namespace GhostHunter {
 			Quality = static_cast<QualityType>(static_cast<u8>(Quality) + 1);
 		}
     }
+
+	void Tools::Initialize() {
+        auto cost = CreateRc<ResourceName>();
+        cost.at(ResourceName::Cash).Current = 100;
+        Purchasables::Add(ToolName::Flashlight, cost);
+	}
+	void Tools::ShutDown() {}
 }

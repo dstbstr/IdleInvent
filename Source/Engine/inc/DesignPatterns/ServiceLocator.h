@@ -60,9 +60,13 @@ struct ServiceLocator {
     template<typename T>
     T& GetRequired() const {
         auto id = TypeId<T>();
-        DR_ASSERT_MSG(services.contains(id), "Service not set");
+        DR_ASSERT_MSG_LAZY(services.contains(id), []{
+            return std::format("Service {} not set", TypeName<T>());
+        });
         auto* ptr = static_cast<T*>(services.at(id).get());
-        DR_ASSERT_MSG(ptr, "Service not set");
+        DR_ASSERT_MSG_LAZY(ptr, []{
+            return std::format("Service {} is null", TypeName<T>());
+        });
         return *ptr;
     }
 
@@ -95,5 +99,28 @@ private:
         return index;
     }
 
+    template<typename T>
+    static constexpr std::string_view TypeNameView() {
+#ifdef _MSC_VER
+        constexpr std::string_view sig = __FUNCSIG__;
+        constexpr std::string_view key = "TypeNameView<";
+        constexpr std::string_view end = ">";
+#else
+        constexpr std::string_view sig = __PRETTY_FUNCTION__;
+        constexpr std::string_view key = "T = ";
+        constexpr std::string_view end = "]";
+#endif
+        auto start = sig.find(key);
+        if(start == std::string_view::npos) return sig;
+        start += key.size();
+        auto finish = sig.find(end);
+        if(finish == std::string_view::npos) finish = sig.size();
+        return sig.substr(start, finish - start);
+    }
+
+    template<typename T>
+    static std::string TypeName() {
+        return std::string(TypeNameView<T>());
+    }
     inline static size_t maxIndex = 0;
 };

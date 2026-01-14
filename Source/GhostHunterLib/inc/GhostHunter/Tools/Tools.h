@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Platform/NumTypes.h>
-#include "Quality/Quality.h"
+#include "GhostHunter/Quality/Quality.h"
 
 #include <vector>
 #include <string>
@@ -45,4 +45,9 @@ namespace GhostHunter {
 
         void Upgrade();
     };
+
+    namespace Tools {
+        void Initialize();
+        void ShutDown();
+    }
 }

@@ -4,6 +4,7 @@
 
 #include "DesignPatterns/ServiceLocator.h"
 #include "DesignPatterns/PubSub.h"
+#include "Mechanics/Sale.h"
 
 namespace {
     constexpr double DecayMultiplier = 0.95; // maybe make configurable for upgrades
@@ -31,15 +32,15 @@ namespace {
 namespace GhostHunter {
 	Market::Market() {
         auto& services = ServiceLocator::Get();
-        mediaHandle = services.GetRequired<PubSub<Media>>().Subscribe([&](const Media& media) {
-            marketMedia.emplace_back(MarketMedia{media, media.Value});
+        mediaHandle = services.GetRequired<PubSub<Sale<Media>>>().Subscribe([&](const Sale<Media>& media) {
+            marketMedia.emplace_back(MarketMedia{media.Item, media.Item.Value});
         });
 
         resources = services.Get<ResourceCollection>();
 	}
 
 	Market::~Market() {
-		auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<Media>>();
+		auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<Sale<Media>>>();
 		pubSub.Unsubscribe(mediaHandle);
     }
 

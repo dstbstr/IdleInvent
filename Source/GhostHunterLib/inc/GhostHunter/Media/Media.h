@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Quality/Quality.h"
+#include "GhostHunter/Quality/Quality.h"
 
 #include <Platform/NumTypes.h>
 #include <string>

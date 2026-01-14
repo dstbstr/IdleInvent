@@ -1,8 +1,7 @@
-// TODO: Move Item.h to this project?
-#include "Inventory/Item.h"
+#include "InventLib/Inventory/Item.h"
+#include "InventLib/Inventory/ItemQuality.h"
 
 #include <GameState/GameTime.h>
-#include <Inventory/ItemQuality.h>
 #include <Mechanics/Effect.h>
 #include <Mechanics/Modifier.h>
 #include <Platform/NumTypes.h>

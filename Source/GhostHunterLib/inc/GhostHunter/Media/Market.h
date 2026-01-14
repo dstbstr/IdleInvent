@@ -15,7 +15,6 @@ namespace GhostHunter {
 
         std::vector<MarketMedia> marketMedia{};
         size_t mediaHandle = 0;
-        //GhostHunterResources* resources{nullptr};
         ResourceCollection* resources{nullptr};
         BaseTime payoutAccumulator{BaseTime::zero()};
 

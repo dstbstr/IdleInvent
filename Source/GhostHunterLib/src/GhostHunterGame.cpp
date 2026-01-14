@@ -5,9 +5,12 @@
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Media/Market.h"
+#include "GhostHunter/Inventory/Inventory.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>
+#include <Mechanics/Purchasable.h>
+#include <Mechanics/Sale.h>
 #include <Utilities/IRandom.h>
 
 namespace GhostHunter {
@@ -16,16 +19,23 @@ namespace GhostHunter {
 
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<GameSettings>();
-        //services.CreateIfMissing<GhostHunterResources>();
         auto& resources = services.GetOrCreate<ResourceCollection>();
         resources = CreateRc<ResourceName>();
-        services.CreateIfMissing<PubSub<Media>>();
+        resources.at(ResourceName::Cash).Current = 150;
+        services.CreateIfMissing<PubSub<Purchase<ToolName>>>();
+        services.CreateIfMissing<PubSub<Sale<Media>>>();
         services.CreateIfMissing<Market>();
+
+        Inventory::Initialize();
+        Tools::Initialize();
 
         return Ui::Initialize(); 
     }
 
-    void GhostHunterGame::ShutDown() { Ui::ShutDown(); }
+    void GhostHunterGame::ShutDown() { 
+        Ui::ShutDown(); 
+        Inventory::ShutDown();
+    }
 
     void GhostHunterGame::LoadGame() {}
 
@@ -33,5 +43,9 @@ namespace GhostHunter {
 
     void GhostHunterGame::DeleteGame() {}
 
-    void GhostHunterGame::Tick([[maybe_unused]] BaseTime elapsed) { Graphics::Render(Ui::Render); }
+    void GhostHunterGame::Tick([[maybe_unused]] BaseTime elapsed) { 
+        auto& market = ServiceLocator::Get().GetRequired<Market>();
+        market.Update(elapsed);
+        Graphics::Render(Ui::Render); 
+    }
 } // namespace GhostHunter
