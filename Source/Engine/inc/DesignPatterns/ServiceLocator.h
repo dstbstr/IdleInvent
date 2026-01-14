@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Instrumentation/Logging.h"
+#include "Utilities/TypeUtils.h"
 
 #include <memory>
 #include <map>
@@ -25,7 +26,7 @@ struct ServiceLocator {
 
     template<typename TThis, typename TThat, typename... Args>
     void SetThisAsThat(Args&&... args) {
-        auto id = TypeId<TThat>();
+        auto id = Type::Id<TThat>();
         DR_ASSERT_MSG(!services.contains(id), "Service already set");
 
         services[id] = std::make_shared<TThis>(std::forward<Args>(args)...);
@@ -33,7 +34,7 @@ struct ServiceLocator {
 
     template<typename T>
     void Reset() {
-        services.erase(TypeId<T>());
+        services.erase(Type::Id<T>());
 	}
 
     void ResetAll() {
@@ -44,12 +45,12 @@ struct ServiceLocator {
 
     template<typename T>
     bool IsSet() const {
-        return services.contains(TypeId<T>());
+        return services.contains(Type::Id<T>());
     }
 
     template<typename T>
     T* Get() const {
-        auto id = TypeId<T>();
+        auto id = Type::Id<T>();
         if (services.contains(id)) {
             return static_cast<T*>(services.at(id).get());
         }
@@ -59,20 +60,20 @@ struct ServiceLocator {
 
     template<typename T>
     T& GetRequired() const {
-        auto id = TypeId<T>();
+        auto id = Type::Id<T>();
         DR_ASSERT_MSG_LAZY(services.contains(id), []{
-            return std::format("Service {} not set", TypeName<T>());
+            return std::format("Service {} not set", Type::Name<T>());
         });
         auto* ptr = static_cast<T*>(services.at(id).get());
         DR_ASSERT_MSG_LAZY(ptr, []{
-            return std::format("Service {} is null", TypeName<T>());
+            return std::format("Service {} is null", Type::Name<T>());
         });
         return *ptr;
     }
 
     template<typename T, typename... Args>
     T& GetOrCreate(Args&&... args) {
-        auto id = TypeId<T>();
+        auto id = Type::Id<T>();
         if (!services.contains(id)) {
             Set<T>(std::forward<Args>(args)...);
         }
@@ -82,7 +83,7 @@ struct ServiceLocator {
 
     template<typename T, typename... Args>
     void CreateIfMissing(Args&&... args) {
-        if (!services.contains(TypeId<T>())) {
+        if (!services.contains(Type::Id<T>())) {
             Set<T>(std::forward<Args>(args)...);
         }
     }
@@ -92,35 +93,4 @@ private:
 
     // must be shared_ptr because unique_ptr can't delete void*
     std::map<size_t, std::shared_ptr<void>> services;
-
-    template<typename T>
-    size_t TypeId() const {
-        static size_t index = maxIndex++;
-        return index;
-    }
-
-    template<typename T>
-    static constexpr std::string_view TypeNameView() {
-#ifdef _MSC_VER
-        constexpr std::string_view sig = __FUNCSIG__;
-        constexpr std::string_view key = "TypeNameView<";
-        constexpr std::string_view end = ">";
-#else
-        constexpr std::string_view sig = __PRETTY_FUNCTION__;
-        constexpr std::string_view key = "T = ";
-        constexpr std::string_view end = "]";
-#endif
-        auto start = sig.find(key);
-        if(start == std::string_view::npos) return sig;
-        start += key.size();
-        auto finish = sig.find(end);
-        if(finish == std::string_view::npos) finish = sig.size();
-        return sig.substr(start, finish - start);
-    }
-
-    template<typename T>
-    static std::string TypeName() {
-        return std::string(TypeNameView<T>());
-    }
-    inline static size_t maxIndex = 0;
 };

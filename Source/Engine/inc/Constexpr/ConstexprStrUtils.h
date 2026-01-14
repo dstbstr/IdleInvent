@@ -144,6 +144,15 @@ namespace Constexpr {
         return TrimStart(TrimEnd(s, toRemove), toRemove);
     }
 
+    constexpr std::string RemoveAll(const std::string& from, const std::string& what) {
+        std::string result = from;
+        size_t pos = 0;
+        while((pos = result.find(what, pos)) != std::string::npos) {
+            result.erase(pos, what.length());
+        }
+        return result;
+    }
+
     constexpr std::string TimeString(auto ms) {
         static_assert(std::is_integral_v<decltype(ms)>, "TimeString only supports integral types");
         auto seconds = ms / 1'000;

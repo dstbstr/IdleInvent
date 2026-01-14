@@ -30,4 +30,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Resources/Storage.cpp
 
 	src/Settings/PurchaseAmount.cpp
-	src/Resources/ResourceConversion.cpp "inc/Mechanics/Sale.h")
+	src/Resources/ResourceConversion.cpp "inc/Mechanics/Sale.h" "inc/Utilities/TypeUtils.h")
