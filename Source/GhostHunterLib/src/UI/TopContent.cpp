@@ -1,7 +1,7 @@
 #include "GhostHunter/Ui/TopContent.h"
 #include "GhostHunter/Ui/Ui.h"
-#include "GhostHunter/UI/Screens/Screens.h"
-#include "GhostHunter/UI/Screens/SettingsScreen.h"
+#include "GhostHunter/Ui/Screens/Screens.h"
+#include "GhostHunter/Ui/Screens/SettingsScreen.h"
 #include "GhostHunter/GameState/GameSettings.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
 
@@ -31,9 +31,9 @@ namespace {
         ImGui::BeginTable("Current Resources", 2);
         for(const auto& [id, resource] : *resources) {
             ImGui::TableNextColumn();
-            ImGui::Text(resource.Name.c_str());
+            ImGui::Text("%s", resource.Name.c_str());
             ImGui::TableNextColumn();
-            ImGui::Text(std::to_string(resource.Current).c_str());
+            ImGui::Text("%s", std::to_string(resource.Current).c_str());
         }
         ImGui::EndTable();
     }

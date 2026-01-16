@@ -1,7 +1,7 @@
 #include "GhostHunter/Ui/Ui.h"
-#include "GhostHunter/UI/TopContent.h"
-#include "GhostHunter/UI/MainContent.h"
-#include "GhostHunter/UI/BottomContent.h"
+#include "GhostHunter/Ui/TopContent.h"
+#include "GhostHunter/Ui/MainContent.h"
+#include "GhostHunter/Ui/BottomContent.h"
 
 #include "Platform/Graphics.h"
 #include "Instrumentation/Logging.h"
@@ -53,7 +53,6 @@ namespace GhostHunter::Ui {
     }
     void Render() {
         auto screenHeight = Graphics::ScreenHeight;
-        auto emptyBar = []() {};
         UiBuilder()
             .AddPart(screenHeight * 0.15f, Screens::TopContent::Render)
             .AddPart(screenHeight * 0.65f, Screens::MainContent::Render)

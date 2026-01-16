@@ -23,7 +23,7 @@ namespace GhostHunter::Ui::Screens::Media {
 
         for(size_t i = 0; i < allMedia.size(); i++) {
             const auto& media = allMedia[i];
-            ImGui::Text(std::format("{}: {}", i, media).c_str());
+            ImGui::Text("%s", std::format("{}: {}", i, media).c_str());
             if(ImGui::Button("Sell")) {
                 GhostHunter::Inventory::SellMedia(i);
             }

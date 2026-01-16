@@ -1,7 +1,7 @@
 #include "Platform/Graphics.h"
 #include "GhostHunter/Ui/MainContent.h"
 #include "GhostHunter/Ui/Ui.h"
-#include "GhostHunter/UI/Screens/Screens.h"
+#include "GhostHunter/Ui/Screens/Screens.h"
 
 #include <Ui/ChildBuilder.h>
 #include <Ui/UiUtil.h>

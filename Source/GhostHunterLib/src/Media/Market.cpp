@@ -19,7 +19,7 @@ namespace {
     PayoutBatch FastForward(u32 currentValue, size_t ticks) {
         auto cash = 0ull;
 
-        while(ticks-- && currentValue > 0) {
+        while(ticks-- && currentValue > MinimumValue) {
             cash += currentValue;
             currentValue = static_cast<u32>(currentValue * DecayMultiplier);
         }

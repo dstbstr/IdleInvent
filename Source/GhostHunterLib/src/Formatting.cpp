@@ -73,10 +73,11 @@ namespace GhostHunter {
     std::string ToString(ResourceName name) {
         switch(name) {
             using enum ResourceName;
-        case Cash: return "Cash";
-        case Belief: return "Belief";
-        case Evidence: return "Evidence";
-        case Essence: return "Essence";
+            case Cash: return "Cash";
+            case Belief: return "Belief";
+            case Evidence: return "Evidence";
+            case Essence: return "Essence";
+            default: break;
         }
         DR_ASSERT_MSG(false, "Invalid resource name");
         return "Unknown";

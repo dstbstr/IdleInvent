@@ -17,12 +17,12 @@ namespace TechMaze::Ui::Screens::MainContent {
         return true;
     }
     void Render() {
-        auto MakeColor = [](float hue) -> ImVec4 { return ImColor::HSV(hue, 0.7f, 0.7f); };
-        static const ImVec4 Colors[] = {
-            MakeColor(0.15f), MakeColor(0.25f), MakeColor(0.40f), MakeColor(0.55f), MakeColor(0.70f), MakeColor(0.85f)
-        };
-        static const ImVec4 SelectedColor = ImColor::HSV(0.0f, 0.0f, 0.3f, 0.9f);
-        static const ImVec4 UnselectedColor = ImColor::HSV(0.0f, 0.0f, 0.2f, 0.9f);
+        //auto MakeColor = [](float hue) -> ImVec4 { return ImColor::HSV(hue, 0.7f, 0.7f); };
+        //static const ImVec4 Colors[] = {
+        //    MakeColor(0.15f), MakeColor(0.25f), MakeColor(0.40f), MakeColor(0.55f), MakeColor(0.70f), MakeColor(0.85f)
+        //};
+        //static const ImVec4 SelectedColor = ImColor::HSV(0.0f, 0.0f, 0.3f, 0.9f);
+        //static const ImVec4 UnselectedColor = ImColor::HSV(0.0f, 0.0f, 0.2f, 0.9f);
 
         static std::array<size_t, 6> s_Levels{0, 0, 0, 0, 0, 0};
         static std::array<u8, 6> s_Eras{0, 0, 0, 0, 0, 0};
@@ -41,13 +41,14 @@ namespace TechMaze::Ui::Screens::MainContent {
         }
 
         auto boxSize = ImGui::GetWindowHeight() / 7;
-        auto halfBoxSize = boxSize / 2;
+        //auto halfBoxSize = boxSize / 2;
         auto buffer = boxSize / 6;
         auto halfBuffer = buffer / 2;
-        auto MakeBox = [boxSize, halfBoxSize, buffer, halfBuffer](const char* label, size_t idx) {
+        auto MakeBox = [boxSize, buffer, halfBuffer](const char* label, size_t idx) {
             ImGui::SetCursorPosX(buffer);
             ImGui::SetCursorPosY(idx * (boxSize + buffer) + halfBuffer);
 
+            
             auto OnClick = [&]() {
                 auto it = std::remove(s_ActiveSkills.begin(), s_ActiveSkills.end(), idx);
                 if(it == s_ActiveSkills.end()) {
@@ -57,10 +58,12 @@ namespace TechMaze::Ui::Screens::MainContent {
                 }
             };
             {
+                /*
                 auto child = ChildBuilder(std::format("{}_level", label).c_str(), boxSize)
                                  .WithBgColor(Colors[idx])
                                  .WithFont(GetFont(FontSizes::H1))
                                  .Build();
+                */
                 if(ImGui::InvisibleButton(std::format("{}_Button", label).c_str(), {boxSize, boxSize})) {
                     OnClick();
                 }
@@ -73,10 +76,12 @@ namespace TechMaze::Ui::Screens::MainContent {
 
             {
                 auto dims = ImVec2(ImGui::GetWindowWidth() - boxSize - (buffer * 2), boxSize);
+                /*
                 auto child = ChildBuilder(label, dims)
                                  .WithBgColor(std::find(s_ActiveSkills.begin(), s_ActiveSkills.end(), idx) == s_ActiveSkills.end() ? UnselectedColor : SelectedColor)
                                  .WithFont(GetFont(FontSizes::H2))
                                  .Build();
+                */
                 if(ImGui::InvisibleButton(std::format("{}_Button", label).c_str(), dims)) {
                     OnClick();
                 }

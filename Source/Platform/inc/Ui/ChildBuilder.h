@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "Instrumentation/Logging.h"
 
 #include <imgui.h>
@@ -76,3 +77,4 @@ private:
     bool m_CenterX {false};
     bool m_CenterY {false};
 };
+*/

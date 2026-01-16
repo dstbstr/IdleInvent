@@ -46,7 +46,6 @@ namespace TechMaze::Ui {
     }
     void Render() {
         auto screenHeight = Graphics::ScreenHeight;
-        auto emptyBar = []() {};
         UiBuilder()
             .AddPart(screenHeight * 0.05f, Screens::TopContent::Render)
             .AddPart(screenHeight * 0.75f, Screens::MainContent::Render)

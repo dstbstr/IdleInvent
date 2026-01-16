@@ -22,7 +22,7 @@ public:
         }
     }
 private:
-    Platform& m_Platform{nullptr};
+    Platform& m_Platform;
     TGame m_Game;
     Engine m_Engine;
 };
