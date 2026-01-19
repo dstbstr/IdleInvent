@@ -33,4 +33,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Quality/Quality.cpp
     src/Resources/GhostHunterResources.cpp
     src/Tools/Tools.cpp
-)
+ "inc/GhostHunter/Investigation/Investigation.h" "src/Investigation/Investigation.cpp")

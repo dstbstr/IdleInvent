@@ -52,7 +52,7 @@ namespace GhostHunter {
             case Prison: return "Prison";
             case Hospital: return "Hospital";
             case Sanitorium: return "Sanitorium";
-            default: return "Unset";
+            default: case Unset: return "Unset";
         }
     }
 

@@ -23,6 +23,9 @@ namespace GhostHunter {
         ~Market();
 
         void Update(BaseTime elapsed);
-        void Clear();    
+        void Clear();
+
+        static void Initialize();
+        static void ShutDown();
     };
 }

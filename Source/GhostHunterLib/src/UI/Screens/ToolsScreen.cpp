@@ -34,7 +34,7 @@ namespace GhostHunter::Ui::Screens::Tools {
             auto disabled = cost > *resources;
             if(disabled) ImGui::BeginDisabled();
             if(ImGui::Button("Purchase")) {
-                Purchasables::TryPurchase<ToolName>(id, *resources);
+                Purchasables::TryPurchase<ToolName>(id, *resources, BuyOnce::Yes);
             }
             if(disabled) ImGui::EndDisabled();
             ImGui::PopID();
@@ -71,7 +71,7 @@ namespace GhostHunter::Ui::Screens::Tools {
 
         int id = 0;
         for(auto& tool : owned) {
-            ImGui::Text("%s (%s)", ToString(tool.Name).c_str(), ToString(tool.Quality).c_str());
+            ImGui::Text("%s", tool.Describe().c_str());
             ImGui::SameLine();
             ImGui::PushID(id++);
             if(ImGui::Button("Upgrade")) {

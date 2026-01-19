@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Platform/NumTypes.h>
-#include <vector>
+#include <string>
 
 namespace GhostHunter {
-    enum struct LocationName {
+    enum struct LocationName : u8 {
         Unset,
 
         Shed,
@@ -15,7 +15,21 @@ namespace GhostHunter {
         Prison,
         Hospital,
         Sanitorium,
+
+        COUNT
     };
 
-    std::vector<LocationName> GetAllLocationNames();
+    std::string ToString(LocationName location);
+    std::string Describe(LocationName location);
+
+    struct Location {
+        LocationName Name{LocationName::Unset};
+
+        Location(LocationName name) : Name(name) {}
+    };
+
+    namespace Locations {
+        void Initialize();
+        void ShutDown();
+    } // namespace Locations
 }

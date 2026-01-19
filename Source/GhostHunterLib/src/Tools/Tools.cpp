@@ -1,6 +1,8 @@
 #include "GhostHunter/Tools/Tools.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
+#include "GhostHunter/Inventory/Inventory.h"
 
+#include "Instrumentation/Logging.h"
 #include "Mechanics/Purchasable.h"
 #include "Resources/Resource.h"
 
@@ -29,16 +31,54 @@ namespace GhostHunter {
 			default: return "Unset";
             };
 	}
+
 	void Tool::Upgrade() {
-		if (Quality < QualityType::Excellent) {
-			Quality = static_cast<QualityType>(static_cast<u8>(Quality) + 1);
+		if (m_Quality != QualityType::Excellent) {
+			m_Quality = static_cast<QualityType>(static_cast<u8>(m_Quality) + 1);
 		}
     }
 
+	void Tool::Update(BaseTime elapsed) {
+		if (!m_Active) return;
+		m_Elapsed += elapsed;
+		if (m_Elapsed >= m_Duration) {
+			m_Active = false;
+            m_Elapsed = BaseTime(0);
+			// raise media event based on tool type and quality
+		}
+    }
+	void Tool::Use() {
+        m_Active = true;
+        m_Elapsed = BaseTime(0);
+	}
+
+	f32 Tool::GetProgress() const {
+		if (!m_Active || m_Duration == BaseTime(0)) return 0.0f;
+        //return m_Elapsed / m_Duration;
+		return static_cast<f32>(m_Elapsed.count()) / static_cast<f32>(m_Duration.count());
+    }
+
+	std::string Tool::Describe() const {
+        return std::format("{} ({})", ToString(m_Name), ToString(m_Quality));
+	}
+
 	void Tools::Initialize() {
+        Log::Debug("Initializing Tools");
+		ServiceLocator::Get().CreateIfMissing<PubSub<Purchase<ToolName>>>();
+
         auto cost = CreateRc<ResourceName>();
         cost.at(ResourceName::Cash).Current = 100;
         Purchasables::Add(ToolName::Flashlight, cost);
+
 	}
-	void Tools::ShutDown() {}
+	void Tools::ShutDown() {
+		Log::Debug("Shutting down Tools");
+	}
+
+	void Tools::Update(BaseTime elapsed) {
+		auto& tools = Inventory::GetTools();
+		for (auto& tool : tools) {
+			tool.Update(elapsed);
+        }
+    }
 }

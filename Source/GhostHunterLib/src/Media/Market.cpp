@@ -64,4 +64,15 @@ namespace GhostHunter {
     void Market::Clear() {
         marketMedia.clear();
     }
+
+    void Market::Initialize() {
+        Log::Debug("Market initialized"); 
+        auto& services = ServiceLocator::Get();
+        services.CreateIfMissing<PubSub<Sale<Media>>>();
+        services.CreateIfMissing<Market>();
+    }
+
+    void Market::ShutDown() {
+        Log::Debug("Market shut down"); 
+    }
 }

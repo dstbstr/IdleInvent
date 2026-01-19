@@ -25,6 +25,8 @@ namespace _PurchaseDetails {
     inline std::unordered_map<E, ResourceCollection> Registry{};
 }
 
+enum struct BuyOnce : u8 { Yes, No };
+
 namespace Purchasables {
 	template<PurchaseEnum E>
 	void Add(E id, ResourceCollection costs) {
@@ -43,7 +45,7 @@ namespace Purchasables {
     }
 
 	template<PurchaseEnum E>
-	bool TryPurchase(E id, ResourceCollection& resources) {
+	bool TryPurchase(E id, ResourceCollection& resources, BuyOnce buyOnce) {
 		auto& r = _PurchaseDetails::Registry<E>;
         if(!r.contains(id)) return false;
 
@@ -51,7 +53,9 @@ namespace Purchasables {
         if(cost > resources) return false;
 
 		resources -= cost;
-		r.erase(id);
+		if(buyOnce == BuyOnce::Yes) {
+			r.erase(id);
+		}
 
 		Log::Info("Purchased: " + ToString(id));
 		auto& services = ServiceLocator::Get();
