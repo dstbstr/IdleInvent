@@ -26,11 +26,12 @@ namespace _TypeImpl {
     }
 }
 namespace Type {
-    inline size_t maxIndex = 0;
+    using TypeId = size_t;
+    inline TypeId maxIndex = 0;
 
     template<typename T>
-    size_t Id() {
-        static size_t index = maxIndex++;
+    TypeId Id() {
+        static TypeId index = maxIndex++;
         return index;
     }
 

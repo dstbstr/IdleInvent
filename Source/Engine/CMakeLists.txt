@@ -31,4 +31,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/Settings/PurchaseAmount.cpp
 	src/Resources/ResourceConversion.cpp 
-)
+ "src/Mechanics/EventManager.cpp")

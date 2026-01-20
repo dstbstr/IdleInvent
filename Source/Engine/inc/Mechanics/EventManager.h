@@ -2,55 +2,44 @@
 
 #include "GameState/GameTime.h"
 
-#include "Utilities/TypeUtils.h"
+#include "DesignPatterns/PubSub.h"
+#include "DesignPatterns/ServiceLocator.h"
 
 #include <vector>
-#include <concepts>
+#include <memory>
 
-template<typename T>
-struct EventStart {};
+using EventHandle = u64;
+struct IEvent {
+    virtual ~IEvent() = default;
+	IEvent(BaseTime ttl) : Ttl(ttl) {}
 
-template<typename T>
-struct EventEnd {
-    size_t Handle;
+	BaseTime Ttl{0};
+    BaseTime Elapsed{0};
+
+	void Update(BaseTime elapsed);
+
+	virtual bool IsComplete() const;
+    virtual void OnUpdate() {};
 };
 
-template<typename T>
-concept HasUpdate = requires(T a, BaseTime b) {
-    { a.Update(b) };
-};
-
-template<typename T>
-concept HasIsComplete = requires(const T& a) { 
-	{ a.IsComplete() } -> std::convertible_to<bool>; 
-};
-
-template<typename T>
-concept TEvent = HasUpdate<T> && HasIsComplete<T>;
+struct EventStart { const IEvent* Event; };
+struct EventEnd { const IEvent* Event; };
 
 class EventManager {
 public:
-	template<typename TEvent, typename... Args>
-	size_t StartEvent(Args&&... args) {
-		// push_back T(args...);
-		// listen to EventEnd<T> to remove
-		// publish EventStart<T>
-		// return handle
-        return handle++;
+    static void Initialize();
+
+    EventHandle StartEvent(std::unique_ptr<IEvent>&& event);
+
+    template<typename T, typename... Args>
+	EventHandle StartEvent(Args&&... args) {
+        return StartEvent(std::make_unique<T>(args...));
 	}
 
-	template<typename TEvent>
-	const TEvent* GetEvent(size_t handle) const {
-		// return T at handle
-        return nullptr;
-    }
-
-	template<typename TEvent>
-	std::vector<const TEvent*> GetAllEvents() const {
-		// return all T
-        return {};
-    }
+	const IEvent* GetEvent(EventHandle handle) const;
+	void Update(BaseTime elapsed);
 
 private:
-    size_t handle = 0;
+    std::unordered_map<EventHandle, std::unique_ptr<IEvent>> m_Events;
+    EventHandle m_Handle{0};
 };

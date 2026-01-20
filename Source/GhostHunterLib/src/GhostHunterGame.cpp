@@ -11,6 +11,7 @@
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>
 #include "Platform/Graphics.h"
+#include <Mechanics/EventManager.h>
 #include <Mechanics/Purchasable.h>
 #include <Mechanics/Sale.h>
 #include <Utilities/IRandom.h>
@@ -18,7 +19,7 @@
 namespace GhostHunter {
     bool GhostHunterGame::Initialize() { 
         auto& services = ServiceLocator::Get();
-
+        EventManager::Initialize();
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<GameSettings>();
         auto& resources = services.GetOrCreate<ResourceCollection>();
