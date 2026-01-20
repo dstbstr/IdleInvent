@@ -51,10 +51,7 @@ namespace GhostHunter {
     void GhostHunterGame::Tick(BaseTime elapsed) {
         auto& services = ServiceLocator::Get();
         services.GetRequired<Market>().Update(elapsed);
-        if(auto* investigation = services.Get<Investigation>()) {
-            investigation->Update(elapsed);
-        }
-        Tools::Update(elapsed);
+        services.GetRequired<EventManager>().Update(elapsed);
 
         Graphics::Render(Ui::Render); 
     }

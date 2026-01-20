@@ -14,7 +14,9 @@ namespace GhostHunter {
 		Great,
 		Excellent,
 		Wonderful,
-		Legendary
+		Legendary,
+
+		COUNT
 	};
 
 	std::string ToString(QualityType quality);

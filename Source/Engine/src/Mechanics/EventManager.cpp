@@ -7,12 +7,16 @@ void IEvent::Update(BaseTime elapsed) {
 }
 
 bool IEvent::IsComplete() const { return Ttl == BaseTime(0); }
-
+f32 IEvent::GetProgress() const {
+    if(Ttl == BaseTime(0)) return 1.0f;
+    return 1.0f - (static_cast<f32>(Ttl.count() / static_cast<f32>(Duration.count())));
+}
 
 void EventManager::Initialize() {
     auto& services = ServiceLocator::Get();
     services.CreateIfMissing<PubSub<EventStart>>();
     services.CreateIfMissing<PubSub<EventEnd>>();
+    services.CreateIfMissing<EventManager>();
 }
 
 EventHandle EventManager::StartEvent(std::unique_ptr<IEvent>&& event) {

@@ -11,11 +11,13 @@
 using EventHandle = u64;
 struct IEvent {
     virtual ~IEvent() = default;
-	IEvent(BaseTime ttl) : Ttl(ttl) {}
+	IEvent(BaseTime ttl) : Duration(ttl), Ttl(ttl) {}
 
+    BaseTime Duration{0};
 	BaseTime Ttl{0};
     BaseTime Elapsed{0};
 
+    f32 GetProgress() const;
 	void Update(BaseTime elapsed);
 
 	virtual bool IsComplete() const;

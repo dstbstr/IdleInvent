@@ -39,20 +39,13 @@ namespace GhostHunter {
     std::string ToString(ToolName tool);
     std::string Describe(ToolName tool);
 
-    class Tool {
-        ToolName m_Name{ToolName::Unset};
-        QualityType m_Quality{0};
-        BaseTime m_Duration{0};
-        BaseTime m_Elapsed{0};
-        bool m_Active{false};
+    struct Tool {
+        Tool(ToolName name, QualityType quality) : Name(name), Quality(quality) {}
 
-    public:
-        Tool(ToolName name, QualityType quality) : m_Name(name), m_Quality(quality) {}
+        ToolName Name{ToolName::Unset};
+        QualityType Quality{0};
 
-        void Update(BaseTime elapsed);
         void Upgrade();
-        void Use();
-        f32 GetProgress() const;
 
         std::string Describe() const;
     };
@@ -60,7 +53,5 @@ namespace GhostHunter {
     namespace Tools {
         void Initialize();
         void ShutDown();
-
-        void Update(BaseTime elapsed);
     }
 }
