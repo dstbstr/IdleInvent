@@ -1,29 +1,27 @@
 #include "GhostHunter/Ui/Screens/Screens.h"
 
-#include "GhostHunter/Ui/Screens/JournalScreen.h"
-#include "GhostHunter/Ui/Screens/LocationScreen.h"
-#include "GhostHunter/Ui/Screens/MediaScreen.h"
+#include "GhostHunter/Ui/Screens/EditingScreen.h"
+#include "GhostHunter/Ui/Screens/InvestigateScreen.h"
+#include "GhostHunter/Ui/Screens/MarketScreen.h"
 #include "GhostHunter/Ui/Screens/PrestigeScreen.h"
-#include "GhostHunter/Ui/Screens/ToolsScreen.h"
 #include "GhostHunter/Ui/Screens/SettingsScreen.h"
 
 #include <functional>
 #include <Instrumentation/Logging.h>
 
 namespace {
-    auto activeScreenName = GhostHunter::Ui::Screen::Media;
-    void (*activeScreenFn)() = GhostHunter::Ui::Screens::Media::Render;
+    auto activeScreenName = GhostHunter::Ui::Screen::Market;
+    void (*activeScreenFn)() = GhostHunter::Ui::Screens::Market::Render;
 } // namespace
 
 namespace GhostHunter::Ui {
     std::string ToString(Screen screen) {
         switch(screen) {
             using enum Screen;
-            case Journal: return "Journal";
-            case Location: return "Location";
-            case Media: return "Media";
+            case Editing: return "Editing";
+            case Investigate: return "Investigate";
+            case Market: return "Market";
             case Prestige: return "Prestige";
-            case Tools: return "Tools";
             case Settings: return "Settings";
         }
 
@@ -35,22 +33,20 @@ namespace GhostHunter::Ui {
 
         bool Initialize() {
             return 
-                Journal::Initialize() && 
-                Location::Initialize() && 
-                Media::Initialize() && 
+                Editing::Initialize() && 
+                Investigate::Initialize() && 
+                Market::Initialize() && 
                 Prestige::Initialize() &&
-                Settings::Initialize() && 
-                Tools::Initialize();
+                Settings::Initialize();
         }
 
         void ShutDown() {
-                Journal::ShutDown();
-                Location::ShutDown();
-                Media::ShutDown();
+                Editing::ShutDown();
+                Investigate::ShutDown();
+                Market::ShutDown();
                 Prestige::ShutDown();
                 Settings::ShutDown();
-                Tools::ShutDown();
-            activeScreenName = Screen::Media;
+            activeScreenName = Screen::Market;
             activeScreenFn = {};
         }
 
@@ -60,11 +56,10 @@ namespace GhostHunter::Ui {
             activeScreenName = screen;
             switch(screen) {
                 using enum Screen;
-                case Journal: activeScreenFn = Journal::Render; break;
-                case Location: activeScreenFn = Location::Render; break;
-                case Media: activeScreenFn = Media::Render; break;
+                case Editing: activeScreenFn = Editing::Render; break;
+                case Investigate: activeScreenFn = Investigate::Render; break;
+                case Market: activeScreenFn = Market::Render; break;
                 case Prestige: activeScreenFn = Prestige::Render; break;
-                case Tools: activeScreenFn = Tools::Render; break;
                 case Settings: activeScreenFn = Settings::Render; break;
             }
         }

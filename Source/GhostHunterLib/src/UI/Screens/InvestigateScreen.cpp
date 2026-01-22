@@ -1,7 +1,9 @@
-#include "GhostHunter/Ui/Screens/LocationScreen.h"
+#include "GhostHunter/Ui/Screens/InvestigateScreen.h"
 #include "GhostHunter/Ui/Ui.h"
 #include "GhostHunter/Locations/Locations.h"
 #include "GhostHunter/Formatting.h"
+#include "GhostHunter/GameState/Life.h"
+
 #include "Utilities/EnumUtils.h"
 #include "Mechanics/Purchasable.h"
 
@@ -9,7 +11,7 @@
 
 namespace {
     GhostHunter::LocationName currentLocation = GhostHunter::LocationName::Unset;
-    ResourceCollection* resources{nullptr};
+    GhostHunter::Life* life{nullptr};
 
     void RenderRentLocation() {
         using namespace GhostHunter;
@@ -19,7 +21,7 @@ namespace {
             ImGui::PushID(static_cast<int>(location));
             auto text = std::format("{} ({})", ToString(location), cost[ResourceName::Cash].Current);
             if(ImGui::Button(text.c_str())) {
-                Purchasables::TryPurchase(location, *resources, BuyOnce::No);
+                Purchasables::TryPurchase(location, life->GetInventory().Resources, BuyOnce::No);
                 currentLocation = location;
             }
             ImGui::PopID();
@@ -32,9 +34,9 @@ namespace {
     }
 }
 
-namespace GhostHunter::Ui::Screens::Location {
+namespace GhostHunter::Ui::Screens::Investigate {
     bool Initialize() { 
-        resources = &ServiceLocator::Get().GetRequired<ResourceCollection>();
+        life = &ServiceLocator::Get().GetRequired<Life>();
         return true; 
     }
 
@@ -47,4 +49,4 @@ namespace GhostHunter::Ui::Screens::Location {
             RenderRentLocation();
         }
     }
-} // namespace GhostHunter::Ui::Screens::Location
+} // namespace GhostHunter::Ui::Screens::Investigate

@@ -11,27 +11,14 @@
 namespace GhostHunter {
     enum struct ToolName : u8 {
         Unset,
-
+        
+        Camera,
         Flashlight,
         EmfDetector,
         ThermalCamera,
         EvpRecorder,
         LaserGrid,
         SpiritBox,
-
-        FogMachine,
-        Costumes,
-        Makeup,
-        EffectCrew,
-        CameraCrew,
-        TourBus,
-
-        TarotDeck,
-        AutomaticWritingKit,
-        CrystalBall,
-        MagicMirror,
-        SeanceTable,
-        RitualCircle,
 
         COUNT
     };
@@ -40,12 +27,8 @@ namespace GhostHunter {
     std::string Describe(ToolName tool);
 
     struct Tool {
-        Tool(ToolName name, QualityType quality) : Name(name), Quality(quality) {}
-
         ToolName Name{ToolName::Unset};
         QualityType Quality{0};
-
-        void Upgrade();
 
         std::string Describe() const;
     };

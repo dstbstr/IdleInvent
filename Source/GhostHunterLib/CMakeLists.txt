@@ -19,18 +19,22 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Ui/TopContent.cpp
   
     src/UI/Screens/Screens.cpp
-    src/UI/Screens/JournalScreen.cpp
-    src/UI/Screens/LocationScreen.cpp
-    src/UI/Screens/MediaScreen.cpp
+    src/UI/Screens/EditingScreen.cpp
+    src/UI/Screens/InvestigateScreen.cpp
+    src/UI/Screens/MarketScreen.cpp
     src/UI/Screens/PrestigeScreen.cpp
     src/UI/Screens/SettingsScreen.cpp
-    src/UI/Screens/ToolsScreen.cpp
     
     src/Inventory/Inventory.cpp
+
+    src/Investigation/Investigation.cpp
+
     src/Locations/Locations.cpp
     src/Media/Media.cpp
     src/Media/Market.cpp
     src/Quality/Quality.cpp
     src/Resources/GhostHunterResources.cpp
     src/Tools/Tools.cpp
- "inc/GhostHunter/Investigation/Investigation.h" "src/Investigation/Investigation.cpp" "inc/GhostHunter/Tools/UseTool.h" "src/Tools/UseTool.cpp")
+    src/Tools/UseTool.cpp
+    
+ "inc/GhostHunter/GameState/Life.h" "src/GameState/Life.cpp")

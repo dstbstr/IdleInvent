@@ -10,7 +10,8 @@
 #include <vector>
 #include <unordered_map>
 #include <concepts>
-
+#include <initializer_list>
+#include <utility>
 
 //std::vector<ResourceName> AllResources();
 //std::vector<ResourceName> SecondaryResources();
@@ -120,4 +121,19 @@ ResourceCollection CreateRc() {
     }
 
 	return rc;
+}
+
+template<ResourceEnum E>
+ResourceCollection CreateRc(std::initializer_list<std::pair<E, s64>> values) {
+    auto rc = CreateRc<E>();
+	for(const auto& [key, value] : values) {
+		rc[key].Current = value;
+	}
+    return rc;
+}
+
+template<ResourceEnum E, typename... Pairs>
+requires (std::convertible_to<Pairs, std::pair<E, s64>> && ...)
+ResourceCollection CreateRc(Pairs... pairs) {
+    return CreateRc<E>({std::forward<Pairs>(pairs)...});
 }

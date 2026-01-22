@@ -19,24 +19,13 @@ namespace GhostHunter {
 	std::string ToString(ToolName tool) {
         switch(tool) {
             using enum ToolName;
+            case Camera: return "Camera";
             case Flashlight: return "Flashlight";
             case EmfDetector: return "EmfDetector";
             case ThermalCamera: return "ThermalCamera";
             case EvpRecorder: return "EvpRecorder";
             case LaserGrid: return "LaserGrid";
             case SpiritBox: return "SpiritBox";
-            case FogMachine: return "FogMachine";
-            case Costumes: return "Costumes";
-            case Makeup: return "Makeup";
-            case EffectCrew: return "EffectCrew";
-            case CameraCrew: return "CameraCrew";
-            case TourBus: return "TourBus";
-            case TarotDeck: return "TarotDeck";
-            case AutomaticWritingKit: return "AutomaticWritingKit";
-            case CrystalBall: return "CrystalBall";
-            case MagicMirror: return "MagicMirror";
-            case SeanceTable: return "SeanceTable";
-            case RitualCircle: return "RitualCircle";
             default: return "Unset";
         };
 	}
@@ -74,12 +63,24 @@ namespace GhostHunter {
         switch(name) {
             using enum ResourceName;
             case Cash: return "Cash";
-            case Belief: return "Belief";
-            case Evidence: return "Evidence";
-            case Essence: return "Essence";
+            case Images: return "Images";
+            case Audio: return "Audio";
+            case Video: return "Video";
+            case Physical: return "Physical";
             default: break;
         }
         DR_ASSERT_MSG(false, "Invalid resource name");
         return "Unknown";
+    }
+
+    std::string ToString(EvidenceType type) {
+        switch(type) {
+            using enum EvidenceType;
+            case Photo: return "Photo";
+            case Audio: return "Audio";
+            case Video: return "Video";
+            case Physical: return "Physical";
+            default: return "Unset";
+        }
     }
 } // namespace GhostHunter

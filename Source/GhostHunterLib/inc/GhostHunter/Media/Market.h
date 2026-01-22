@@ -13,13 +13,13 @@ namespace GhostHunter {
             u32 CurrentValue{0};
         };
 
-        std::vector<MarketMedia> marketMedia{};
-        size_t mediaHandle = 0;
-        ResourceCollection* resources{nullptr};
-        BaseTime payoutAccumulator{BaseTime::zero()};
+        std::vector<MarketMedia> m_MarketMedia{};
+        size_t m_MediaHandle = 0;
+        ResourceCollection* m_Resources{nullptr};
+        BaseTime m_PayoutAccumulator{BaseTime::zero()};
 
     public:
-        Market();
+        Market(ResourceCollection* resources);
         ~Market();
 
         void Update(BaseTime elapsed);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GhostHunter/Tools/Tools.h"
-#include "GhostHunter/Media/Media.h"
+#include "GhostHunter/Investigation/Evidence.h"
 
 #include "Mechanics/EventManager.h"
 
@@ -9,6 +9,6 @@ namespace GhostHunter {
     struct UseTool : IEvent {
         UseTool(const Tool& tool);
 
-        //Media Result;
+        Evidence Result;
     };
 }

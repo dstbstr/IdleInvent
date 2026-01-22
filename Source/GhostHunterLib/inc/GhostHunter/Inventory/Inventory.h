@@ -1,16 +1,17 @@
 #pragma once
+#include "GhostHunter/Investigation/Evidence.h"
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Tools/Tools.h"
 
+#include "Resources/Resource.h"
+
 #include <vector>
 
-namespace GhostHunter::Inventory {
-    std::vector<Media>& GetMedia();
-    void SellAllMedia();
-    void SellMedia(size_t index);
-
-    std::vector<Tool>& GetTools();
-
-    void Initialize();
-    void ShutDown();
+namespace GhostHunter {
+    struct Inventory {
+        ResourceCollection Resources;
+        std::vector<Evidence> CollectedEvidence;
+        std::vector<Media> CreatedMedia;
+        std::vector<Tool> OwnedTools;
+    };
 }

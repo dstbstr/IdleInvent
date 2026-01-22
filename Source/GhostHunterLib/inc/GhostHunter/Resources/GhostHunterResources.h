@@ -8,13 +8,13 @@ namespace GhostHunter {
     enum struct ResourceName : u8 {
         Unset,
         Cash,
-        Belief,
-        Evidence,
-        Essence,
+        Images,
+        Audio,
+        Video,
+        Physical,
 
         COUNT
     };
 
-    std::vector<ResourceName> GetAllResourceNames();
     std::string ToString(ResourceName name);
 }

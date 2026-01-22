@@ -25,16 +25,51 @@ enum struct EnumWithCount : u8 {
 
 TEST(EnumUtilsTest, GetAllValues_WithoutUnset_GetsAllValues) {
 	auto values = Enum::GetAllValues<EnumWithCount>();
-	EXPECT_EQ(values.size(), 3);
-	EXPECT_EQ(values[0], EnumWithCount::A);
-	EXPECT_EQ(values[1], EnumWithCount::B);
-	EXPECT_EQ(values[2], EnumWithCount::C);
+	ASSERT_EQ(values.size(), 3);
+	ASSERT_EQ(values[0], EnumWithCount::A);
+	ASSERT_EQ(values[1], EnumWithCount::B);
+	ASSERT_EQ(values[2], EnumWithCount::C);
 }
 
 TEST(EnumUtilsTest, GetAllValues_WithUnset_GetsAllValuesExceptUnset) {
 	auto values = Enum::GetAllValues<EnumWithUnset>();
-	EXPECT_EQ(values.size(), 3);
-	EXPECT_EQ(values[0], EnumWithUnset::A);
-	EXPECT_EQ(values[1], EnumWithUnset::B);
-	EXPECT_EQ(values[2], EnumWithUnset::C);
+	ASSERT_EQ(values.size(), 3);
+	ASSERT_EQ(values[0], EnumWithUnset::A);
+	ASSERT_EQ(values[1], EnumWithUnset::B);
+	ASSERT_EQ(values[2], EnumWithUnset::C);
+}
+
+TEST(EnumUtilsTest, Increment_WithSmallValue_Increments) {
+	using enum EnumWithCount;
+    auto val = A;
+    auto next = Enum::Increment(val);
+    ASSERT_EQ(next, B);
+}
+
+TEST(EnumUtilsTest, Increment_WithMaxValue_ReturnsMaxValue) {
+	using enum EnumWithCount;
+	auto val = C;
+	auto next = Enum::Increment(val);
+	ASSERT_EQ(next, C);
+}
+
+TEST(EnumUtilsTest, Decrement_WithLargeValue_Decrements) {
+	using enum EnumWithCount;
+	auto val = C;
+	auto prev = Enum::Decrement(val);
+	ASSERT_EQ(prev, B);
+}
+
+TEST(EnumUtilsTest, Decrement_WithMinValue_OnEnumWithCount_RemainsMin) {
+    using enum EnumWithCount;
+    auto val = A;
+    auto prev = Enum::Decrement(val);
+    ASSERT_EQ(prev, A);
+}
+
+TEST(EnumUtilsTest, Decrement_WithMinValue_OnEnumWithUnset_RemainsMin) {
+    // Use fully-qualified enumerators to avoid ambiguity with other enums in this TU
+    auto val = EnumWithUnset::A;
+    auto prev = Enum::Decrement(val);
+    ASSERT_EQ(prev, EnumWithUnset::A);
 }

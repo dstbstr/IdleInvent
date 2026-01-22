@@ -7,6 +7,8 @@
 
 #include "Ui/UiUtil.h"
 
+#include "GhostHunter/GameState/Life.h"
+
 #include <Platform/Graphics.h>
 #include <Resources/Resource.h>
 #include <DesignPatterns/ServiceLocator.h>
@@ -16,7 +18,7 @@
 
 namespace {
     GhostHunter::GameSettings* gameSettings{nullptr};
-    ResourceCollection* resources{nullptr};
+    GhostHunter::Life* life{nullptr};
 
     void RenderFps() {
         if(gameSettings->ShowFps) {
@@ -29,7 +31,7 @@ namespace {
 
     void RenderResources() {
         ImGui::BeginTable("Current Resources", 2);
-        for(const auto& [id, resource] : *resources) {
+        for(const auto& [id, resource] : life->GetInventory().Resources) {
             ImGui::TableNextColumn();
             ImGui::Text("%s", resource.Name.c_str());
             ImGui::TableNextColumn();
@@ -44,14 +46,14 @@ namespace GhostHunter::Ui::Screens::TopContent {
     bool Initialize() {
         auto& services = ServiceLocator::Get();
         gameSettings = services.Get<GhostHunter::GameSettings>();
-        resources = services.Get<ResourceCollection>();
+        life = services.Get<Life>();
 
         return Graphics::TryLoadImageFile(SettingsIcon);
     }
     void Render() {
         if(ImGui::ImageButton("Settings", Graphics::GetImageHandle(SettingsIcon), {32, 32})) {
             if(Ui::Screens::GetActiveScreen() == Ui::Screen::Settings) {
-                Ui::Screens::SetActiveScreen(Ui::Screen::Media);
+                Ui::Screens::SetActiveScreen(Ui::Screen::Market);
             } else {
                 Ui::Screens::SetActiveScreen(Ui::Screen::Settings);
             }

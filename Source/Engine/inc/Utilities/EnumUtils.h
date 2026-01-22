@@ -39,4 +39,25 @@ namespace Enum {
         }
         return values;
     }
+
+    template<CountEnum E>
+    E Increment(E e) {
+        auto next = static_cast<size_t>(e) + 1;
+        auto max = static_cast<size_t>(E::COUNT) - 1;
+        return static_cast<E>(std::min(next, max));
+    }
+
+    template<CountEnum E>
+    E Decrement(E e) {
+        auto prev = static_cast<size_t>(e);
+        if(prev > 0) {
+            prev--;
+        }
+
+        auto min = 0ull;
+        if constexpr(UnsetEnum<E>) {
+            min = 1ull;
+        }
+        return static_cast<E>(std::max(prev, min));
+    }
 }

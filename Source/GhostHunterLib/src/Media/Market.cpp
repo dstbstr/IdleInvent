@@ -30,46 +30,43 @@ namespace {
     }
 }
 namespace GhostHunter {
-	Market::Market() {
+	Market::Market(ResourceCollection* resources) : m_Resources(resources) {
         auto& services = ServiceLocator::Get();
-        mediaHandle = services.GetRequired<PubSub<Sale<Media>>>().Subscribe([&](const Sale<Media>& media) {
-            marketMedia.emplace_back(MarketMedia{media.Item, media.Item.Value});
+        m_MediaHandle = services.GetRequired<PubSub<Sale<Media>>>().Subscribe([&](const Sale<Media>& media) {
+            m_MarketMedia.emplace_back(MarketMedia{media.Item, media.Item.Value});
         });
-
-        resources = services.Get<ResourceCollection>();
 	}
 
 	Market::~Market() {
 		auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<Sale<Media>>>();
-		pubSub.Unsubscribe(mediaHandle);
+		pubSub.Unsubscribe(m_MediaHandle);
     }
 
 	void Market::Update(BaseTime elapsed) {
-        payoutAccumulator += elapsed;
-        auto ticks = payoutAccumulator / PayoutInterval;
+        m_PayoutAccumulator += elapsed;
+        auto ticks = m_PayoutAccumulator / PayoutInterval;
         if(ticks == 0) return;
 
-        payoutAccumulator %= PayoutInterval;
+        m_PayoutAccumulator %= PayoutInterval;
 
-        for(auto& media : marketMedia) {
+        for(auto& media : m_MarketMedia) {
             auto batch = FastForward(media.CurrentValue, ticks);
-            resources->at(ResourceName::Cash).Current += batch.Cash;
+            m_Resources->at(ResourceName::Cash).Current += batch.Cash;
             media.CurrentValue = batch.Remaining;
         }
-        std::erase_if(marketMedia, [](const MarketMedia& media) {
+        std::erase_if(m_MarketMedia, [](const MarketMedia& media) {
             return media.CurrentValue == 0; 
         });
 	}
 
     void Market::Clear() {
-        marketMedia.clear();
+        m_MarketMedia.clear();
     }
 
     void Market::Initialize() {
         Log::Debug("Market initialized"); 
         auto& services = ServiceLocator::Get();
         services.CreateIfMissing<PubSub<Sale<Media>>>();
-        services.CreateIfMissing<Market>();
     }
 
     void Market::ShutDown() {

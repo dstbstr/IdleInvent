@@ -1,5 +1,6 @@
 #pragma once
 #include "GhostHunter/Media/Media.h"
+#include "GhostHunter/Investigation/Evidence.h"
 #include "GhostHunter/Locations/Locations.h"
 #include "GhostHunter/Tools/Tools.h"
 
@@ -11,7 +12,7 @@
 namespace GhostHunter {
     class Investigation : public IEvent {
         LocationName m_Location{LocationName::Unset};
-        std::vector<Media> m_CollectedMedia{};
+        std::vector<Evidence> m_CollectedEvidence{};
 
     public:
         Investigation(LocationName location);

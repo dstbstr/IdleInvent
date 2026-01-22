@@ -1,4 +1,5 @@
 #include "GhostHunter/GameState/GameSettings.h"
+#include "GhostHunter/GameState/Life.h"
 #include "GhostHunter/GhostHunterGame.h"
 #include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/Investigation/Investigation.h"
@@ -22,14 +23,12 @@ namespace GhostHunter {
         EventManager::Initialize();
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<GameSettings>();
-        auto& resources = services.GetOrCreate<ResourceCollection>();
-        resources = CreateRc<ResourceName>();
-        resources.at(ResourceName::Cash).Current = 150;
-
         Market::Initialize();
         Tools::Initialize();
-        Inventory::Initialize();
         Locations::Initialize();
+
+        auto& life = services.GetOrCreate<Life>();
+        life.GetInventory().Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});
 
         return Ui::Initialize(); 
     }
@@ -37,7 +36,6 @@ namespace GhostHunter {
     void GhostHunterGame::ShutDown() { 
         Ui::ShutDown(); 
         Locations::ShutDown();
-        Inventory::ShutDown();
         Tools::ShutDown();
         Market::ShutDown();
     }
@@ -50,7 +48,7 @@ namespace GhostHunter {
 
     void GhostHunterGame::Tick(BaseTime elapsed) {
         auto& services = ServiceLocator::Get();
-        services.GetRequired<Market>().Update(elapsed);
+        services.GetRequired<Life>().Update(elapsed);
         services.GetRequired<EventManager>().Update(elapsed);
 
         Graphics::Render(Ui::Render); 

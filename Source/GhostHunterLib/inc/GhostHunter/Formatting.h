@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Investigation/Evidence.h"
 #include "Locations/Locations.h"
 #include "Media/Media.h"
 #include "Resources/GhostHunterResources.h"
@@ -16,6 +17,7 @@ namespace GhostHunter {
     std::string ToString(ResourceName name);
     std::string ToString(QualityType quality);
     std::string ToString(ToolName tool);
+    std::string ToString(EvidenceType type);
 }
 
 #define STREAM_FROM_FORMAT(_Type) \

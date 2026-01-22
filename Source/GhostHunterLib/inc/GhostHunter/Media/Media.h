@@ -19,6 +19,14 @@ namespace GhostHunter {
         Movie
     };
 
+    enum struct MediaCategory : u8 {
+        Unset,
+        Story,
+        Image,
+        Audio,
+        Video
+    };
+
     struct Media {
         MediaType Type{MediaType::Unset};
         u32 Value{0};

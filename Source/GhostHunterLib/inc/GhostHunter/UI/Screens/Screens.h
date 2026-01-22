@@ -2,7 +2,7 @@
 #include <string>
 
 namespace GhostHunter::Ui {
-    enum struct Screen { Journal, Location, Media, Prestige, Tools, Settings };
+    enum struct Screen { Editing, Investigate, Market, Prestige, Settings };
 
     std::string ToString(Screen screen);
 
