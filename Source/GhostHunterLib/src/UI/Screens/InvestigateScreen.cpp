@@ -1,6 +1,7 @@
 #include "GhostHunter/Ui/Screens/InvestigateScreen.h"
 #include "GhostHunter/Ui/Ui.h"
 #include "GhostHunter/Locations/Locations.h"
+#include "GhostHunter/Investigation/Investigation.h"
 #include "GhostHunter/Formatting.h"
 #include "GhostHunter/GameState/Life.h"
 
@@ -8,9 +9,9 @@
 #include "Mechanics/Purchasable.h"
 
 #include <imgui.h>
+#include <optional>
 
 namespace {
-    GhostHunter::LocationName currentLocation = GhostHunter::LocationName::Unset;
     GhostHunter::Life* life{nullptr};
 
     void RenderRentLocation() {
@@ -22,15 +23,20 @@ namespace {
             auto text = std::format("{} ({})", ToString(location), cost[ResourceName::Cash].Current);
             if(ImGui::Button(text.c_str())) {
                 Purchasables::TryPurchase(location, life->GetInventory().Resources, BuyOnce::No);
-                currentLocation = location;
             }
             ImGui::PopID();
         }
     }
 
     void RenderUseLocation() {
-        ImGui::Text("Investigating %s", GhostHunter::ToString(currentLocation).c_str());
-        // begin investigation
+        auto investigation = life->GetCurrentInvestigation();
+        auto location = investigation->GetLocation();
+        ImGui::Text("Investigating %s", GhostHunter::ToString(location).c_str());
+        ImGui::ProgressBar(
+            investigation->GetProgress(), 
+            ImVec2(-1, 0), 
+            std::format("{}", investigation->Ttl).c_str()
+        );
     }
 }
 
@@ -43,7 +49,7 @@ namespace GhostHunter::Ui::Screens::Investigate {
     void ShutDown() {}
 
     void Render() {
-        if(currentLocation != LocationName::Unset) {
+        if(life->GetCurrentInvestigation()) {
             RenderUseLocation();
         } else {
             RenderRentLocation();

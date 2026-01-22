@@ -9,6 +9,8 @@
 #include <memory>
 
 using EventHandle = u64;
+static constexpr EventHandle InvalidEventHandle = static_cast<EventHandle>(-1);
+
 struct IEvent {
     virtual ~IEvent() = default;
 	IEvent(BaseTime ttl) : Duration(ttl), Ttl(ttl) {}
@@ -16,6 +18,7 @@ struct IEvent {
     BaseTime Duration{0};
 	BaseTime Ttl{0};
     BaseTime Elapsed{0};
+    EventHandle Handle{InvalidEventHandle};
 
     f32 GetProgress() const;
 	void Update(BaseTime elapsed);
@@ -39,6 +42,13 @@ public:
 	}
 
 	const IEvent* GetEvent(EventHandle handle) const;
+
+    template<typename T>
+    const T* GetEvent(EventHandle handle) const {
+        const auto* event = GetEvent(handle);
+        return static_cast<const T*>(event);
+    }
+
 	void Update(BaseTime elapsed);
 
 private:

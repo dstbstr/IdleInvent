@@ -17,5 +17,7 @@ namespace GhostHunter {
     public:
         Investigation(LocationName location);
         void OnUpdate() override;
+
+        LocationName GetLocation() const { return m_Location; }
     };
 }

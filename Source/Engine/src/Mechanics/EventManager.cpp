@@ -21,6 +21,7 @@ void EventManager::Initialize() {
 
 EventHandle EventManager::StartEvent(std::unique_ptr<IEvent>&& event) {
     auto handle = m_Handle++;
+    event->Handle = handle;
     m_Events.emplace(handle, std::move(event));
 
     auto startEvent = ServiceLocator::Get().GetRequired<PubSub<EventStart>>();
