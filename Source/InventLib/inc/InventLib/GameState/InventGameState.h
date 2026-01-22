@@ -5,6 +5,7 @@
 #include "InventLib/Character/Life.h"
 
 #include <GameState/GameState.h>
+#include <Utilities/Handle.h>
 
 namespace Invent {
 	struct InventGameStateSave : public GameStateSave {
@@ -24,9 +25,6 @@ namespace Invent {
     private:
         void SetupSubscriptions();
 
-        size_t m_StorageHandle{0};
-        size_t m_AgeHandle{0};
-		// size_t m_EffectHandle{0};
-        // size_t m_DeathHandle{0};
+        std::vector<Handle> m_PsHandles{};
 	};
 }

@@ -28,10 +28,8 @@ namespace GhostHunter {
         Inventory m_Inventory{};
         Market m_Market;
         
-        size_t m_PurchaseToolHandle{0};
-        size_t m_PurchaseLocationHandle{0};
-        size_t m_InvestigationEndHandle{0};
+        std::vector<Handle> m_PsHandles{};
 
-        EventHandle m_CurrentInvestigation{InvalidEventHandle};
+        Handle m_CurrentInvestigation{InvalidHandle};
 	};
 }

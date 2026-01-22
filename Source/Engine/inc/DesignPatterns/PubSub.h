@@ -1,19 +1,39 @@
 #pragma once
 
 #include "Instrumentation/Logging.h"
+#include "Utilities/Handle.h"
+
+#include <Platform/NumTypes.h>
 
 #include <unordered_map>
 #include <functional>
+#include <vector>
+#include <ranges>
+
+namespace _PubSubDetails {
+    void Register(Handle handle, std::function<void()> destructor);
+    void Unregister(Handle handle);
+}
+
+namespace PubSubs {
+    void Unregister(Handle handle);
+    void Unregister(const std::vector<Handle>& handles);
+}
 
 template<typename TEvent>
 struct PubSub {
 	~PubSub() {
-        maxHandle = 0;
+		// take a copy to avoid concurrent modification
+        auto keys = subscribers | std::views::keys | std::ranges::to<std::vector>();
+        for(auto h: keys) {
+			_PubSubDetails::Unregister(h);
+		}
 	}
 
-	size_t Subscribe(std::function<void(const TEvent&)> subscriber) {
-		auto handle = maxHandle++;
+	Handle Subscribe(std::function<void(const TEvent&)> subscriber) {
+		auto handle = Handles::Next();
 		subscribers.emplace(handle, subscriber);
+        _PubSubDetails::Register(handle, [this, handle]() { subscribers.erase(handle); });
 		return handle;
 	}
 
@@ -21,8 +41,8 @@ struct PubSub {
 		alarms.push_back(onAlarm);
 	}
 
-	void Unsubscribe(size_t handle) {
-		subscribers.erase(handle);
+	void Unsubscribe(Handle handle) {
+        _PubSubDetails::Unregister(handle);
 	}
 
 	void Publish(const TEvent& event) {
@@ -36,7 +56,6 @@ struct PubSub {
 	}
 
 private:
-	std::unordered_map<size_t, std::function<void(const TEvent&)>> subscribers{};
+	std::unordered_map<Handle, std::function<void(const TEvent&)>> subscribers{};
     std::vector<std::function<void(const TEvent&)>> alarms{};
-	inline static size_t maxHandle = 0;
 };

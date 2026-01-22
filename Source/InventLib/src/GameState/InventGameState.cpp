@@ -41,35 +41,21 @@ namespace Invent {
                 }
             });
             */
+        m_PsHandles.push_back(services.GetOrCreate<PubSub<InventionLevel>>()
+            .Subscribe([this](const InventionLevel& invention) {
+                if(invention.Name.find("Storage") == std::string::npos) return;
+                Storages.at(invention.Resource).UpgradeCapacity(invention.Level);
+            }));
 
-        auto& storegeEvents = services.GetOrCreate<PubSub<InventionLevel>>();
-        m_StorageHandle = storegeEvents.Subscribe([this](const InventionLevel& invention) {
-            if(invention.Name.find("Storage") == std::string::npos) return;
-            Storages.at(invention.Resource).UpgradeCapacity(invention.Level);
-        });
-
-        auto& ageEvents = services.GetOrCreate<PubSub<TechAge>>();
-        m_AgeHandle = ageEvents.Subscribe([](const TechAge& age) {
-            Log::Info(std::format("Age advanced to {}", age.Name));
-            BaseLifeSpan += 5;
-        });
+        m_PsHandles.push_back(services.GetOrCreate<PubSub<TechAge>>()
+            .Subscribe([this](const TechAge& age) {
+                Log::Info(std::format("Age advanced to {}", age.Name));
+                BaseLifeSpan += 5;
+            }));
     }
 
     InventGameState::~InventGameState() {
-        auto& services = ServiceLocator::Get();
-        if(auto* ps = services.Get<PubSub<Storage>>()) {
-            ps->Unsubscribe(m_StorageHandle);
-        }
-        if(auto* ps = services.Get<PubSub<TechAge>>()) {
-            ps->Unsubscribe(m_AgeHandle);
-        }
-
-        // if(auto* ps = services.Get<PubSub<std::vector<Effect>>>()) {
-        //	ps->Unsubscribe(m_EffectHandle);
-        // }
-        // if(auto* ps = services.Get<PubSub<Death>>()) {
-        //	ps->Unsubscribe(m_DeathHandle);
-        // }
+        PubSubs::Unregister(m_PsHandles);
     }
     void InventGameState::Save(InventGameStateSave& save) const {
         GameState::Save(save);

@@ -11,6 +11,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC inc)
 target_sources(${PROJECT_NAME} PRIVATE
 	src/Engine.cpp
 
+	src/DesignPatterns/PubSub.cpp
+
 	src/GameState/GameState.cpp
 
 	src/Instrumentation/Logging.cpp
@@ -19,6 +21,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/Mechanics/Advancement.cpp
 	src/Mechanics/Effect.cpp
+	src/Mechanics/EventManager.cpp
 	src/Mechanics/Modifier.cpp
 	src/Mechanics/Progression.cpp
 	src/Mechanics/Purchasable.cpp
@@ -26,9 +29,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Mechanics/Unlockable.cpp
 
 	src/Resources/Resource.cpp
-	
 	src/Resources/Storage.cpp
-
-	src/Settings/PurchaseAmount.cpp
 	src/Resources/ResourceConversion.cpp 
- "src/Mechanics/EventManager.cpp")
+	
+	src/Settings/PurchaseAmount.cpp
+
+	src/Utilities/Handle.cpp
+)

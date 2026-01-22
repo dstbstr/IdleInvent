@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DesignPatterns/ServiceLocator.h"
+#include "DesignPatterns/PubSub.h"
 #include "Instrumentation/Logging.h"
 
 #include <optional>
@@ -31,7 +32,7 @@ namespace Log {
 		virtual void Write(const Entry& entry) = 0;
 
 	private:
-		size_t m_Handle{ std::numeric_limits<size_t>::max() };
+		Handle m_Handle{ InvalidHandle };
 		Filter m_Filter;
 	};
 }

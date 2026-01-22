@@ -8,9 +8,6 @@
 #include <vector>
 #include <memory>
 
-using EventHandle = u64;
-static constexpr EventHandle InvalidEventHandle = static_cast<EventHandle>(-1);
-
 struct IEvent {
     virtual ~IEvent() = default;
 	IEvent(BaseTime ttl) : Duration(ttl), Ttl(ttl) {}
@@ -18,7 +15,7 @@ struct IEvent {
     BaseTime Duration{0};
 	BaseTime Ttl{0};
     BaseTime Elapsed{0};
-    EventHandle Handle{InvalidEventHandle};
+    Handle Handle{InvalidHandle};
 
     f32 GetProgress() const;
 	void Update(BaseTime elapsed);
@@ -34,17 +31,17 @@ class EventManager {
 public:
     static void Initialize();
 
-    EventHandle StartEvent(std::unique_ptr<IEvent>&& event);
+    Handle StartEvent(std::unique_ptr<IEvent>&& event);
 
     template<typename T, typename... Args>
-	EventHandle StartEvent(Args&&... args) {
+	Handle StartEvent(Args&&... args) {
         return StartEvent(std::make_unique<T>(args...));
 	}
 
-	const IEvent* GetEvent(EventHandle handle) const;
+	const IEvent* GetEvent(Handle handle) const;
 
     template<typename T>
-    const T* GetEvent(EventHandle handle) const {
+    const T* GetEvent(Handle handle) const {
         const auto* event = GetEvent(handle);
         return static_cast<const T*>(event);
     }
@@ -52,6 +49,5 @@ public:
 	void Update(BaseTime elapsed);
 
 private:
-    std::unordered_map<EventHandle, std::unique_ptr<IEvent>> m_Events;
-    EventHandle m_Handle{0};
+    std::unordered_map<Handle, std::unique_ptr<IEvent>> m_Events;
 };

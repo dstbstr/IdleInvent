@@ -19,8 +19,8 @@ void EventManager::Initialize() {
     services.CreateIfMissing<EventManager>();
 }
 
-EventHandle EventManager::StartEvent(std::unique_ptr<IEvent>&& event) {
-    auto handle = m_Handle++;
+Handle EventManager::StartEvent(std::unique_ptr<IEvent>&& event) {
+    auto handle = Handles::Next();
     event->Handle = handle;
     m_Events.emplace(handle, std::move(event));
 
@@ -30,7 +30,7 @@ EventHandle EventManager::StartEvent(std::unique_ptr<IEvent>&& event) {
     return handle;
 }
 
-const IEvent* EventManager::GetEvent(EventHandle handle) const {
+const IEvent* EventManager::GetEvent(Handle handle) const {
     if(m_Events.contains(handle)) {
         return m_Events.at(handle).get();
     }
@@ -38,7 +38,7 @@ const IEvent* EventManager::GetEvent(EventHandle handle) const {
 }
 
 void EventManager::Update(BaseTime elapsed) {
-    std::vector<EventHandle> finished;
+    std::vector<Handle> finished;
     for(auto& [h, event]: m_Events) {
         event->Update(elapsed);
         if(event->IsComplete()) {

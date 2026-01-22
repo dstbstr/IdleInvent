@@ -17,10 +17,10 @@ namespace Invent {
                 [this](const Achievement& achievement) { ReceivedAchievements.push_back(achievement); }
             );
         }
-        ~AchievementListener() { ServiceLocator::Get().GetRequired<PubSub<Achievement>>().Unsubscribe(handle); }
+        ~AchievementListener() { PubSubs::Unregister(handle); }
 
         std::vector<Achievement> ReceivedAchievements;
-        size_t handle{0};
+        Handle handle{0};
     };
 
     struct AchievementsTest : public ::testing::Test {

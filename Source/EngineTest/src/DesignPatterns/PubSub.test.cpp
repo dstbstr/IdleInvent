@@ -37,3 +37,35 @@ TEST_F(PubSubTest, Publish_AfterSubscribeThenUnsubscribe_DoesNotNotify) {
 
 	ASSERT_EQ(0, capturedValue);
 }
+
+TEST_F(PubSubTest, Alarm_OnEvent_IsCleared) {
+	int val = 0;
+    pubSub.Alarm([&](const int& event) { val = event; });
+
+	pubSub.Publish(42);
+    ASSERT_EQ(val, 42);
+    
+	pubSub.Publish(11);
+    ASSERT_EQ(val, 42);
+}
+
+TEST_F(PubSubTest, Unregister_WithVectorOfHandles_RemovesAllHandles) {
+	auto ps1 = PubSub<int>{};
+    auto ps2 = PubSub<float>{};
+
+	std::vector<Handle> handles;
+
+	int capturedInt{0};
+    handles.push_back(ps1.Subscribe([&capturedInt](const int& event) { capturedInt = event; }));
+
+	float capturedFloat{0.0f};
+	handles.push_back(ps2.Subscribe([&capturedFloat](const float& event) { capturedFloat = event; }));
+
+    PubSubs::Unregister(handles);
+
+	ps1.Publish(100);
+    ps2.Publish(3.14f);
+
+	ASSERT_EQ(0, capturedInt);
+    ASSERT_EQ(0.0f, capturedFloat);
+}

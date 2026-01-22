@@ -43,8 +43,6 @@ namespace Log {
 	}
 
 	ISink::~ISink() {
-		if (auto* ps = ServiceLocator::Get().Get<PubSub<Entry>>()) {
-			ps->Unsubscribe(m_Handle);
-		}
+        PubSubs::Unregister(m_Handle);
 	}
 }

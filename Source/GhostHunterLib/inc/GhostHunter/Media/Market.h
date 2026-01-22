@@ -3,6 +3,7 @@
 #include "GameState/GameTime.h"
 #include "GhostHunter/Media/Media.h"
 #include "Resources/Resource.h"
+#include "Utilities/Handle.h"
 
 namespace GhostHunter {
     struct GhostHunterResources;
@@ -14,7 +15,7 @@ namespace GhostHunter {
         };
 
         std::vector<MarketMedia> m_MarketMedia{};
-        size_t m_MediaHandle = 0;
+        Handle m_MediaHandle = 0;
         ResourceCollection* m_Resources{nullptr};
         BaseTime m_PayoutAccumulator{BaseTime::zero()};
 
