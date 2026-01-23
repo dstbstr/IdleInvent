@@ -6,22 +6,22 @@
 
 namespace GhostHunter {
 	Life::Life() : m_Market({&m_Inventory.Resources}) {
-        auto& services = ServiceLocator::Get();
-        m_PsHandles.push_back(
-            services.GetRequired<PubSub<Purchase<ToolName>>>().Subscribe([this](const Purchase<ToolName>& purchase) {
-                m_Inventory.OwnedTools.push_back(Tool(purchase.Id, QualityType::Awful));
-            }));
-		m_PsHandles.push_back(
-		    services.GetRequired<PubSub<Purchase<LocationName>>>().Subscribe([this](const Purchase<LocationName>& purchase) {
+        auto OnToolPurchase = [this](const Purchase<ToolName>& tool) {
+            m_Inventory.OwnedTools.push_back(Tool(tool.Id, Enum::Begin<QualityType>()));
+        };
+        auto OnLocPurchase = [this](const Purchase<LocationName>& loc) {
             auto& manager = ServiceLocator::Get().GetRequired<EventManager>();
-            m_CurrentInvestigation = manager.StartEvent<Investigation>(purchase.Id);
-			}));
-        m_PsHandles.push_back(
-            services.GetRequired<PubSub<EventEnd>>().Subscribe([this](const EventEnd& event) {
-            if(event.Event->Handle == m_CurrentInvestigation) {
-                m_CurrentInvestigation = InvalidHandle;
-            }
-            }));
+            auto Unregister = [this](const IEvent&) { m_CurrentInvestigation = InvalidHandle; };
+            m_CurrentInvestigation = manager.StartEvent<Investigation>(Unregister, loc.Id);
+        };
+
+        auto OnMediaPurchase = [this](const Purchase<MediaType>& purchase) {
+            m_Inventory.CreatedMedia.emplace_back(purchase.Id, Enum::Begin<QualityType>());
+        };
+
+        Purchasables::Listen<ToolName>(m_PsHandles, OnToolPurchase);
+        Purchasables::Listen<LocationName>(m_PsHandles, OnLocPurchase);
+        Purchasables::Listen<MediaType>(m_PsHandles, OnMediaPurchase);
 	}
 	Life::~Life() {
         PubSubs::Unregister(m_PsHandles);
@@ -30,4 +30,9 @@ namespace GhostHunter {
 	void Life::Update(BaseTime elapsed) {
 		m_Market.Update(elapsed);
 	}
+
+    const Investigation* Life::GetCurrentInvestigation() const {
+        return ServiceLocator::Get().GetRequired<EventManager>().GetEvent<Investigation>(m_CurrentInvestigation);
+    }
+
 } // namespace GhostHunter

@@ -9,11 +9,13 @@ struct E1 : IEvent {
 
     void OnUpdate() override { Updates++; }
     bool IsComplete() const override { return Done; }
+    std::string Describe() const override { return "E1 Event"; }
     bool Done{false};
 };
 
 struct E2 : IEvent {
     E2(BaseTime duration) : IEvent(duration) {}
+    std::string Describe() const override { return "E2 Event"; }
 };
 
 struct EventManagerTest : testing::Test {
@@ -22,10 +24,12 @@ struct EventManagerTest : testing::Test {
     static void SetUpTestSuite() {
         EventManager::Initialize(); 
     }
+
+    EventManager::OnEndFn DoNothing = {};
 };
 
-TEST_F(EventManagerTest, StartEvent_AddsEvent) {
-    auto handle = eventManager.StartEvent<E1>(OneMinute, 0);
+TEST_F(EventManagerTest, GetEvent_AfterStartEvent_ReturnsEvent) {
+    auto handle = eventManager.StartEvent<E1>(DoNothing, OneMinute, 0);
     const auto* event = eventManager.GetEvent(handle);
 
     ASSERT_NE(event, nullptr);
@@ -37,7 +41,7 @@ TEST_F(EventManagerTest, GetEvent_WithUnknownHandle_ReturnsNullptr) {
 }
 
 TEST_F(EventManagerTest, Update_WithOneEvent_UpdatesEvent) {
-    auto handle = eventManager.StartEvent<E1>(OneMinute, 0);
+    auto handle = eventManager.StartEvent<E1>(DoNothing, OneMinute, 0);
     eventManager.Update(OneSecond);
     const auto* event = eventManager.GetEvent(handle);
     ASSERT_NE(event, nullptr);
@@ -52,7 +56,7 @@ TEST_F(EventManagerTest, StartEvent_PublishesEventStart) {
     ServiceLocator::Get().GetOrCreate<PubSub<EventStart>>().Alarm([&](const EventStart&) {
         received = true;
     });
-    eventManager.StartEvent<E1>(OneMinute, 0);
+    eventManager.StartEvent<E1>(DoNothing, OneMinute, 0);
     ASSERT_TRUE(received);
 }
 
@@ -61,14 +65,22 @@ TEST_F(EventManagerTest, Update_PastDuration_PublishEventEnd) {
     ServiceLocator::Get().GetOrCreate<PubSub<EventEnd>>().Alarm([&](const EventEnd&) {
         received = true;
     });
-    eventManager.StartEvent<E2>(OneSecond);
+    eventManager.StartEvent<E2>(DoNothing, OneSecond);
     eventManager.Update(OneSecond * 2);
     ASSERT_TRUE(received);
 }
 
 TEST_F(EventManagerTest, Update_PastDuration_InvalidatesHandle) {
-    auto handle = eventManager.StartEvent<E2>(OneSecond);
+    auto handle = eventManager.StartEvent<E2>(DoNothing, OneSecond);
     eventManager.Update(OneSecond * 2);
     const auto* event = eventManager.GetEvent(handle);
     ASSERT_EQ(event, nullptr);
+}
+
+TEST_F(EventManagerTest, Update_PastDuration_CallsCallback) { 
+    bool called = false;
+    auto OnEnd = [&](const IEvent&) { called = true; };
+    eventManager.StartEvent<E2>(OnEnd, OneSecond);
+    eventManager.Update(OneSecond * 2);
+    ASSERT_TRUE(called);
 }

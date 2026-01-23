@@ -1,4 +1,5 @@
 #include "Resources/Resource.h"
+#include "Constexpr/ConstexprStrUtils.h"
 #include "Constexpr/ConstexprSaveUtils.h"
 #include "DesignPatterns/PubSub.h"
 #include "DesignPatterns/ServiceLocator.h"
@@ -103,6 +104,17 @@ bool ResourceCollection::AreAnyLessThan(const ResourceCollection& other) const {
     return false;
 }
     
+std::string ResourceCollection::ToCostString() const {
+    std::vector<std::string> parts;
+
+    for(const auto& [name, resource]: m_Resources) {
+        if(resource.Current == 0) continue;
+        parts.emplace_back(std::format("{} {}", resource.Current, resource.Name));
+    }
+    
+    return Constexpr::Join(' ', parts);
+}
+
 Resource& ResourceCollection::at(u16 resource) { return m_Resources.at(resource); }
 const Resource& ResourceCollection::at(u16 resource) const { return m_Resources.at(resource); }
 

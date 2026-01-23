@@ -1,11 +1,10 @@
 #pragma once
 
-#include "GhostHunter/Investigation/Evidence.h"
 #include "GhostHunter/Investigation/Investigation.h"
 #include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/Media/Market.h"
 
-#include "Mechanics/EventManager.h"
+#include "Utilities/Handle.h"
 
 namespace GhostHunter {
 	class Life {
@@ -20,16 +19,13 @@ namespace GhostHunter {
         Inventory& GetInventory() { return m_Inventory; }
         const Inventory& GetInventory() const { return m_Inventory; }
 
-        const Investigation* GetCurrentInvestigation() const {
-            return ServiceLocator::Get().GetRequired<EventManager>().GetEvent<Investigation>(m_CurrentInvestigation);
-            
-        }
+        const Investigation* GetCurrentInvestigation() const;
+
     private:
         Inventory m_Inventory{};
         Market m_Market;
         
         std::vector<Handle> m_PsHandles{};
-
         Handle m_CurrentInvestigation{InvalidHandle};
 	};
 }

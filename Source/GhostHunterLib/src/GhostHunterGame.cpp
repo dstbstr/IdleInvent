@@ -26,10 +26,17 @@ namespace GhostHunter {
         Market::Initialize();
         Tools::Initialize();
         Locations::Initialize();
+        Media::Initialize();
 
-        auto& life = services.GetOrCreate<Life>();
-        life.GetInventory().Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});
+        auto& inv = services.GetOrCreate<Life>().GetInventory();
+        inv.Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});
 
+        services.GetRequired<PubSub<EventStart>>().Subscribe([](const EventStart& event) {
+            Log::Info("Event Start: " + event.Event->Describe());
+        });
+        services.GetRequired<PubSub<EventEnd>>().Subscribe([](const EventEnd& event) {
+            Log::Info("Event End: " + event.Event->Describe());
+        });
         return Ui::Initialize(); 
     }
 

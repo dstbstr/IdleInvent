@@ -19,37 +19,50 @@ void EventManager::Initialize() {
     services.CreateIfMissing<EventManager>();
 }
 
-Handle EventManager::StartEvent(std::unique_ptr<IEvent>&& event) {
+Handle EventManager::StartEvent(OnEndFn onEnd, std::unique_ptr<IEvent>&& event) {
     auto handle = Handles::Next();
     event->Handle = handle;
-    m_Events.emplace(handle, std::move(event));
+    m_Events.emplace(handle, std::pair(std::move(event), std::move(onEnd)));
 
-    auto startEvent = ServiceLocator::Get().GetRequired<PubSub<EventStart>>();
-    startEvent.Publish({m_Events.at(handle).get()});
+    auto& startEvent = ServiceLocator::Get().GetRequired<PubSub<EventStart>>();
+    startEvent.Publish({m_Events.at(handle).first.get()});
 
     return handle;
 }
 
 const IEvent* EventManager::GetEvent(Handle handle) const {
     if(m_Events.contains(handle)) {
-        return m_Events.at(handle).get();
+        return m_Events.at(handle).first.get();
     }
     return nullptr;
 }
 
 void EventManager::Update(BaseTime elapsed) {
     std::vector<Handle> finished;
-    for(auto& [h, event]: m_Events) {
-        event->Update(elapsed);
-        if(event->IsComplete()) {
+    for(auto& [h, pair]: m_Events) {
+        pair.first->Update(elapsed);
+        if(pair.first->IsComplete()) {
             finished.push_back(h);
         }
     }
-    if(finished.empty()) return;
+    EndEvents(finished);
+}
 
-    auto ps = ServiceLocator::Get().GetRequired<PubSub<EventEnd>>();
-    for(auto h: finished) {
-        ps.Publish({m_Events.at(h).get()});
-        m_Events.erase(h);
+void EventManager::EndEvent(Handle handle) {
+    auto& [event, onEnd] = m_Events.at(handle);
+    auto& ps = ServiceLocator::Get().GetRequired<PubSub<EventEnd>>();
+    ps.Publish({event.get()});
+    if(onEnd) onEnd(*event);
+    m_Events.erase(handle);
+}
+
+void EventManager::EndEvents(const std::vector<Handle>& handles) {
+    auto& ps = ServiceLocator::Get().GetRequired<PubSub<EventEnd>>();
+
+    for(auto handle: handles) {
+        auto& [event, onEnd] = m_Events.at(handle);
+        ps.Publish({event.get()});
+        if(onEnd) onEnd(*event);
+        m_Events.erase(handle);
     }
 }

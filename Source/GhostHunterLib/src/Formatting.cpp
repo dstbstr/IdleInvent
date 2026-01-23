@@ -72,15 +72,4 @@ namespace GhostHunter {
         DR_ASSERT_MSG(false, "Invalid resource name");
         return "Unknown";
     }
-
-    std::string ToString(EvidenceType type) {
-        switch(type) {
-            using enum EvidenceType;
-            case Photo: return "Photo";
-            case Audio: return "Audio";
-            case Video: return "Video";
-            case Physical: return "Physical";
-            default: return "Unset";
-        }
-    }
 } // namespace GhostHunter

@@ -17,7 +17,6 @@ namespace GhostHunter {
     std::string ToString(ResourceName name);
     std::string ToString(QualityType quality);
     std::string ToString(ToolName tool);
-    std::string ToString(EvidenceType type);
 }
 
 #define STREAM_FROM_FORMAT(_Type) \
@@ -45,7 +44,7 @@ FORMAT_GHOSTHUNTER_ENUM(ToolName)
 template<>
 struct std::formatter<GhostHunter::Media> : std::formatter<std::string> {
     auto format(const GhostHunter::Media& input, std::format_context& ctx) const {
-        return std::formatter<std::string>::format(std::format("{} ${}", input.Type, input.Value), ctx);
+        return std::formatter<std::string>::format(std::format("{} {}", input.Quality, input.Type), ctx);
     }
 };
 STREAM_FROM_FORMAT(Media)

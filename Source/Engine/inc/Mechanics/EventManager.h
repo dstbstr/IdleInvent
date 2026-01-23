@@ -22,6 +22,7 @@ struct IEvent {
 
 	virtual bool IsComplete() const;
     virtual void OnUpdate() {};
+    virtual std::string Describe() const = 0;
 };
 
 struct EventStart { const IEvent* Event; };
@@ -31,12 +32,14 @@ class EventManager {
 public:
     static void Initialize();
 
-    Handle StartEvent(std::unique_ptr<IEvent>&& event);
+    using OnEndFn = std::function<void(const IEvent&)>;
+
+    Handle StartEvent(OnEndFn onEnd, std::unique_ptr<IEvent>&& event);
 
     template<typename T, typename... Args>
-	Handle StartEvent(Args&&... args) {
-        return StartEvent(std::make_unique<T>(args...));
-	}
+    Handle StartEvent(OnEndFn onEnd, Args&&... args) {
+        return StartEvent(std::move(onEnd), std::make_unique<T>(args...));
+    }
 
 	const IEvent* GetEvent(Handle handle) const;
 
@@ -48,6 +51,9 @@ public:
 
 	void Update(BaseTime elapsed);
 
+    void EndEvent(Handle handle);
+    void EndEvents(const std::vector<Handle>& handles);
+
 private:
-    std::unordered_map<Handle, std::unique_ptr<IEvent>> m_Events;
+    std::unordered_map<Handle, std::pair<std::unique_ptr<IEvent>, OnEndFn>> m_Events;
 };

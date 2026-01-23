@@ -37,6 +37,10 @@ struct PubSub {
 		return handle;
 	}
 
+	void Subscribe(std::vector<Handle>& outHandles, std::function<void(const TEvent&)> subscriber) {
+		outHandles.push_back(Subscribe(subscriber));
+    }
+
 	void Alarm(std::function<void(const TEvent&)> onAlarm) {
 		alarms.push_back(onAlarm);
 	}

@@ -1,10 +1,12 @@
 #include "GhostHunter/Media/Market.h"
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
+#include "GhostHunter/Formatting.h"
 
 #include "DesignPatterns/ServiceLocator.h"
 #include "DesignPatterns/PubSub.h"
 #include "Mechanics/Sale.h"
+#include "Instrumentation/Logging.h"
 
 namespace {
     constexpr double DecayMultiplier = 0.95; // maybe make configurable for upgrades
@@ -15,6 +17,25 @@ namespace {
         u32 Cash{0};
         u32 Remaining{0};
     };
+
+    u32 GetSalePrice(const GhostHunter::Media& media) {
+        // TODO: Consider quality
+        switch(media.Type) {
+            using enum GhostHunter::MediaType;
+            case Picture: return 10;
+            case Interview: return 10;
+            case Article: return 10;
+            case Book: return 10;
+            case Podcast: return 10;
+            case TvShow: return 10;
+            case Movie: return 10;
+            default: break;
+        }
+        DR_ASSERT_MSG_LAZY(false, [type = media.Type]{
+            return std::format("Unknown Media Type: {}", type);
+        });
+        return 10;
+    }
 
     PayoutBatch FastForward(u32 currentValue, size_t ticks) {
         auto cash = 0ull;
@@ -33,7 +54,7 @@ namespace GhostHunter {
 	Market::Market(ResourceCollection* resources) : m_Resources(resources) {
         auto& services = ServiceLocator::Get();
         m_MediaHandle = services.GetRequired<PubSub<Sale<Media>>>().Subscribe([&](const Sale<Media>& media) {
-            m_MarketMedia.emplace_back(MarketMedia{media.Item, media.Item.Value});
+            m_MarketMedia.emplace_back(MarketMedia{media.Item, GetSalePrice(media.Item)});
         });
 	}
 

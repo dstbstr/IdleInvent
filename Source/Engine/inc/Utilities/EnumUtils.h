@@ -26,29 +26,28 @@ concept UnsetEnum = std::is_enum_v<E> && requires(E e) {
 
 namespace Enum {
     template<CountEnum E>
-    std::vector<E> GetAllValues() {
-        constexpr size_t count = static_cast<size_t>(E::COUNT);
-        std::vector<E> values;
-        values.reserve(count);
-        size_t i = 0;
+    constexpr E Begin() {
         if constexpr(UnsetEnum<E>) {
-            i++; // skip Unset
+            return static_cast<E>(1);
+        } else {
+            return static_cast<E>(0);
         }
-        for(; i < count; ++i) {
-            values.push_back(static_cast<E>(i));
-        }
-        return values;
     }
 
     template<CountEnum E>
-    E Increment(E e) {
+    constexpr E End() {
+        return static_cast<E>(static_cast<size_t>(E::COUNT) - 1);
+    }
+
+    template<CountEnum E>
+    constexpr E Increment(E e) {
         auto next = static_cast<size_t>(e) + 1;
         auto max = static_cast<size_t>(E::COUNT) - 1;
         return static_cast<E>(std::min(next, max));
     }
 
     template<CountEnum E>
-    E Decrement(E e) {
+    constexpr E Decrement(E e) {
         auto prev = static_cast<size_t>(e);
         if(prev > 0) {
             prev--;
@@ -59,5 +58,16 @@ namespace Enum {
             min = 1ull;
         }
         return static_cast<E>(std::max(prev, min));
+    }
+
+    template<CountEnum E>
+    constexpr std::vector<E> GetAllValues() {
+        std::vector<E> values;
+        values.reserve(static_cast<size_t>(E::COUNT));
+        for(auto i = Begin<E>(); i < End<E>(); i = Increment(i)) {
+            values.push_back(i);
+        }
+        values.push_back(End<E>());
+        return values;
     }
 }

@@ -49,6 +49,8 @@ public:
     bool AreAllLessThan(const ResourceCollection& other) const;
 	bool AreAnyLessThan(const ResourceCollection& other) const;
 
+	std::string ToCostString() const;
+
 	Resource& at(u16 resource);
 	const Resource& at(u16 resource) const;
 

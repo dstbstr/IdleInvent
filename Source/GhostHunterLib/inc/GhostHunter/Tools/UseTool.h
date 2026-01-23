@@ -5,10 +5,14 @@
 
 #include "Mechanics/EventManager.h"
 
+#include <string>
+
 namespace GhostHunter {
     struct UseTool : IEvent {
         UseTool(const Tool& tool);
 
+        std::string Describe() const override;
+        ToolName ToolName;
         Evidence Result;
     };
 }

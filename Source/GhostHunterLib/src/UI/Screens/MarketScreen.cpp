@@ -19,7 +19,8 @@ namespace {
 
         for(size_t i = 0; i < allMedia.size(); i++) {
             const auto& media = allMedia[i];
-            ImGui::Text("%s", std::format("{}: {}", i, media).c_str());
+            ImGui::Text("%s", std::format("{}", media).c_str());
+            ImGui::SameLine();
             if(ImGui::Button("Sell")) {
                 Sell(allMedia, i);
             }

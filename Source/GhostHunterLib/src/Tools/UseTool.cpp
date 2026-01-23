@@ -1,4 +1,6 @@
 #include "GhostHunter/Tools/UseTool.h"
+#include "GhostHunter/Formatting.h"
+
 #include "DesignPatterns/ServiceLocator.h"
 #include "Utilities/EnumUtils.h"
 #include "Utilities/IRandom.h"
@@ -7,13 +9,13 @@ namespace {
 	BaseTime DurationByTool(GhostHunter::ToolName tool) {
 		switch(tool) {
 			using enum GhostHunter::ToolName;
-            case Camera: return OneMinute;
-            case Flashlight: return OneMinute;
-            case EmfDetector: return OneMinute;
-            case ThermalCamera: return OneMinute;
-            case EvpRecorder: return OneMinute;
-            case LaserGrid: return OneMinute;
-            case SpiritBox: return OneMinute;
+            case Camera: return OneSecond * 3;
+            case Flashlight: return OneSecond * 3;
+            case EmfDetector: return OneSecond * 3;
+            case ThermalCamera: return OneSecond * 3;
+            case EvpRecorder: return OneSecond * 3;
+            case LaserGrid: return OneSecond * 3;
+            case SpiritBox: return OneSecond * 3;
             default: break;
 		}
         DR_ASSERT_MSG(false, "Unknown Tool: " + ToString(tool));
@@ -25,12 +27,12 @@ namespace {
         Evidence evidence{};
         switch(tool.Name) {
             using enum ToolName;
-            case Camera: evidence.Type = EvidenceType::Photo; break;
-            case EvpRecorder: case SpiritBox: evidence.Type = EvidenceType::Audio; break;
-            case ThermalCamera: evidence.Type = EvidenceType::Video; break;
+            case Camera: evidence.Type = ResourceName::Images; break;
+            case EvpRecorder: case SpiritBox: evidence.Type = ResourceName::Audio; break;
+            case ThermalCamera: evidence.Type = ResourceName::Video; break;
             case Flashlight:
             case EmfDetector:
-            case LaserGrid: evidence.Type = EvidenceType::Physical; break;            
+            case LaserGrid: evidence.Type = ResourceName::Physical; break;            
         }
 
         evidence.Quality = tool.Quality;
@@ -46,5 +48,13 @@ namespace {
     }
 }
 namespace GhostHunter {
-	UseTool::UseTool(const Tool& tool) : IEvent(DurationByTool(tool.Name)), Result(GatherEvidence(tool)){}
+	UseTool::UseTool(const Tool& tool) 
+        : IEvent(DurationByTool(tool.Name))
+        , ToolName(tool.Name)
+        , Result(GatherEvidence(tool))
+    {}
+
+    std::string UseTool::Describe() const {
+        return std::format("Using {}", ToolName);
+    }
 }

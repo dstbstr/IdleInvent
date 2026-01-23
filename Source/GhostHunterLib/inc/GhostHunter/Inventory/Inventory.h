@@ -10,7 +10,6 @@
 namespace GhostHunter {
     struct Inventory {
         ResourceCollection Resources;
-        std::vector<Evidence> CollectedEvidence;
         std::vector<Media> CreatedMedia;
         std::vector<Tool> OwnedTools;
     };

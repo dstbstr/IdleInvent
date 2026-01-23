@@ -19,9 +19,16 @@ enum struct EnumWithUnset : u8 {
 	Unset, A, B, C, COUNT
 };
 
+static_assert(Enum::Begin<EnumWithUnset>() == EnumWithUnset::A);
+static_assert(Enum::End<EnumWithUnset>() == EnumWithUnset::C);
+static_assert(Enum::GetAllValues<EnumWithUnset>() == std::vector{EnumWithUnset::A, EnumWithUnset::B, EnumWithUnset::C});
+
 enum struct EnumWithCount : u8 {
 	A, B, C, COUNT 
 };
+static_assert(Enum::Begin<EnumWithCount>() == EnumWithCount::A);
+static_assert(Enum::End<EnumWithCount>() == EnumWithCount::C);
+static_assert(Enum::GetAllValues<EnumWithCount>() == std::vector{EnumWithCount::A, EnumWithCount::B, EnumWithCount::C});
 
 TEST(EnumUtilsTest, GetAllValues_WithoutUnset_GetsAllValues) {
 	auto values = Enum::GetAllValues<EnumWithCount>();

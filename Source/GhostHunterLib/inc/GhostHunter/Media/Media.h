@@ -2,7 +2,9 @@
 
 #include "GhostHunter/Quality/Quality.h"
 
+#include "Resources/Resource.h"
 #include <Platform/NumTypes.h>
+
 #include <string>
 #include <vector>
 
@@ -16,21 +18,20 @@ namespace GhostHunter {
         Book,
         Podcast,
         TvShow,
-        Movie
+        Movie,
+
+        COUNT
     };
 
-    enum struct MediaCategory : u8 {
-        Unset,
-        Story,
-        Image,
-        Audio,
-        Video
-    };
+    std::string ToString(MediaType type);
 
     struct Media {
         MediaType Type{MediaType::Unset};
-        u32 Value{0};
-        Media() = default;
-        Media(MediaType type, u32 value) : Type(type), Value(value) {}
+        QualityType Quality{0};
+
+        static void Initialize();
+        static void ShutDown();
     };
+
+    ResourceCollection UpgradeCost(const Media& media);
 }

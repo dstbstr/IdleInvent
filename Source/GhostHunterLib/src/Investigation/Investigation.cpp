@@ -1,21 +1,22 @@
 #include "GhostHunter/Investigation/Investigation.h"
+#include "GhostHunter/Formatting.h"
 
 namespace {
 	BaseTime TimeByLocation(GhostHunter::LocationName location) {
 		switch(location) {
 			using enum GhostHunter::LocationName;
-			case Shed: return OneMinute;
-			case School: return OneMinute;
-			case House: return OneMinute;
-			case Church: return OneMinute;
-			case Hotel: return OneMinute;
-			case Prison: return OneMinute;
-			case Hospital: return OneMinute;
-			case Sanitorium: return OneMinute;
+			case Shed: return OneSecond * 30;
+			case School: return OneSecond * 30;
+			case House: return OneSecond * 30;
+			case Church: return OneSecond * 30;
+			case Hotel: return OneSecond * 30;
+			case Prison: return OneSecond * 30;
+			case Hospital: return OneSecond * 30;
+			case Sanitorium: return OneSecond * 30;
 			default: break;
 		}
 		DR_ASSERT_MSG(false, "Unknown Location: " + GhostHunter::ToString(location));
-		return OneMinute;
+		return OneSecond * 30;
     }
 }
 namespace GhostHunter {
@@ -27,5 +28,9 @@ namespace GhostHunter {
 	void Investigation::OnUpdate() {
 		// collect media based on location and tools
 		// Perhaps tools are events as well that we subscribe to
+	}
+
+	std::string Investigation::Describe() const { 
+		return std::format("Investigating {}", m_Location);
 	}
 }

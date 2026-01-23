@@ -8,6 +8,7 @@
 #include "Mechanics/EventManager.h"
 
 #include <vector>
+#include <string>
 
 namespace GhostHunter {
     class Investigation : public IEvent {
@@ -17,6 +18,7 @@ namespace GhostHunter {
     public:
         Investigation(LocationName location);
         void OnUpdate() override;
+        std::string Describe() const override;
 
         LocationName GetLocation() const { return m_Location; }
     };

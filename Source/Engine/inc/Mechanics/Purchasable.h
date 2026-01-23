@@ -35,6 +35,13 @@ namespace Purchasables {
 	}
 
 	template<PurchaseEnum E>
+	ResourceCollection GetCost(E id) {
+		auto& r = _PurchaseDetails::Registry<E>;
+		DR_ASSERT_MSG(r.contains(id), "Unknown purchasable");
+		return r.at(id);
+    }
+
+	template<PurchaseEnum E>
 	std::vector<std::pair<E, ResourceCollection>> GetAvailable() {
 		std::vector<std::pair<E, ResourceCollection>> result;
 		auto& r = _PurchaseDetails::Registry<E>;
@@ -62,5 +69,20 @@ namespace Purchasables {
         services.GetRequired<PubSub<Purchase<E>>>().Publish({id});
         services.GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
 		return true;
+    }
+
+	template<PurchaseEnum E>
+	PubSub<Purchase<E>>& GetPs() {
+        return ServiceLocator::Get().GetRequired<PubSub<Purchase<E>>>();
+	}
+
+	template<PurchaseEnum E>
+	Handle Listen(std::function<void(const Purchase<E>&)> listener) {
+		return GetPs<E>().Subscribe(listener);
+    }
+
+	template<PurchaseEnum E>
+	void Listen(std::vector<Handle>& outHandles, std::function<void(const Purchase<E>&)> listener) {
+		GetPs<E>().Subscribe(outHandles, listener);
     }
 }
