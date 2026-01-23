@@ -27,9 +27,4 @@ namespace GhostHunter {
 
         Location(LocationName name) : Name(name) {}
     };
-
-    namespace Locations {
-        void Initialize();
-        void ShutDown();
-    } // namespace Locations
 }

@@ -12,6 +12,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC inc)
 target_sources(${PROJECT_NAME} PRIVATE
     src/GhostHunterGame.cpp
     src/Formatting.cpp
+    src/Purchase.cpp
 
     src/Ui/Ui.cpp 
     src/Ui/MainContent.cpp 
@@ -29,6 +30,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
     src/Investigation/Investigation.cpp
 
+    src/GameState/Life.cpp
     src/Locations/Locations.cpp
     src/Media/Media.cpp
     src/Media/Market.cpp
@@ -37,4 +39,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Tools/Tools.cpp
     src/Tools/UseTool.cpp
     
- "inc/GhostHunter/GameState/Life.h" "src/GameState/Life.cpp")
+)

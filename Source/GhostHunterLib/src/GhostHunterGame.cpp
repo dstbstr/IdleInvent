@@ -17,6 +17,7 @@
 #include <Mechanics/Sale.h>
 #include <Utilities/IRandom.h>
 
+void InitializePurchases();
 namespace GhostHunter {
     bool GhostHunterGame::Initialize() { 
         auto& services = ServiceLocator::Get();
@@ -24,9 +25,7 @@ namespace GhostHunter {
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<GameSettings>();
         Market::Initialize();
-        Tools::Initialize();
-        Locations::Initialize();
-        Media::Initialize();
+        InitializePurchases();
 
         auto& inv = services.GetOrCreate<Life>().GetInventory();
         inv.Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});
@@ -42,8 +41,8 @@ namespace GhostHunter {
 
     void GhostHunterGame::ShutDown() { 
         Ui::ShutDown(); 
-        Locations::ShutDown();
-        Tools::ShutDown();
+        //Locations::ShutDown();
+        //Tools::ShutDown();
         Market::ShutDown();
     }
 

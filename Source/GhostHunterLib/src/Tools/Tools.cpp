@@ -24,15 +24,4 @@ namespace GhostHunter {
 	std::string Tool::Describe() const {
         return std::format("{} ({})", ToString(Name), ToString(Quality));
 	}
-
-	void Tools::Initialize() {
-        Log::Debug("Initializing Tools");
-		ServiceLocator::Get().CreateIfMissing<PubSub<Purchase<ToolName>>>();
-
-        Purchasables::Add(ToolName::Flashlight, CreateRc<ResourceName>(std::pair{ResourceName::Cash, 100}));
-	}
-
-	void Tools::ShutDown() {
-		Log::Debug("Shutting down Tools");
-	}
 }

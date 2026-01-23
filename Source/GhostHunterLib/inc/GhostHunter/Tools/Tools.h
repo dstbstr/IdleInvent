@@ -32,9 +32,4 @@ namespace GhostHunter {
 
         std::string Describe() const;
     };
-
-    namespace Tools {
-        void Initialize();
-        void ShutDown();
-    }
 }

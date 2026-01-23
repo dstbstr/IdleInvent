@@ -20,19 +20,4 @@ namespace GhostHunter {
         DR_ASSERT_MSG(false, "Unknown LocationName");
         return "....";
 	}
-
-    namespace Locations {
-        void Initialize() {
-            Log::Debug("Locations initialized");
-            ServiceLocator::Get().CreateIfMissing<PubSub<Purchase<LocationName>>>();
-
-            auto cost = CreateRc<ResourceName>();
-            cost.at(ResourceName::Cash).Current = 10;
-            Purchasables::Add(LocationName::Shed, cost);
-
-        }
-        void ShutDown() {
-            Log::Debug("Locations shut down");
-        }
-    } // namespace Locations
 } // namespace GhostHunter

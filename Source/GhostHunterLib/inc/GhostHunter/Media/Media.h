@@ -28,9 +28,6 @@ namespace GhostHunter {
     struct Media {
         MediaType Type{MediaType::Unset};
         QualityType Quality{0};
-
-        static void Initialize();
-        static void ShutDown();
     };
 
     ResourceCollection UpgradeCost(const Media& media);

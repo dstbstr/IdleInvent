@@ -22,21 +22,42 @@ struct Purchase {
 
 namespace _PurchaseDetails {
 	template<PurchaseEnum E>
-    inline std::unordered_map<E, ResourceCollection> Registry{};
+    inline std::unordered_map<E, ResourceCollection>& GetRegistry() {
+		static std::unordered_map<E, ResourceCollection> registry{};
+        return registry;
+	}
+
+	inline std::vector<std::function<void()>>& GetInitFns() {
+		static std::vector<std::function<void()>> fns{};
+        return fns;
+	}
+
+	template<PurchaseEnum E>
+	struct PurchaseRegistrar {
+		PurchaseRegistrar(std::function<void()> initFn) {
+			GetInitFns().push_back(initFn);
+		}
+    };
 }
 
 enum struct BuyOnce : u8 { Yes, No };
 
 namespace Purchasables {
+	inline void InitializeAll() {
+		for(const auto& fn : _PurchaseDetails::GetInitFns()) {
+			fn();
+		}
+    }
 	template<PurchaseEnum E>
 	void Add(E id, ResourceCollection costs) {
-        auto& r = _PurchaseDetails::Registry<E>;
-        r[id] = costs;
+        auto& r = _PurchaseDetails::GetRegistry<E>();
+        //r[id] = costs;
+        r.emplace(id, costs);
 	}
 
 	template<PurchaseEnum E>
 	ResourceCollection GetCost(E id) {
-		auto& r = _PurchaseDetails::Registry<E>;
+		auto& r = _PurchaseDetails::GetRegistry<E>();
 		DR_ASSERT_MSG(r.contains(id), "Unknown purchasable");
 		return r.at(id);
     }
@@ -44,7 +65,7 @@ namespace Purchasables {
 	template<PurchaseEnum E>
 	std::vector<std::pair<E, ResourceCollection>> GetAvailable() {
 		std::vector<std::pair<E, ResourceCollection>> result;
-		auto& r = _PurchaseDetails::Registry<E>;
+		auto& r = _PurchaseDetails::GetRegistry<E>();
 		for(const auto& [id, cost] : r) {
 			result.push_back(std::make_pair(id, cost));
 		}
@@ -53,7 +74,7 @@ namespace Purchasables {
 
 	template<PurchaseEnum E>
 	bool TryPurchase(E id, ResourceCollection& resources, BuyOnce buyOnce) {
-		auto& r = _PurchaseDetails::Registry<E>;
+		auto& r = _PurchaseDetails::GetRegistry<E>();
         if(!r.contains(id)) return false;
 
 		auto cost = r.at(id);

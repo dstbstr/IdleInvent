@@ -30,15 +30,4 @@ namespace GhostHunter {
         auto multiplier = MultiplierByQuality(media.Quality);
         return baseCost * multiplier;
     }
-
-    void Media::Initialize() {
-        ServiceLocator::Get().CreateIfMissing<PubSub<Purchase<MediaType>>>();
-        for(auto type : Enum::GetAllValues<MediaType>()) {
-            Purchasables::Add(type, GetBaseCost(type));
-        }
-    }
-
-    void Media::ShutDown() {
-        //nothing for now
-    }
 }
