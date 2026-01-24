@@ -51,7 +51,6 @@ namespace Purchasables {
 	template<PurchaseEnum E>
 	void Add(E id, ResourceCollection costs) {
         auto& r = _PurchaseDetails::GetRegistry<E>();
-        //r[id] = costs;
         r.emplace(id, costs);
 	}
 

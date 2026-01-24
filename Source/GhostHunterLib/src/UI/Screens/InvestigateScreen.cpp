@@ -16,32 +16,50 @@ namespace {
     GhostHunter::Life* life{nullptr};
     Handle currentTool{InvalidHandle};
     GhostHunter::LocationName bestLocation{GhostHunter::LocationName::Unset};
+    GhostHunter::LocationName selectedLocation{GhostHunter::LocationName::Unset};
 
-    void RenderRentLocation() {
+    void RenderSelectLocation() {
         using namespace GhostHunter;
-        if(life->GetInventory().OwnedTools.empty()) {
-            ImGui::Text("Go buy some tools first");
-            return;
-        }
-
-        auto locations = Enum::GetAllValues<LocationName>();
         auto purchaseables = Purchasables::GetAvailable<LocationName>();
         auto& resources = life->GetInventory().Resources;
         for(const auto& [location, cost]: purchaseables) {
-            ImGui::PushID(static_cast<int>(location));
-            auto text = std::format("{} ({})", ToString(location), cost[ResourceName::Cash].Current);
-            auto disabled = !Purchasables::CanPurchase(location, resources);
-            if(disabled) {
-                ImGui::BeginDisabled();
-            } else {
+            auto text = std::format("{}", ToString(location));
+            // TODO: Base on unlocked locations instead of resources
+            auto afford = Purchasables::CanPurchase(location, resources);
+            if(afford) {
                 bestLocation = std::max(bestLocation, location);
             }
             if(ImGui::Button(text.c_str())) {
-                Purchasables::TryPurchase(location, resources, BuyOnce::No);
+                selectedLocation = location;
             }
-            if(disabled) ImGui::EndDisabled();
-            ImGui::PopID();
-            if(disabled && location >= bestLocation) break;
+            if(!afford && location >= bestLocation) break;
+        }
+    }
+    void RenderConfirmLocation() {
+        using namespace GhostHunter;
+        ImGui::Text("%s", ToString(selectedLocation).c_str());
+        ImGui::TextWrapped("%s", Describe(selectedLocation).c_str());
+
+        if(ImGui::Button("Back")) {
+            selectedLocation = LocationName::Unset;
+        }
+        ImGui::SameLine();
+
+        auto& resources = life->GetInventory().Resources;
+        auto afford = Purchasables::CanPurchase(selectedLocation, resources);
+        ImGui::BeginDisabled(!afford);
+        if(ImGui::Button("Rent")) {
+            Purchasables::TryPurchase(selectedLocation, resources, BuyOnce::No);
+            selectedLocation = LocationName::Unset;
+        }
+        ImGui::EndDisabled();
+    }
+
+    void RenderRentLocation() {
+        if(selectedLocation == GhostHunter::LocationName::Unset) {
+            RenderSelectLocation();
+        } else {
+            RenderConfirmLocation();
         }
     }
 
