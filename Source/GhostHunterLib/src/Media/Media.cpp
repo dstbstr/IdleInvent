@@ -30,6 +30,6 @@ namespace GhostHunter {
     }
 
     void Media::OnUpgrade() {
-        Level = Enum::Increment(Level);
+        // update value
     }
 } // namespace GhostHunter

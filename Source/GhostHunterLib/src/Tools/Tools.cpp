@@ -7,6 +7,8 @@
 #include "Resources/Resource.h"
 
 namespace GhostHunter {
+    static_assert(UpgradableType<Tool>);
+
 	std::string Describe(ToolName tool) {
 		switch(tool) {
 			using enum ToolName;
@@ -26,7 +28,7 @@ namespace GhostHunter {
 	}
 
 	void Tool::OnUpgrade() {
-		Level = Enum::Increment(Level);
+		// update efficiency
 	};
 
 }

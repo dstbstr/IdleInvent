@@ -29,8 +29,8 @@ namespace GhostHunter {
     std::string Describe(ToolName tool);
 
     struct Tool {
-        using TypeEnum = ToolName;
-        using LevelEnum = QualityType;
+        using IdType = ToolName;
+        using LevelType = QualityType;
 
         ToolName Id{ToolName::Unset};
         QualityType Level{QualityType::Unset};
@@ -38,6 +38,4 @@ namespace GhostHunter {
         std::string Describe() const;
         void OnUpgrade();
     };
-
-    static_assert(UpgradableType<Tool>);
 }

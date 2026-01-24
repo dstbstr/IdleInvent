@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Utilities/Concepts.h"
 #include <concepts>
 #include <vector>
 
@@ -10,19 +11,15 @@ concept CountEnum = std::is_enum_v<E> && requires(E e) {
 };
 
 template<typename E>
-concept ToStringEnum = std::is_enum_v<E> && requires(E e) {
-    { ToString(e) } -> std::convertible_to<std::string>;
-};
-
-template<typename E>
-concept DescribeEnum = std::is_enum_v<E> && requires(E e) {
-    { Describe(e) } -> std::convertible_to<std::string>;
-};
-
-template<typename E>
 concept UnsetEnum = std::is_enum_v<E> && requires(E e) {
     { E::Unset } -> std::convertible_to<E>;
 };
+
+template<typename E>
+concept ToStringEnum = std::is_enum_v<E> && HasToString<E>;
+
+template<typename E>
+concept DescribeEnum = std::is_enum_v<E> && HasDescribe<E>;
 
 namespace Enum {
     template<CountEnum E>

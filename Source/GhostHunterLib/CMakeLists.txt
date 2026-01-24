@@ -13,6 +13,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/GhostHunterGame.cpp
     src/Formatting.cpp
     src/Purchase.cpp
+    src/Upgrades.cpp
 
     src/Ui/Ui.cpp 
     src/Ui/MainContent.cpp 
@@ -39,4 +40,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Tools/Tools.cpp
     src/Tools/UseTool.cpp
     
- "src/Upgrades.cpp")
+)

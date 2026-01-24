@@ -1,8 +1,24 @@
 # Ghost Hunter
-A game about being a scientist, charlatan, or spirtualist
+## Locations
+Cost cash to rent
+have different durations
+have different available resources
+available resources are visible with an upgrade
 
-Perhaps you take a selection of tools, rent a location, and produce media.
-So take a level 1 camera and a level 1 EMF detector,
- rent a "haunted" shed, and take pictures and EMF recordings
- after a run, you produce pictures from the camera, and an article from the recording.
- These media are sold for money, and the cycle repeats
+## Tools
+Extract resources from locations
+Higher levels extract more/faster
+Only 1 tool per team member at a time
+
+## Upgrades
+Charletan - Improve the decay rate of sales
+Spiritist - Improve the available resources at locations
+Scientist - Improve the tool efficiency
+Use a secondary resource (media count? evidence? influence?)
+
+## Prestiege
+Add team member?
+Unlock locations?
+Increase max Quality?
+Show tool efficiency?
+Show location resource availability?

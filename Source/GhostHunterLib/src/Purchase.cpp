@@ -6,19 +6,19 @@
 #include "GhostHunter/Tools/Tools.h"
 #include "Mechanics/Purchasable.h"
 
-#define PURCHASE(_Type)                                                           \
-    namespace _Type##_Registry { \
-    using TypeName = _Type;                                                       \
-    void _register_##_Type();                                                     \
-    struct _AutoRegister_##_Type {                                                \
-        _AutoRegister_##_Type() {                                                 \
-            _register_##_Type();                                                  \
-            ::_PurchaseDetails::GetInitFns().push_back([] {                       \
-                ::ServiceLocator::Get().CreateIfMissing<PubSub<Purchase<_Type>>>(); \
-            });                                                                   \
-        }                                                                         \
-    } autoRegister_##_Type{};                                                       \
-    } \
+#define PURCHASE(_Type)                                                                 \
+    namespace _Type##_Registry {                                                        \
+        using TypeName = _Type;                                                         \
+        void _register_##_Type();                                                       \
+        struct _AutoRegister_##_Type {                                                  \
+            _AutoRegister_##_Type() {                                                   \
+                _register_##_Type();                                                    \
+                ::_PurchaseDetails::GetInitFns().push_back([] {                         \
+                    ::ServiceLocator::Get().CreateIfMissing<PubSub<Purchase<_Type>>>(); \
+                });                                                                     \
+            }                                                                           \
+        } autoRegister_##_Type{};                                                       \
+    }                                                                                   \
     void _Type##_Registry::_register_##_Type()
 
 #define P(r, a) \
@@ -26,7 +26,7 @@
 #define ITEM(n, ...) Purchasables::Add(TypeName::n, CreateRc<ResourceName>(__VA_ARGS__));
 namespace GhostHunter {
     using ResourceType = ResourceName;
-
+    // clang-format off
     PURCHASE(ToolName) {
         /* Camera, Flashlight, EmfDetector, ThermalCamera,
         EvpRecorder, LaserGrid, SpiritBox
@@ -64,7 +64,8 @@ namespace GhostHunter {
         ITEM(Hospital, P(Cash, 750'000));
         ITEM(Sanitorium, P(Cash, 1'000'000));
     }
-}
+    // clang-format on
+} // namespace GhostHunter
 
 #undef PURCHASE
 #undef ITEM

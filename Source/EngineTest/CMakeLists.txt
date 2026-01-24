@@ -38,5 +38,5 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Utilities/Format.test.cpp
   src/Utilities/IRandom.test.cpp 
   src/Utilities/EnumUtils.test.cpp
-)
+ "src/Mechanics/Upgrade.test.cpp" "src/Utilities/Concepts.test.cpp")
  

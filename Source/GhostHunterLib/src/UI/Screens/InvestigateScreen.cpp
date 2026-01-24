@@ -50,7 +50,7 @@ namespace {
         const auto* investigation = life->GetCurrentInvestigation();
         ImGui::Text("%s", investigation->Describe().c_str());
         ImGui::ProgressBar(
-            investigation->GetProgress(), 
+            1.0f - investigation->GetProgress(),
             ImVec2(-1, 0), 
             std::format("{}", investigation->Ttl).c_str()
         );

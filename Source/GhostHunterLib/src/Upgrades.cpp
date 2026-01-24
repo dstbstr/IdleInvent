@@ -23,12 +23,12 @@
 #define P(a, b) \
     std::pair { a, b }
 #define ITEM(n, ...)                                                                        \
-    ::UpgradeManager::_Details::GetUpgradeCosts<TypeName>()[TypeName::TypeEnum::n] = []() { \
-        std::unordered_map<TypeName::LevelEnum, ResourceCollection> result{};               \
+    ::UpgradeManager::_Details::GetUpgradeCosts<TypeName>()[TypeName::IdType::n] = []() { \
+        std::unordered_map<TypeName::LevelType, ResourceCollection> result{};               \
         __VA_ARGS__                                                                         \
         return result;                                                                      \
     }();
-#define LEVEL(l, ...) result[TypeName::LevelEnum::l] = CreateRc<ResourceType>(__VA_ARGS__);
+#define LEVEL(l, ...) result[TypeName::LevelType::l] = CreateRc<ResourceType>(__VA_ARGS__);
 namespace GhostHunter {
     using LevelName = QualityType;
     using ResourceType = ResourceName;

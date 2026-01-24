@@ -10,21 +10,17 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-template<typename E>
-concept UpgradeEnum = CountEnum<E>;
-
-template<typename E>
-concept LevelEnum = CountEnum<E>;
+#include <concepts>
+#include <iterator>
 
 template<typename T>
-concept UpgradableType = requires(T t) {
-    typename T::TypeEnum;
-    typename T::LevelEnum;
+concept LevelType = CountEnum<T> || (std::incrementable<T> && std::equality_comparable<T>);
+
+template<typename T>
+concept UpgradableType = DescribeSelf<T> && HasId<T> && requires(T t) {
+    typename T::LevelType;
     { t.OnUpgrade() };
-    { t.Describe() } -> std::convertible_to<std::string>;
-    { t.Id } -> std::convertible_to<typename T::TypeEnum>;
-    { t.Level } -> std::convertible_to<typename T::LevelEnum>;
+    { t.Level } -> std::convertible_to<typename T::LevelType>;
 };
 
 template<UpgradableType T>
@@ -36,27 +32,41 @@ struct UpgradeEvent {
 namespace UpgradeManager {
     namespace _Details {
         template<UpgradableType T>
-        std::unordered_map<typename T::TypeEnum, std::unordered_map<typename T::LevelEnum, ResourceCollection>>&
+        std::unordered_map<typename T::IdType, std::unordered_map<typename T::LevelType, ResourceCollection>>&
         GetUpgradeCosts() {
-            static std::unordered_map<typename T::TypeEnum, std::unordered_map<typename T::LevelEnum, ResourceCollection>> costs;
+            static std::unordered_map<typename T::IdType, std::unordered_map<typename T::LevelType, ResourceCollection>> costs;
             return costs;
+        }
+        template<UpgradableType T>
+        std::unordered_map<typename T::IdType, std::function<ResourceCollection(typename T::LevelType)>>& GetUpgradeCostFns() {
+            static std::unordered_map<typename T::IdType, std::function<ResourceCollection(typename T::LevelType)>> costFns;
+            return costFns;
         }
     } // namespace _Details
 
     template<UpgradableType T>
     std::optional<ResourceCollection> TryGetCost(const T& t) {
-        auto current = t.Level;
-        auto nextLevel = Enum::Increment(current);
-        if(nextLevel == current) return {};
+        auto level = t.Level;
+        if constexpr(CountEnum<typename T::LevelType>) {
+            level = Enum::Increment(level);
+        } else {
+            ++level;
+        }
+        if(level == t.Level) return {};
+
+        const auto& costFns = _Details::GetUpgradeCostFns<T>();
+        if(costFns.contains(t.Id)) {
+            return costFns.at(t.Id)(level);
+        }
 
         const auto& upgrades = _Details::GetUpgradeCosts<T>();
         if(!upgrades.contains(t.Id)) return {};
         const auto& levelCosts = upgrades.at(t.Id);
-        if(!levelCosts.contains(nextLevel)) {
+        if(!levelCosts.contains(level)) {
             return {};
         }
 
-        return levelCosts.at(nextLevel);
+        return levelCosts.at(level);
     }
 
     template<UpgradableType T>
@@ -75,6 +85,11 @@ namespace UpgradeManager {
 
         resources -= cost.value();
         auto before = upgradable.Describe();
+        if constexpr(CountEnum<typename T::LevelType>) {
+            upgradable.Level = Enum::Increment(upgradable.Level);
+        } else {
+            ++upgradable.Level;
+        }
         upgradable.OnUpgrade();
         auto after = upgradable.Describe();
         auto description = std::format("Upgraded from {} to {}", before, after);
