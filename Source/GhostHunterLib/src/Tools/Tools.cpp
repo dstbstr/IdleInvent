@@ -22,20 +22,11 @@ namespace GhostHunter {
 	}
 
 	std::string Tool::Describe() const {
-        return std::format("{} ({})", ToString(Name), ToString(Quality));
+        return std::format("{} ({})", ToString(Id), ToString(Level));
 	}
 
 	void Tool::OnUpgrade() {
-		Quality = Enum::Increment(Quality);
+		Level = Enum::Increment(Level);
 	};
-
-    ResourceCollection Tool::GetUpgradeCost() const { 
-		return CreateRc<ResourceName>(std::pair(ResourceName::Cash, 100ll));
-	};
-
-    bool Tool::IsMaxLevel() const {
-		return Quality == Enum::End<QualityType>();
-	};
-
 
 }

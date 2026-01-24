@@ -23,11 +23,13 @@ namespace {
         }
     }
 }
+
 namespace GhostHunter {
-    // TODO: Probably better to represent this as another purchasable
-    ResourceCollection UpgradeCost(const Media& media) {
-        auto baseCost = GetBaseCost(media.Type);
-        auto multiplier = MultiplierByQuality(media.Quality);
-        return baseCost * multiplier;
+    std::string Media::Describe() const {
+        return "Something here";
     }
-}
+
+    void Media::OnUpgrade() {
+        Level = Enum::Increment(Level);
+    }
+} // namespace GhostHunter

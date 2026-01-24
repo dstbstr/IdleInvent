@@ -20,8 +20,8 @@ void SellAll(std::vector<T>& items) {
 
 template<typename T>
 void Sell(std::vector<T>& items, size_t index) {
-    auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<Sale<T>>>();
     if(index < items.size()) {
+        auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<Sale<T>>>();
         pubSub.Publish({items[index]});
         items.erase(items.begin() + index);
     }

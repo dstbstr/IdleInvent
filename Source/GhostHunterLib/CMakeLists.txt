@@ -39,4 +39,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Tools/Tools.cpp
     src/Tools/UseTool.cpp
     
-)
+ "src/Upgrades.cpp")

@@ -22,6 +22,7 @@ namespace GhostHunter::Ui::Screens::Editing {
 
     void Render() { 
         auto mediaTypes = Enum::GetAllValues<MediaType>();
+        auto& resources = life->GetInventory().Resources;
         ImGui::BeginTable("Media Costs", 2);
         for(const auto& type: mediaTypes) {
             ImGui::TableNextColumn();
@@ -31,7 +32,7 @@ namespace GhostHunter::Ui::Screens::Editing {
             ImGui::PushID(static_cast<int>(type));
             auto label = std::format("Create ({})", cost.ToCostString());
             if(ImGui::Button(label.c_str())) {
-                Purchasables::TryPurchase(type, life->GetInventory().Resources, BuyOnce::No);
+                Purchasables::TryPurchase(type, resources, BuyOnce::No);
             }
             ImGui::PopID();
         }
@@ -44,14 +45,18 @@ namespace GhostHunter::Ui::Screens::Editing {
             ImGui::TableNextColumn();
             ImGui::Text("%s", std::format("{}", media).c_str());
             ImGui::TableNextColumn();
-            auto cost = UpgradeCost(media);
-            ImGui::PushID(id++);
-            auto label = std::format("Upgrade ({})", cost.ToCostString());
-            if(ImGui::Button(label.c_str())) {
-                media.Quality = Enum::Increment(media.Quality);
-                //Purchasables::TryPurchase(media, life->GetInventory().Resources, BuyOnce::No);
+            auto cost = UpgradeManager::TryGetCost(media);
+            if(cost.has_value()) {
+                ImGui::PushID(id++);
+                auto label = std::format("Upgrade ({})", cost->ToCostString());
+                auto disabled = !UpgradeManager::CanUpgrade(media, resources);
+                ImGui::BeginDisabled(disabled);
+                if(ImGui::Button(label.c_str())) {
+                    UpgradeManager::Upgrade(media, resources);
+                }
+                ImGui::EndDisabled();
+                ImGui::PopID();
             }
-            ImGui::PopID();
         }
         ImGui::EndTable();
 

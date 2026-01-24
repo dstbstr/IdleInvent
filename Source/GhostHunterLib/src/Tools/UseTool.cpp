@@ -25,7 +25,7 @@ namespace {
     GhostHunter::Evidence GatherEvidence(const GhostHunter::Tool& tool) {
         using namespace GhostHunter;
         Evidence evidence{};
-        switch(tool.Name) {
+        switch(tool.Id) {
             using enum ToolName;
             case Camera: evidence.Type = ResourceName::Images; break;
             case EvpRecorder: case SpiritBox: evidence.Type = ResourceName::Audio; break;
@@ -35,7 +35,7 @@ namespace {
             case LaserGrid: evidence.Type = ResourceName::Physical; break;            
         }
 
-        evidence.Quality = tool.Quality;
+        evidence.Quality = tool.Level;
         auto rand = ServiceLocator::Get().GetRequired<IRandom>().GetNextFloat();
         // TODO: Improve quality based on skill
         if(rand < 0.05f) {
@@ -49,8 +49,8 @@ namespace {
 }
 namespace GhostHunter {
 	UseTool::UseTool(const Tool& tool) 
-        : IEvent(DurationByTool(tool.Name))
-        , ToolName(tool.Name)
+        : IEvent(DurationByTool(tool.Id))
+        , ToolName(tool.Id)
         , Result(GatherEvidence(tool))
     {}
 

@@ -44,7 +44,7 @@ FORMAT_GHOSTHUNTER_ENUM(ToolName)
 template<>
 struct std::formatter<GhostHunter::Media> : std::formatter<std::string> {
     auto format(const GhostHunter::Media& input, std::format_context& ctx) const {
-        return std::formatter<std::string>::format(std::format("{} {}", input.Quality, input.Type), ctx);
+        return std::formatter<std::string>::format(std::format("{} {}", input.Level, input.Id), ctx);
     }
 };
 STREAM_FROM_FORMAT(Media)

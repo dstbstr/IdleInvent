@@ -26,9 +26,13 @@ namespace GhostHunter {
     std::string ToString(MediaType type);
 
     struct Media {
-        MediaType Type{MediaType::Unset};
-        QualityType Quality{0};
-    };
+        using TypeEnum = MediaType;
+        using LevelEnum = QualityType;
 
-    ResourceCollection UpgradeCost(const Media& media);
+        MediaType Id{MediaType::Unset};
+        QualityType Level{0};
+
+        std::string Describe() const;
+        void OnUpgrade();
+    };
 }

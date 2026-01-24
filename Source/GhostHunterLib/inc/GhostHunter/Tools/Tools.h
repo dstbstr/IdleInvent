@@ -28,16 +28,16 @@ namespace GhostHunter {
     std::string ToString(ToolName tool);
     std::string Describe(ToolName tool);
 
-    struct Tool : IUpgradable {
-        ToolName Name{ToolName::Unset};
-        QualityType Quality{QualityType::Unset};
+    struct Tool {
+        using TypeEnum = ToolName;
+        using LevelEnum = QualityType;
 
-        Tool(ToolName Name, QualityType quality) : Name(Name), Quality(quality) {}
+        ToolName Id{ToolName::Unset};
+        QualityType Level{QualityType::Unset};
 
-        std::string Describe() const override;
-
-        void OnUpgrade() override;
-        ResourceCollection GetUpgradeCost() const override;
-        bool IsMaxLevel() const override;
+        std::string Describe() const;
+        void OnUpgrade();
     };
+
+    static_assert(UpgradableType<Tool>);
 }

@@ -1,7 +1,9 @@
 #include "Mechanics/Upgrade.h"
 #include "DesignPatterns/ServiceLocator.h"
 #include "DesignPatterns/PubSub.h"
+#include "Instrumentation/Logging.h"
 
+/*
 namespace UpgradeManager {
     void Upgrade(IUpgradable& upgradable, ResourceCollection& resources) {
         auto cost = upgradable.GetUpgradeCost();
@@ -11,7 +13,7 @@ namespace UpgradeManager {
         upgradable.OnUpgrade();
         auto after = upgradable.Describe();
         auto description = std::format("Upgraded from {} to {}", before, after);
-
+        Log::Info(description);
         auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<UpgradeEvent>>();
         pubSub.Publish({&upgradable, description});
     }
@@ -23,3 +25,4 @@ namespace UpgradeManager {
         return true;
     }
 }
+*/

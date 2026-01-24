@@ -20,7 +20,7 @@ namespace {
 
     u32 GetSalePrice(const GhostHunter::Media& media) {
         // TODO: Consider quality
-        switch(media.Type) {
+        switch(media.Id) {
             using enum GhostHunter::MediaType;
             case Picture: return 10;
             case Interview: return 10;
@@ -31,7 +31,7 @@ namespace {
             case Movie: return 10;
             default: break;
         }
-        DR_ASSERT_MSG_LAZY(false, [type = media.Type]{
+        DR_ASSERT_MSG_LAZY(false, [type = media.Id]{
             return std::format("Unknown Media Type: {}", type);
         });
         return 10;

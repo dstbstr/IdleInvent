@@ -18,6 +18,8 @@
 #include <Utilities/IRandom.h>
 
 void InitializePurchases();
+void InitializeUpgrades();
+
 namespace GhostHunter {
     bool GhostHunterGame::Initialize() { 
         auto& services = ServiceLocator::Get();
@@ -26,6 +28,7 @@ namespace GhostHunter {
         services.CreateIfMissing<GameSettings>();
         Market::Initialize();
         InitializePurchases();
+        InitializeUpgrades();
 
         auto& inv = services.GetOrCreate<Life>().GetInventory();
         inv.Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});

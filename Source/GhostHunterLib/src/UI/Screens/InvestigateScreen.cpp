@@ -15,6 +15,7 @@
 namespace {
     GhostHunter::Life* life{nullptr};
     Handle currentTool{InvalidHandle};
+    GhostHunter::LocationName bestLocation{GhostHunter::LocationName::Unset};
 
     void RenderRentLocation() {
         using namespace GhostHunter;
@@ -30,13 +31,17 @@ namespace {
             ImGui::PushID(static_cast<int>(location));
             auto text = std::format("{} ({})", ToString(location), cost[ResourceName::Cash].Current);
             auto disabled = !Purchasables::CanPurchase(location, resources);
-            if(disabled) ImGui::BeginDisabled();
+            if(disabled) {
+                ImGui::BeginDisabled();
+            } else {
+                bestLocation = std::max(bestLocation, location);
+            }
             if(ImGui::Button(text.c_str())) {
                 Purchasables::TryPurchase(location, resources, BuyOnce::No);
             }
             if(disabled) ImGui::EndDisabled();
             ImGui::PopID();
-            if(disabled) break;
+            if(disabled && location >= bestLocation) break;
         }
     }
 
@@ -57,10 +62,10 @@ namespace {
             ImGui::BeginTable("Tools", 2);
             for(const auto& tool : tools) {
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", ToString(tool.Name).c_str());
+                ImGui::Text("%s", ToString(tool.Id).c_str());
 
                 ImGui::TableNextColumn();
-                ImGui::PushID(static_cast<int>(tool.Name));
+                ImGui::PushID(static_cast<int>(tool.Id));
                 if(ImGui::Button("Use")) {
                     auto OnToolDone = [](const IEvent& event) { 
                         currentTool = InvalidHandle;

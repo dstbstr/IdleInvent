@@ -13,6 +13,7 @@
 
 namespace {
     GhostHunter::Life* life{nullptr};
+    GhostHunter::ToolName bestTool{GhostHunter::ToolName::Unset};
 
     void RenderSell() {
         auto& allMedia = life->GetInventory().CreatedMedia;
@@ -39,19 +40,23 @@ namespace {
         auto available = Purchasables::GetAvailable<ToolName>();
         auto& resources = life->GetInventory().Resources;
 
-        for(const auto& [id, cost]: available) {
-            auto name = ToString(id);
+        for(const auto& [tool, cost]: available) {
+            auto name = ToString(tool);
             ImGui::Text("%s", name.c_str());
             ImGui::SameLine();
-            ImGui::PushID(static_cast<int>(id));
+            ImGui::PushID(static_cast<int>(tool));
             auto disabled = cost > resources;
-            if(disabled) ImGui::BeginDisabled();
+            if(disabled) {
+                ImGui::BeginDisabled();
+            } else {
+                bestTool = std::max(bestTool, tool);
+            }
             if(ImGui::Button("Purchase")) {
-                Purchasables::TryPurchase<ToolName>(id, resources, BuyOnce::Yes);
+                Purchasables::TryPurchase<ToolName>(tool, resources, BuyOnce::Yes);
             }
             if(disabled) ImGui::EndDisabled();
             ImGui::PopID();
-            if(disabled) break; // show up to 1 unavailable
+            if(disabled && tool >= bestTool) break; // show up to 1 unavailable
         }
 
         if(available.size() > 0 && owned.size() > 0) {
