@@ -1,7 +1,9 @@
 #pragma once
 
 #include "GhostHunter/Quality/Quality.h"
+
 #include "GameState/GameTime.h"
+#include "Mechanics/Upgrade.h"
 
 #include <Platform/NumTypes.h>
 
@@ -26,10 +28,16 @@ namespace GhostHunter {
     std::string ToString(ToolName tool);
     std::string Describe(ToolName tool);
 
-    struct Tool {
+    struct Tool : IUpgradable {
         ToolName Name{ToolName::Unset};
-        QualityType Quality{0};
+        QualityType Quality{QualityType::Unset};
 
-        std::string Describe() const;
+        Tool(ToolName Name, QualityType quality) : Name(Name), Quality(quality) {}
+
+        std::string Describe() const override;
+
+        void OnUpgrade() override;
+        ResourceCollection GetUpgradeCost() const override;
+        bool IsMaxLevel() const override;
     };
 }

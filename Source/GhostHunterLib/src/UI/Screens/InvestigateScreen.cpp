@@ -25,13 +25,18 @@ namespace {
 
         auto locations = Enum::GetAllValues<LocationName>();
         auto purchaseables = Purchasables::GetAvailable<LocationName>();
+        auto& resources = life->GetInventory().Resources;
         for(const auto& [location, cost]: purchaseables) {
             ImGui::PushID(static_cast<int>(location));
             auto text = std::format("{} ({})", ToString(location), cost[ResourceName::Cash].Current);
+            auto disabled = !Purchasables::CanPurchase(location, resources);
+            if(disabled) ImGui::BeginDisabled();
             if(ImGui::Button(text.c_str())) {
-                Purchasables::TryPurchase(location, life->GetInventory().Resources, BuyOnce::No);
+                Purchasables::TryPurchase(location, resources, BuyOnce::No);
             }
+            if(disabled) ImGui::EndDisabled();
             ImGui::PopID();
+            if(disabled) break;
         }
     }
 

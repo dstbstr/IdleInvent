@@ -35,4 +35,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Settings/PurchaseAmount.cpp
 
 	src/Utilities/Handle.cpp
-)
+ "inc/Mechanics/Upgrade.h" "src/Mechanics/Upgrade.cpp")

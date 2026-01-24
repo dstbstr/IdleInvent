@@ -24,4 +24,18 @@ namespace GhostHunter {
 	std::string Tool::Describe() const {
         return std::format("{} ({})", ToString(Name), ToString(Quality));
 	}
+
+	void Tool::OnUpgrade() {
+		Quality = Enum::Increment(Quality);
+	};
+
+    ResourceCollection Tool::GetUpgradeCost() const { 
+		return CreateRc<ResourceName>(std::pair(ResourceName::Cash, 100ll));
+	};
+
+    bool Tool::IsMaxLevel() const {
+		return Quality == Enum::End<QualityType>();
+	};
+
+
 }
