@@ -42,7 +42,7 @@ namespace GhostHunter {
             LEVEL(Legendary, P(ResourceType::Cash, 12'800ll))
         );
         ITEM(Flashlight, 
-            LEVEL(Bad, P(ResourceType::Cash, 50ll)));
+            LEVEL(Bad, P(ResourceType::Cash, 51ll)));
     }
 
     UPGRADE(Media) {
@@ -64,6 +64,10 @@ namespace GhostHunter {
     }
     // clang-format on
 } // namespace GhostHunter
+
+#undef LEVEL
+#undef P
+#undef UPGRADE
 
 void InitializeUpgrades() {
     for(const auto& fn: UpgradeManager::_Details::GetInitFns()) {

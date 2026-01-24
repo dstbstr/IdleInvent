@@ -83,7 +83,7 @@ namespace Purchasables {
 	template<PurchaseEnum E>
 	bool TryPurchase(E id, ResourceCollection& resources, BuyOnce buyOnce) {
         if(!CanPurchase<E>(id, resources)) return false;
-        auto r = _PurchaseDetails::GetRegistry<E>();
+        auto& r = _PurchaseDetails::GetRegistry<E>();
         auto cost = r.at(id);
 		resources -= cost;
 		if(buyOnce == BuyOnce::Yes) {

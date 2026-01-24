@@ -44,7 +44,7 @@ namespace GhostHunter {
 
     PURCHASE(MediaType) {
         // Picture, Interview, Article, Book, Podcast, TvShow, Movie
-        ITEM(Picture, P(Images, 1));
+        ITEM(Picture, P(Physical, 1));
         ITEM(Interview, P(Audio, 3));
         ITEM(Article, P(Images, 3), P(Physical, 2));
         ITEM(Book, P(Physical, 10), P(Images, 20));

@@ -24,7 +24,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Mechanics/EventManager.cpp
 	src/Mechanics/Modifier.cpp
 	src/Mechanics/Progression.cpp
-	src/Mechanics/Purchasable.cpp
+	
 	src/Mechanics/RandomEvent.cpp
 	src/Mechanics/Unlockable.cpp
 
@@ -35,4 +35,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Settings/PurchaseAmount.cpp
 
 	src/Utilities/Handle.cpp
- "inc/Mechanics/Upgrade.h" "src/Mechanics/Upgrade.cpp")
+ "inc/Mechanics/Upgrade.h" )
