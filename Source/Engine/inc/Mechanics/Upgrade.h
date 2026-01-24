@@ -17,8 +17,10 @@ template<typename T>
 concept LevelType = CountEnum<T> || (std::incrementable<T> && std::equality_comparable<T>);
 
 template<typename T>
-concept UpgradableType = DescribeSelf<T> && HasId<T> && requires(T t) {
-    typename T::LevelType;
+concept UpgradableType = DescribeSelf<T> && HasId<T> && 
+    requires { typename T::LevelType; } &&
+    LevelType<typename T::LevelType> &&
+    requires(T t) {
     { t.OnUpgrade() };
     { t.Level } -> std::convertible_to<typename T::LevelType>;
 };

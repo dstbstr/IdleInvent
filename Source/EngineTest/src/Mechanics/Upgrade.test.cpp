@@ -167,3 +167,24 @@ TEST_F(NumericUpgradeTest, CanUpgrade_AfterManyLevels_ReturnsTrue) {
 	q.Level = 10;
     ASSERT_TRUE(UpgradeManager::CanUpgrade(q, enough));
 }
+
+struct MissingLevelType {
+    using IdType = Thing;
+    void OnUpgrade() {}
+    Thing Id{Thing::Unset};
+};
+static_assert(!UpgradableType<MissingLevelType>);
+
+struct MissingAlias : MissingLevelType {
+    Quality Level{Quality::Unset};
+};
+static_assert(!UpgradableType<MissingAlias>);
+
+struct WrongLevelType {
+    using IdType = Thing;
+    using LevelType = std::string;
+    void OnUpgrade() {}
+    Thing Id{Thing::Unset};
+    LevelType Level{""};
+};
+static_assert(!UpgradableType<WrongLevelType>);
