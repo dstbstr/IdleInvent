@@ -3,7 +3,7 @@
 #include "GhostHunter/Tools/Tools.h"
 #include "GhostHunter/Investigation/Evidence.h"
 
-#include "Mechanics/EventManager.h"
+#include "Manage/EventManager.h"
 
 #include <string>
 

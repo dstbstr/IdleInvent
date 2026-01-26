@@ -11,8 +11,9 @@
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>
-#include "Platform/Graphics.h"
-#include <Mechanics/EventManager.h>
+#include <Platform/Graphics.h>
+#include <Manage/EventManager.h>
+#include <Manage/TickManager.h>
 #include <Mechanics/Purchasable.h>
 #include <Mechanics/Sale.h>
 #include <Utilities/IRandom.h>
@@ -26,6 +27,7 @@ namespace GhostHunter {
         EventManager::Initialize();
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<GameSettings>();
+        services.CreateIfMissing<TickManager>();
         Market::Initialize();
         InitializePurchases();
         InitializeUpgrades();
@@ -44,8 +46,6 @@ namespace GhostHunter {
 
     void GhostHunterGame::ShutDown() { 
         Ui::ShutDown(); 
-        //Locations::ShutDown();
-        //Tools::ShutDown();
         Market::ShutDown();
     }
 
@@ -56,9 +56,7 @@ namespace GhostHunter {
     void GhostHunterGame::DeleteGame() {}
 
     void GhostHunterGame::Tick(BaseTime elapsed) {
-        auto& services = ServiceLocator::Get();
-        services.GetRequired<Life>().Update(elapsed);
-        services.GetRequired<EventManager>().Update(elapsed);
+        ServiceLocator::Get().GetRequired<TickManager>().Tick(elapsed);
 
         Graphics::Render(Ui::Render); 
     }

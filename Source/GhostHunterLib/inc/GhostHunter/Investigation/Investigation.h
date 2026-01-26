@@ -5,7 +5,7 @@
 #include "GhostHunter/Tools/Tools.h"
 
 #include "GameState/GameTime.h"
-#include "Mechanics/EventManager.h"
+#include "Manage/EventManager.h"
 
 #include <vector>
 #include <string>

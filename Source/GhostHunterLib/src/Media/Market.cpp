@@ -5,6 +5,7 @@
 
 #include "DesignPatterns/ServiceLocator.h"
 #include "DesignPatterns/PubSub.h"
+#include "Manage/TickManager.h"
 #include "Mechanics/Sale.h"
 #include "Instrumentation/Logging.h"
 
@@ -53,17 +54,19 @@ namespace {
 namespace GhostHunter {
 	Market::Market(ResourceCollection* resources) : m_Resources(resources) {
         auto& services = ServiceLocator::Get();
+        m_TickHandle = services.GetOrCreate<TickManager>().Register(*this);
         m_MediaHandle = services.GetRequired<PubSub<Sale<Media>>>().Subscribe([&](const Sale<Media>& media) {
             m_MarketMedia.emplace_back(MarketMedia{media.Item, GetSalePrice(media.Item)});
         });
 	}
 
 	Market::~Market() {
-		auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<Sale<Media>>>();
-		pubSub.Unsubscribe(m_MediaHandle);
+        auto& services = ServiceLocator::Get();
+        services.GetRequired<TickManager>().Unregister(m_TickHandle);
+		services.GetRequired<PubSub<Sale<Media>>>().Unsubscribe(m_MediaHandle);
     }
 
-	void Market::Update(BaseTime elapsed) {
+	void Market::Tick(BaseTime elapsed) {
         m_PayoutAccumulator += elapsed;
         auto ticks = m_PayoutAccumulator / PayoutInterval;
         if(ticks == 0) return;

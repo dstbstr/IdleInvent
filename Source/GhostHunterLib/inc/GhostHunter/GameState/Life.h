@@ -12,8 +12,6 @@ namespace GhostHunter {
         Life();
         ~Life();
 
-        void Update(BaseTime elapsed);
-
         const Market& GetMarket() const { return m_Market; }
         
         Inventory& GetInventory() { return m_Inventory; }

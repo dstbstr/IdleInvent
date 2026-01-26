@@ -4,6 +4,7 @@
 
 #include "DesignPatterns/PubSub.h"
 #include "DesignPatterns/ServiceLocator.h"
+#include "Utilities/Handle.h"
 
 #include <vector>
 #include <memory>
@@ -32,6 +33,9 @@ class EventManager {
 public:
     static void Initialize();
 
+    EventManager();
+    ~EventManager();
+
     using OnEndFn = std::function<void(const IEvent&)>;
 
     Handle StartEvent(OnEndFn onEnd, std::unique_ptr<IEvent>&& event);
@@ -49,11 +53,12 @@ public:
         return static_cast<const T*>(event);
     }
 
-	void Update(BaseTime elapsed);
+	void Tick(BaseTime elapsed);
 
     void EndEvent(Handle handle);
     void EndEvents(const std::vector<Handle>& handles);
 
 private:
     std::unordered_map<Handle, std::pair<std::unique_ptr<IEvent>, OnEndFn>> m_Events;
+    Handle m_TickHandle{InvalidHandle};
 };

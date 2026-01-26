@@ -28,14 +28,24 @@ namespace GhostHunter {
     std::string ToString(ToolName tool);
     std::string Describe(ToolName tool);
 
-    struct Tool {
+    class Tool {
+        Handle m_TickHandle{InvalidHandle};
+        BaseTime m_UsageAccumulator{0};
+
+    public:
         using IdType = ToolName;
         using LevelType = QualityType;
+
+        Tool(ToolName id, QualityType level) : Id(id), Level(level) {}
 
         ToolName Id{ToolName::Unset};
         QualityType Level{QualityType::Unset};
 
         std::string Describe() const;
         void OnUpgrade();
+        void Tick(BaseTime elapsed);
+
+        void Start();
+        void Stop();
     };
 }

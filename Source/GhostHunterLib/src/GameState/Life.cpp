@@ -2,7 +2,7 @@
 #include "DesignPatterns/ServiceLocator.h"
 #include "DesignPatterns/PubSub.h"
 #include "Mechanics/Purchasable.h"
-#include "Mechanics/EventManager.h"
+#include "Manage/EventManager.h"
 
 namespace GhostHunter {
 	Life::Life() : m_Market({&m_Inventory.Resources}) {
@@ -26,10 +26,6 @@ namespace GhostHunter {
 	Life::~Life() {
         PubSubs::Unregister(m_PsHandles);
     }
-
-	void Life::Update(BaseTime elapsed) {
-		m_Market.Update(elapsed);
-	}
 
     const Investigation* Life::GetCurrentInvestigation() const {
         return ServiceLocator::Get().GetRequired<EventManager>().GetEvent<Investigation>(m_CurrentInvestigation);

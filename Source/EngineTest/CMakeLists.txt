@@ -26,17 +26,21 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/DesignPatterns/PubSub.test.cpp 
   src/DesignPatterns/ServiceLocator.test.cpp
 
-  src/Mechanics/Advancement.tests.cpp
-  src/Mechanics/EventManager.tests.cpp
-  src/Mechanics/Purchasable.test.cpp
-  src/Mechanics/Progression.tests.cpp
-  src/Mechanics/ScaleFunc.tests.cpp
-
   src/Instrumentation/DebugContext.test.cpp 
   src/Instrumentation/Logging.test.cpp
 
+  src/Manage/EventManager.tests.cpp
+  src/Manage/TickManager.test.cpp
+
+  src/Mechanics/Advancement.tests.cpp
+  src/Mechanics/Purchasable.test.cpp
+  src/Mechanics/Progression.tests.cpp
+  src/Mechanics/ScaleFunc.tests.cpp
+  src/Mechanics/Upgrade.test.cpp
+
+  src/Utilities/Concepts.test.cpp
   src/Utilities/Format.test.cpp
   src/Utilities/IRandom.test.cpp 
   src/Utilities/EnumUtils.test.cpp
- "src/Mechanics/Upgrade.test.cpp" "src/Utilities/Concepts.test.cpp")
  
+)

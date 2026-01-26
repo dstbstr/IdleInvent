@@ -3,6 +3,7 @@
 #include "GhostHunter/Inventory/Inventory.h"
 
 #include "Instrumentation/Logging.h"
+#include "Manage/TickManager.h"
 #include "Mechanics/Purchasable.h"
 #include "Resources/Resource.h"
 
@@ -31,4 +32,23 @@ namespace GhostHunter {
 		// update efficiency
 	};
 
+	void Tool::Tick(BaseTime elapsed) {
+        m_UsageAccumulator += elapsed;
+		// generate evidence
+	}
+
+	void Tool::Start() {
+		Log::Info(std::format("Starting use of tool: {}", ToString(Id)));
+		if(m_TickHandle == InvalidHandle) {
+			m_TickHandle = ServiceLocator::Get().GetRequired<TickManager>().Register(*this);
+        }
+	}
+
+	void Tool::Stop() {
+		Log::Info(std::format("Stopping use of tool: {}", ToString(Id)));
+        if(m_TickHandle != InvalidHandle) {
+			ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle);
+			m_TickHandle = InvalidHandle;
+		}
+	}
 }

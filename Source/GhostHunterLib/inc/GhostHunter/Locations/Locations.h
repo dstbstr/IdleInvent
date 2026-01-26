@@ -23,8 +23,9 @@ namespace GhostHunter {
     std::string Describe(LocationName location);
 
     struct Location {
-        LocationName Name{LocationName::Unset};
+        using IdType = LocationName;
+        LocationName Id{LocationName::Unset};
 
-        Location(LocationName name) : Name(name) {}
+        Location(LocationName id) : Id(id) {}
     };
 }

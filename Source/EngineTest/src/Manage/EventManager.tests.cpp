@@ -1,6 +1,6 @@
 #include "CommonTest.h"
 
-#include "Mechanics/EventManager.h"
+#include "Manage/EventManager.h"
 
 struct E1 : IEvent {
     int Updates;
@@ -42,7 +42,7 @@ TEST_F(EventManagerTest, GetEvent_WithUnknownHandle_ReturnsNullptr) {
 
 TEST_F(EventManagerTest, Update_WithOneEvent_UpdatesEvent) {
     auto handle = eventManager.StartEvent<E1>(DoNothing, OneMinute, 0);
-    eventManager.Update(OneSecond);
+    eventManager.Tick(OneSecond);
     const auto* event = eventManager.GetEvent(handle);
     ASSERT_NE(event, nullptr);
     ASSERT_EQ(event->Elapsed, OneSecond);
@@ -66,13 +66,13 @@ TEST_F(EventManagerTest, Update_PastDuration_PublishEventEnd) {
         received = true;
     });
     eventManager.StartEvent<E2>(DoNothing, OneSecond);
-    eventManager.Update(OneSecond * 2);
+    eventManager.Tick(OneSecond * 2);
     ASSERT_TRUE(received);
 }
 
 TEST_F(EventManagerTest, Update_PastDuration_InvalidatesHandle) {
     auto handle = eventManager.StartEvent<E2>(DoNothing, OneSecond);
-    eventManager.Update(OneSecond * 2);
+    eventManager.Tick(OneSecond * 2);
     const auto* event = eventManager.GetEvent(handle);
     ASSERT_EQ(event, nullptr);
 }
@@ -81,6 +81,6 @@ TEST_F(EventManagerTest, Update_PastDuration_CallsCallback) {
     bool called = false;
     auto OnEnd = [&](const IEvent&) { called = true; };
     eventManager.StartEvent<E2>(OnEnd, OneSecond);
-    eventManager.Update(OneSecond * 2);
+    eventManager.Tick(OneSecond * 2);
     ASSERT_TRUE(called);
 }

@@ -21,7 +21,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/Mechanics/Advancement.cpp
 	src/Mechanics/Effect.cpp
-	src/Mechanics/EventManager.cpp
+	"src/Manage/EventManager.cpp"
 	src/Mechanics/Modifier.cpp
 	src/Mechanics/Progression.cpp
 	

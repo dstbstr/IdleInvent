@@ -1,4 +1,5 @@
-#include "Mechanics/EventManager.h"
+#include "Manage/EventManager.h"
+#include "Manage/TickManager.h"
 
 void IEvent::Update(BaseTime elapsed) {
 	Elapsed += elapsed;
@@ -19,6 +20,14 @@ void EventManager::Initialize() {
     services.CreateIfMissing<EventManager>();
 }
 
+EventManager::EventManager() { 
+    m_TickHandle = ServiceLocator::Get().GetOrCreate<TickManager>().Register(*this); 
+}
+
+EventManager::~EventManager() {
+    ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle); 
+}
+
 Handle EventManager::StartEvent(OnEndFn onEnd, std::unique_ptr<IEvent>&& event) {
     auto handle = Handles::Next();
     event->Handle = handle;
@@ -37,7 +46,7 @@ const IEvent* EventManager::GetEvent(Handle handle) const {
     return nullptr;
 }
 
-void EventManager::Update(BaseTime elapsed) {
+void EventManager::Tick(BaseTime elapsed) {
     std::vector<Handle> finished;
     for(auto& [h, pair]: m_Events) {
         pair.first->Update(elapsed);

@@ -14,7 +14,9 @@
 
 namespace {
     GhostHunter::Life* life{nullptr};
-    Handle currentTool{InvalidHandle};
+    //Handle currentTool{InvalidHandle};
+    size_t currentTool = 1'000;
+
     GhostHunter::LocationName bestLocation{GhostHunter::LocationName::Unset};
     GhostHunter::LocationName selectedLocation{GhostHunter::LocationName::Unset};
 
@@ -37,22 +39,26 @@ namespace {
     }
     void RenderConfirmLocation() {
         using namespace GhostHunter;
+        auto& resources = life->GetInventory().Resources;
+        auto afford = Purchasables::CanPurchase(selectedLocation, resources);
+
         ImGui::Text("%s", ToString(selectedLocation).c_str());
         ImGui::TextWrapped("%s", Describe(selectedLocation).c_str());
 
+        ImGui::BeginTable("NavButtons", 2);
+        ImGui::TableNextColumn();
         if(ImGui::Button("Back")) {
             selectedLocation = LocationName::Unset;
         }
-        ImGui::SameLine();
-
-        auto& resources = life->GetInventory().Resources;
-        auto afford = Purchasables::CanPurchase(selectedLocation, resources);
+        
+        ImGui::TableNextColumn();
         ImGui::BeginDisabled(!afford);
         if(ImGui::Button("Rent")) {
             Purchasables::TryPurchase(selectedLocation, resources, BuyOnce::No);
             selectedLocation = LocationName::Unset;
         }
         ImGui::EndDisabled();
+        ImGui::EndTable();
     }
 
     void RenderRentLocation() {
@@ -73,18 +79,20 @@ namespace {
             std::format("{}", investigation->Ttl).c_str()
         );
 
-        auto& events = ServiceLocator::Get().GetRequired<EventManager>();
-        if(currentTool == InvalidHandle) {
-            auto& inventory = life->GetInventory();
-            const auto& tools = inventory.OwnedTools;
+        //auto& events = ServiceLocator::Get().GetRequired<EventManager>();
+        auto& tools = life->GetInventory().OwnedTools;
+        //if(currentTool == InvalidHandle) {
+        if(currentTool > tools.size()) {
             ImGui::BeginTable("Tools", 2);
-            for(const auto& tool : tools) {
+            for(size_t i = 0; i < tools.size(); i++) {
+                const auto& tool = tools[i];
                 ImGui::TableNextColumn();
                 ImGui::Text("%s", ToString(tool.Id).c_str());
 
                 ImGui::TableNextColumn();
                 ImGui::PushID(static_cast<int>(tool.Id));
                 if(ImGui::Button("Use")) {
+                    /*
                     auto OnToolDone = [](const IEvent& event) { 
                         currentTool = InvalidHandle;
                         // consider a start/stop tools
@@ -96,17 +104,30 @@ namespace {
                         }
                     };
                     currentTool = events.StartEvent<UseTool>(OnToolDone, tool);
+                    */
+                    tools[i].Start();
+                    currentTool = i;
                 }
                 ImGui::PopID();
             }
             ImGui::EndTable();
         } else {
-            const auto* toolEvent = events.GetEvent<UseTool>(currentTool);
-            ImGui::Text("%s", toolEvent->Describe().c_str());
+            //const auto* toolEvent = events.GetEvent<UseTool>(currentTool);
+            //ImGui::Text("%s", toolEvent->Describe().c_str());
+            ImGui::Text("%s", tools[currentTool].Describe().c_str());
+            ImGui::SameLine();
+            if(ImGui::Button("Stop")) {
+                tools[currentTool].Stop();
+                currentTool = 1'000;
+            }
+            /*
             ImGui::ProgressBar(
-                toolEvent->GetProgress(), ImVec2(-1, 0), std::format("{}", toolEvent->Ttl).c_str()
+                //toolEvent->GetProgress(), 
+                -1.0f,
+                ImVec2(-1, 0), 
+                std::format("{}", toolEvent->Ttl).c_str()
             );
-
+            */
         }
     }
 }
