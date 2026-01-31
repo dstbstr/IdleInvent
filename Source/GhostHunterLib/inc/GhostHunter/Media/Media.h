@@ -3,10 +3,6 @@
 #include "GhostHunter/Quality/Quality.h"
 
 #include "Resources/Resource.h"
-#include <Platform/NumTypes.h>
-
-#include <string>
-#include <vector>
 
 namespace GhostHunter {
     enum struct MediaType : u8 {

@@ -4,10 +4,8 @@
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Formatting.h"
 
-#include "DesignPatterns/ServiceLocator.h"
 #include "Mechanics/Purchasable.h"
 #include "Utilities/EnumUtils.h"
-#include <imgui.h>
 
 namespace {
     GhostHunter::Life* life{nullptr};

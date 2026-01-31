@@ -80,3 +80,34 @@ TEST(EnumUtilsTest, Decrement_WithMinValue_OnEnumWithUnset_RemainsMin) {
     auto prev = Enum::Decrement(val);
     ASSERT_EQ(prev, EnumWithUnset::A);
 }
+
+enum struct EnumWithFromString : u8 {
+	A, B, C, COUNT
+};
+std::string ToString(EnumWithFromString e) {
+	switch(e) {
+		using enum EnumWithFromString;
+    case A: return "A";
+    case B: return "B";
+    case C: return "C";
+    default: return "";
+	}
+}
+TEST(EnumUtilsTest, FromString_WithMatchingString_ReturnsValue) {
+    auto result = Enum::FromString<EnumWithFromString, true>("B");
+    ASSERT_TRUE(result.has_value());
+    ASSERT_EQ(result.value(), EnumWithFromString::B);
+}
+TEST(EnumUtilsTest, FromString_WithNonMatchingString_ReturnsNullopt) {
+	auto result = Enum::FromString<EnumWithFromString, true>("D");
+	ASSERT_FALSE(result.has_value());
+}
+TEST(EnumUtilsTest, FromString_CaseInsensitive_MatchesIgnoringCase) {
+	auto result = Enum::FromString<EnumWithFromString, false>("c");
+	ASSERT_TRUE(result.has_value());
+	ASSERT_EQ(result.value(), EnumWithFromString::C);
+}
+TEST(EnumUtilsTest, FromString_CaseSensitive_DoesNotMatchIgnoringCase) {
+	auto result = Enum::FromString<EnumWithFromString, true>("a");
+	ASSERT_FALSE(result.has_value());
+}

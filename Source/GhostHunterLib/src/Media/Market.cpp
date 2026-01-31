@@ -3,8 +3,6 @@
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Formatting.h"
 
-#include "DesignPatterns/ServiceLocator.h"
-#include "DesignPatterns/PubSub.h"
 #include "Manage/TickManager.h"
 #include "Mechanics/Sale.h"
 #include "Instrumentation/Logging.h"
@@ -62,8 +60,12 @@ namespace GhostHunter {
 
 	Market::~Market() {
         auto& services = ServiceLocator::Get();
-        services.GetRequired<TickManager>().Unregister(m_TickHandle);
-		services.GetRequired<PubSub<Sale<Media>>>().Unsubscribe(m_MediaHandle);
+        if(auto* tickMgr = services.Get<TickManager>()) {
+            tickMgr->Unregister(m_TickHandle);
+        }
+        if(auto* media = services.Get<PubSub<Sale<Media>>>()) {
+            media->Unsubscribe(m_MediaHandle);
+        }
     }
 
 	void Market::Tick(BaseTime elapsed) {

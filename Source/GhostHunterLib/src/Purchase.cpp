@@ -1,9 +1,8 @@
-#include "DesignPatterns/PubSub.h"
-#include "DesignPatterns/ServiceLocator.h"
 #include "GhostHunter/Locations/Locations.h"
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Tools/Tools.h"
+
 #include "Mechanics/Purchasable.h"
 
 #define PURCHASE(_Type)                                                                 \

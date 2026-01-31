@@ -7,9 +7,6 @@
 #include "GameState/GameTime.h"
 #include "Manage/EventManager.h"
 
-#include <vector>
-#include <string>
-
 namespace GhostHunter {
     class Investigation : public IEvent {
         LocationName m_Location{LocationName::Unset};

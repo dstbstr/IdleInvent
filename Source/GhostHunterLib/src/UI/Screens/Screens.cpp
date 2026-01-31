@@ -6,7 +6,6 @@
 #include "GhostHunter/Ui/Screens/PrestigeScreen.h"
 #include "GhostHunter/Ui/Screens/SettingsScreen.h"
 
-#include <functional>
 #include <Instrumentation/Logging.h>
 
 namespace {

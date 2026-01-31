@@ -9,8 +9,6 @@
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Ui/Ui.h"
 
-#include <DesignPatterns/ServiceLocator.h>
-#include <DesignPatterns/PubSub.h>
 #include <Platform/Graphics.h>
 #include <Manage/EventManager.h>
 #include <Manage/TickManager.h>

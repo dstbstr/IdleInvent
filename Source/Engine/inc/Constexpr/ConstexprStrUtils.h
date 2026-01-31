@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <string_view>
 #include <array>
 #include <charconv>
 #include <ranges>
@@ -180,4 +181,22 @@ namespace Constexpr {
         return Constexpr::Trim(result);
     }
 
+    constexpr char ToLower(char c) { 
+        return c >= 'A' && c <= 'Z' ? static_cast<char>(c + ('a' - 'A')) : c;
+    }
+    constexpr char ToUpper(char c) { 
+        return c >= 'a' && c <= 'z' ? static_cast<char>(c - ('a' - 'A')) : c; 
+    }
+
+    constexpr std::string ToLower(std::string_view input) {
+        return input 
+            | std::views::transform([](char c) { return Constexpr::ToLower(c); }) 
+            | std::ranges::to<std::string>();
+    }
+
+    constexpr std::string ToUpper(std::string_view input) {
+        return input 
+            | std::views::transform([](char c) { return Constexpr::ToUpper(c); }) 
+            | std::ranges::to<std::string>();
+    }
 }

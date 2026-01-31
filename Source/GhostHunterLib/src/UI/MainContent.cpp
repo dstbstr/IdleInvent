@@ -5,9 +5,7 @@
 
 #include <Ui/ChildBuilder.h>
 #include <Ui/UiUtil.h>
-#include <Platform/NumTypes.h>
 
-#include <imgui.h>
 #include <array>
 
 namespace GhostHunter::Ui::Screens::MainContent {

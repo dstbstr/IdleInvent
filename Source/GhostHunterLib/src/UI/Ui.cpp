@@ -5,8 +5,6 @@
 
 #include "Platform/Graphics.h"
 #include "Instrumentation/Logging.h"
-#include <functional>
-#include <string>
 
 namespace {
     class UiBuilder {

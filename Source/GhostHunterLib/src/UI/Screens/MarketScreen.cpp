@@ -4,12 +4,9 @@
 #include "GhostHunter/Formatting.h"
 #include "GhostHunter/GameState/Life.h"
 
-#include "DesignPatterns/ServiceLocator.h"
 #include "Mechanics/Purchasable.h"
 #include "Mechanics/Sale.h"
 #include "Mechanics/Upgrade.h"
-
-#include <imgui.h>
 
 namespace {
     GhostHunter::Life* life{nullptr};

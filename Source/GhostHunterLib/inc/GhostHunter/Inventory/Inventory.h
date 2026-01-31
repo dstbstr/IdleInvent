@@ -5,8 +5,6 @@
 
 #include "Resources/Resource.h"
 
-#include <vector>
-
 namespace GhostHunter {
     struct Inventory {
         ResourceCollection Resources;

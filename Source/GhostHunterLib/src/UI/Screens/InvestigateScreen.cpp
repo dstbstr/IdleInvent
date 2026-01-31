@@ -9,8 +9,7 @@
 #include "Utilities/EnumUtils.h"
 #include "Mechanics/Purchasable.h"
 
-#include <imgui.h>
-#include <optional>
+//#include <optional>
 
 namespace {
     GhostHunter::Life* life{nullptr};

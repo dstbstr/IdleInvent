@@ -48,7 +48,7 @@ namespace Invent {
             }));
 
         m_PsHandles.push_back(services.GetOrCreate<PubSub<TechAge>>()
-            .Subscribe([this](const TechAge& age) {
+            .Subscribe([](const TechAge& age) {
                 Log::Info(std::format("Age advanced to {}", age.Name));
                 BaseLifeSpan += 5;
             }));

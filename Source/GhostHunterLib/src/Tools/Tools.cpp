@@ -46,8 +46,8 @@ namespace GhostHunter {
 
 	void Tool::Stop() {
 		Log::Info(std::format("Stopping use of tool: {}", ToString(Id)));
-        if(m_TickHandle != InvalidHandle) {
-			ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle);
+        if(auto* tickMgr = ServiceLocator::Get().Get<TickManager>()) {
+            tickMgr->Unregister(m_TickHandle);
 			m_TickHandle = InvalidHandle;
 		}
 	}

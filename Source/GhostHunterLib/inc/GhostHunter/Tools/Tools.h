@@ -5,11 +5,6 @@
 #include "GameState/GameTime.h"
 #include "Mechanics/Upgrade.h"
 
-#include <Platform/NumTypes.h>
-
-#include <vector>
-#include <string>
-
 namespace GhostHunter {
     enum struct ToolName : u8 {
         Unset,

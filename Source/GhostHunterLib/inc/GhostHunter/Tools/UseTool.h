@@ -5,8 +5,6 @@
 
 #include "Manage/EventManager.h"
 
-#include <string>
-
 namespace GhostHunter {
     struct UseTool : IEvent {
         UseTool(const Tool& tool);

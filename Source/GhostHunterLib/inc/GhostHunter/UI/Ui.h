@@ -1,8 +1,5 @@
 #pragma once
 
-#include <imgui.h>
-#include <string>
-
 namespace GhostHunter::Ui {
     enum struct FontSizes{H1, H2, H3, H4};
     bool Initialize();

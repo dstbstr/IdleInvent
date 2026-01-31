@@ -2,7 +2,7 @@
 
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "Mechanics/Purchasable.h"
-
+/*
 namespace {
     ResourceCollection GetBaseCost(GhostHunter::MediaType type) {
         using namespace GhostHunter;
@@ -23,7 +23,7 @@ namespace {
         }
     }
 }
-
+*/
 namespace GhostHunter {
     std::string Media::Describe() const {
         return "Something here";

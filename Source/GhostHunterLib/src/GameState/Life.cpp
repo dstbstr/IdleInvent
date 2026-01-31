@@ -1,11 +1,9 @@
 #include "GhostHunter/GameState/Life.h"
-#include "DesignPatterns/ServiceLocator.h"
-#include "DesignPatterns/PubSub.h"
 #include "Mechanics/Purchasable.h"
 #include "Manage/EventManager.h"
 
 namespace GhostHunter {
-	Life::Life() : m_Market({&m_Inventory.Resources}) {
+	Life::Life() : m_Market(&m_Inventory.Resources) {
         auto OnToolPurchase = [this](const Purchase<ToolName>& tool) {
             m_Inventory.OwnedTools.push_back(Tool(tool.Id, Enum::Begin<QualityType>()));
         };

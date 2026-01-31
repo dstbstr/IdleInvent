@@ -1,8 +1,11 @@
 #pragma once
 
+#include "Constexpr/ConstexprStrUtils.h"
 #include "Utilities/Concepts.h"
+
 #include <concepts>
 #include <vector>
+#include <optional>
 
 template<typename E>
 concept CountEnum = std::is_enum_v<E> && requires(E e) {
@@ -17,6 +20,9 @@ concept UnsetEnum = std::is_enum_v<E> && requires(E e) {
 
 template<typename E>
 concept ToStringEnum = std::is_enum_v<E> && HasToString<E>;
+
+template<typename E>
+concept FromStringEnum = ToStringEnum<E> && CountEnum<E>;
 
 template<typename E>
 concept DescribeEnum = std::is_enum_v<E> && HasDescribe<E>;
@@ -43,6 +49,12 @@ namespace Enum {
         return static_cast<E>(std::min(next, max));
     }
 
+    template<typename E>
+    requires std::is_enum_v<E>
+    constexpr E IncrementUnbounded(E e) {
+        return static_cast<E>(static_cast<size_t>(e) + 1);
+    }
+
     template<CountEnum E>
     constexpr E Decrement(E e) {
         auto prev = static_cast<size_t>(e);
@@ -61,10 +73,31 @@ namespace Enum {
     constexpr std::vector<E> GetAllValues() {
         std::vector<E> values;
         values.reserve(static_cast<size_t>(E::COUNT));
-        for(auto i = Begin<E>(); i < End<E>(); i = Increment(i)) {
+        for(auto i = Begin<E>(); i <= End<E>(); i = IncrementUnbounded(i)) {
             values.push_back(i);
         }
-        values.push_back(End<E>());
         return values;
+    }
+
+    template<FromStringEnum E, bool CaseSensitive>
+    constexpr std::optional<E> FromString(const std::string& str) {
+        auto target = str;
+        if constexpr (!CaseSensitive) {
+            target = Constexpr::ToLower(str);
+        }
+
+        for(auto e = Begin<E>(); e <= End<E>(); e = IncrementUnbounded(e)) {
+            if constexpr(CaseSensitive) {
+                if(ToString(e) == str) {
+                    return e;
+                }
+            } else {
+                if(Constexpr::ToLower(ToString(e)) == target) {
+                    return e;
+                }
+            }
+        }
+
+        return std::nullopt;
     }
 }

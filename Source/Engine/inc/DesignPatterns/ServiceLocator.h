@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <map>
+#include <ranges>
 
 struct ServiceLocator {
     static ServiceLocator& Get() {
@@ -38,9 +39,10 @@ struct ServiceLocator {
 	}
 
     void ResetAll() {
-        for (auto it = services.rbegin(); it != services.rend();) {
-			services.erase(std::next(it).base()); 
+        for(auto& [id, service] : std::views::reverse(services)) {
+            service.reset();
         }
+        services.clear();
     }
 
     template<typename T>

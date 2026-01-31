@@ -1,8 +1,7 @@
-#include "DesignPatterns/PubSub.h"
-#include "DesignPatterns/ServiceLocator.h"
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Tools/Tools.h"
+
 #include "Mechanics/Upgrade.h"
 
 #define UPGRADE(_TypeName)                                                                     \

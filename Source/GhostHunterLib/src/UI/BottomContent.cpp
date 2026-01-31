@@ -4,8 +4,6 @@
 #include <Ui/UiUtil.h>
 #include <Platform/Graphics.h>
 
-#include <imgui.h>
-
 namespace {
     constexpr auto CoinIcon = "Icon/Coin.png";
     constexpr auto ToolsIcon = "Icon/Detector.png";

@@ -11,9 +11,7 @@
 
 #include <Platform/Graphics.h>
 #include <Resources/Resource.h>
-#include <DesignPatterns/ServiceLocator.h>
 
-#include <imgui.h>
 #include <format>
 
 namespace {

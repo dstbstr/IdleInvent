@@ -1,7 +1,7 @@
 #pragma once
 #include "Instrumentation/Logging.h"
 #include <Resources/Resource.h>
-#include <Platform/NumTypes.h>
+
 #include <map>
 
 namespace GhostHunter {

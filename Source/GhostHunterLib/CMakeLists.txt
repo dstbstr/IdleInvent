@@ -9,6 +9,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC inc)
+target_precompile_headers(${PROJECT_NAME} PRIVATE inc/pch.h)
+
 target_sources(${PROJECT_NAME} PRIVATE
     src/GhostHunterGame.cpp
     src/Formatting.cpp
@@ -40,4 +42,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Tools/Tools.cpp
     src/Tools/UseTool.cpp
     
-)
+ "inc/pch.h")

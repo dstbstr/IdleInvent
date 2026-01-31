@@ -1,7 +1,6 @@
 #include "GhostHunter/Tools/UseTool.h"
 #include "GhostHunter/Formatting.h"
 
-#include "DesignPatterns/ServiceLocator.h"
 #include "Utilities/EnumUtils.h"
 #include "Utilities/IRandom.h"
 
@@ -32,7 +31,8 @@ namespace {
             case ThermalCamera: evidence.Type = ResourceName::Video; break;
             case Flashlight:
             case EmfDetector:
-            case LaserGrid: evidence.Type = ResourceName::Physical; break;            
+            case LaserGrid: evidence.Type = ResourceName::Physical; break;
+            default: DR_ASSERT_MSG(false, "Unknown Tool"); break;
         }
 
         evidence.Quality = tool.Level;

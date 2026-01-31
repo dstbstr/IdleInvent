@@ -52,3 +52,11 @@ static_assert(Constexpr::TimeString(3'400) == "3s");
 static_assert(Constexpr::TimeString(1000 * 60) == "1m");
 static_assert(Constexpr::TimeString(1000 * 60 * 60) == "1h");
 static_assert(Constexpr::TimeString(1000 * 60 * 60 * 24) == "1d");
+
+static_assert(Constexpr::ToLower("HeLLo") == "hello");
+static_assert(Constexpr::ToLower("WORLD") == "world");
+static_assert(Constexpr::ToLower("123") == "123");
+
+static_assert(Constexpr::ToUpper("hello") == "HELLO");
+static_assert(Constexpr::ToUpper("WorLD") == "WORLD");
+static_assert(Constexpr::ToUpper("123") == "123");

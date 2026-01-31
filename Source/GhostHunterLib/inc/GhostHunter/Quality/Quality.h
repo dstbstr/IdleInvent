@@ -1,7 +1,5 @@
 #pragma once
-#include <Platform/NumTypes.h>
-
-#include <string>
+#include "pch.h"
 
 namespace GhostHunter {
 	enum struct QualityType : u8 {

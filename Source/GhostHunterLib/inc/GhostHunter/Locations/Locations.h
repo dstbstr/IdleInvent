@@ -1,8 +1,5 @@
 #pragma once
 
-#include <Platform/NumTypes.h>
-#include <string>
-
 namespace GhostHunter {
     enum struct LocationName : u8 {
         Unset,

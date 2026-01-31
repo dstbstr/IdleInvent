@@ -1,9 +1,6 @@
 #include "GhostHunter/Ui/Screens/SettingsScreen.h"
 #include "GhostHunter/Ui/Ui.h"
 #include "GhostHunter/GameState/GameSettings.h"
-#include <DesignPatterns/ServiceLocator.h>
-
-#include <imgui.h>
 
 namespace {
     GhostHunter::GameSettings* gameSettings{nullptr};

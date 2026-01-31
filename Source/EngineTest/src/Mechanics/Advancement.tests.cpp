@@ -23,7 +23,7 @@ namespace Invent {
 		}
 
 		void TearDown() override {
-			ServiceLocator::Get().ResetAll();
+            ServiceLocator::Get().Reset<PubSub<Advancement>>();
 		}
 		
 		Advancement advancement{"Test", 10, Scale::Linear<int, 10>, 0 };

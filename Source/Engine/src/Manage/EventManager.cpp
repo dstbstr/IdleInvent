@@ -25,7 +25,9 @@ EventManager::EventManager() {
 }
 
 EventManager::~EventManager() {
-    ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle); 
+    if(auto* tickMgr = ServiceLocator::Get().Get<TickManager>()) {
+        tickMgr->Unregister(m_TickHandle);
+    }
 }
 
 Handle EventManager::StartEvent(OnEndFn onEnd, std::unique_ptr<IEvent>&& event) {
