@@ -37,9 +37,8 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Locations/Locations.cpp
     src/Media/Media.cpp
     src/Media/Market.cpp
-    src/Quality/Quality.cpp
-    src/Resources/GhostHunterResources.cpp
-    src/Tools/Tools.cpp
-    src/Tools/UseTool.cpp
     
- "inc/pch.h")
+    
+    src/Tools/Tools.cpp
+    src/Tools/UseTool.cpp   
+  "inc/GhostHunter/Tools/ToolAccumulators.h" "src/Tools/ToolAccumulators.cpp")

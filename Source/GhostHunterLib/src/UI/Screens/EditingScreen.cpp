@@ -28,10 +28,12 @@ namespace GhostHunter::Ui::Screens::Editing {
             ImGui::TableNextColumn();
             auto cost = Purchasables::GetCost(type);
             ImGui::PushID(static_cast<int>(type));
+            ImGui::BeginDisabled(!Purchasables::CanPurchase(type, resources));
             auto label = std::format("Create ({})", cost.ToCostString());
             if(ImGui::Button(label.c_str())) {
                 Purchasables::TryPurchase(type, resources, BuyOnce::No);
             }
+            ImGui::EndDisabled();
             ImGui::PopID();
         }
         ImGui::EndTable();

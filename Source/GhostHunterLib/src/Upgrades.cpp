@@ -7,17 +7,17 @@
 #define UPGRADE(_TypeName)                                                                     \
     namespace _TypeName##_Registry {                                                           \
         using TypeName = _TypeName;                                                            \
-        void _register_##_TypeName();                                                          \
-        struct _AutoRegister_##_TypeName {                                                     \
-            _AutoRegister_##_TypeName() {                                                      \
-                _register_##_TypeName();                                                       \
+        void _register();                                                          \
+        struct _AutoRegister{                                                     \
+            _AutoRegister() {                                                      \
+                _register();                                                       \
                 ::UpgradeManager::_Details::GetInitFns().push_back([] {                        \
                     ::ServiceLocator::Get().CreateIfMissing<PubSub<UpgradeEvent<TypeName>>>(); \
                 });                                                                            \
             }                                                                                  \
-        } autoRegister_##_TypeName{};                                                          \
+        } autoRegister{};                                                          \
     }                                                                                          \
-    void _TypeName##_Registry::_register_##_TypeName()
+    void _TypeName##_Registry::_register()
 
 #define P(a, b) \
     std::pair { a, b }

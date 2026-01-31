@@ -3,6 +3,7 @@
 #include "GhostHunter/Quality/Quality.h"
 
 #include "GameState/GameTime.h"
+#include "Mechanics/Accumulator.h"
 #include "Mechanics/Upgrade.h"
 
 namespace GhostHunter {
@@ -25,13 +26,14 @@ namespace GhostHunter {
 
     class Tool {
         Handle m_TickHandle{InvalidHandle};
-        BaseTime m_UsageAccumulator{0};
+
+        std::vector<Accumulator> m_Accumulators;
 
     public:
         using IdType = ToolName;
         using LevelType = QualityType;
 
-        Tool(ToolName id, QualityType level) : Id(id), Level(level) {}
+        Tool(ToolName id, QualityType level);
 
         ToolName Id{ToolName::Unset};
         QualityType Level{QualityType::Unset};

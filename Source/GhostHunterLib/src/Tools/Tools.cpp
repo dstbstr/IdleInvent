@@ -1,11 +1,14 @@
 #include "GhostHunter/Tools/Tools.h"
+#include "GhostHunter/Tools/ToolAccumulators.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Inventory/Inventory.h"
+#include "GhostHunter/GameState/Life.h"
 
 #include "Instrumentation/Logging.h"
 #include "Manage/TickManager.h"
 #include "Mechanics/Purchasable.h"
 #include "Resources/Resource.h"
+
 
 namespace GhostHunter {
     static_assert(UpgradableType<Tool>);
@@ -24,17 +27,24 @@ namespace GhostHunter {
             };
 	}
 
+	Tool::Tool(ToolName id, QualityType level) 
+		: Id(id)
+		, Level(level)
+		, m_Accumulators(GetAccumulators(id, level)) 
+	{}
+
 	std::string Tool::Describe() const {
         return std::format("{} ({})", ToString(Id), ToString(Level));
 	}
 
 	void Tool::OnUpgrade() {
-		// update efficiency
+        m_Accumulators = GetAccumulators(Id, Level);
 	};
 
 	void Tool::Tick(BaseTime elapsed) {
-        m_UsageAccumulator += elapsed;
-		// generate evidence
+        for(auto& acc: m_Accumulators) {
+            acc.Tick(elapsed);
+		}
 	}
 
 	void Tool::Start() {

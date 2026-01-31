@@ -9,8 +9,6 @@
 #include "Utilities/EnumUtils.h"
 #include "Mechanics/Purchasable.h"
 
-//#include <optional>
-
 namespace {
     GhostHunter::Life* life{nullptr};
     //Handle currentTool{InvalidHandle};
@@ -78,9 +76,7 @@ namespace {
             std::format("{}", investigation->Ttl).c_str()
         );
 
-        //auto& events = ServiceLocator::Get().GetRequired<EventManager>();
         auto& tools = life->GetInventory().OwnedTools;
-        //if(currentTool == InvalidHandle) {
         if(currentTool > tools.size()) {
             ImGui::BeginTable("Tools", 2);
             for(size_t i = 0; i < tools.size(); i++) {
@@ -91,19 +87,6 @@ namespace {
                 ImGui::TableNextColumn();
                 ImGui::PushID(static_cast<int>(tool.Id));
                 if(ImGui::Button("Use")) {
-                    /*
-                    auto OnToolDone = [](const IEvent& event) { 
-                        currentTool = InvalidHandle;
-                        // consider a start/stop tools
-                        // have tool generate income per second
-                        if(life->GetCurrentInvestigation()) {
-                            const auto& result = static_cast<const UseTool&>(event).Result;
-                            auto& evidence = life->GetInventory().Resources.at(result.Type);
-                            evidence.Current += static_cast<u8>(result.Quality);
-                        }
-                    };
-                    currentTool = events.StartEvent<UseTool>(OnToolDone, tool);
-                    */
                     tools[i].Start();
                     currentTool = i;
                 }
@@ -111,22 +94,12 @@ namespace {
             }
             ImGui::EndTable();
         } else {
-            //const auto* toolEvent = events.GetEvent<UseTool>(currentTool);
-            //ImGui::Text("%s", toolEvent->Describe().c_str());
             ImGui::Text("%s", tools[currentTool].Describe().c_str());
             ImGui::SameLine();
             if(ImGui::Button("Stop")) {
                 tools[currentTool].Stop();
                 currentTool = 1'000;
             }
-            /*
-            ImGui::ProgressBar(
-                //toolEvent->GetProgress(), 
-                -1.0f,
-                ImVec2(-1, 0), 
-                std::format("{}", toolEvent->Ttl).c_str()
-            );
-            */
         }
     }
 }
@@ -144,6 +117,7 @@ namespace GhostHunter::Ui::Screens::Investigate {
             RenderUseLocation();
         } else {
             RenderRentLocation();
+            currentTool = 1'000;
         }
     }
 } // namespace GhostHunter::Ui::Screens::Investigate

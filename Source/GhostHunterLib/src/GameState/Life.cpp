@@ -1,4 +1,5 @@
 #include "GhostHunter/GameState/Life.h"
+#include "GhostHunter/Tools/Tools.h"
 #include "Mechanics/Purchasable.h"
 #include "Manage/EventManager.h"
 
@@ -9,7 +10,12 @@ namespace GhostHunter {
         };
         auto OnLocPurchase = [this](const Purchase<LocationName>& loc) {
             auto& manager = ServiceLocator::Get().GetRequired<EventManager>();
-            auto Unregister = [this](const IEvent&) { m_CurrentInvestigation = InvalidHandle; };
+            auto Unregister = [this](const IEvent&) { 
+                m_CurrentInvestigation = InvalidHandle; 
+                for(auto& tool : m_Inventory.OwnedTools) {
+                    tool.Stop();
+                }
+            };
             m_CurrentInvestigation = manager.StartEvent<Investigation>(Unregister, loc.Id);
         };
 

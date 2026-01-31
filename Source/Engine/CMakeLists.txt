@@ -19,12 +19,12 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Instrumentation/ISink.cpp
 	src/Instrumentation/LogWriter/StdOutLogWriter.cpp
 
+	src/Manage/EventManager.cpp
+	
 	src/Mechanics/Advancement.cpp
 	src/Mechanics/Effect.cpp
-	"src/Manage/EventManager.cpp"
 	src/Mechanics/Modifier.cpp
 	src/Mechanics/Progression.cpp
-	
 	src/Mechanics/RandomEvent.cpp
 	src/Mechanics/Unlockable.cpp
 
@@ -35,4 +35,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Settings/PurchaseAmount.cpp
 
 	src/Utilities/Handle.cpp
- "inc/Mechanics/Upgrade.h"  "inc/Utilities/Concepts.h")
+ )

@@ -20,7 +20,7 @@ TEST(TickManagerTest, Tick_AfterRegister_CallsTick) {
 	ASSERT_EQ(tickable.Total, OneSecond);
 }
 
-TEST(TIckManagerTest, Tick_AfterUnregister_DoesNotTick) {
+TEST(TickManagerTest, Tick_AfterUnregister_DoesNotTick) {
     TickManager manager;
     TestTickable tickable;
 
