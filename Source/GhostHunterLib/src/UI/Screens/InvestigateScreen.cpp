@@ -126,46 +126,34 @@ namespace {
             }
         }
 
-        auto linesNeeded = members.size() + availableTools.size();
+        auto linesNeeded = 1 + members.size() + availableTools.size();
         auto height = 48.f + (ImGui::GetFrameHeightWithSpacing() * linesNeeded);
         ImGui::BeginChild("slot", ImVec2(-1.f, height), true, SlotFlags);
         ImGui::TextUnformatted("Gear Room");
 
         ImGui::Dummy(ImVec2(0.f, 8.f));
         for(auto* member: members) {
-            ImGui::PushID(member->Name.c_str());
-            ImGui::TextDisabled("%s", member->Name.c_str());
+            ImGui::Button(member->Name.c_str());
             if(member->CurrentTool) {
                 ImGui::SameLine();
                 ImGui::TextDisabled("%s", ToString(*member->CurrentTool).c_str());
-            } else if(ImGui::InvisibleButton(member->Name.c_str(), ImGui::GetItemRectSize()) && ImGui::BeginDragDropTarget()) {
+            } else if(ImGui::BeginDragDropTarget()) {
                 if(const auto* payload = ImGui::AcceptDragDropPayload(ToolPayload)) {
-                    auto toolIndex = *static_cast<const size_t*>(payload->Data);
-                    member->CurrentTool = ownedTools[toolIndex];
+                    member->CurrentTool = *static_cast<const ToolName*>(payload->Data);
                 }
                 ImGui::EndDragDropTarget();
             }
-            ImGui::PopID();
         }
-        ImGui::Spacing();
+
         for(size_t i = 0; i < ownedTools.size(); i++) {
             auto tool = ownedTools[i];
             if(!availableTools.contains(tool)) continue;
-            ImGui::PushID(static_cast<int>(tool));
-            ImGui::TextDisabled("%s", ToString(tool).c_str());
-            auto bbSize = ImGui::GetItemRectSize();
-            auto savedCursor = ImGui::GetCursorScreenPos();
-            ImGui::PushID(ToString(tool).c_str());
-            ImGui::InvisibleButton("slot_drag", bbSize);
-            if(ImGui::InvisibleButton(ToString(tool).c_str(), ImGui::GetItemRectSize()) &&
-               ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                ImGui::SetDragDropPayload(ToolPayload, reinterpret_cast<const void*>(i), sizeof(size_t));
+            ImGui::Button(ToString(tool).c_str());
+            if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                ImGui::SetDragDropPayload(ToolPayload, &ownedTools[i], sizeof(size_t));
                 ImGui::TextUnformatted(ToString(tool).c_str());
                 ImGui::EndDragDropSource();
             }
-            ImGui::PopID();
-            ImGui::SetCursorScreenPos(savedCursor);
-            ImGui::PopID();
         }
         ImGui::EndChild();
 

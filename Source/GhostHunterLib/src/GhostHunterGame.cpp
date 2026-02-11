@@ -38,7 +38,7 @@ namespace GhostHunter {
 
         // temp
         auto& members = life.GetTeam().Members;
-        for(size_t i = 0; i < 6; i++) {
+        for(size_t i = 0; i < 3; i++) {
             members.emplace_back(std::format("Member {}", i), std::nullopt, nullptr);
         }
 
