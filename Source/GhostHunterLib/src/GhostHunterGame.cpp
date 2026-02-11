@@ -33,7 +33,7 @@ namespace GhostHunter {
         InitializeWorld();
 
         auto& life = services.GetOrCreate<Life>();
-        life.GetInventory().Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});
+        life.GetInventory().Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 1500});
         life.GetTeam().Members.push_back({"You", std::nullopt, nullptr});
 
         // temp

@@ -133,11 +133,9 @@ namespace {
 
         ImGui::Dummy(ImVec2(0.f, 8.f));
         for(auto* member: members) {
-            ImGui::Button(member->Name.c_str());
-            if(member->CurrentTool) {
-                ImGui::SameLine();
-                ImGui::TextDisabled("%s", ToString(*member->CurrentTool).c_str());
-            } else if(ImGui::BeginDragDropTarget()) {
+            auto label = std::format("{} {}", member->Name, member->CurrentTool ? ToString(*member->CurrentTool) : "");
+            ImGui::Button(label.c_str());
+            if(!member->CurrentTool && ImGui::BeginDragDropTarget()) {
                 if(const auto* payload = ImGui::AcceptDragDropPayload(ToolPayload)) {
                     member->CurrentTool = *static_cast<const ToolName*>(payload->Data);
                 }
