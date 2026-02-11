@@ -8,6 +8,7 @@
 namespace GhostHunter {
     struct Room {
         std::string Name;
+        ResourceCollection MaxResources;
         ResourceCollection AvailableResources;
         std::optional<Ghost> SpecialGuest;
     };

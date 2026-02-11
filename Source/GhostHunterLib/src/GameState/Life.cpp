@@ -1,4 +1,5 @@
 #include "GhostHunter/GameState/Life.h"
+#include "GhostHunter/GameState/World.h"
 #include "GhostHunter/Tools/Tools.h"
 #include "Mechanics/Purchasable.h"
 #include "Manage/EventManager.h"
@@ -6,17 +7,22 @@
 namespace GhostHunter {
 	Life::Life() : m_Market(&m_Inventory.Resources) {
         auto OnToolPurchase = [this](const Purchase<ToolName>& tool) {
-            m_Inventory.OwnedTools.push_back(Tool(tool.Id, Enum::Begin<QualityType>()));
+            m_Inventory.OwnedTools.emplace(tool.Id, Tool(tool.Id, Enum::Begin<QualityType>()));
         };
         auto OnLocPurchase = [this](const Purchase<LocationName>& loc) {
             auto& manager = ServiceLocator::Get().GetRequired<EventManager>();
-            auto Unregister = [this](const IEvent&) { 
-                m_CurrentInvestigation = InvalidHandle; 
-                for(auto& tool : m_Inventory.OwnedTools) {
+            auto Unregister = [this, id=loc.Id](const IEvent&) { 
+                m_CurrentInvestigation = InvalidHandle;
+                if(auto* world = ServiceLocator::Get().Get<World>()) {
+                    (*world).Locations.at(id).EndInvestigation();
+                }
+                for(auto& [_, tool] : m_Inventory.OwnedTools) {
                     tool.Stop();
                 }
             };
             m_CurrentInvestigation = manager.StartEvent<Investigation>(Unregister, loc.Id);
+            auto& world = ServiceLocator::Get().GetRequired<World>();
+            world.Locations.at(loc.Id).StartInvestigation();
         };
 
         auto OnMediaPurchase = [this](const Purchase<MediaType>& purchase) {

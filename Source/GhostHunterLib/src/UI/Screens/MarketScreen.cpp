@@ -63,7 +63,7 @@ namespace {
         }
 
         int id = 0;
-        for(auto& tool: owned) {
+        for(auto& [toolId, tool]: owned) {
             ImGui::Text("%s", tool.Describe().c_str());
             ImGui::SameLine();
             ImGui::PushID(id++);

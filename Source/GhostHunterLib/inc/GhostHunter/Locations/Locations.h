@@ -19,12 +19,8 @@ namespace GhostHunter {
         COUNT
     };
 
-    std::string ToString(LocationName location);
-    std::string Describe(LocationName location);
-
     class Location {
-        bool m_IsCooledDown{true};
-        Accumulator m_CooldownAccumulator{};
+        Accumulator m_CooldownAccumulator;
         std::vector<Room> m_Rooms{};
         Handle m_TickHandle{InvalidHandle};
         
@@ -34,12 +30,24 @@ namespace GhostHunter {
 
         Location(LocationName id);
 
-        bool IsCooledDown() const { return m_IsCooledDown; }
         const std::vector<Room>& GetRooms() const { return m_Rooms; }
 
-        void StartCooldown();
         void StartInvestigation();
+        void EndInvestigation();
 
         void Tick(BaseTime elapsed);
+
+    private:
+        void OnCooldown();
     };
+
+    namespace _LocationDetails {
+        std::vector<Room> RoomsByLocation(LocationName location);
+        BaseTime GetCooldownTime(LocationName location);
+        std::string Describe(LocationName location);
+    } // namespace _Details
+
+    std::string ToString(LocationName location);
+    std::string Describe(LocationName location);
+
 }

@@ -1,5 +1,6 @@
 #include "GhostHunter/GameState/GameSettings.h"
 #include "GhostHunter/GameState/Life.h"
+#include "GhostHunter/GameState/World.h"
 #include "GhostHunter/GhostHunterGame.h"
 #include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/Investigation/Investigation.h"
@@ -29,9 +30,17 @@ namespace GhostHunter {
         Market::Initialize();
         InitializePurchases();
         InitializeUpgrades();
+        InitializeWorld();
 
-        auto& inv = services.GetOrCreate<Life>().GetInventory();
-        inv.Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});
+        auto& life = services.GetOrCreate<Life>();
+        life.GetInventory().Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 150});
+        life.GetTeam().Members.push_back({"You", std::nullopt, nullptr});
+
+        // temp
+        auto& members = life.GetTeam().Members;
+        for(size_t i = 0; i < 6; i++) {
+            members.emplace_back(std::format("Member {}", i), std::nullopt, nullptr);
+        }
 
         services.GetRequired<PubSub<EventStart>>().Subscribe([](const EventStart& event) {
             Log::Info("Event Start: " + event.Event->Describe());

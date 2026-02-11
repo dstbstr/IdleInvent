@@ -9,6 +9,6 @@ namespace GhostHunter {
     struct Inventory {
         ResourceCollection Resources;
         std::vector<Media> CreatedMedia;
-        std::vector<Tool> OwnedTools;
+        std::unordered_map<ToolName, Tool> OwnedTools;
     };
 }
