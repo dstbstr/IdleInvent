@@ -14,7 +14,6 @@
 
 namespace {
     GhostHunter::Life* life{nullptr};
-    GhostHunter::World* world{nullptr};
 
     constexpr auto* ToolPayload = "GHOSTHUNTER_TOOL";
     constexpr auto* MemberPayload = "GHOSTHUNTER_MEMBER";
@@ -59,7 +58,7 @@ namespace {
         ImGui::BeginDisabled(!afford);
         if(ImGui::Button("Rent")) {
             if(Purchasables::TryPurchase(selectedLocation, resources, BuyOnce::No)) {
-                activeLocation = &world->Locations.at(selectedLocation);
+                activeLocation = &life->GetLocation(selectedLocation);
             }
             selectedLocation = LocationName::Unset;
         }
@@ -76,10 +75,10 @@ namespace {
     }
 
     using TeamMap = std::unordered_map<std::string, std::vector<GhostHunter::TeamMember*>>;
-    void RenderRoomSlots(const std::vector<GhostHunter::Room>& rooms, const TeamMap& teamMap) {
+    void RenderRoomSlots(std::vector<GhostHunter::Room>& rooms, const TeamMap& teamMap) {
         ImGui::BeginTable("RoomSlots", 2, ImGuiTableFlags_SizingStretchSame);
 
-        for(size_t i =0; i < rooms.size(); i++) {
+        for(size_t i = 0; i < rooms.size(); i++) {
             std::vector<GhostHunter::TeamMember*> members;
             if(teamMap.contains(rooms[i].Name)) {
                 members = teamMap.at(rooms[i].Name);
@@ -90,14 +89,23 @@ namespace {
             ImGui::BeginChild("slot", ImVec2(-1, 100), true, SlotFlags);
             ImGui::TextUnformatted(rooms[i].Name.c_str());
 
-            ImGui::Dummy(ImVec2(0.f, 8.f));
+            //ImGui::Dummy(ImVec2(0.f, 8.f));
             if(members.empty()) {
+                if(ImGui::BeginDragDropTarget()) {
+                    if(const auto* payload = ImGui::AcceptDragDropPayload(MemberPayload)) {
+                        if(payload->DataSize == sizeof(GhostHunter::TeamMember*)) {
+                            auto* member = *static_cast<GhostHunter::TeamMember* const *>(payload->Data);
+                            member->SetCurrentRoom(&rooms[i]);
+                        }
+                    }
+                    ImGui::EndDragDropTarget();
+                }
                 ImGui::Dummy(ImVec2(0.f, 8.f));
             } else {
                 for(const auto* member : members) {
-                    ImGui::TextDisabled("%s", member->Name.c_str());
+                    ImGui::TextDisabled("%s", ToString(member->Id).c_str());
                     ImGui::SameLine();
-                    ImGui::TextDisabled("%s", ToString(member->CurrentTool.value()).c_str());
+                    ImGui::TextDisabled("%s", ToString(member->GetCurrentTool()->Id).c_str());
                 }
             }
             ImGui::EndChild();
@@ -120,8 +128,8 @@ namespace {
         auto availableTools = std::unordered_set<ToolName>{ownedTools.begin(), ownedTools.end()};
         for(const auto& [_, member] : teamMap) {
             for(const auto* m : member) {
-                if(m->CurrentTool) {
-                    availableTools.erase(m->CurrentTool.value());
+                if(m->GetCurrentTool()) {
+                    availableTools.erase(m->GetCurrentTool()->Id);
                 }
             }
         }
@@ -133,11 +141,18 @@ namespace {
 
         ImGui::Dummy(ImVec2(0.f, 8.f));
         for(auto* member: members) {
-            auto label = std::format("{} {}", member->Name, member->CurrentTool ? ToString(*member->CurrentTool) : "");
+            auto label = std::format("{} {}", member->Id, member->GetCurrentTool() ? ToString(member->GetCurrentTool()->Id) : "");
             ImGui::Button(label.c_str());
-            if(!member->CurrentTool && ImGui::BeginDragDropTarget()) {
+            if(member->GetCurrentTool() && ImGui::BeginDragDropSource()) {
+                auto* dataPtr = &member;
+                ImGui::SetDragDropPayload(MemberPayload, dataPtr, sizeof(member));
+                ImGui::Text("%s %s", ToString(member->Id).c_str(), ToString(member->GetCurrentTool()->Id).c_str());
+                ImGui::EndDragDropSource();
+            }
+            if(!member->GetCurrentTool() && ImGui::BeginDragDropTarget()) {
                 if(const auto* payload = ImGui::AcceptDragDropPayload(ToolPayload)) {
-                    member->CurrentTool = *static_cast<const ToolName*>(payload->Data);
+                    ToolName id = *static_cast<ToolName*>(payload->Data);
+                    member->SetCurrentTool(&life->GetInventory().OwnedTools.at(id));
                 }
                 ImGui::EndDragDropTarget();
             }
@@ -148,7 +163,7 @@ namespace {
             if(!availableTools.contains(tool)) continue;
             ImGui::Button(ToString(tool).c_str());
             if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
-                ImGui::SetDragDropPayload(ToolPayload, &ownedTools[i], sizeof(size_t));
+                ImGui::SetDragDropPayload(ToolPayload, &tool, sizeof(tool));
                 ImGui::TextUnformatted(ToString(tool).c_str());
                 ImGui::EndDragDropSource();
             }
@@ -171,25 +186,16 @@ namespace {
             std::format("{}", investigation->Ttl).c_str()
         );
 
-        const auto& allRooms = activeLocation->GetRooms();
+        auto& allRooms = activeLocation->GetRooms();
         auto teamMap = TeamMap{};
         for(auto& member : life->GetTeam().Members) {
-            auto& list = member.CurrentRoom ? teamMap[member.CurrentRoom->Name] : teamMap["GearRoom"];
+            auto& list = member.GetCurrentRoom() ? teamMap[member.GetCurrentRoom()->Name] : teamMap["GearRoom"];
             list.push_back(&member);
         }
-        /*
-        const auto& allTools = life->GetInventory().OwnedTools;
-        auto& team = life->GetTeam();
-        auto usedTools = std::unordered_set<ToolName>{};
-        for(const auto& member : team.Members) {
-            if(member.CurrentTool) {
-                usedTools.insert(member.CurrentTool->Id);
-            }
-        }
-        */
+
         RenderRoomSlots(allRooms, teamMap);
         std::vector<ToolName> ownedTools{};
-        for(const auto& [id, _] : life->GetInventory().OwnedTools) {
+        for(auto& [id, tool] : life->GetInventory().OwnedTools) {
             ownedTools.push_back(id);
         }
         RenderGearRoom(teamMap, ownedTools);
@@ -199,7 +205,6 @@ namespace {
 namespace GhostHunter::Ui::Screens::Investigate {
     bool Initialize() { 
         life = &ServiceLocator::Get().GetRequired<Life>();
-        world = &ServiceLocator::Get().GetRequired<World>();
         return true; 
     }
 

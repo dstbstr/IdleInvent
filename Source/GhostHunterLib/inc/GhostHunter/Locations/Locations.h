@@ -23,22 +23,24 @@ namespace GhostHunter {
         Accumulator m_CooldownAccumulator;
         std::vector<Room> m_Rooms{};
         Handle m_TickHandle{InvalidHandle};
+        std::vector<Handle> m_PsHandles{};
         
     public:
         using IdType = LocationName;
         LocationName Id{LocationName::Unset};
 
         Location(LocationName id);
+        ~Location();
 
         const std::vector<Room>& GetRooms() const { return m_Rooms; }
-
-        void StartInvestigation();
-        void EndInvestigation();
+        std::vector<Room>& GetRooms() { return m_Rooms; }
 
         void Tick(BaseTime elapsed);
 
     private:
         void OnCooldown();
+        void StartInvestigation();
+        void EndInvestigation();
     };
 
     namespace _LocationDetails {

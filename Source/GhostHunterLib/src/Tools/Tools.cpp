@@ -3,6 +3,7 @@
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/GameState/Life.h"
+#include "GhostHunter/Locations/Room.h"
 
 #include "Instrumentation/Logging.h"
 #include "Manage/TickManager.h"
@@ -41,24 +42,9 @@ namespace GhostHunter {
         m_Accumulators = GetAccumulators(Id, Level);
 	};
 
-	void Tool::Tick(BaseTime elapsed) {
-        for(auto& acc: m_Accumulators) {
-            acc.Tick(elapsed);
+	void Tool::Collect(BaseTime elapsed, Room* currentRoom) {
+		for(auto& acc: m_Accumulators) {
+			acc.Tick(elapsed, currentRoom);
 		}
-	}
-
-	void Tool::Start() {
-		Log::Info(std::format("Starting use of tool: {}", ToString(Id)));
-		if(m_TickHandle == InvalidHandle) {
-			m_TickHandle = ServiceLocator::Get().GetRequired<TickManager>().Register(*this);
-        }
-	}
-
-	void Tool::Stop() {
-		Log::Info(std::format("Stopping use of tool: {}", ToString(Id)));
-        if(auto* tickMgr = ServiceLocator::Get().Get<TickManager>()) {
-            tickMgr->Unregister(m_TickHandle);
-			m_TickHandle = InvalidHandle;
-		}
-	}
+    }
 }

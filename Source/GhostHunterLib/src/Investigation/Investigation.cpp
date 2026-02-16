@@ -33,4 +33,10 @@ namespace GhostHunter {
 	std::string Investigation::Describe() const { 
 		return std::format("Investigating {}", m_Location);
 	}
+
+	void Investigation::Initialize() {
+		auto& services = ServiceLocator::Get();
+        services.CreateIfMissing<PubSub<InvestigationStart>>();
+        services.CreateIfMissing<PubSub<InvestigationEnd>>();
+	}
 }

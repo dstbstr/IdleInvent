@@ -10,19 +10,7 @@ namespace GhostHunter {
             m_Inventory.OwnedTools.emplace(tool.Id, Tool(tool.Id, Enum::Begin<QualityType>()));
         };
         auto OnLocPurchase = [this](const Purchase<LocationName>& loc) {
-            auto& manager = ServiceLocator::Get().GetRequired<EventManager>();
-            auto Unregister = [this, id=loc.Id](const IEvent&) { 
-                m_CurrentInvestigation = InvalidHandle;
-                if(auto* world = ServiceLocator::Get().Get<World>()) {
-                    (*world).Locations.at(id).EndInvestigation();
-                }
-                for(auto& [_, tool] : m_Inventory.OwnedTools) {
-                    tool.Stop();
-                }
-            };
-            m_CurrentInvestigation = manager.StartEvent<Investigation>(Unregister, loc.Id);
-            auto& world = ServiceLocator::Get().GetRequired<World>();
-            world.Locations.at(loc.Id).StartInvestigation();
+            OnInvestigationStart(loc.Id);
         };
 
         auto OnMediaPurchase = [this](const Purchase<MediaType>& purchase) {
@@ -32,6 +20,10 @@ namespace GhostHunter {
         Purchasables::Listen<ToolName>(m_PsHandles, OnToolPurchase);
         Purchasables::Listen<LocationName>(m_PsHandles, OnLocPurchase);
         Purchasables::Listen<MediaType>(m_PsHandles, OnMediaPurchase);
+
+        for(auto name = Enum::Begin<LocationName>(); name != Enum::End<LocationName>(); name = Enum::Increment(name)) {
+            m_Locations.emplace(name, Location(name));
+        }
 	}
 	Life::~Life() {
         PubSubs::Unregister(m_PsHandles);
@@ -41,4 +33,18 @@ namespace GhostHunter {
         return ServiceLocator::Get().GetRequired<EventManager>().GetEvent<Investigation>(m_CurrentInvestigation);
     }
 
+    void Life::OnInvestigationStart(LocationName loc) {
+        auto& services = ServiceLocator::Get();
+        auto& manager = services.GetRequired<EventManager>();
+
+        auto Unregister = [this, &services](const IEvent&) { OnInvestigationEnd(); };
+
+        m_CurrentInvestigation = manager.StartEvent<Investigation>(Unregister, loc);
+        services.GetRequired<PubSub<InvestigationStart>>().Publish({});
+    }
+
+    void Life::OnInvestigationEnd() {
+        m_CurrentInvestigation.Reset();
+        ServiceLocator::Get().GetRequired<PubSub<InvestigationEnd>>().Publish({});
+    }
 } // namespace GhostHunter

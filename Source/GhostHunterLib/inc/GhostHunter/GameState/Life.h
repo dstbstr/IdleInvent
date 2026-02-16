@@ -21,6 +21,9 @@ namespace GhostHunter {
         Team& GetTeam() { return m_Team; }
         const Team& GetTeam() const { return m_Team; }
 
+        Location& GetLocation(LocationName location) { return m_Locations.at(location); }
+        const Location& GetLocation(LocationName location) const { return m_Locations.at(location); }
+
         const Investigation* GetCurrentInvestigation() const;
 
     private:
@@ -30,5 +33,9 @@ namespace GhostHunter {
         
         std::vector<Handle> m_PsHandles{};
         Handle m_CurrentInvestigation{InvalidHandle};
+        std::unordered_map<LocationName, Location> m_Locations{};
+
+        void OnInvestigationStart(LocationName loc);
+        void OnInvestigationEnd();
 	};
 }

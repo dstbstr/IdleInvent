@@ -72,4 +72,20 @@ namespace GhostHunter {
         DR_ASSERT_MSG(false, "Invalid resource name");
         return "Unknown";
     }
+
+    std::string ToString(MemberName member) {
+        switch(member) {
+            using enum MemberName;
+            case You: return "You";
+            case Hilda: return "Hilda";
+            case Larry: return "Larry";
+            case LueAnn: return "LueAnn";
+            case Mervin: return "Mervin";
+            case Agnus: return "Agnus";
+            default: break;
+        }
+        DR_ASSERT_MSG(false, "Invalid member name");
+        return "Unknown";
+    }
+
 } // namespace GhostHunter

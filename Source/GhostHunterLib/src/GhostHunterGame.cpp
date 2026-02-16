@@ -28,19 +28,21 @@ namespace GhostHunter {
         services.CreateIfMissing<GameSettings>();
         services.CreateIfMissing<TickManager>();
         Market::Initialize();
+        Investigation::Initialize();
         InitializePurchases();
         InitializeUpgrades();
         InitializeWorld();
 
         auto& life = services.GetOrCreate<Life>();
         life.GetInventory().Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, 1500});
-        life.GetTeam().Members.push_back({"You", std::nullopt, nullptr});
+        life.GetTeam().Members.reserve(static_cast<size_t>(MemberName::COUNT));
+        life.GetTeam().Members.emplace_back(MemberName::You);
 
         // temp
         auto& members = life.GetTeam().Members;
-        for(size_t i = 0; i < 3; i++) {
-            members.emplace_back(std::format("Member {}", i), std::nullopt, nullptr);
-        }
+        members.emplace_back(MemberName::Agnus);
+        members.emplace_back(MemberName::Larry);
+        members.emplace_back(MemberName::Hilda);
 
         services.GetRequired<PubSub<EventStart>>().Subscribe([](const EventStart& event) {
             Log::Info("Event Start: " + event.Event->Describe());

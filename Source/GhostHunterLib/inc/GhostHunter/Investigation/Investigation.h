@@ -8,6 +8,9 @@
 #include "Manage/EventManager.h"
 
 namespace GhostHunter {
+    struct InvestigationStart {};
+    struct InvestigationEnd {};
+
     class Investigation : public IEvent {
         LocationName m_Location{LocationName::Unset};
         std::vector<Evidence> m_CollectedEvidence{};
@@ -18,5 +21,7 @@ namespace GhostHunter {
         std::string Describe() const override;
 
         LocationName GetLocation() const { return m_Location; }
+
+        static void Initialize();
     };
 }

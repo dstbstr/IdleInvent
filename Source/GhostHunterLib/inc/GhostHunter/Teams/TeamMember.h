@@ -3,10 +3,48 @@
 #include "GhostHunter/Locations/Room.h"
 
 namespace GhostHunter {
-	struct TeamMember {
-        std::string Name;
-        std::optional<ToolName> CurrentTool;
-        Room* CurrentRoom;
+	enum struct MemberName {
+		Unset,
+
+		You,
+		Hilda,
+		Larry,
+		LueAnn,
+		Mervin,
+		Agnus,
+
+		COUNT
+	};
+
+	std::string ToString(MemberName member);
+
+	class TeamMember {
+    public:
+        using IdType = MemberName;
+        MemberName Id;
+
+		TeamMember(MemberName id);
+        ~TeamMember();
+
+		const Tool* GetCurrentTool() const { return m_CurrentTool; }
+        Tool* GetCurrentTool() { return m_CurrentTool; }
+        void SetCurrentTool(Tool* tool) { m_CurrentTool = tool; }
+
+		const Room* GetCurrentRoom() const { return m_CurrentRoom; }
+        Room* GetCurrentRoom() { return m_CurrentRoom; }
+        void SetCurrentRoom(Room* room) { m_CurrentRoom = room; }
+
+		void Tick(BaseTime elapsed);
+
+	private:
+        Tool* m_CurrentTool{nullptr};
+        Room* m_CurrentRoom{nullptr};
+        std::vector<Handle> m_PsHandles{};
+        Handle m_TickHandle{InvalidHandle};
+
+        void OnStartInvestigation();
+        void OnEndInvestigation();
+
 		//specialties/strengths/weaknesses
 	};
 }

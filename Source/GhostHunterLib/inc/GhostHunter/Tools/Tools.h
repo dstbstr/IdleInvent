@@ -7,6 +7,8 @@
 #include "Mechanics/Upgrade.h"
 
 namespace GhostHunter {
+    struct Room;
+
     enum struct ToolName : u8 {
         Unset,
         
@@ -25,8 +27,6 @@ namespace GhostHunter {
     std::string Describe(ToolName tool);
 
     class Tool {
-        Handle m_TickHandle{InvalidHandle};
-
         std::vector<Accumulator> m_Accumulators;
 
     public:
@@ -40,9 +40,7 @@ namespace GhostHunter {
 
         std::string Describe() const;
         void OnUpgrade();
-        void Tick(BaseTime elapsed);
 
-        void Start();
-        void Stop();
+        void Collect(BaseTime elapsed, Room* currentRoom);
     };
 }

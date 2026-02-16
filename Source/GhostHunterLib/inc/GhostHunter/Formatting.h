@@ -5,6 +5,7 @@
 #include "Media/Media.h"
 #include "Resources/GhostHunterResources.h"
 #include "GhostHunter/Quality/Quality.h"
+#include "GhostHunter/Teams/TeamMember.h"
 #include "Tools/Tools.h"
 
 #include <format>
@@ -16,6 +17,7 @@ namespace GhostHunter {
     std::string ToString(ResourceName name);
     std::string ToString(QualityType quality);
     std::string ToString(ToolName tool);
+    std::string ToString(MemberName member);
 }
 
 #define STREAM_FROM_FORMAT(_Type) \
@@ -38,6 +40,7 @@ FORMAT_GHOSTHUNTER_ENUM(MediaType)
 FORMAT_GHOSTHUNTER_ENUM(ResourceName)
 FORMAT_GHOSTHUNTER_ENUM(QualityType)
 FORMAT_GHOSTHUNTER_ENUM(ToolName)
+FORMAT_GHOSTHUNTER_ENUM(MemberName)
 
 
 template<>

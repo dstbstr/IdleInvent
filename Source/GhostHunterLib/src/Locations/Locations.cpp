@@ -1,3 +1,4 @@
+#include "GhostHunter/Investigation/Investigation.h"
 #include "GhostHunter/Locations/Locations.h"
 #include "GhostHunter/Locations/Room.h"
 #include "GhostHunter/Locations/Ghost.h"
@@ -9,19 +10,30 @@ namespace GhostHunter {
     Location::Location(LocationName name) 
         : Id(name)
         , m_Rooms(_LocationDetails::RoomsByLocation(name))
-        , m_CooldownAccumulator(_LocationDetails::GetCooldownTime(name), [this]() { OnCooldown();
-        })
-    {}
+        , m_CooldownAccumulator(_LocationDetails::GetCooldownTime(name), [this]() { OnCooldown(); })
+    {
+        auto& services = ServiceLocator::Get();
+        m_PsHandles.push_back(services.GetRequired<PubSub<InvestigationStart>>().Subscribe([this](const auto&) {
+            StartInvestigation();
+        }));
+        m_PsHandles.push_back(services.GetRequired<PubSub<InvestigationEnd>>().Subscribe([this](const auto&) {
+            EndInvestigation();
+        }));
+    }
+
+    Location::~Location() { 
+        PubSubs::Unregister(m_PsHandles);
+    }
 
     void Location::StartInvestigation() {
-        if(m_TickHandle != InvalidHandle) {
+        if(m_TickHandle) {
             ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle);
             m_TickHandle = InvalidHandle;
         }
     }
 
     void Location::EndInvestigation() {
-        if(m_TickHandle == InvalidHandle) {
+        if(!m_TickHandle) {
             m_TickHandle = ServiceLocator::Get().GetRequired<TickManager>().Register(*this);
         }
     }

@@ -36,7 +36,7 @@ TEST_F(EventManagerTest, GetEvent_AfterStartEvent_ReturnsEvent) {
 }
 
 TEST_F(EventManagerTest, GetEvent_WithUnknownHandle_ReturnsNullptr) {
-    const auto* event = eventManager.GetEvent(0);
+    const auto* event = eventManager.GetEvent(Handle{0});
     ASSERT_EQ(event, nullptr);
 }
 
