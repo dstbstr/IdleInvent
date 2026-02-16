@@ -17,11 +17,12 @@ namespace {
 
     constexpr auto* ToolPayload = "GHOSTHUNTER_TOOL";
     constexpr auto* MemberPayload = "GHOSTHUNTER_MEMBER";
+    constexpr auto* GearRoomPayload = "GHOSTHUNTER_GEAR_ROOM";
+
     constexpr auto SlotFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
     GhostHunter::LocationName bestLocation{GhostHunter::LocationName::Unset};
     GhostHunter::LocationName selectedLocation{GhostHunter::LocationName::Unset};
-    GhostHunter::Location* activeLocation{nullptr};
 
     void RenderSelectLocation() {
         using namespace GhostHunter;
@@ -57,9 +58,7 @@ namespace {
         ImGui::TableNextColumn();
         ImGui::BeginDisabled(!afford);
         if(ImGui::Button("Rent")) {
-            if(Purchasables::TryPurchase(selectedLocation, resources, BuyOnce::No)) {
-                activeLocation = &life->GetLocation(selectedLocation);
-            }
+            Purchasables::TryPurchase(selectedLocation, resources, BuyOnce::No);
             selectedLocation = LocationName::Unset;
         }
         ImGui::EndDisabled();
@@ -85,35 +84,47 @@ namespace {
             }
             ImGui::TableNextColumn();
             ImGui::PushID(static_cast<int>(i));
-
             ImGui::BeginChild("slot", ImVec2(-1, 100), true, SlotFlags);
             ImGui::TextUnformatted(rooms[i].Name.c_str());
 
-            //ImGui::Dummy(ImVec2(0.f, 8.f));
             if(members.empty()) {
+                ImGui::Dummy(ImVec2(0.f, 8.f));
+            } else {
+                for(const auto* member : members) {
+                    auto label = std::format("{} {}", ToString(member->Id), ToString(member->GetCurrentTool()->Id));
+                    ImGui::Button(label.c_str());
+                    if(ImGui::BeginDragDropSource()) {
+                        auto* dataPtr = &member;
+                        ImGui::SetDragDropPayload(GearRoomPayload, dataPtr, sizeof(member));
+                        ImGui::TextUnformatted(label.c_str());
+                        ImGui::EndDragDropSource();
+                    }
+                }
+            }
+
+            ImGui::EndChild();
+
+            auto slotStart = ImGui::GetItemRectMin();
+            auto slotEnd = ImGui::GetItemRectMax();
+            auto* dl = ImGui::GetWindowDrawList();
+            dl->AddRect(slotStart, slotEnd, IM_COL32(180, 180, 180, 255), 6.f, 0, 2.f);
+
+            if(members.empty()) {
+                const auto oldCursor = ImGui::GetCursorPos();
+                ImGui::SetCursorScreenPos(slotStart);
+                ImGui::InvisibleButton("cell_drop", ImVec2(slotEnd.x - slotStart.x, slotEnd.y - slotStart.y));
                 if(ImGui::BeginDragDropTarget()) {
                     if(const auto* payload = ImGui::AcceptDragDropPayload(MemberPayload)) {
                         if(payload->DataSize == sizeof(GhostHunter::TeamMember*)) {
-                            auto* member = *static_cast<GhostHunter::TeamMember* const *>(payload->Data);
+                            auto* member = *static_cast<GhostHunter::TeamMember* const*>(payload->Data);
                             member->SetCurrentRoom(&rooms[i]);
                         }
                     }
                     ImGui::EndDragDropTarget();
                 }
-                ImGui::Dummy(ImVec2(0.f, 8.f));
-            } else {
-                for(const auto* member : members) {
-                    ImGui::TextDisabled("%s", ToString(member->Id).c_str());
-                    ImGui::SameLine();
-                    ImGui::TextDisabled("%s", ToString(member->GetCurrentTool()->Id).c_str());
-                }
+                ImGui::SetCursorScreenPos(oldCursor);
             }
-            ImGui::EndChild();
 
-            auto a = ImGui::GetItemRectMin();
-            auto b = ImGui::GetItemRectMax();
-            auto* dl = ImGui::GetWindowDrawList();
-            dl->AddRect(a, b, IM_COL32(180, 180, 180, 255), 6.f, 0, 2.f);
             ImGui::PopID();
         }
         ImGui::EndTable();
@@ -170,23 +181,40 @@ namespace {
         }
         ImGui::EndChild();
 
-        auto a = ImGui::GetItemRectMin();
-        auto b = ImGui::GetItemRectMax();
+        auto rectStart = ImGui::GetItemRectMin();
+        auto rectEnd = ImGui::GetItemRectMax();
         auto* dl = ImGui::GetWindowDrawList();
-        dl->AddRect(a, b, IM_COL32(180, 180, 180, 255), 6.f, 0, 2.f);
+        dl->AddRect(rectStart, rectEnd, IM_COL32(180, 180, 180, 255), 6.f, 0, 2.f);
+
+        auto oldCursor = ImGui::GetCursorScreenPos();
+        ImGui::SetCursorScreenPos(rectStart);
+        ImGui::InvisibleButton("gearRoomDrop", {rectEnd.x - rectStart.x, rectEnd.y - rectStart.y});
+
+        if(ImGui::BeginDragDropTarget()) {
+            if(const auto* payload = ImGui::AcceptDragDropPayload(GearRoomPayload)) {
+                if(payload->DataSize == sizeof(GhostHunter::TeamMember*)) {
+                    auto* member = *static_cast<GhostHunter::TeamMember* const*>(payload->Data);
+                    member->SetCurrentRoom(nullptr);
+                    member->SetCurrentTool(nullptr);
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+        ImGui::SetCursorScreenPos(oldCursor);
     }
 
     void RenderUseLocation() {
         using namespace GhostHunter;
         const auto* investigation = life->GetCurrentInvestigation();
+        auto& allRooms = life->GetLocation(investigation->GetLocation()).GetRooms();
+
         ImGui::Text("%s", investigation->Describe().c_str());
         ImGui::ProgressBar(
             1.0f - investigation->GetProgress(),
             ImVec2(-1, 0), 
             std::format("{}", investigation->Ttl).c_str()
         );
-
-        auto& allRooms = activeLocation->GetRooms();
+        
         auto teamMap = TeamMap{};
         for(auto& member : life->GetTeam().Members) {
             auto& list = member.GetCurrentRoom() ? teamMap[member.GetCurrentRoom()->Name] : teamMap["GearRoom"];
