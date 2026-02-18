@@ -26,21 +26,13 @@ namespace {
 
     void RenderSelectLocation() {
         using namespace GhostHunter;
-        auto purchaseables = Purchasables::GetAvailable<LocationName>();
-        auto& resources = life->GetInventory().Resources;
-        for(const auto& [location, cost]: purchaseables) {
-            auto text = std::format("{}", ToString(location));
-            // TODO: Base on unlocked locations instead of resources
-            auto afford = Purchasables::CanPurchase(location, resources);
-            if(afford) {
-                bestLocation = std::max(bestLocation, location);
-            }
-            if(ImGui::Button(text.c_str())) {
+        for(auto location : life->GetUnlockedLocations()) {
+            if(ImGui::Button(ToString(location).c_str())) {
                 selectedLocation = location;
             }
-            if(!afford && location >= bestLocation) break;
         }
     }
+
     void RenderConfirmLocation() {
         using namespace GhostHunter;
         auto& resources = life->GetInventory().Resources;
@@ -147,10 +139,53 @@ namespace {
 
         auto linesNeeded = 1 + members.size() + availableTools.size();
         auto height = 48.f + (ImGui::GetFrameHeightWithSpacing() * linesNeeded);
+
         ImGui::BeginChild("slot", ImVec2(-1.f, height), true, SlotFlags);
         ImGui::TextUnformatted("Gear Room");
-
         ImGui::Dummy(ImVec2(0.f, 8.f));
+
+        if(ImGui::BeginTable("GearTable", 2, ImGuiTableFlags_SizingStretchSame)) {
+            ImGui::TableNextColumn();
+            for(size_t i = 0; i < members.size(); i++) {
+                auto* member = members[i];
+                ImGui::PushID(static_cast<int>(i));
+                auto label = std::format("{} {}", member->Id, member->GetCurrentTool() ? ToString(member->GetCurrentTool()->Id) : "");
+                ImGui::Button(label.c_str());
+                if(member->GetCurrentTool() && ImGui::BeginDragDropSource()) {
+                    auto* dataPtr = &member;
+                    ImGui::SetDragDropPayload(MemberPayload, dataPtr, sizeof(member));
+                    ImGui::Text("%s %s", ToString(member->Id).c_str(), ToString(member->GetCurrentTool()->Id).c_str());
+                    ImGui::EndDragDropSource();
+                }
+                if(!member->GetCurrentTool() && ImGui::BeginDragDropTarget()) {
+                    if(const auto* payload = ImGui::AcceptDragDropPayload(ToolPayload)) {
+                        ToolName id = *static_cast<ToolName*>(payload->Data);
+                        member->SetCurrentTool(&life->GetInventory().OwnedTools.at(id));
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+                ImGui::PopID();
+                ImGui::Spacing();
+            }
+
+            ImGui::TableNextColumn();
+            size_t toolIndex = 0;
+            for(const auto& tool : ownedTools) {
+                if(!availableTools.contains(tool)) continue;
+                ImGui::PushID(static_cast<int>(toolIndex++));
+                ImGui::Button(ToString(tool).c_str());
+                if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
+                    ImGui::SetDragDropPayload(ToolPayload, &tool, sizeof(tool));
+                    ImGui::TextUnformatted(ToString(tool).c_str());
+                    ImGui::EndDragDropSource();
+                }
+                ImGui::PopID();
+                ImGui::Spacing();
+            }
+
+            ImGui::EndTable();
+        }
+        /*
         for(auto* member: members) {
             auto label = std::format("{} {}", member->Id, member->GetCurrentTool() ? ToString(member->GetCurrentTool()->Id) : "");
             ImGui::Button(label.c_str());
@@ -179,6 +214,7 @@ namespace {
                 ImGui::EndDragDropSource();
             }
         }
+        */
         ImGui::EndChild();
 
         auto rectStart = ImGui::GetItemRectMin();

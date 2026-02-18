@@ -50,13 +50,16 @@ struct PubSub {
 	}
 
 	void Publish(const TEvent& event) {
-		for (auto& [handle, subscriber]: subscribers) {
+        auto subCopy = subscribers;
+        auto alarmCopy = alarms;
+        alarms.clear();
+
+		for (auto& [handle, subscriber]: subCopy) {
             subscriber(event);
 		}
-        for(auto& alarm : alarms) {
+        for(auto& alarm : alarmCopy) {
 			alarm(event);
 		}
-        alarms.clear();
 	}
 
 private:

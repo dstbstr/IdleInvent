@@ -19,9 +19,10 @@ namespace GhostHunter {
         Handle m_TickHandle{InvalidHandle};
         ResourceCollection* m_Resources{nullptr};
         BaseTime m_PayoutAccumulator{0};
+        double m_DecayRate{0.95};
 
     public:
-        Market(ResourceCollection* resources);
+        Market(ResourceCollection* resources, double decayRate);
         ~Market();
 
         void Tick(BaseTime elapsed);

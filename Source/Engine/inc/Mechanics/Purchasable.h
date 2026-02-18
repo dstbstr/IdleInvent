@@ -90,9 +90,11 @@ namespace Purchasables {
 		}
 
 		Log::Info("Purchased: " + ToString(id));
-		auto& services = ServiceLocator::Get();
-        services.GetRequired<PubSub<Purchase<E>>>().Publish({id});
-        services.GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
+		//auto& services = ServiceLocator::Get();
+  //      services.GetRequired<PubSub<Purchase<E>>>().Publish({id});
+  //      services.GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
+        ServiceLocator::Get().GetRequired<PubSub<Purchase<E>>>().Publish({id});
+        ServiceLocator::Get().GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
 		return true;
     }
 

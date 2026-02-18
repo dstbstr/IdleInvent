@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GhostHunter/GameState/Unlocks.h"
 #include "GhostHunter/Investigation/Investigation.h"
 #include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/Media/Market.h"
@@ -10,7 +11,7 @@
 namespace GhostHunter {
 	class Life {
     public:
-        Life();
+        Life(const Unlocks& unlocks);
         ~Life();
 
         const Market& GetMarket() const { return m_Market; }
@@ -23,6 +24,9 @@ namespace GhostHunter {
 
         Location& GetLocation(LocationName location) { return m_Locations.at(location); }
         const Location& GetLocation(LocationName location) const { return m_Locations.at(location); }
+        std::vector<LocationName> GetUnlockedLocations() const;
+
+        std::vector<ToolName> GetUnlockedTools() const { return m_UnlockedTools; }
 
         const Investigation* GetCurrentInvestigation() const;
 
@@ -34,6 +38,7 @@ namespace GhostHunter {
         std::vector<Handle> m_PsHandles{};
         Handle m_CurrentInvestigation{InvalidHandle};
         std::unordered_map<LocationName, Location> m_Locations{};
+        std::vector<ToolName> m_UnlockedTools{};
 
         void OnInvestigationStart(LocationName loc);
         void OnInvestigationEnd();

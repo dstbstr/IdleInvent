@@ -8,7 +8,6 @@
 #include "Instrumentation/Logging.h"
 
 namespace {
-    constexpr double DecayMultiplier = 0.95; // maybe make configurable for upgrades
     constexpr double MinimumValue = 1.0;
     constexpr BaseTime PayoutInterval = OneSecond;
 
@@ -36,12 +35,12 @@ namespace {
         return 10;
     }
 
-    PayoutBatch FastForward(u32 currentValue, size_t ticks) {
+    PayoutBatch FastForward(u32 currentValue, size_t ticks, double decayRate) {
         auto cash = 0ull;
 
         while(ticks-- && currentValue > MinimumValue) {
             cash += currentValue;
-            currentValue = static_cast<u32>(currentValue * DecayMultiplier);
+            currentValue = static_cast<u32>(currentValue * decayRate);
         }
 
         // clamp to avoid overflow
@@ -50,7 +49,9 @@ namespace {
     }
 }
 namespace GhostHunter {
-	Market::Market(ResourceCollection* resources) : m_Resources(resources) {
+	Market::Market(ResourceCollection* resources, double decayRate) 
+        : m_Resources(resources) 
+        , m_DecayRate(decayRate) {
         auto& services = ServiceLocator::Get();
         m_TickHandle = services.GetOrCreate<TickManager>().Register(*this);
         m_MediaHandle = services.GetRequired<PubSub<Sale<Media>>>().Subscribe([&](const Sale<Media>& media) {
@@ -76,7 +77,7 @@ namespace GhostHunter {
         m_PayoutAccumulator %= PayoutInterval;
 
         for(auto& media : m_MarketMedia) {
-            auto batch = FastForward(media.CurrentValue, ticks);
+            auto batch = FastForward(media.CurrentValue, ticks, m_DecayRate);
             m_Resources->at(ResourceName::Cash).Current += batch.Cash;
             media.CurrentValue = batch.Remaining;
         }
