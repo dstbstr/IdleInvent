@@ -17,10 +17,9 @@ namespace Invent {
                 [this](const Achievement& achievement) { ReceivedAchievements.push_back(achievement); }
             );
         }
-        ~AchievementListener() { PubSubs::Unregister(handle); }
 
         std::vector<Achievement> ReceivedAchievements;
-        Handle handle{0};
+        std::optional<ScopedHandle> handle;
     };
 
     struct AchievementsTest : public ::testing::Test {

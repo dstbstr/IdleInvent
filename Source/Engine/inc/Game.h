@@ -3,6 +3,7 @@
 #include "GameState/GameTime.h"
 
 #include <Platform/Platform.h>
+#include <Utilities/Handle.h>
 
 struct Game {
     Game(Platform& platform) : Platform(platform) {}
@@ -18,4 +19,7 @@ struct Game {
     virtual void Tick(BaseTime elapsed) = 0;
 
     Platform& Platform;
+
+protected:
+    std::vector<ScopedHandle> m_Handles;
 };

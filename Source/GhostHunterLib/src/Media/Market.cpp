@@ -53,21 +53,11 @@ namespace GhostHunter {
         : m_Resources(resources) 
         , m_DecayRate(decayRate) {
         auto& services = ServiceLocator::Get();
-        m_TickHandle = services.GetOrCreate<TickManager>().Register(*this);
-        m_MediaHandle = services.GetRequired<PubSub<Sale<Media>>>().Subscribe([&](const Sale<Media>& media) {
+        m_Handles.push_back(services.GetOrCreate<TickManager>().Register(*this));
+        services.GetRequired<PubSub<Sale<Media>>>().Subscribe(m_Handles, [&](const Sale<Media>& media) {
             m_MarketMedia.emplace_back(MarketMedia{media.Item, GetSalePrice(media.Item)});
         });
 	}
-
-	Market::~Market() {
-        auto& services = ServiceLocator::Get();
-        if(auto* tickMgr = services.Get<TickManager>()) {
-            tickMgr->Unregister(m_TickHandle);
-        }
-        if(auto* media = services.Get<PubSub<Sale<Media>>>()) {
-            media->Unsubscribe(m_MediaHandle);
-        }
-    }
 
 	void Market::Tick(BaseTime elapsed) {
         m_PayoutAccumulator += elapsed;
@@ -92,8 +82,7 @@ namespace GhostHunter {
 
     void Market::Initialize() {
         Log::Debug("Market initialized"); 
-        auto& services = ServiceLocator::Get();
-        services.CreateIfMissing<PubSub<Sale<Media>>>();
+        ServiceLocator::Get().CreateIfMissing<PubSub<Sale<Media>>>();
     }
 
     void Market::ShutDown() {

@@ -39,10 +39,6 @@ namespace Log {
 			if (m_Filter.Matches(entry)) {
 				Write(entry);
 			}
-			});
-	}
-
-	ISink::~ISink() {
-        PubSubs::Unregister(m_Handle);
+		});
 	}
 }

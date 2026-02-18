@@ -106,7 +106,8 @@
         "CMAKE_BUILD_TYPE": "Debug"
       },
       "environment": {
-        "PRESET_LINK_FLAGS": "-v"
+        "PRESET_LINK_FLAGS": "-v -fsanitize=address",
+        "PRESET_COMPILER_FLAGS": "-fsanitize=address -fno-omit-frame-pointer"
       }
     },
     {

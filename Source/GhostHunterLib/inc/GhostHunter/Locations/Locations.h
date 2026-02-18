@@ -22,15 +22,13 @@ namespace GhostHunter {
     class Location {
         Accumulator m_CooldownAccumulator;
         std::vector<Room> m_Rooms{};
-        Handle m_TickHandle{InvalidHandle};
-        std::vector<Handle> m_PsHandles{};
-        
+        std::vector<ScopedHandle> m_Handles{};
+        std::optional<ScopedHandle> m_TickHandle{};
     public:
         using IdType = LocationName;
         LocationName Id{LocationName::Unset};
 
         Location(LocationName id);
-        ~Location();
 
         const std::vector<Room>& GetRooms() const { return m_Rooms; }
         std::vector<Room>& GetRooms() { return m_Rooms; }

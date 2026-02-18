@@ -41,4 +41,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     
     src/Tools/Tools.cpp
     src/Tools/UseTool.cpp   
-  "inc/GhostHunter/Tools/ToolAccumulators.h" "src/Tools/ToolAccumulators.cpp" "inc/GhostHunter/Locations/Room.h" "inc/GhostHunter/Locations/Ghost.h" "src/LocationDetails.cpp" "inc/GhostHunter/Teams/Team.h" "inc/GhostHunter/Teams/TeamMember.h" "inc/GhostHunter/GameState/World.h" "src/Teams/TeamMember.cpp" "inc/GhostHunter/GameState/Unlocks.h")
+  "inc/GhostHunter/Tools/ToolAccumulators.h" "src/Tools/ToolAccumulators.cpp" "inc/GhostHunter/Locations/Room.h" "inc/GhostHunter/Locations/Ghost.h" "src/LocationDetails.cpp" "inc/GhostHunter/Teams/Team.h" "inc/GhostHunter/Teams/TeamMember.h"  "src/Teams/TeamMember.cpp" "inc/GhostHunter/GameState/Unlocks.h")

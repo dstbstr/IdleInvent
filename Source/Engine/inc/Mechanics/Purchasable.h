@@ -90,12 +90,10 @@ namespace Purchasables {
 		}
 
 		Log::Info("Purchased: " + ToString(id));
-		//auto& services = ServiceLocator::Get();
-  //      services.GetRequired<PubSub<Purchase<E>>>().Publish({id});
-  //      services.GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
-        ServiceLocator::Get().GetRequired<PubSub<Purchase<E>>>().Publish({id});
-        ServiceLocator::Get().GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
-		return true;
+		auto& services = ServiceLocator::Get();
+        services.GetRequired<PubSub<Purchase<E>>>().Publish({id});
+        services.GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
+        return true;
     }
 
 	template<PurchaseEnum E>
@@ -104,12 +102,12 @@ namespace Purchasables {
 	}
 
 	template<PurchaseEnum E>
-	Handle Listen(std::function<void(const Purchase<E>&)> listener) {
+	ScopedHandle Listen(std::function<void(const Purchase<E>&)> listener) {
 		return GetPs<E>().Subscribe(listener);
     }
 
 	template<PurchaseEnum E>
-	void Listen(std::vector<Handle>& outHandles, std::function<void(const Purchase<E>&)> listener) {
+	void Listen(std::vector<ScopedHandle>& outHandles, std::function<void(const Purchase<E>&)> listener) {
 		GetPs<E>().Subscribe(outHandles, listener);
     }
 }

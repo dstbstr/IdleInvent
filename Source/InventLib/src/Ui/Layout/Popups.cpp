@@ -23,23 +23,23 @@ namespace {
 namespace Ui::Popups {
     bool Initialize() {
         auto& services = ServiceLocator::Get();
-        services.GetRequired<PubSub<RandomEvent>>().Subscribe([](const RandomEvent& event) {
+        services.GetRequired<PubSub<RandomEvent>>().Subscribe(GHandles, [](const RandomEvent& event) {
             CurrentEvent = event.Headline;
             PopupAppeared = std::chrono::steady_clock::now();
         });
 
-        services.GetRequired<PubSub<Achievement>>().Subscribe([](const Achievement&) {
+        services.GetRequired<PubSub<Achievement>>().Subscribe(GHandles, [](const Achievement&) {
             CurrentEvent = "Achievement Unlocked!";
             PopupAppeared = std::chrono::steady_clock::now();
         });
 
         /*
-        services.GetRequired<PubSub<Invent::Death>>().Subscribe([](const Invent::Death& death) {
+        services.GetRequired<PubSub<Invent::Death>>().Subscribe(GHandles, [](const Invent::Death& death) {
             CurrentEvent = ToString(death);
             PopupAppeared = std::chrono::steady_clock::now();
         });
 
-        services.GetRequired<PubSub<Invent::NearDeath>>().Subscribe([](const Invent::NearDeath& nearDeath) {
+        services.GetRequired<PubSub<Invent::NearDeath>>().Subscribe(GHandles, [](const Invent::NearDeath& nearDeath) {
             CurrentEvent = nearDeath.WarningMessage;
             PopupAppeared = std::chrono::steady_clock::now();
         });

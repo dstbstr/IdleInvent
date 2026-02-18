@@ -41,22 +41,17 @@ namespace Invent {
                 }
             });
             */
-        m_PsHandles.push_back(services.GetOrCreate<PubSub<InventionLevel>>()
-            .Subscribe([this](const InventionLevel& invention) {
-                if(invention.Name.find("Storage") == std::string::npos) return;
-                Storages.at(invention.Resource).UpgradeCapacity(invention.Level);
-            }));
+        services.GetOrCreate<PubSub<InventionLevel>>().Subscribe(m_PsHandles, [](const InventionLevel& invention) {
+            if(invention.Name.find("Death") == std::string::npos) return;
+            BaseLifeSpan += invention.Level * 5;
+        });
 
-        m_PsHandles.push_back(services.GetOrCreate<PubSub<TechAge>>()
-            .Subscribe([](const TechAge& age) {
-                Log::Info(std::format("Age advanced to {}", age.Name));
-                BaseLifeSpan += 5;
-            }));
+        services.GetOrCreate<PubSub<TechAge>>().Subscribe(m_PsHandles, [](const TechAge& age) {
+            Log::Info(std::format("Age advanced to {}", age.Name));
+            BaseLifeSpan += 5;
+        });
     }
 
-    InventGameState::~InventGameState() {
-        PubSubs::Unregister(m_PsHandles);
-    }
     void InventGameState::Save(InventGameStateSave& save) const {
         GameState::Save(save);
         //Character.Save(save.CharacterSave);

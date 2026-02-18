@@ -115,7 +115,6 @@ TEST_F(QualityUpgradeTest, Upgrade_WithResources_RaisesEvent) {
     auto handle = ps.Subscribe([&](const UpgradeEvent<QualityUpgrade>&) { raised = true; });
 
 	UpgradeManager::Upgrade(q, enough);
-    ps.Unsubscribe(handle);
     ASSERT_TRUE(raised);
 }
 TEST_F(QualityUpgradeTest, Upgrade_WithResources_IncrementsLevel) {

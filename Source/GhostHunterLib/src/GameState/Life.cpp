@@ -1,5 +1,4 @@
 #include "GhostHunter/GameState/Life.h"
-#include "GhostHunter/GameState/World.h"
 #include "GhostHunter/Tools/Tools.h"
 #include "Mechanics/Purchasable.h"
 #include "Manage/EventManager.h"
@@ -22,21 +21,21 @@ namespace GhostHunter {
         Purchasables::Listen<LocationName>(m_PsHandles, OnLocPurchase);
         Purchasables::Listen<MediaType>(m_PsHandles, OnMediaPurchase);
 
+        m_Locations.reserve(static_cast<size_t>(LocationName::COUNT));
         for(auto name = Enum::Begin<LocationName>(); name <= unlocks.BestLocation; name = Enum::IncrementUnbounded(name)) {
             m_Locations.emplace(name, Location(name));
         }
+        m_Team.Members.reserve(static_cast<size_t>(MemberName::COUNT));
         for(auto name = Enum::Begin<MemberName>(); name <= unlocks.BestMember; name = Enum::IncrementUnbounded(name)) {
             m_Team.Members.emplace_back(name);
         }
+        m_UnlockedTools.reserve(static_cast<size_t>(ToolName::COUNT));
         for(auto name = Enum::Begin<ToolName>(); name <= unlocks.BestTool; name = Enum::IncrementUnbounded(name)) {
             m_UnlockedTools.emplace_back(name);
         }
 
         m_Inventory.Resources = CreateRc<ResourceName>(std::pair{ResourceName::Cash, unlocks.StartingCash});
 	}
-	Life::~Life() {
-        PubSubs::Unregister(m_PsHandles);
-    }
 
     const Investigation* Life::GetCurrentInvestigation() const {
         return ServiceLocator::Get().GetRequired<EventManager>().GetEvent<Investigation>(m_CurrentInvestigation);

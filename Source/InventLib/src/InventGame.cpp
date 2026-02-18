@@ -71,7 +71,7 @@ namespace Invent {
         Achievements::Initialize();
         RandomEvents::Initialize();
 
-        inventionPs.Subscribe([](const InventionLevel& invention) {
+        inventionPs.Subscribe(m_Handles, [](const InventionLevel& invention) {
             ServiceLocator::Get().GetRequired<PubSub<std::vector<Effect>>>().Publish(invention.Effects);
         });
 

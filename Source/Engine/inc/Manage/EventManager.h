@@ -16,7 +16,7 @@ struct IEvent {
     BaseTime Duration{0};
 	BaseTime Ttl{0};
     BaseTime Elapsed{0};
-    Handle Handle{InvalidHandle};
+    Handle Handle{};
 
     f32 GetProgress() const;
 	void Update(BaseTime elapsed);
@@ -34,7 +34,6 @@ public:
     static void Initialize();
 
     EventManager();
-    ~EventManager();
 
     using OnEndFn = std::function<void(const IEvent&)>;
 
@@ -60,5 +59,5 @@ public:
 
 private:
     std::unordered_map<Handle, std::pair<std::unique_ptr<IEvent>, OnEndFn>> m_Events;
-    Handle m_TickHandle{InvalidHandle};
+    std::optional<ScopedHandle> m_TickHandle{};
 };

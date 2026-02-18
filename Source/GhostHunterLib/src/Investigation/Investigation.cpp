@@ -2,10 +2,11 @@
 #include "GhostHunter/Formatting.h"
 
 namespace {
+	// TODO: Probably move this to Location
 	BaseTime TimeByLocation(GhostHunter::LocationName location) {
 		switch(location) {
 			using enum GhostHunter::LocationName;
-			case Shed: return OneSecond * 30;
+			case Shed: return OneSecond * 10;
 			case School: return OneSecond * 30;
 			case House: return OneSecond * 30;
 			case Church: return OneSecond * 30;

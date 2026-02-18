@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Platform/Platform.h"
 #include "Game.h"
+#include "Platform/Platform.h"
+#include "Utilities/Handle.h"
 
 #include <utility>
 
@@ -16,4 +17,5 @@ public:
 private:
     Platform& m_Platform;
     Game& m_Game;
+    std::vector<ScopedHandle> m_Handles{};
 };

@@ -29,9 +29,9 @@ namespace GhostHunter {
 	}
 
 	Tool::Tool(ToolName id, QualityType level) 
-		: Id(id)
+		: m_Accumulators(GetAccumulators(id, level)) 
+		, Id(id)
 		, Level(level)
-		, m_Accumulators(GetAccumulators(id, level)) 
 	{}
 
 	std::string Tool::Describe() const {

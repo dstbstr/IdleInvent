@@ -13,7 +13,7 @@ static_assert(Tickable<TestTickable>);
 TEST(TickManagerTest, Tick_AfterRegister_CallsTick) {
 	TickManager manager;
     TestTickable tickable;
-    manager.Register(tickable);
+    auto handle = manager.Register(tickable);
 
 	manager.Tick(OneSecond);
 
@@ -25,7 +25,8 @@ TEST(TickManagerTest, Tick_AfterUnregister_DoesNotTick) {
     TestTickable tickable;
 
 	auto handle = manager.Register(tickable);
-	manager.Unregister(handle);
+    handle.Destroy();
+	//manager.Unregister(handle);
 	manager.Tick(OneSecond);
     ASSERT_EQ(tickable.Total, BaseTime(0));
 }

@@ -88,7 +88,7 @@ bool Engine::Initialize() {
         return false;
     }
 
-    services->GetOrCreate<PubSub<FileOperation>>().Subscribe([&](const FileOperation& request) {
+    services->GetOrCreate<PubSub<FileOperation>>().Subscribe(m_Handles, [&](const FileOperation& request) {
         switch(request) {
             using enum FileOperation;
             break; case Save: m_Game.SaveGame(); 

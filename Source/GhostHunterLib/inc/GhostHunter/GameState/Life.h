@@ -12,7 +12,6 @@ namespace GhostHunter {
 	class Life {
     public:
         Life(const Unlocks& unlocks);
-        ~Life();
 
         const Market& GetMarket() const { return m_Market; }
         
@@ -35,8 +34,8 @@ namespace GhostHunter {
         Market m_Market;
         Team m_Team{};
         
-        std::vector<Handle> m_PsHandles{};
-        Handle m_CurrentInvestigation{InvalidHandle};
+        std::vector<ScopedHandle> m_PsHandles{};
+        Handle m_CurrentInvestigation{};
         std::unordered_map<LocationName, Location> m_Locations{};
         std::vector<ToolName> m_UnlockedTools{};
 

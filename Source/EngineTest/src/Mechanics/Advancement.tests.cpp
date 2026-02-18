@@ -9,12 +9,13 @@
 namespace Invent {
 	struct AdvancementListener {
 		AdvancementListener() {
-			ServiceLocator::Get().GetOrCreate<PubSub<Advancement>>().Subscribe([this](const Advancement& advancement) {
+			ServiceLocator::Get().GetOrCreate<PubSub<Advancement>>().Subscribe(Handles, [this](const Advancement& advancement) {
 				Events.push_back(advancement);
 			});
 		}
 
 		std::vector<Advancement> Events;
+        std::vector<ScopedHandle> Handles;
 	};
 
 	struct AdvancementTest : testing::Test {

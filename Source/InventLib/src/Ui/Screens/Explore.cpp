@@ -174,7 +174,7 @@ namespace Ui::Screens::Explore {
         auto& services = ServiceLocator::Get();
         Society = &services.GetRequired<Invent::Society>();
         Settings = &services.GetRequired<Invent::GameSettings>();
-        services.GetRequired<PubSub<Invent::ExpeditionOutcome>>().Subscribe(
+        services.GetRequired<PubSub<Invent::ExpeditionOutcome>>().Subscribe(GHandles,
             [](const Invent::ExpeditionOutcome& outcome) { LastExpeditionResult = ToString(outcome); }
         );
         return true;

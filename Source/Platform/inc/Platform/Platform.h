@@ -25,3 +25,6 @@ struct Platform {
 };
 
 void PlatformDebugBreak();
+void InitMemoryCheck();
+void CheckMemory();
+

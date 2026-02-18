@@ -25,7 +25,7 @@ namespace Invent {
 
 			auto& achievementPs = ServiceLocator::Get().GetOrCreate<PubSub<Achievement>>();
 
-			achievementPs.Subscribe([](const Achievement& achievement) {
+			achievementPs.Subscribe(GHandles, [](const Achievement& achievement) {
                 auto where = std::find(All.begin(), All.end(), achievement);
 				auto index = std::distance(All.begin(), where);
 				Unlocked |= 1ull << index;

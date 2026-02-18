@@ -24,7 +24,6 @@ namespace GhostHunter {
         MemberName Id;
 
 		TeamMember(MemberName id);
-        ~TeamMember();
 
 		const Tool* GetCurrentTool() const { return m_CurrentTool; }
         Tool* GetCurrentTool() { return m_CurrentTool; }
@@ -39,8 +38,8 @@ namespace GhostHunter {
 	private:
         Tool* m_CurrentTool{nullptr};
         Room* m_CurrentRoom{nullptr};
-        std::vector<Handle> m_PsHandles{};
-        Handle m_TickHandle{InvalidHandle};
+        std::vector<ScopedHandle> m_PsHandles{};
+        std::optional<ScopedHandle> m_TickHandle{};
 
         void OnStartInvestigation();
         void OnEndInvestigation();

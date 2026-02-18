@@ -10,7 +10,6 @@
 
 namespace {
     GhostHunter::Life* life{nullptr};
-    GhostHunter::ToolName bestTool{GhostHunter::ToolName::Unset};
 
     void RenderSell() {
         auto& allMedia = life->GetInventory().CreatedMedia;

@@ -4,7 +4,6 @@
 #include "GhostHunter/Investigation/Investigation.h"
 #include "GhostHunter/Formatting.h"
 #include "GhostHunter/GameState/Life.h"
-#include "GhostHunter/GameState/World.h"
 #include "GhostHunter/Tools/UseTool.h"
 
 #include "Utilities/EnumUtils.h"
@@ -21,7 +20,6 @@ namespace {
 
     constexpr auto SlotFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
-    GhostHunter::LocationName bestLocation{GhostHunter::LocationName::Unset};
     GhostHunter::LocationName selectedLocation{GhostHunter::LocationName::Unset};
 
     void RenderSelectLocation() {

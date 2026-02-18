@@ -25,6 +25,6 @@ namespace Invent {
     private:
         void SetupSubscriptions();
 
-        std::vector<Handle> m_PsHandles{};
+        std::vector<ScopedHandle> m_PsHandles{};
 	};
 }

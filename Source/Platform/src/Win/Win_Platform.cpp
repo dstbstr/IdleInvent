@@ -13,13 +13,27 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 #ifdef DEBUG
+#include <crtdbg.h>
 #define DEBUG_BREAK __debugbreak();
+#define CHECK_MEMORY _CrtCheckMemory()
 #else
+#define CHECK_MEMORY true
 #define DEBUG_BREAK
 #endif
 
 void PlatformDebugBreak() {
     DEBUG_BREAK
+}
+
+void InitMemoryCheck() {
+    #ifdef DEBUG
+    _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF);
+    #endif
+}
+void CheckMemory() {
+    if(!CHECK_MEMORY) {
+        DEBUG_BREAK
+    }
 }
 
 namespace {
@@ -31,10 +45,21 @@ namespace {
     WNDCLASSEXW windowClass;
 
     std::filesystem::path GetExePath() {
-        auto buffer = std::make_unique<char*>(new char[1'024]);
-        GetModuleFileNameA(nullptr, *buffer, MAX_PATH);
-        auto path = std::filesystem::path(*buffer);
-        return path.parent_path();
+        std::string buffer;
+        buffer.resize(MAX_PATH);
+        auto len = GetModuleFileNameA(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+        if(len == 0 || len == buffer.size()) {
+            abort();
+        }
+        if(len >= buffer.size()) {
+            buffer.resize(32 * 1'024);
+            len = GetModuleFileNameA(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+            if(len == 0 || len == buffer.size()) {
+                abort();
+            }
+        }
+        buffer.resize(len);
+        return std::filesystem::path(buffer).parent_path();
     }
 
     LRESULT WINAPI WndProc(HWND hWndLocal, UINT msg, WPARAM wParam, LPARAM lParam) {

@@ -6,30 +6,26 @@
 #include "Manage/TickManager.h"
 #include "DesignPatterns/ServiceLocator.h"
 
+#include "GhostHunter/GameState/Life.h"
+
 namespace GhostHunter {
     Location::Location(LocationName name) 
-        : Id(name)
+        : m_CooldownAccumulator(_LocationDetails::GetCooldownTime(name), [name]() { 
+            ServiceLocator::Get().GetRequired<Life>().GetLocation(name).OnCooldown(); })
         , m_Rooms(_LocationDetails::RoomsByLocation(name))
-        , m_CooldownAccumulator(_LocationDetails::GetCooldownTime(name), [this]() { OnCooldown(); })
+        , Id(name)
     {
         auto& services = ServiceLocator::Get();
-        m_PsHandles.push_back(services.GetRequired<PubSub<InvestigationStart>>().Subscribe([this](const auto&) {
-            StartInvestigation();
-        }));
-        m_PsHandles.push_back(services.GetRequired<PubSub<InvestigationEnd>>().Subscribe([this](const auto&) {
-            EndInvestigation();
-        }));
-    }
-
-    Location::~Location() { 
-        PubSubs::Unregister(m_PsHandles);
+        services.GetRequired<PubSub<InvestigationStart>>().Subscribe(m_Handles, [name](const auto&) {
+            ServiceLocator::Get().GetRequired<Life>().GetLocation(name).StartInvestigation();
+        });
+        services.GetRequired<PubSub<InvestigationEnd>>().Subscribe(m_Handles, [name](const auto&) {
+            ServiceLocator::Get().GetRequired<Life>().GetLocation(name).EndInvestigation();
+        });
     }
 
     void Location::StartInvestigation() {
-        if(m_TickHandle) {
-            ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle);
-            m_TickHandle = InvalidHandle;
-        }
+        m_TickHandle.reset();
     }
 
     void Location::EndInvestigation() {
@@ -43,8 +39,7 @@ namespace GhostHunter {
     }
 
     void Location::OnCooldown() {
-        ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle);
-        m_TickHandle = InvalidHandle;
+        m_TickHandle.reset();
         for(auto& room : m_Rooms) {
             room.AvailableResources = room.MaxResources;
         }

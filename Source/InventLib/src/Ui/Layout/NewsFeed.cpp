@@ -28,16 +28,16 @@ namespace Ui::NewsFeed {
     bool Initialize() {
         
         auto& services = ServiceLocator::Get();
-        services.GetRequired<PubSub<RandomEvent>>().Subscribe([](const RandomEvent& event) {
+        services.GetRequired<PubSub<RandomEvent>>().Subscribe(GHandles, [](const RandomEvent& event) {
             AddNews(event.Headline + " Has Started");
             AddNews(event.Description);
         });
 
-        services.GetRequired<PubSub<Achievement>>().Subscribe([](const Achievement& achievement) {
+        services.GetRequired<PubSub<Achievement>>().Subscribe(GHandles, [](const Achievement& achievement) {
             AddNews(achievement.Description);
         });
 
-        services.GetRequired<PubSub<FileOperation>>().Subscribe([](const FileOperation& request) {
+        services.GetRequired<PubSub<FileOperation>>().Subscribe(GHandles, [](const FileOperation& request) {
             switch (request) {
                 using enum FileOperation;
                 case Save:

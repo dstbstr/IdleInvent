@@ -27,12 +27,12 @@ namespace Log {
 
 	struct ISink {
 		ISink(Filter filter);
-		virtual ~ISink();
+		virtual ~ISink() = default;
 
 		virtual void Write(const Entry& entry) = 0;
 
 	private:
-		Handle m_Handle{ InvalidHandle };
+		std::optional<ScopedHandle> m_Handle{};
 		Filter m_Filter;
 	};
 }

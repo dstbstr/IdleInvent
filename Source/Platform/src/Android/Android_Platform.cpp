@@ -76,6 +76,10 @@ namespace {
 void PlatformDebugBreak() {
     DEBUG_BREAK
 }
+// TODO: Figure out Android version of this
+void InitMemoryCheck() {}
+void CheckMemory() {}
+
 namespace {
     android_app* App;
 }

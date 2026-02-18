@@ -1,6 +1,5 @@
 #include "GhostHunter/GameState/GameSettings.h"
 #include "GhostHunter/GameState/Life.h"
-#include "GhostHunter/GameState/World.h"
 #include "GhostHunter/GhostHunterGame.h"
 #include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/Investigation/Investigation.h"
@@ -20,6 +19,10 @@
 void InitializePurchases();
 void InitializeUpgrades();
 
+namespace {
+    std::vector<ScopedHandle> m_Handles;
+}
+
 namespace GhostHunter {
     bool GhostHunterGame::Initialize() { 
         auto& services = ServiceLocator::Get();
@@ -31,7 +34,6 @@ namespace GhostHunter {
         Investigation::Initialize();
         InitializePurchases();
         InitializeUpgrades();
-        InitializeWorld();
 
         Unlocks unlocks{
             .BestTool = ToolName::EmfDetector,
@@ -43,10 +45,10 @@ namespace GhostHunter {
         };
         services.CreateIfMissing<Life>(unlocks);
 
-        services.GetRequired<PubSub<EventStart>>().Subscribe([](const EventStart& event) {
+        services.GetRequired<PubSub<EventStart>>().Subscribe(m_Handles, [](const EventStart& event) {
             Log::Info("Event Start: " + event.Event->Describe());
         });
-        services.GetRequired<PubSub<EventEnd>>().Subscribe([](const EventEnd& event) {
+        services.GetRequired<PubSub<EventEnd>>().Subscribe(m_Handles, [](const EventEnd& event) {
             Log::Info("Event End: " + event.Event->Describe());
         });
         return Ui::Initialize(); 

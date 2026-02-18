@@ -4,17 +4,21 @@
 #include <functional>
 
 struct Handle {
+private:
+    static constexpr u64 Invalid = static_cast<u64>(-1);
+
+public:
     u64 Value;
-    constexpr void Reset() { Value = static_cast<u64>(-1); }
-    constexpr Handle() : Value(static_cast<u64>(-1)) {}
+    constexpr void Reset() { Value = Invalid; }
+    constexpr Handle() : Value(Invalid) {}
     constexpr explicit Handle(u64 value) : Value(value) {}
 
     constexpr bool operator==(const Handle& other) const { return Value == other.Value; }
     constexpr bool operator!=(const Handle& other) const { return Value != other.Value; }
 
-    constexpr operator bool() const { return Value != static_cast<u64>(-1); }
+    constexpr operator bool() const { return Value != Invalid; }
+    constexpr bool IsValid() const { return Value != Invalid; }
 };
-constexpr auto InvalidHandle = Handle(static_cast<u64>(-1));
 
 namespace Handles {
     Handle Next();
@@ -28,3 +32,51 @@ namespace std {
         }
     };
 }
+
+struct ScopedHandle : public Handle {
+    using DtorFn = std::function<void()>;
+    DtorFn Destructor;
+
+    ScopedHandle() = delete;
+    explicit ScopedHandle(DtorFn dtor) : Handle(), Destructor(std::move(dtor)){}
+    ScopedHandle(u64 value, DtorFn dtor) : Handle(value), Destructor(std::move(dtor)) {}
+
+    ScopedHandle(ScopedHandle&& other) noexcept 
+        : Handle(other.Value)
+        , Destructor(std::move(other.Destructor)) {
+        other.Reset();
+    }
+    ScopedHandle& operator=(ScopedHandle&& other) noexcept {
+        if(this != &other) {
+            Value = other.Value;
+            Destructor = std::move(other.Destructor);
+            other.Reset();
+        }
+        return *this;
+    }
+
+    // Remove copy semantics
+    ScopedHandle(const ScopedHandle&) = delete;
+    ScopedHandle& operator=(const ScopedHandle&) = delete;
+
+    ~ScopedHandle() {
+        Destroy();
+    }
+
+    Handle Get() const { return Handle(Value); }
+
+    Handle Release() { 
+        Handle handle = Handle(Value);
+        Reset();
+        return handle;
+    }
+
+    void Destroy() {
+        if(IsValid() && Destructor) {
+            Destructor();
+            Reset();
+        }
+    }
+};
+
+extern std::vector<ScopedHandle> GHandles;

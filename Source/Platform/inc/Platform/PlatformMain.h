@@ -14,6 +14,8 @@ std::unique_ptr<IGameState> GetGameState(Platform& platform);
 
 #ifdef WIN32
 int main(int, char**) {
+    InitMemoryCheck();
+
     auto platform = Platform{nullptr};
     if(!Graphics::Initialize(platform)) {
         return -1;

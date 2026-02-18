@@ -13,7 +13,8 @@ public:
         : m_Platform(platform)
         , m_Game(platform)
         , m_Engine(m_Platform, m_Game)
-    {}
+    {
+    }
 
     bool Initialize() override { return m_Engine.Initialize(); }
     void Run() override {

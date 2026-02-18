@@ -12,7 +12,7 @@ namespace {
 
 namespace Ui::Screens::Achievements {
     bool Initialize() {
-        ServiceLocator::Get().GetRequired<PubSub<Achievement>>().Subscribe([](const Achievement& achievement){
+        ServiceLocator::Get().GetRequired<PubSub<Achievement>>().Subscribe(GHandles, [](const Achievement& achievement){
             unlocked.push_back(achievement);
         });
         return true;

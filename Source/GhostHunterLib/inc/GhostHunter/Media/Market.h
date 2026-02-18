@@ -15,15 +15,13 @@ namespace GhostHunter {
         };
 
         std::vector<MarketMedia> m_MarketMedia{};
-        Handle m_MediaHandle{InvalidHandle};
-        Handle m_TickHandle{InvalidHandle};
+        std::vector<ScopedHandle> m_Handles{};
         ResourceCollection* m_Resources{nullptr};
         BaseTime m_PayoutAccumulator{0};
         double m_DecayRate{0.95};
 
     public:
         Market(ResourceCollection* resources, double decayRate);
-        ~Market();
 
         void Tick(BaseTime elapsed);
         void Clear();

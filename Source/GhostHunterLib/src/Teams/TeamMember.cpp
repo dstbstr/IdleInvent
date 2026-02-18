@@ -5,20 +5,13 @@
 namespace GhostHunter {
 	TeamMember::TeamMember(MemberName id) : Id(id) {
 		auto& services = ServiceLocator::Get();
-		m_PsHandles.push_back(services.GetRequired<PubSub<InvestigationStart>>().Subscribe([this](const auto&) {
+		services.GetRequired<PubSub<InvestigationStart>>().Subscribe(m_PsHandles, [this](const auto&) {
 			OnStartInvestigation();
-		}));
-		m_PsHandles.push_back(services.GetRequired<PubSub<InvestigationEnd>>().Subscribe([this](const auto&) {
+        });
+		services.GetRequired<PubSub<InvestigationEnd>>().Subscribe(m_PsHandles, [this](const auto&) {
 			OnEndInvestigation();
-        }));
+        });
 	}
-
-	TeamMember::~TeamMember() {
-		PubSubs::Unregister(m_PsHandles);
-		if(m_TickHandle) {
-			ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle);
-		}
-    }
 
 	void TeamMember::Tick([[maybe_unused]] BaseTime elapsed) {
 		if(m_CurrentTool && m_CurrentRoom) {
@@ -27,15 +20,13 @@ namespace GhostHunter {
 	}
 
 	void TeamMember::OnStartInvestigation() {
-		if(m_TickHandle == InvalidHandle) {
+		if(!m_TickHandle) {
 			m_TickHandle = ServiceLocator::Get().GetRequired<TickManager>().Register(*this);
 		}
     }
 	void TeamMember::OnEndInvestigation() {
 		m_CurrentTool = nullptr;
 		m_CurrentRoom = nullptr;
-        if(m_TickHandle != InvalidHandle) {
-			ServiceLocator::Get().GetRequired<TickManager>().Unregister(m_TickHandle);
-		}
+        m_TickHandle.reset();
     }
 }
