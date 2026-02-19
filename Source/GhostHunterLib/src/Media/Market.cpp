@@ -54,8 +54,9 @@ namespace GhostHunter {
         , m_DecayRate(decayRate) {
         auto& services = ServiceLocator::Get();
         m_Handles.push_back(services.GetOrCreate<TickManager>().Register(*this));
-        services.GetRequired<PubSub<Sale<Media>>>().Subscribe(m_Handles, [&](const Sale<Media>& media) {
-            m_MarketMedia.emplace_back(MarketMedia{media.Item, GetSalePrice(media.Item)});
+        services.GetRequired<PubSub<Sale<Media>>>().Subscribe(m_Handles, [&](const Sale<Media>& sale) {
+            auto value = SalesManager::TryGetValue(sale.Id, sale.Level);
+            m_MarketMedia.emplace_back(MarketMedia{sale.Id, sale.Level, SalesManager::TryGetValue(sale.Id)->});
         });
 	}
 

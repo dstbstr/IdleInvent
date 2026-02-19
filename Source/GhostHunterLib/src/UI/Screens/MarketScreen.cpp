@@ -78,7 +78,7 @@ namespace {
 
 namespace GhostHunter::Ui::Screens::Market {
     bool Initialize() { 
-        life = &ServiceLocator::Get().GetRequired<Life>();
+        life = &Life::Get();
         return true; 
     }
 

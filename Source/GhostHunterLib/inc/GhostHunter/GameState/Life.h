@@ -11,6 +11,9 @@
 namespace GhostHunter {
 	class Life {
     public:
+        static Life& Get() {
+            return ServiceLocator::Get().GetRequired<Life>(); 
+        }
         Life(const Unlocks& unlocks);
 
         const Market& GetMarket() const { return m_Market; }

@@ -14,9 +14,6 @@
 #include <iterator>
 
 template<typename T>
-concept LevelType = CountEnum<T> || (std::incrementable<T> && std::equality_comparable<T>);
-
-template<typename T>
 concept UpgradableType = DescribeSelf<T> && HasId<T> && 
     requires { typename T::LevelType; } &&
     LevelType<typename T::LevelType> &&

@@ -10,7 +10,8 @@ namespace GhostHunter {
 
     class Market {
         struct MarketMedia {
-            GhostHunter::Media Media;
+            MediaType MediaType;
+            QualityType Level;
             u32 CurrentValue{0};
         };
 

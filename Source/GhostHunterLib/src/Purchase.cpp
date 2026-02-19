@@ -27,9 +27,6 @@ namespace GhostHunter {
     using ResourceType = ResourceName;
     // clang-format off
     PURCHASE(ToolName) {
-        /* Camera, Flashlight, EmfDetector, ThermalCamera,
-        EvpRecorder, LaserGrid, SpiritBox
-        */
         ITEM(Flashlight, P(Cash, 100));
         ITEM(Camera, P(Cash, 250), P(Images, 10));
         ITEM(EmfDetector, P(Cash, 350));
@@ -42,7 +39,6 @@ namespace GhostHunter {
     // Cash, Images, Audio, Video, Physical
 
     PURCHASE(MediaType) {
-        // Picture, Interview, Article, Book, Podcast, TvShow, Movie
         ITEM(Picture, P(Physical, 1));
         ITEM(Interview, P(Audio, 3));
         ITEM(Article, P(Images, 3), P(Physical, 2));
@@ -52,7 +48,6 @@ namespace GhostHunter {
         ITEM(Movie, P(Video, 250), P(Cash, 100'000));
     }
 
-    // Shed, School, House, Church, Hotel, Prison, Hospital, Sanitorium
     PURCHASE(LocationName) {
         ITEM(Shed, P(Cash, 10));
         ITEM(School, P(Cash, 200));

@@ -37,46 +37,22 @@ struct ScopedHandle : public Handle {
     using DtorFn = std::function<void()>;
     DtorFn Destructor;
 
+    // Move Only Type
     ScopedHandle() = delete;
-    explicit ScopedHandle(DtorFn dtor) : Handle(), Destructor(std::move(dtor)){}
-    ScopedHandle(u64 value, DtorFn dtor) : Handle(value), Destructor(std::move(dtor)) {}
-
-    ScopedHandle(ScopedHandle&& other) noexcept 
-        : Handle(other.Value)
-        , Destructor(std::move(other.Destructor)) {
-        other.Reset();
-    }
-    ScopedHandle& operator=(ScopedHandle&& other) noexcept {
-        if(this != &other) {
-            Value = other.Value;
-            Destructor = std::move(other.Destructor);
-            other.Reset();
-        }
-        return *this;
-    }
-
-    // Remove copy semantics
     ScopedHandle(const ScopedHandle&) = delete;
     ScopedHandle& operator=(const ScopedHandle&) = delete;
 
-    ~ScopedHandle() {
-        Destroy();
-    }
+    explicit ScopedHandle(DtorFn dtor);
+    ScopedHandle(u64 value, DtorFn dtor);
 
-    Handle Get() const { return Handle(Value); }
+    ScopedHandle(ScopedHandle&& other) noexcept;
+    ScopedHandle& operator=(ScopedHandle&& other) noexcept;
 
-    Handle Release() { 
-        Handle handle = Handle(Value);
-        Reset();
-        return handle;
-    }
+    ~ScopedHandle();
 
-    void Destroy() {
-        if(IsValid() && Destructor) {
-            Destructor();
-            Reset();
-        }
-    }
+    Handle Get() const;
+    Handle Release();
+    void Destroy();
 };
 
 extern std::vector<ScopedHandle> GHandles;

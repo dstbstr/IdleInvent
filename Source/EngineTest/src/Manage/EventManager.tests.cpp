@@ -1,6 +1,8 @@
 #include "CommonTest.h"
 
 #include "Manage/EventManager.h"
+#include "DesignPatterns/PubSub.h"
+#include "DesignPatterns/ServiceLocator.h"
 
 struct E1 : IEvent {
     int Updates;

@@ -27,6 +27,9 @@ concept FromStringEnum = ToStringEnum<E> && CountEnum<E>;
 template<typename E>
 concept DescribeEnum = std::is_enum_v<E> && HasDescribe<E>;
 
+template<typename T>
+concept LevelType = CountEnum<T> || (std::incrementable<T> && std::equality_comparable<T>);
+
 namespace Enum {
     template<CountEnum E>
     constexpr E Begin() {

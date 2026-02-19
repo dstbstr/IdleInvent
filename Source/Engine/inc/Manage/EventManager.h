@@ -2,8 +2,6 @@
 
 #include "GameState/GameTime.h"
 
-#include "DesignPatterns/PubSub.h"
-#include "DesignPatterns/ServiceLocator.h"
 #include "Utilities/Handle.h"
 
 #include <vector>
@@ -32,6 +30,7 @@ struct EventEnd { const IEvent* Event; };
 class EventManager {
 public:
     static void Initialize();
+    static EventManager& Get();
 
     EventManager();
 

@@ -266,7 +266,7 @@ namespace {
 
 namespace GhostHunter::Ui::Screens::Investigate {
     bool Initialize() { 
-        life = &ServiceLocator::Get().GetRequired<Life>();
+        life = &Life::Get();
         return true; 
     }
 

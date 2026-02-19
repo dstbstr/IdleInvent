@@ -66,7 +66,7 @@ namespace GhostHunter {
     void GhostHunterGame::DeleteGame() {}
 
     void GhostHunterGame::Tick(BaseTime elapsed) {
-        ServiceLocator::Get().GetRequired<TickManager>().Tick(elapsed);
+        TickManager::Get().Tick(elapsed);
 
         Graphics::Render(Ui::Render); 
     }

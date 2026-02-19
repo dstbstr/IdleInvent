@@ -35,4 +35,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Settings/PurchaseAmount.cpp
 
 	src/Utilities/Handle.cpp
- )
+  "src/Manage/TickManager.cpp")

@@ -24,15 +24,11 @@ class TickManager {
     std::shared_ptr<Control> m_Control{std::make_shared<Control>()};
 
 public:
+    static TickManager& Get();
+
 	template<Tickable T>
 	[[nodiscard]] ScopedHandle Register(T& t) {
-        auto handle = Handles::Next();
-        m_Control->Fns.emplace_back(handle, [&](BaseTime elapsed) { t.Tick(elapsed); });
-        return ScopedHandle(handle, [weakControl = std::weak_ptr<Control>(m_Control), handle]() {
-            if(auto control = weakControl.lock()) {
-                control->Erase(handle);
-            }
-        });
+        return Register([&](BaseTime elapsed) { t.Tick(elapsed); });
 	}
 
 	template<Tickable T>
@@ -40,24 +36,8 @@ public:
         outHandles.push_back(Register(t));
 	}
 
-	[[nodiscard]] ScopedHandle Register(std::function<void(BaseTime)> fn) { 
-		auto handle = Handles::Next();
-        m_Control->Fns.emplace_back(handle, fn);
-        return ScopedHandle(handle, [weakControl = std::weak_ptr<Control>(m_Control), handle]() {
-			if(auto control = weakControl.lock()) {
-				control->Erase(handle);
-			}
-		});
-	}
+	[[nodiscard]] ScopedHandle Register(std::function<void(BaseTime)> fn);
+	void Register(std::vector<ScopedHandle>& outHandles, std::function<void(BaseTime)> fn);
 
-	void Register(std::vector<ScopedHandle>& outHandles, std::function<void(BaseTime)> fn) {
-		outHandles.push_back(Register(fn));
-    }
-
-	void Tick(BaseTime elapsed) {
-        auto snapshot = m_Control->Fns;
-		for(auto& [h, fn] : snapshot) {
-            fn(elapsed);
-		}
-	}
+	void Tick(BaseTime elapsed);
 };

@@ -1,5 +1,7 @@
 #include "Manage/EventManager.h"
 #include "Manage/TickManager.h"
+#include "DesignPatterns/ServiceLocator.h"
+#include "DesignPatterns/PubSub.h"
 
 void IEvent::Update(BaseTime elapsed) {
 	Elapsed += elapsed;
@@ -19,6 +21,9 @@ void EventManager::Initialize() {
     services.CreateIfMissing<PubSub<EventEnd>>();
     services.CreateIfMissing<EventManager>();
 }
+
+EventManager& EventManager::Get() { return ServiceLocator::Get().GetRequired<EventManager>(); }
+
 
 EventManager::EventManager() { 
     m_TickHandle = ServiceLocator::Get().GetOrCreate<TickManager>().Register(*this);

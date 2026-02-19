@@ -7,12 +7,12 @@ namespace GhostHunter {
 	TeamMember::TeamMember(MemberName id) : Id(id) {
 		auto& services = ServiceLocator::Get();
 		services.GetRequired<PubSub<InvestigationStart>>().Subscribe(m_PsHandles, [id](const auto&) {
-            auto& members = ServiceLocator::Get().GetRequired<Life>().GetTeam().Members;
-            members.at(id).OnStartInvestigation();
+            auto& member = Life::Get().GetTeam().Members.at(id);
+            member.OnStartInvestigation();
         });
 		services.GetRequired<PubSub<InvestigationEnd>>().Subscribe(m_PsHandles, [id](const auto&) {
-            auto& members = ServiceLocator::Get().GetRequired<Life>().GetTeam().Members;
-            members.at(id).OnEndInvestigation();
+            auto& member = Life::Get().GetTeam().Members.at(id);
+            member.OnEndInvestigation();
         });
 	}
 
@@ -24,7 +24,7 @@ namespace GhostHunter {
 
 	void TeamMember::OnStartInvestigation() {
 		if(!m_TickHandle) {
-			m_TickHandle = ServiceLocator::Get().GetRequired<TickManager>().Register(*this);
+			m_TickHandle = TickManager::Get().Register(*this);
 		}
     }
 	void TeamMember::OnEndInvestigation() {

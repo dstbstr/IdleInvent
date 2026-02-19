@@ -10,17 +10,16 @@
 
 namespace GhostHunter {
     Location::Location(LocationName name) 
-        : m_CooldownAccumulator(_LocationDetails::GetCooldownTime(name), [name]() { 
-            ServiceLocator::Get().GetRequired<Life>().GetLocation(name).OnCooldown(); })
+        : m_CooldownAccumulator(_LocationDetails::GetCooldownTime(name), [name](){Life::Get().GetLocation(name).OnCooldown(); })
         , m_Rooms(_LocationDetails::RoomsByLocation(name))
         , Id(name)
     {
         auto& services = ServiceLocator::Get();
         services.GetRequired<PubSub<InvestigationStart>>().Subscribe(m_Handles, [name](const auto&) {
-            ServiceLocator::Get().GetRequired<Life>().GetLocation(name).StartInvestigation();
+            Life::Get().GetLocation(name).StartInvestigation();
         });
         services.GetRequired<PubSub<InvestigationEnd>>().Subscribe(m_Handles, [name](const auto&) {
-            ServiceLocator::Get().GetRequired<Life>().GetLocation(name).EndInvestigation();
+            Life::Get().GetLocation(name).EndInvestigation();
         });
     }
 
@@ -30,7 +29,7 @@ namespace GhostHunter {
 
     void Location::EndInvestigation() {
         if(!m_TickHandle) {
-            m_TickHandle = ServiceLocator::Get().GetRequired<TickManager>().Register(*this);
+            m_TickHandle = TickManager::Get().Register(*this);
         }
     }
 
