@@ -16,25 +16,6 @@ namespace {
         u32 Remaining{0};
     };
 
-    u32 GetSalePrice(const GhostHunter::Media& media) {
-        // TODO: Consider quality
-        switch(media.Id) {
-            using enum GhostHunter::MediaType;
-            case Picture: return 10;
-            case Interview: return 10;
-            case Article: return 10;
-            case Book: return 10;
-            case Podcast: return 10;
-            case TvShow: return 10;
-            case Movie: return 10;
-            default: break;
-        }
-        DR_ASSERT_MSG_LAZY(false, [type = media.Id]{
-            return std::format("Unknown Media Type: {}", type);
-        });
-        return 10;
-    }
-
     PayoutBatch FastForward(u32 currentValue, size_t ticks, double decayRate) {
         auto cash = 0ull;
 
@@ -55,8 +36,9 @@ namespace GhostHunter {
         auto& services = ServiceLocator::Get();
         m_Handles.push_back(services.GetOrCreate<TickManager>().Register(*this));
         services.GetRequired<PubSub<Sale<Media>>>().Subscribe(m_Handles, [&](const Sale<Media>& sale) {
-            auto value = SalesManager::TryGetValue(sale.Id, sale.Level);
-            m_MarketMedia.emplace_back(MarketMedia{sale.Id, sale.Level, SalesManager::TryGetValue(sale.Id)->});
+            auto rc = SalesManager::TryGetValue<Media>(sale.Id, sale.Level);
+            auto value = static_cast<u32>(rc.value_or(CreateRc<ResourceName>()).at(ResourceName::Cash).Current);
+            m_MarketMedia.emplace_back(MarketMedia{sale.Id, sale.Level, value});
         });
 	}
 

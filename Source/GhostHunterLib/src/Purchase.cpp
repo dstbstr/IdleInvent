@@ -6,7 +6,7 @@
 #include "Mechanics/Purchasable.h"
 
 #define PURCHASE(_Type)                                                                 \
-    namespace _Type##_Registry {                                                        \
+    namespace _Type##_PurchaseRegistry {                                                        \
         using TypeName = _Type;                                                         \
         void _register_##_Type();                                                       \
         struct _AutoRegister_##_Type {                                                  \
@@ -18,7 +18,7 @@
             }                                                                           \
         } autoRegister_##_Type{};                                                       \
     }                                                                                   \
-    void _Type##_Registry::_register_##_Type()
+    void _Type##_PurchaseRegistry::_register_##_Type()
 
 #define P(r, a) \
     std::pair { ResourceType::r, a }

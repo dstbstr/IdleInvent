@@ -4,7 +4,7 @@
 #include "Mechanics/Upgrade.h"
 
 #define UPGRADE(_TypeName)                                                                     \
-    namespace _TypeName##_Registry {                                                           \
+    namespace _TypeName##_UpgradeRegistry {                                                           \
         using TypeName = _TypeName;                                                            \
         void _register();                                                                      \
         struct _AutoRegister {                                                                 \
@@ -16,7 +16,7 @@
             }                                                                                  \
         } autoRegister{};                                                                      \
     }                                                                                          \
-    void _TypeName##_Registry::_register()
+    void _TypeName##_UpgradeRegistry::_register()
 
 #define P(_resource, b) \
     std::pair { ResourceType::_resource, b }

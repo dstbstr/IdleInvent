@@ -3,8 +3,8 @@
 #include "GhostHunter/Resources/GhostHunterResources.h"
 
 #define SALE(_TypeName)                                                                \
-    namespace _TypeName##_Registry {                                                   \
-        using TypeName = _TypeName;                                                    \
+    namespace _TypeName##_SaleRegistry {                                                   \
+        using TypeName = _TypeName;                                       \
         void _register();                                                              \
         struct _AutoRegister {                                                         \
             _AutoRegister() {                                                          \
@@ -15,7 +15,7 @@
             }                                                                          \
         } autoRegister{};                                                              \
     }                                                                                  \
-    void _TypeName##_Registry::_register()
+    void _TypeName##_SaleRegistry::_register()
 
 #define ITEM(n, ...)                                                                  \
     ::SalesManager::_Details::GetSaleValues<TypeName>()[TypeName::IdType::n] = []() { \
@@ -23,9 +23,12 @@
         __VA_ARGS__                                                                   \
         return result;                                                                \
     }();
-#define LEVEL(l, value) result[TypeName::LevelType::l] = CreateRc<ResourceType>({ResourceName::Cash, value});
+#define LEVEL(l, _value) result[TypeName::LevelType::l] = CreateRc<ResourceType>({{ResourceType::Cash, _value}});
+namespace GhostHunter {
+    using LevelName = QualityType;
+    using ResourceType = ResourceName;
 
-// clang-format off
+    // clang-format off
      SALE(Media) {
         ITEM(Picture,
             LEVEL(Bad, 2) 
@@ -91,6 +94,7 @@
             LEVEL(Legendary, 14)
         );
     }
+}
 
 // clang-format on
 #undef LEVEL

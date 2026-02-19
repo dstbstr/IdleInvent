@@ -18,6 +18,7 @@
 
 void InitializePurchases();
 void InitializeUpgrades();
+void InitializeSales();
 
 namespace {
     std::vector<ScopedHandle> m_Handles;
@@ -34,6 +35,7 @@ namespace GhostHunter {
         Investigation::Initialize();
         InitializePurchases();
         InitializeUpgrades();
+        InitializeSales();
 
         Unlocks unlocks{
             .BestTool = ToolName::EmfDetector,

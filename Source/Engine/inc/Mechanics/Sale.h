@@ -64,7 +64,7 @@ namespace SalesManager {
     }
 
     template<SellableType T>
-    std::optional<ResourceCollection> TryGetValue(T::IdType id, T::LevelType level) {
+    std::optional<ResourceCollection> TryGetValue(typename T::IdType id, typename T::LevelType level) {
         auto nextLevel = level;
         if constexpr(CountEnum<typename T::LevelType>) {
             nextLevel = Enum::Increment(level);
@@ -87,7 +87,7 @@ namespace SalesManager {
 
         return levelValues.at(nextLevel);
     }
-    namespace SalesManager::_Details {
+    namespace _Details {
         inline std::vector<std::function<void()>>& GetInitFns() {
             static std::vector<std::function<void()>> fns{};
             return fns;
