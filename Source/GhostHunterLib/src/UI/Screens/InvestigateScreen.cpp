@@ -250,7 +250,7 @@ namespace {
         );
         
         auto teamMap = TeamMap{};
-        for(auto& member : life->GetTeam().Members) {
+        for(auto& [name, member] : life->GetTeam().Members) {
             auto& list = member.GetCurrentRoom() ? teamMap[member.GetCurrentRoom()->Name] : teamMap["GearRoom"];
             list.push_back(&member);
         }

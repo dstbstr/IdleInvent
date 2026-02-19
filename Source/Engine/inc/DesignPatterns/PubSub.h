@@ -49,30 +49,6 @@ public:
 	}
 
 	void Publish(const TEvent& event) {
-		/*
-        auto subCopy = m_Control->Subscribers;
-        auto alarmCopy = m_Control->Alarms;
-        m_Control->Alarms.clear();
-
-		CheckMemory();
-		for (auto& [handle, subscriber]: subCopy) {
-            subscriber(event);
-		}
-        for(auto& alarm : alarmCopy) {
-			alarm(event);
-		}
-		CheckMemory();
-		*/
-		/*
-        CheckMemory();
-		for(auto& [handle, subscriber] : m_Control->Subscribers) {
-			subscriber(event);
-		}
-		for(auto& alarm : m_Control->Alarms) {
-			alarm(event);
-        }
-        m_Control->Alarms.clear();
-		*/
         std::vector<std::function<void(const TEvent&)>> subCopy;
         std::vector<std::function<void(const TEvent&)>> alarmCopy;
         { 

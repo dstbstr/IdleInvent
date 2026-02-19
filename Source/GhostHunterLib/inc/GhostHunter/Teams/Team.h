@@ -5,11 +5,7 @@
 
 namespace GhostHunter {
 	struct Team {
-        std::vector<TeamMember> Members{};
+        std::unordered_map<MemberName, TeamMember> Members{};
 		// fatigue, transport, credibility?
-
-		Team() { 
-			Members.reserve(static_cast<size_t>(MemberName::COUNT));
-		}
 	};
 }

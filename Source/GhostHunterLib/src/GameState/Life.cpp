@@ -6,28 +6,30 @@
 namespace GhostHunter {
     Life::Life(const Unlocks& unlocks) 
         : m_Market(&m_Inventory.Resources, unlocks.DecayMultiplier) {
-        auto OnToolPurchase = [this](const Purchase<ToolName>& tool) {
-            m_Inventory.OwnedTools.emplace(tool.Id, Tool(tool.Id, Enum::Begin<QualityType>()));
+        auto OnToolPurchase = [](const Purchase<ToolName>& tool) {
+            auto& life = ServiceLocator::Get().GetRequired<Life>();
+            life.m_Inventory.OwnedTools.emplace(tool.Id, Tool(tool.Id, Enum::Begin<QualityType>()));
         };
-        auto OnLocPurchase = [this](const Purchase<LocationName>& loc) {
-            OnInvestigationStart(loc.Id);
+        auto OnLocPurchase = [](const Purchase<LocationName>& loc) {
+            auto& life = ServiceLocator::Get().GetRequired<Life>();
+            life.OnInvestigationStart(loc.Id);
         };
 
-        auto OnMediaPurchase = [this](const Purchase<MediaType>& purchase) {
-            m_Inventory.CreatedMedia.emplace_back(purchase.Id, Enum::Begin<QualityType>());
+        auto OnMediaPurchase = [](const Purchase<MediaType>& purchase) {
+            auto& life = ServiceLocator::Get().GetRequired<Life>();
+            life.m_Inventory.CreatedMedia.emplace_back(purchase.Id, Enum::Begin<QualityType>());
         };
 
         Purchasables::Listen<ToolName>(m_PsHandles, OnToolPurchase);
         Purchasables::Listen<LocationName>(m_PsHandles, OnLocPurchase);
         Purchasables::Listen<MediaType>(m_PsHandles, OnMediaPurchase);
 
-        m_Locations.reserve(static_cast<size_t>(LocationName::COUNT));
         for(auto name = Enum::Begin<LocationName>(); name <= unlocks.BestLocation; name = Enum::IncrementUnbounded(name)) {
             m_Locations.emplace(name, Location(name));
         }
-        m_Team.Members.reserve(static_cast<size_t>(MemberName::COUNT));
+
         for(auto name = Enum::Begin<MemberName>(); name <= unlocks.BestMember; name = Enum::IncrementUnbounded(name)) {
-            m_Team.Members.emplace_back(name);
+            m_Team.Members.emplace(name, name);
         }
         m_UnlockedTools.reserve(static_cast<size_t>(ToolName::COUNT));
         for(auto name = Enum::Begin<ToolName>(); name <= unlocks.BestTool; name = Enum::IncrementUnbounded(name)) {
@@ -45,7 +47,10 @@ namespace GhostHunter {
         auto& services = ServiceLocator::Get();
         auto& manager = services.GetRequired<EventManager>();
 
-        auto Unregister = [this](const IEvent&) { OnInvestigationEnd(); };
+        auto Unregister = [](const IEvent&) { 
+            auto& life = ServiceLocator::Get().GetRequired<Life>();
+            life.OnInvestigationEnd(); 
+        };
 
         m_CurrentInvestigation = manager.StartEvent<Investigation>(Unregister, loc);
         services.GetRequired<PubSub<InvestigationStart>>().Publish({});
