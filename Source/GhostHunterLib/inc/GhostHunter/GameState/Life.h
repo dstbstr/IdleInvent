@@ -17,6 +17,7 @@ namespace GhostHunter {
         Life(const Unlocks& unlocks);
 
         const Market& GetMarket() const { return m_Market; }
+        Market& GetMarket() { return m_Market; }
         
         Inventory& GetInventory() { return m_Inventory; }
         const Inventory& GetInventory() const { return m_Inventory; }

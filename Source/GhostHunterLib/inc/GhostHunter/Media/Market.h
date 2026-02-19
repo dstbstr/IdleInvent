@@ -4,23 +4,19 @@
 #include "GhostHunter/Media/Media.h"
 #include "Resources/Resource.h"
 #include "Utilities/Handle.h"
+#include "Mechanics/Accumulator.h"
 
 namespace GhostHunter {
     struct GhostHunterResources;
 
     class Market {
-        struct MarketMedia {
-            MediaType MediaType;
-            QualityType Level;
-            u32 CurrentValue{0};
-        };
-
-        std::vector<MarketMedia> m_MarketMedia{};
+        std::vector<u32> m_Values{};
         std::vector<ScopedHandle> m_Handles{};
         ResourceCollection* m_Resources{nullptr};
-        BaseTime m_PayoutAccumulator{0};
         double m_DecayRate{0.95};
+        Accumulator m_Accumulator;
 
+        void Accumulate();
     public:
         Market(ResourceCollection* resources, double decayRate);
 

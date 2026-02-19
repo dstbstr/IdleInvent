@@ -2,65 +2,44 @@
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
 #include "GhostHunter/Formatting.h"
+#include "GhostHunter/GameState/Life.h"
 
 #include "Manage/TickManager.h"
 #include "Mechanics/Sale.h"
 #include "Instrumentation/Logging.h"
 
-namespace {
-    constexpr double MinimumValue = 1.0;
-    constexpr BaseTime PayoutInterval = OneSecond;
-
-    struct PayoutBatch {
-        u32 Cash{0};
-        u32 Remaining{0};
-    };
-
-    PayoutBatch FastForward(u32 currentValue, size_t ticks, double decayRate) {
-        auto cash = 0ull;
-
-        while(ticks-- && currentValue > MinimumValue) {
-            cash += currentValue;
-            currentValue = static_cast<u32>(currentValue * decayRate);
-        }
-
-        // clamp to avoid overflow
-        cash = std::min<u64>(cash, std::numeric_limits<u32>::max());
-        return {static_cast<u32>(cash), currentValue};        
-    }
-}
 namespace GhostHunter {
+    static_assert(Tickable<Market>, "Expecting Market to be Tickable");
+
 	Market::Market(ResourceCollection* resources, double decayRate) 
         : m_Resources(resources) 
-        , m_DecayRate(decayRate) {
+        , m_DecayRate(decayRate) 
+        , m_Accumulator {OneSecond, [this] { Accumulate(); } }
+    {
         auto& services = ServiceLocator::Get();
-        m_Handles.push_back(services.GetOrCreate<TickManager>().Register(*this));
-        services.GetRequired<PubSub<Sale<Media>>>().Subscribe(m_Handles, [&](const Sale<Media>& sale) {
+        TickManager::Get().Register(m_Handles, *this);
+        services.GetRequired<PubSub<Sale<Media>>>().Subscribe(m_Handles, [](const Sale<Media>& sale) {
             auto rc = SalesManager::TryGetValue<Media>(sale.Id, sale.Level);
             auto value = static_cast<u32>(rc.value_or(CreateRc<ResourceName>()).at(ResourceName::Cash).Current);
-            m_MarketMedia.emplace_back(MarketMedia{sale.Id, sale.Level, value});
+            Life::Get().GetMarket().m_Values.emplace_back(value);
         });
 	}
 
 	void Market::Tick(BaseTime elapsed) {
-        m_PayoutAccumulator += elapsed;
-        auto ticks = m_PayoutAccumulator / PayoutInterval;
-        if(ticks == 0) return;
-
-        m_PayoutAccumulator %= PayoutInterval;
-
-        for(auto& media : m_MarketMedia) {
-            auto batch = FastForward(media.CurrentValue, ticks, m_DecayRate);
-            m_Resources->at(ResourceName::Cash).Current += batch.Cash;
-            media.CurrentValue = batch.Remaining;
-        }
-        std::erase_if(m_MarketMedia, [](const MarketMedia& media) {
-            return media.CurrentValue == 0; 
-        });
+        m_Accumulator.Tick(elapsed);
 	}
 
+    void Market::Accumulate() {
+        for(auto& value : m_Values) {
+            m_Resources->at(ResourceName::Cash).Current += value;
+            value = static_cast<u32>(value * m_DecayRate);
+        }
+        std::erase_if(m_Values, [](u32 value) {
+            return value == 0; 
+        });
+    }
     void Market::Clear() {
-        m_MarketMedia.clear();
+        m_Values.clear();
     }
 
     void Market::Initialize() {
