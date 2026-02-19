@@ -24,6 +24,7 @@
         return result;                                                                \
     }();
 #define LEVEL(l, _value) result[TypeName::LevelType::l] = CreateRc<ResourceType>({{ResourceType::Cash, _value}});
+
 namespace GhostHunter {
     using LevelName = QualityType;
     using ResourceType = ResourceName;

@@ -65,12 +65,11 @@ namespace {
             ImGui::Text("%s", tool.Describe().c_str());
             ImGui::SameLine();
             ImGui::PushID(id++);
-            bool disabled = !UpgradeManager::CanUpgrade(tool, resources);
-            if(disabled) ImGui::BeginDisabled(); 
+            ImGui::BeginDisabled(!UpgradeManager::CanUpgrade(tool, resources));
             if(ImGui::Button("Upgrade")) {
                 UpgradeManager::Upgrade(tool, resources);
             }
-            if(disabled) ImGui::EndDisabled();
+            ImGui::EndDisabled();
             ImGui::PopID();
         }
     }

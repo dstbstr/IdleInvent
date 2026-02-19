@@ -103,6 +103,13 @@ bool ResourceCollection::AreAnyLessThan(const ResourceCollection& other) const {
 	}
     return false;
 }
+
+bool ResourceCollection::IsEmpty() const {
+    for(const auto& [name, resource]: m_Resources) {
+        if(resource.Current > 0) return false;
+    }
+    return true;
+}
     
 std::string ResourceCollection::ToCostString() const {
     std::vector<std::string> parts;

@@ -48,6 +48,7 @@ public:
     void Clamp();
     bool AreAllLessThan(const ResourceCollection& other) const;
 	bool AreAnyLessThan(const ResourceCollection& other) const;
+    bool IsEmpty() const;
 
 	std::string ToCostString() const;
 
