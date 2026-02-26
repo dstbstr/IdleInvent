@@ -43,4 +43,4 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Utilities/IRandom.test.cpp 
   src/Utilities/EnumUtils.test.cpp
  
-)
+ "src/Utilities/Handle.test.cpp")

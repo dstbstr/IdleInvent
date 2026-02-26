@@ -14,11 +14,13 @@ ScopedHandle::ScopedHandle(u64 value, DtorFn dtor) : Handle(value), Destructor(s
 
 ScopedHandle::ScopedHandle(ScopedHandle&& other) noexcept : Handle(other.Value), Destructor(std::move(other.Destructor)) {
     other.Reset();
+    other.Destructor = nullptr;
 }
 ScopedHandle& ScopedHandle::operator=(ScopedHandle&& other) noexcept {
     if(this != &other) {
         Value = other.Value;
         Destructor = std::move(other.Destructor);
+        other.Destructor = nullptr;
         other.Reset();
     }
     return *this;
@@ -38,6 +40,7 @@ void ScopedHandle::Destroy() {
     if(IsValid() && Destructor) {
         Destructor();
         Reset();
+        Destructor = nullptr;
     }
 }
 

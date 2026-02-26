@@ -6,15 +6,14 @@
 namespace GhostHunter {
     Life::Life(const Unlocks& unlocks) 
         : m_Market(&m_Inventory.Resources, unlocks.DecayMultiplier) {
-        auto OnToolPurchase = [](const Purchase<ToolName>& tool) {
-            Life::Get().m_Inventory.OwnedTools.emplace(tool.Id, Tool(tool.Id, Enum::Begin<QualityType>()));
-        };
-        auto OnLocPurchase = [](const Purchase<LocationName>& loc) {
-            Life::Get().OnInvestigationStart(loc.Id);
-        };
 
-        auto OnMediaPurchase = [](const Purchase<MediaType>& purchase) {
-            Life::Get().m_Inventory.CreatedMedia.emplace_back(purchase.Id, Enum::Begin<QualityType>());
+        auto OnToolPurchase = [this](const Purchase<ToolName>& tool) {
+            m_Inventory.OwnedTools.emplace(tool.Id, Tool(tool.Id, Enum::Begin<QualityType>()));
+        };
+        auto OnLocPurchase = [this](const Purchase<LocationName>& loc) { OnInvestigationStart(loc.Id); };
+
+        auto OnMediaPurchase = [this](const Purchase<MediaType>& purchase) {
+            m_Inventory.CreatedMedia.emplace_back(purchase.Id, Enum::Begin<QualityType>());
         };
 
         Purchasables::Listen<ToolName>(m_PsHandles, OnToolPurchase);
@@ -44,9 +43,7 @@ namespace GhostHunter {
         auto& services = ServiceLocator::Get();
         auto& manager = services.GetRequired<EventManager>();
 
-        auto Unregister = [](const IEvent&) { 
-            Life::Get().OnInvestigationEnd(); 
-        };
+        auto Unregister = [this](const IEvent&) { OnInvestigationEnd(); };
 
         m_CurrentInvestigation = manager.StartEvent<Investigation>(Unregister, loc);
         services.GetRequired<PubSub<InvestigationStart>>().Publish({});
