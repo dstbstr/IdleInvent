@@ -59,12 +59,21 @@ void Progression::ClearModifiers() {
 }
 
 s64 Progression::GetProgress(BaseTime elapsed) {
+    auto oldSize = m_Modifiers.size();
+    for(auto& [mod, duration] : m_Modifiers) {
+        duration -= elapsed;
+    }
+    std::erase_if(m_Modifiers, [](const auto& pair) { return pair.second.count() <= 0; });
+    if(m_Modifiers.size() != oldSize) {
+        CalcProgress();
+    }
+    /*
     bool recalc = false;
     for(int i = static_cast<int>(m_Modifiers.size() - 1); i >= 0; i--) {
-        auto& [mod, duration] = m_Modifiers[i];
+        auto& [mod, duration] = m_Modifiers[static_cast<size_t>(i)];
         duration -= elapsed;
         if(duration.count() <= 0) {
-            std::swap(m_Modifiers[i], m_Modifiers.back());
+            std::swap(m_Modifiers[static_cast<size_t>(i)], m_Modifiers.back());
             m_Modifiers.pop_back();
             recalc = true;
         }
@@ -73,11 +82,12 @@ s64 Progression::GetProgress(BaseTime elapsed) {
     if(recalc) {
         CalcProgress();
     }
-
+    */
     auto seconds = static_cast<f32>(elapsed.count()) / static_cast<f32>(OneSecond.count());
     auto progress = (m_Progress * seconds) + m_Remainder;
 
-    m_Remainder = progress - static_cast<s64>(progress);
+    m_Remainder = progress - std::floor(progress);
+    //m_Remainder = progress - static_cast<s64>(progress);
     return static_cast<s64>(progress);
 }
 

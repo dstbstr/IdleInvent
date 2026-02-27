@@ -1,7 +1,7 @@
 #pragma once
 
 struct DX12Image {
-    DX12Image(int width, int height, long long textureId, ID3D12Resource* tex) 
+    DX12Image(int width, int height, UINT64 textureId, ID3D12Resource* tex) 
         : Width(width)
         , Height(height)
         , Channels(4)

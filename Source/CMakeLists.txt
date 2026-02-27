@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.31)
 project(IdleGame)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_subdirectory(external)
 
 include(FetchContent)
 
@@ -23,7 +25,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(warnings "-Wall -Wextra -Werror")
+    set(warnings "-Wall -Wextra -Werror -Wconversion -Wshadow")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         list(APPEND compiler_definitions GNU)
     else()
@@ -57,7 +59,8 @@ elseif(ANDROID)
     include(CMake/AndroidPackaging.cmake)
 endif()
 
-add_subdirectory(external)
+#set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=-*,android-*,bugprone-*,clang-analyzer-*,cppcoreguidelines-*,-cppcoreguidelines-pro-type-vararg,-cppcoreguidelines-avoid-non-const-global-variables,performance-*,portability-*")
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 add_subdirectory(Platform)
 add_subdirectory(Engine)
 add_subdirectory(InventLib)

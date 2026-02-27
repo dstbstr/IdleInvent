@@ -33,10 +33,10 @@ struct Modifier {
     }
 
     constexpr auto Apply(auto value) const {
-        return static_cast<decltype(value)>((value + Add) * Mul);
+        return static_cast<decltype(value)>(static_cast<f32>(static_cast<s64>(value) + Add) * Mul);
     }
 
-    constexpr f32 GetBonus() const { return Add * Mul; }
+    constexpr f32 GetBonus() const { return static_cast<f32>(Add) * Mul; }
 
     void Save(ModifierSave& outSave) const;
 };

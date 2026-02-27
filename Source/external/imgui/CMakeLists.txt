@@ -2,7 +2,7 @@ project(imgui)
 
 add_library(${PROJECT_NAME})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/backends
 )
@@ -28,3 +28,10 @@ elseif(ANDROID)
 	)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_ES3)
 endif()
+
+# Suppress warnings when compiling imgui sources (third-party code).
+# Use generator expressions to apply appropriate flags per compiler.
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/w>
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-w>
+)

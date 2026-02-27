@@ -13,16 +13,16 @@
 
 struct Advancement {
 	std::string Name{};
-    size_t InitialCost{0};
-	size_t CurrentLevel{ 1 };
-    size_t MaxLevel{100};
+    u64 InitialCost{0};
+	u64 CurrentLevel{ 1 };
+    u64 MaxLevel{100};
 
-	size_t CurrentExp{ 0 };
-	std::function<size_t(size_t)> NextLevelCost = Scale::Logarithmic<size_t, 2>;
-	size_t ExpToNextLevel{ 0 };
+	u64 CurrentExp{ 0 };
+	std::function<u64(u64)> NextLevelCost = Scale::Logarithmic<u64, 2>;
+	u64 ExpToNextLevel{ 0 };
 	Progression Progress{};
 
-	Advancement(const std::string& name, size_t maxLevel, std::function<size_t(size_t)> levelCosts, size_t initialLevelCost, Progression progress = {}) 
+	Advancement(const std::string& name, u64 maxLevel, std::function<u64(u64)> levelCosts, u64 initialLevelCost, Progression progress = {}) 
 		: Name(name)
 		, InitialCost(initialLevelCost)
 		, MaxLevel(maxLevel)

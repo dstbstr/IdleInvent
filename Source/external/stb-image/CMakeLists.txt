@@ -1,7 +1,8 @@
 project(stbimage)
-#add_library(${PROJECT_NAME} INTERFACE)
-#target_include_directories(${PROJECT_NAME} INTERFACE
-#	${CMAKE_CURRENT_SOURCE_DIR}
-#)
 
-set(stbimage_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+# Provide an INTERFACE target so consumers can link against `stbimage`.
+# Mark the include directory as SYSTEM so compiler warnings from these headers are suppressed.
+add_library(stbimage INTERFACE)
+target_include_directories(stbimage INTERFACE SYSTEM
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)

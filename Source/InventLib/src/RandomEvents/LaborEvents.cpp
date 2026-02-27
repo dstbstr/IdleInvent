@@ -7,19 +7,19 @@ namespace Invent {
 	namespace RandomEvents {
 		namespace LaborEvents {
 			// disasters
-			RandomEvent Breakdown;
-			RandomEvent Thieves;
-			RandomEvent Strike;
+			const RandomEvent Breakdown;
+			const RandomEvent Thieves;
+			const RandomEvent Strike;
 
 			// positive events
-			RandomEvent TwoForOne;
-			RandomEvent MoraleBoost;
-			RandomEvent Overtime;
+			const RandomEvent TwoForOne;
+			const RandomEvent MoraleBoost;
+			const RandomEvent Overtime;
 
 			// mixed events
-			RandomEvent NewHire;
-			RandomEvent LatestTrend;
-			RandomEvent Merger;
+			const RandomEvent NewHire;
+			const RandomEvent LatestTrend;
+			const RandomEvent Merger;
 
 			void RegisterAll() {
 				::RandomEvents::RegisterEvent(Breakdown, Rarity::Common);

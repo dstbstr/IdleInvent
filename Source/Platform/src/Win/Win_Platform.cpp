@@ -157,7 +157,7 @@ bool Platform::TryGetAsset(const char* filename, void** outData, size_t& outSize
     }
     outSize = std::filesystem::file_size(assetPath);
     *outData = IM_ALLOC(outSize);
-    stream.read(reinterpret_cast<char*>(*outData), outSize);
+    stream.read(reinterpret_cast<char*>(*outData), static_cast<std::streamsize>(outSize));
     return true;
 }
 

@@ -1,0 +1,11 @@
+Checks: >
+    -*,
+    android-*,
+    bugprone-*,
+    clang-analyzer-*,
+    cppcoreguidelines-*,
+    -cppcoreguidelines-pro-type-vararg,
+    -cppcoreguidelines-avoid-non-const-global-variables,
+    performance-*,
+    portability-*
+HeaderFilterRegex: '^external/'

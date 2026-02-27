@@ -49,21 +49,21 @@ namespace Invent {
 
         InventResourceCollection& operator*=(f32 rhs) {
             for(auto& [name, resource]: m_Resources) {
-                resource.Current = static_cast<s64>(resource.Current * rhs);
+                resource.Current = static_cast<s64>(static_cast<f32>(resource.Current) * rhs);
             }
 
             return *this;
         }
         InventResourceCollection& operator*=(f64 rhs) {
             for(auto& [name, resource]: m_Resources) {
-                resource.Current = static_cast<s64>(resource.Current * rhs);
+                resource.Current = static_cast<s64>(static_cast<f64>(resource.Current) * rhs);
             }
 
             return *this;
         }
         InventResourceCollection& operator*=(size_t rhs) {
             for(auto& [name, resource]: m_Resources) {
-                resource.Current = static_cast<s64>(resource.Current * rhs);
+                resource.Current = static_cast<s64>(static_cast<size_t>(resource.Current) * rhs);
             }
 
             return *this;

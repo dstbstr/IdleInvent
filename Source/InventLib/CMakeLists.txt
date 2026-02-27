@@ -9,7 +9,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC inc)
-target_include_directories(${PROJECT_NAME} PRIVATE ${stbimage_INCLUDE_DIRS})
+# target_link_libraries(${PROJECT_NAME} PRIVATE
+# 	stbimage
+# )
+#target_include_directories(${PROJECT_NAME} PRIVATE ${stbimage_INCLUDE_DIRS})
 
 target_sources(${PROJECT_NAME} PRIVATE
 	src/InventGame.cpp

@@ -6,7 +6,7 @@
 void Advancement::Tick(BaseTime elapsed) {
     if(CurrentLevel == MaxLevel) return;
 
-	CurrentExp += Progress.GetProgress(elapsed);
+	CurrentExp += static_cast<u64>(Progress.GetProgress(elapsed));
 	if(CurrentExp < ExpToNextLevel) return;
 
 	auto& ps = ServiceLocator::Get().GetRequired<PubSub<Advancement>>();

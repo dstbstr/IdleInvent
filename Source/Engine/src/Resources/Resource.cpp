@@ -192,7 +192,7 @@ ResourceCollection& ResourceCollection::operator/=(size_t divisor) {
 
 ResourceCollection& ResourceCollection::operator/=(f32 divisor) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current = static_cast<s64>(resource.Current / divisor);
+        resource.Current = static_cast<s64>(resource.Current / static_cast<f64>(divisor));
     }
 
     return *this;
@@ -200,7 +200,7 @@ ResourceCollection& ResourceCollection::operator/=(f32 divisor) {
 
 ResourceCollection& ResourceCollection::operator/=(f64 divisor) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current = static_cast<s64>(resource.Current / divisor);
+        resource.Current = static_cast<s64>(std::trunc(resource.Current / divisor));
     }
 
     return *this;

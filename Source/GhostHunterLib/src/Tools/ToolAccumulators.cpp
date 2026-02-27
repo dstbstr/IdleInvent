@@ -7,7 +7,7 @@
     namespace _Tool##_Registry {                      \
         auto ToolName = GhostHunter::ToolName::_Tool; \
         void Add##_Tool();                            \
-        struct _AutoAdd {                             \
+        const struct _AutoAdd {                       \
             _AutoAdd() { Add##_Tool(); }              \
         } autoAdd{};                                  \
     }                                                 \
@@ -18,7 +18,7 @@
         {_Time, [](void* room) {                                                                      \
              if(!room) return;                                                                        \
              auto* r = static_cast<GhostHunter::Room*>(room);                                         \
-             auto avail = r->AvailableResources[GhostHunter::ResourceName::_Currency].Current;   \
+             auto avail = r->AvailableResources[GhostHunter::ResourceName::_Currency].Current;        \
              auto gained = std::min(avail, static_cast<s64>(_Amt));                                   \
              r->AvailableResources[GhostHunter::ResourceName::_Currency].Current -= gained;           \
              auto& inventory = ServiceLocator::Get().GetRequired<GhostHunter::Life>().GetInventory(); \

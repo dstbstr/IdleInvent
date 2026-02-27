@@ -29,115 +29,115 @@ namespace Invent {
 
 		namespace NaturalEvents {
 			// disasters
-			extern RandomEvent Earthquake;
-			extern RandomEvent Volcano;
-			extern RandomEvent Tornado;
-			extern RandomEvent Drought;
+			extern const RandomEvent Earthquake;
+			extern const RandomEvent Volcano;
+			extern const RandomEvent Tornado;
+			extern const RandomEvent Drought;
 
 			// positive events
-			extern RandomEvent GoodHarvest;
-			extern RandomEvent NaturalSpring;
-			extern RandomEvent AnimalMigration;
+			extern const RandomEvent GoodHarvest;
+			extern const RandomEvent NaturalSpring;
+			extern const RandomEvent AnimalMigration;
 
 			// mixed events
-			extern RandomEvent SolarEclipse;
-			extern RandomEvent MeteorShower;
-			extern RandomEvent Aurora;
+			extern const RandomEvent SolarEclipse;
+			extern const RandomEvent MeteorShower;
+			extern const RandomEvent Aurora;
 
 			void RegisterAll();
 		}
 
 		namespace InfluenceEvents {
 			// disasters
-			extern RandomEvent War;
-			extern RandomEvent Plague;
-			extern RandomEvent Famine;
+			extern const RandomEvent War;
+			extern const RandomEvent Plague;
+			extern const RandomEvent Famine;
 
 			// positive events
-			extern RandomEvent TradeDeal;
-			extern RandomEvent Alliance;
-			extern RandomEvent Prosperity;
+			extern const RandomEvent TradeDeal;
+			extern const RandomEvent Alliance;
+			extern const RandomEvent Prosperity;
 
 			// mixed events
-			extern RandomEvent Revolution;
-			extern RandomEvent Coronation;
-			extern RandomEvent Wedding;
+			extern const RandomEvent Revolution;
+			extern const RandomEvent Coronation;
+			extern const RandomEvent Wedding;
 
 			void RegisterAll();
 		}
 
 		namespace LaborEvents {
 			// disasters
-			extern RandomEvent Breakdown;
-			extern RandomEvent Thieves;
-			extern RandomEvent Strike;
+			extern const RandomEvent Breakdown;
+			extern const RandomEvent Thieves;
+			extern const RandomEvent Strike;
 
 			// positive events
-			extern RandomEvent TwoForOne;
-			extern RandomEvent MoraleBoost;
-			extern RandomEvent Overtime;
+			extern const RandomEvent TwoForOne;
+			extern const RandomEvent MoraleBoost;
+			extern const RandomEvent Overtime;
 
 			// mixed events
-			extern RandomEvent Merger;
-			extern RandomEvent LatestTrend;
-			extern RandomEvent NewHire;
+			extern const RandomEvent Merger;
+			extern const RandomEvent LatestTrend;
+			extern const RandomEvent NewHire;
 
 			void RegisterAll();
 		}
 
 		namespace WealthEvents {
 			// disasters
-			extern RandomEvent Robbery;
-			extern RandomEvent Bankruptcy;
-			extern RandomEvent HyperInflation;
+			extern const RandomEvent Robbery;
+			extern const RandomEvent Bankruptcy;
+			extern const RandomEvent HyperInflation;
 
 			// positive events
-			extern RandomEvent Inheritance;
-			extern RandomEvent NewInvestor;
-			extern RandomEvent Lottery;
+			extern const RandomEvent Inheritance;
+			extern const RandomEvent NewInvestor;
+			extern const RandomEvent Lottery;
 
 			// mixed events
-			extern RandomEvent LongShot;
-			extern RandomEvent Sponsorship;
-			extern RandomEvent PoliticalUnrest;
+			extern const RandomEvent LongShot;
+			extern const RandomEvent Sponsorship;
+			extern const RandomEvent PoliticalUnrest;
 
 			void RegisterAll();
 		}
 
 		namespace KnowledgeEvents {
 			// disasters
-			extern RandomEvent Misinformation;
-			extern RandomEvent Censorship;
-			extern RandomEvent BookBurnings;
+			extern const RandomEvent Misinformation;
+			extern const RandomEvent Censorship;
+			extern const RandomEvent BookBurnings;
 
 			// positive events
-			extern RandomEvent BestSeller;
-			extern RandomEvent Discovery;
-			extern RandomEvent ResearchGrant;
+			extern const RandomEvent BestSeller;
+			extern const RandomEvent Discovery;
+			extern const RandomEvent ResearchGrant;
 
 			// mixed events
-			extern RandomEvent Conference;
-			extern RandomEvent MadScientist;
-			extern RandomEvent FringeSect;
+			extern const RandomEvent Conference;
+			extern const RandomEvent MadScientist;
+			extern const RandomEvent FringeSect;
 
 			void RegisterAll();
 		}
 
 		namespace MagicEvents {
 			// disasters
-			extern RandomEvent Curse;
-			extern RandomEvent Backfire;
-			extern RandomEvent Silence;
+			extern const RandomEvent Curse;
+			extern const RandomEvent Backfire;
+			extern const RandomEvent Silence;
 
 			// positive events
-			extern RandomEvent ComponentCache;
-			extern RandomEvent Divination;
-			extern RandomEvent Metamagic;
+			extern const RandomEvent ComponentCache;
+			extern const RandomEvent Divination;
+			extern const RandomEvent Metamagic;
 
 			// mixed events
-			extern RandomEvent Rift;
-			extern RandomEvent Necromancer;
-			extern RandomEvent TooStrong;
+			extern const RandomEvent Rift;
+			extern const RandomEvent Necromancer;
+			extern const RandomEvent TooStrong;
 
 			void RegisterAll();
 		}

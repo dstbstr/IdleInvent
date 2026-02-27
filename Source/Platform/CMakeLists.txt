@@ -5,9 +5,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     imgui
 )
 
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    stbimage
+)
 target_include_directories(${PROJECT_NAME} PUBLIC 
     inc 
-    ../external/stb-image
+#    ../external/stb-image
 )
 
 if (WIN32)
