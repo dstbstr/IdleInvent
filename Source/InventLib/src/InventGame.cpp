@@ -5,6 +5,7 @@
 #include "InventLib/GameState/InventGameState.h"
 #include "InventLib/GameState/SaveState.h"
 #include "InventLib/Projects/Expeditions.h"
+#include "InventLib/RandomEvents/RandomEvent.h"
 #include "InventLib/RandomEvents/RandomEvents.h"
 #include "InventLib/Technology/Invention.h"
 #include "InventLib/Technology/Technology.h"
@@ -19,7 +20,6 @@
 #include <Mechanics/Achievement.h>
 #include <Mechanics/Advancement.h>
 #include <Mechanics/Purchasable.h>
-#include <Mechanics/RandomEvent.h>
 #include <Mechanics/Unlockable.h>
 #include <Resources/Resource.h>
 #include <Resources/ResourceConverters.h>

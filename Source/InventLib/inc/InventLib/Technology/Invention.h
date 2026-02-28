@@ -1,7 +1,7 @@
 #pragma once
+#include "InventLib/Effects/Effect.h"
 #include "InventLib/Resources/InventResources.h"
 
-#include <Mechanics/Effect.h>
 #include <Mechanics/Purchasable.h>
 #include <Mechanics/Unlockable.h>
 

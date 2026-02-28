@@ -1,4 +1,5 @@
 #include "InventLib/Character/Death.h"
+#include "InventLib/RandomEvents/RandomEvent.h"
 #include "InventLib/Ui/Layout/NewsFeed.h"
 #include "InventLib/Ui/Ui.h"
 
@@ -7,7 +8,7 @@
 #include <GameState/GameTime.h>
 #include <GameState/FileOperation.h>
 #include <Mechanics/Achievement.h>
-#include <Mechanics/RandomEvent.h>
+
 #include <imgui.h>
 
 namespace {

@@ -21,8 +21,8 @@ concept SellableType = DescribeSelf<T> && HasId<T> &&
 
 template<SellableType T>
 struct Sale {
-    T::IdType Id;
-    T::LevelType Level;
+    T::IdType Id{};
+    T::LevelType Level{};
 };
 
 template<SellableType T>
@@ -41,7 +41,7 @@ void Sell(std::vector<T>& items, size_t index) {
         auto& item = items[index];
         auto& ps = ServiceLocator::Get().GetRequired<PubSub<Sale<T>>>();
         ps.Publish({item.Id, item.Level});
-        items.erase(items.begin() + index);
+        items.erase(items.begin() + static_cast<std::vector<T>::difference_type>(index));
     }
 }
 

@@ -9,10 +9,14 @@
 #include <DesignPatterns/ServiceLocator.h>
 
 namespace {
-    size_t BaseLifeSpan = 25;
+    inline constexpr auto DecayAmount = 0.9;
+    inline constexpr auto LevelMultiplier = 5;
+    inline constexpr auto AgeLifeBenefit = 5;
+    inline constexpr auto InitialLifeSpan = 25;
+
+    size_t BaseLifeSpan = InitialLifeSpan;
     auto DecayTimer = BaseTime::zero();
     auto DecayFrequency = OneGameYear;
-    auto DecayAmount = 0.9;
 
     void TickDecay(BaseTime elapsed, StorageCollection& storages) {
         DecayTimer += elapsed;
@@ -20,7 +24,7 @@ namespace {
         DecayTimer -= DecayFrequency;
 
         for(auto& [name, storage]: storages) {
-            storage.Stored = static_cast<size_t>(storage.Stored * DecayAmount);
+            storage.Stored = static_cast<size_t>(static_cast<f64>(storage.Stored) * DecayAmount);
         }
     }
 }
@@ -43,12 +47,12 @@ namespace Invent {
             */
         services.GetOrCreate<PubSub<InventionLevel>>().Subscribe(m_PsHandles, [](const InventionLevel& invention) {
             if(invention.Name.find("Death") == std::string::npos) return;
-            BaseLifeSpan += invention.Level * 5;
+            BaseLifeSpan += invention.Level * LevelMultiplier;
         });
 
         services.GetOrCreate<PubSub<TechAge>>().Subscribe(m_PsHandles, [](const TechAge& age) {
             Log::Info(std::format("Age advanced to {}", age.Name));
-            BaseLifeSpan += 5;
+            BaseLifeSpan += AgeLifeBenefit;
         });
     }
 

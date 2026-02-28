@@ -39,7 +39,8 @@ namespace Ui::Screens::Purchases {
     void Render() {
         ImGui::Begin("PurchasesScreen", nullptr, BaseFlags);
         auto windowSize = ImGui::GetContentRegionAvail();
-        windowSize.y = 300;
+        const auto minHeight = 300.f;
+        windowSize.y = minHeight;
 
         //auto inventions = Purchasables::GetAvailable<InventionName, Invention>();
         //auto& resources = Society->CurrentLife.Resources;

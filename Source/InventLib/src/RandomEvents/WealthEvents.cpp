@@ -1,25 +1,25 @@
 #include "InventLib/RandomEvents/RandomEvents.h"
+#include "InventLib/Effects/Effect.h"
 
 #include <GameState/GameTime.h>
-#include <Mechanics/RandomEvent.h>
 
 namespace Invent {
 	namespace RandomEvents {
 		namespace WealthEvents {
 			// disasters
-			RandomEvent Robbery;
-			RandomEvent Bankruptcy;
-			RandomEvent HyperInflation;
+			const RandomEvent Robbery;
+			const RandomEvent Bankruptcy;
+			const RandomEvent HyperInflation;
 
 			// positive events
-			RandomEvent NewInvestor;
-			RandomEvent Inheritance;
-			RandomEvent Lottery;
+			const RandomEvent NewInvestor;
+			const RandomEvent Inheritance;
+			const RandomEvent Lottery;
 
 			// mixed events
-			RandomEvent Sponsorship;
-			RandomEvent LongShot;
-			RandomEvent PoliticalUnrest;
+			const RandomEvent Sponsorship;
+			const RandomEvent LongShot;
+			const RandomEvent PoliticalUnrest;
 
 			void RegisterAll() {
 				::RandomEvents::RegisterEvent(Robbery, Rarity::Common);

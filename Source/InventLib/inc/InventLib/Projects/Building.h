@@ -2,8 +2,7 @@
 
 #include "InventLib/Projects/Project.h"
 #include "InventLib/Projects/Research.h"
-
-#include <Mechanics/Effect.h>
+#include "InventLib/Effects/Effect.h"
 
 #include <vector>
 #include <unordered_map>

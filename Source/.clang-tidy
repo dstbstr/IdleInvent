@@ -8,4 +8,4 @@ Checks: >
     -cppcoreguidelines-avoid-non-const-global-variables,
     performance-*,
     portability-*
-HeaderFilterRegex: '^external/'
+HeaderFilterRegex: '(inc/|src/)'

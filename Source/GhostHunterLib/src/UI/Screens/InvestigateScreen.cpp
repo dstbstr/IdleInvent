@@ -13,6 +13,11 @@
 
 namespace {
     GhostHunter::Life* life{nullptr};
+    inline constexpr auto SlotRounding = 6.f;
+    inline constexpr auto SlotBorderWidth = 2.f;
+    inline constexpr auto BorderColor = IM_COL32(180, 180, 180, 255);
+    inline constexpr auto DummySize = ImVec2(0.f, 8.f);
+
 
     constexpr auto* ToolPayload = "GHOSTHUNTER_TOOL";
     constexpr auto* MemberPayload = "GHOSTHUNTER_MEMBER";
@@ -79,11 +84,12 @@ namespace {
 
             ImGui::TableNextColumn();
             ImGui::PushID(static_cast<int>(i));
-            ImGui::BeginChild("slot", ImVec2(-1, 100), true, SlotFlags);
+            const auto slotSize = ImVec2(-1, 100);
+            ImGui::BeginChild("slot", slotSize, true, SlotFlags);
             ImGui::TextUnformatted(room.Name.c_str());
 
             if(members.empty()) {
-                ImGui::Dummy(ImVec2(0.f, 8.f));
+                ImGui::Dummy(DummySize);
             } else {
                 if(isDisabled) {
                     ImGui::TextWrapped("Nothing to see here...");
@@ -106,7 +112,7 @@ namespace {
             auto slotStart = ImGui::GetItemRectMin();
             auto slotEnd = ImGui::GetItemRectMax();
             auto* dl = ImGui::GetWindowDrawList();
-            dl->AddRect(slotStart, slotEnd, IM_COL32(180, 180, 180, 255), 6.f, 0, 2.f);
+            dl->AddRect(slotStart, slotEnd, BorderColor, SlotRounding, 0, SlotBorderWidth);
 
             if(members.empty()) {
                 const auto oldCursor = ImGui::GetCursorPos();
@@ -145,12 +151,13 @@ namespace {
             }
         }
 
-        auto linesNeeded = 1 + members.size() + availableTools.size();
-        auto height = 48.f + (ImGui::GetFrameHeightWithSpacing() * linesNeeded);
+        auto linesNeeded = static_cast<f32>(1 + members.size() + availableTools.size());
+        const auto MinFrameHeight = 48.f;
+        auto height = MinFrameHeight + (ImGui::GetFrameHeightWithSpacing() * linesNeeded);
 
         ImGui::BeginChild("slot", ImVec2(-1.f, height), true, SlotFlags);
         ImGui::TextUnformatted("Gear Room");
-        ImGui::Dummy(ImVec2(0.f, 8.f));
+        ImGui::Dummy(DummySize);
 
         if(ImGui::BeginTable("GearTable", 2, ImGuiTableFlags_SizingStretchSame)) {
             ImGui::TableNextColumn();
@@ -198,7 +205,7 @@ namespace {
         auto rectStart = ImGui::GetItemRectMin();
         auto rectEnd = ImGui::GetItemRectMax();
         auto* dl = ImGui::GetWindowDrawList();
-        dl->AddRect(rectStart, rectEnd, IM_COL32(180, 180, 180, 255), 6.f, 0, 2.f);
+        dl->AddRect(rectStart, rectEnd, BorderColor, SlotRounding, 0, SlotBorderWidth);
 
         auto oldCursor = ImGui::GetCursorScreenPos();
         ImGui::SetCursorScreenPos(rectStart);

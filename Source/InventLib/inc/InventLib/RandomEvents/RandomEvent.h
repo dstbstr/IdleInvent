@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Mechanics/Effect.h"
-#include "GameState/GameTime.h"
+#include "InventLib/Effects/Effect.h"
 
+#include <GameState/GameTime.h>
 #include <Platform/NumTypes.h>
 
 #include <string>

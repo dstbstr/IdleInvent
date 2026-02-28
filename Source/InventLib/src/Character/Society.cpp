@@ -1,10 +1,10 @@
 #include "InventLib/Character/Society.h"
 
+#include "InventLib/Effects/Effect.h"
 #include "InventLib/GameState/GameSettings.h"
 
 #include <GameState/GameTime.h>
 #include <Instrumentation/Logging.h>
-#include <Mechanics/Effect.h>
 #include <Resources/Resource.h>
 
 #include <array>

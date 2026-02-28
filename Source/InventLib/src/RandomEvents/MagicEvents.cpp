@@ -1,25 +1,25 @@
 #include "InventLib/RandomEvents/RandomEvents.h"
+#include "InventLib/Effects/Effect.h"
 
 #include <GameState/GameTime.h>
-#include <Mechanics/RandomEvent.h>
 
 namespace Invent {
 	namespace RandomEvents {
 		namespace MagicEvents {
 			// disasters
-			RandomEvent Backfire;
-			RandomEvent Curse;
-			RandomEvent Silence;
+			const RandomEvent Backfire;
+			const RandomEvent Curse;
+			const RandomEvent Silence;
 
 			// positive events
-			RandomEvent ComponentCache;
-			RandomEvent Metamagic;
-			RandomEvent Divination;
+			const RandomEvent ComponentCache;
+			const RandomEvent Metamagic;
+			const RandomEvent Divination;
 
 			// mixed events
-			RandomEvent Rift;
-			RandomEvent Necromancer;
-			RandomEvent TooStrong;
+			const RandomEvent Rift;
+			const RandomEvent Necromancer;
+			const RandomEvent TooStrong;
 
 			void RegisterAll() {
 				//TODO: Yuck

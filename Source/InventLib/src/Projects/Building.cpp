@@ -1,9 +1,10 @@
 #include "InventLib/Projects/Building.h"
+
+#include "InventLib/Effects/Effect.h"
 #include "InventLib/Resources/InventResources.h"
 
 #include <GameState/GameTime.h>
 #include <Instrumentation/Logging.h>
-#include <Mechanics/Effect.h>
 #include <Mechanics/Modifier.h>
 #include <Resources/Resource.h>
 #include <Mechanics/ScaleFunc.h>

@@ -10,7 +10,7 @@ namespace GhostHunter {
         MemberName BestMember{MemberName::Unset};
 
         bool ShowRemainingResources{false};
-        size_t StartingCash{0};
+        u64 StartingCash{0};
         double DecayMultiplier{0.95};
 	};
 }

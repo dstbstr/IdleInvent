@@ -34,8 +34,8 @@ namespace Invent {
         void Save(GameSettingsSave& save) const {
             save.ShowFps = ShowFps;
             save.PurchaseChoice = static_cast<u8>(PurchaseChoice);
-            for(auto i = 0; i < 4; i++) {
-                save.ProjectPriority |= static_cast<u8>(ProjectPriority[i]) << (i * 2);
+            for(size_t i = 0; i < 4; i++) {
+                save.ProjectPriority |= static_cast<u8>(ProjectPriority[i]) << static_cast<u8>(i * 2);
             }
         }
     };

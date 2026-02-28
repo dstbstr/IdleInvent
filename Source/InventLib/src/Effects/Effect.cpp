@@ -1,4 +1,4 @@
-#include "Mechanics/Effect.h"
+#include "InventLib/Effects/Effect.h"
 
 #include "Instrumentation/Logging.h"
 #include "Constexpr/ConstexprMath.h"
@@ -6,7 +6,6 @@
 #include <sstream>
 #include <string>
 
-// TODO: Move this to game lib
 std::string ToString(EffectTarget target) {
     switch (target) {
 		using enum EffectTarget;

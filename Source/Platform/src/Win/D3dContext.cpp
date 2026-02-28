@@ -2,7 +2,7 @@
 #include "D3dContext.h"
 #include "backends/imgui_impl_dx12.h"
 
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS // NOLINT
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -15,11 +15,18 @@
 #pragma comment(lib, "dxguid.lib")
 #endif
 
+constexpr void EnsureOk([[maybe_unused]] HRESULT hr) {
+    #ifdef DEBUG
+    IM_ASSERT(SUCCEEDED(hr));
+    #endif
+}
+/*
 #ifdef DEBUG
 #define EnsureOk(hr) IM_ASSERT(SUCCEEDED(hr))
 #else
 #define EnsureOk(hr) (void)hr
 #endif
+*/
 
 void SetDebugObjectName(ID3D12DeviceChild* resource, std::string_view name) {
     resource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(name.size()), name.data());

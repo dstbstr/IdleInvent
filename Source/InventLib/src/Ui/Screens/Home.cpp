@@ -18,6 +18,8 @@
 #include <imgui.h>
 
 namespace {
+    inline constexpr auto DefaultButtonWidth = 50;
+
     Invent::Society* society{nullptr};
     Invent::GameSettings* gameSettings{nullptr};
 
@@ -108,7 +110,7 @@ namespace Ui::Screens::Home {
     void ShutDown() {}
 
     void Render() {
-        buttonSize = ImVec2(ImGui::GetContentRegionAvail().x, 50);
+        buttonSize = ImVec2(ImGui::GetContentRegionAvail().x, DefaultButtonWidth);
 
         ImGui::Begin("Home", nullptr, BaseFlags);
         if(ImGui::CollapsingHeader("Actions", ImGuiTreeNodeFlags_DefaultOpen)) {

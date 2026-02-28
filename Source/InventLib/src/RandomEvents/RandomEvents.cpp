@@ -1,12 +1,12 @@
 #include "InventLib/RandomEvents/RandomEvents.h"
 
+#include "InventLib/RandomEvents/RandomEvent.h"
 #include "InventLib/Technology/Invention.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>
 #include <GameState/GameTime.h>
 #include <Instrumentation/Logging.h>
-#include <Mechanics/RandomEvent.h>
 #include <Platform/NumTypes.h>
 
 namespace {

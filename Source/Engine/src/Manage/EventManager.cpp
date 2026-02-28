@@ -12,7 +12,7 @@ void IEvent::Update(BaseTime elapsed) {
 bool IEvent::IsComplete() const { return Ttl == BaseTime(0); }
 f32 IEvent::GetProgress() const {
     if(Ttl == BaseTime(0)) return 1.0f;
-    return 1.0f - (static_cast<f32>(Ttl.count() / static_cast<f32>(Duration.count())));
+    return 1.0f - (static_cast<f32>(static_cast<f64>(Ttl.count()) / static_cast<f64>(Duration.count())));
 }
 
 void EventManager::Initialize() {

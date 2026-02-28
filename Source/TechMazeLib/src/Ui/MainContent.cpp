@@ -46,7 +46,7 @@ namespace TechMaze::Ui::Screens::MainContent {
         auto halfBuffer = buffer / 2;
         auto MakeBox = [boxSize, buffer, halfBuffer](const char* label, size_t idx) {
             ImGui::SetCursorPosX(buffer);
-            ImGui::SetCursorPosY(idx * (boxSize + buffer) + halfBuffer);
+            ImGui::SetCursorPosY(static_cast<f32>(idx) * (boxSize + buffer) + halfBuffer);
 
             
             auto OnClick = [&]() {

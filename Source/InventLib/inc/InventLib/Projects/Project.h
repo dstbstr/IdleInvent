@@ -18,7 +18,7 @@ namespace Invent {
         std::string Description{};
         std::string EffectDescription{};
         ProjectType Type{ProjectType::Research};
-        size_t CurrentWorkers{0};
+        u64 CurrentWorkers{0};
 
         BaseTime TimeProgress{0};
         BaseTime TimeCost{0};

@@ -2,16 +2,15 @@
 #include "InventLib/Character/Life.h"
 
 #include "InventLib/Character/Society.h"
+#include "InventLib/Effects/Effect.h"
 #include "InventLib/GameState/GameSettings.h"
 #include "InventLib/Projects/Population.h"
 #include "InventLib/Projects/Project.h"
 
-#include <Mechanics/Effect.h>
-
 namespace Invent {
     struct LifeTest : public ::testing::Test {
         Society society{};
-        Life* life;
+        Life* life{nullptr};
         GameSettings settings{};
 
         void SetUp() override {

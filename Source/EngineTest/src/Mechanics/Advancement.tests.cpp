@@ -65,7 +65,7 @@ namespace Invent {
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneAndAHalfLevels_KeepsTheChange) {
-        auto tickAmount = static_cast<size_t>(advancement.ExpToNextLevel * 1.5F);
+        auto tickAmount = static_cast<size_t>(static_cast<f32>(advancement.ExpToNextLevel) * 1.5F);
 		SetProgress(tickAmount, 1);
 		auto changeAmount = tickAmount - advancement.ExpToNextLevel;
 		advancement.Tick(OneSecond);
@@ -74,14 +74,17 @@ namespace Invent {
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneLevelProgress_IncreasesNextLevelCost) {
-		SetProgress(advancement.ExpToNextLevel, 1);
+        const auto initialProgress = 1.f;
+		SetProgress(advancement.ExpToNextLevel, initialProgress);
 		advancement.Tick(OneSecond);
 
-		ASSERT_EQ(advancement.ExpToNextLevel, 20); // 10 base + 10 linear growth
+		const auto expected = 20ull; // 10 base + 10 linear growth
+		ASSERT_EQ(advancement.ExpToNextLevel, expected); 
 	}
 
 	TEST_F(AdvancementTest, Tick_WithMultipleLevelsProgress_PublishesMultipleEvents) {
-		SetProgress(advancement.ExpToNextLevel, 100);
+        const auto initialProgress = 100.f;
+		SetProgress(advancement.ExpToNextLevel, initialProgress);
 		advancement.Tick(OneSecond);
 
 		ASSERT_TRUE(listener.Events.size() > 2);

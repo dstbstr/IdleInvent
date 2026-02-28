@@ -1,6 +1,7 @@
 #include "InventLib/Character/Life.h"
 
 #include "InventLib/Character/Society.h"
+#include "InventLib/Effects/Effect.h"
 #include "InventLib/GameState/GameSettings.h"
 #include "InventLib/Projects/Building.h"
 #include "InventLib/Projects/Expeditions.h"
@@ -11,7 +12,6 @@
 #include <DesignPatterns/ServiceLocator.h>
 #include <GameState/GameTime.h>
 #include <Instrumentation/Logging.h>
-#include <Mechanics/Effect.h>
 #include <Mechanics/Modifier.h>
 #include <Mechanics/Progression.h>
 #include <Platform/NumTypes.h>
@@ -39,7 +39,7 @@ namespace {
             resource.Current = life.ProjectResourceCostModifiers.at(project.Type).Apply(resource.Current);
         }
 
-        life.Projects.at(project.Type).push_back(project);
+        life.Projects.at(project.Type).push_back(std::move(project));
     }
 
     void CompleteInvention(
@@ -106,7 +106,8 @@ namespace {
             if(!society.AlwaysMaxPopulation && life.CurrentPopulation == life.MaxPopulation) {
                 outNewProjects.push_back(Invent::GetPopulationIncreaseProject(life.CurrentPopulation));
             }
-            life.MaxPopulation *= 10;
+            const auto populationIncrease = 10;
+            life.MaxPopulation *= populationIncrease;
             outNewProjects.push_back(Invent::GetPopulationCapacityProject(life.MaxPopulation));
             outNewProjects.back().CurrentWorkers = project.CurrentWorkers;
 
@@ -222,7 +223,7 @@ namespace Invent {
             Projects[type] = {};
         }
 
-        AddProject(*this, GetResearchProject(society->Specialty, 0).value());
+        AddProject(*this, GetResearchProject(society->Specialty, 0).value_or({}));
         AddProject(*this, GetPopulationCapacityProject(MaxPopulation));
         if(!society->AlwaysMaxPopulation) {
             AddProject(*this, GetPopulationIncreaseProject(CurrentPopulation));
@@ -231,13 +232,15 @@ namespace Invent {
         }
 
         SortProjects();
-        auto GetCost = [&](ResourceName name) -> size_t {
-            return society->Specialty == name ? 5 : society->Weakness == name ? 15 : 10;
+        auto GetCost = [&](ResourceName name) -> s64 {
+            const s64 small = 5, medium = 10, large = 15;
+            return society->Specialty == name ? small : society->Weakness == name ? large : medium;
         };
-        auto MakeConverter = [&](ResourceName resource, const std::string name) -> ResourceConversion {
+        auto MakeConverter = [&](ResourceName resource, const std::string& name) -> ResourceConversion {
+            const s64 productAmt = 5;
             return ResourceConversionBuilder(name, GetAllResourceIds())
                 .WithCost(static_cast<u16>(ResourceName::Primary), GetCost(resource))
-                .WithProduct(static_cast<u16>(resource), 5)
+                .WithProduct(static_cast<u16>(resource), productAmt)
                 .Build();
         };
         ResourceConverters.push_back(MakeConverter(ResourceName::Followers, "Recruit"));

@@ -1,6 +1,5 @@
 #include "InventLib/Character/RebirthBenefits.h"
 
-#include <Mechanics/Effect.h>
 #include <unordered_map>
 
 namespace {

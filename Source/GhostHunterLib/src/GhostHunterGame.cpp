@@ -1,3 +1,4 @@
+#include "GhostHunter/Constants.h"
 #include "GhostHunter/GameState/GameSettings.h"
 #include "GhostHunter/GameState/Life.h"
 #include "GhostHunter/GhostHunterGame.h"
@@ -38,12 +39,12 @@ namespace GhostHunter {
         InitializeSales();
 
         Unlocks unlocks{
-            .BestTool = ToolName::EmfDetector,
-            .BestLocation = LocationName::House,
-            .BestMember = MemberName::You,
-            .ShowRemainingResources = false,
-            .StartingCash = 150,
-            .DecayMultiplier = 0.9
+            .BestTool = Constants::Unlocks::BestTool,
+            .BestLocation = Constants::Unlocks::BestLocation,
+            .BestMember = Constants::Unlocks::BestMember,
+            .ShowRemainingResources = Constants::Unlocks::ShowRemainingResources,
+            .StartingCash = Constants::Unlocks::StartingCash,
+            .DecayMultiplier = Constants::Unlocks::DecayMultiplier
         };
         services.CreateIfMissing<Life>(unlocks);
 

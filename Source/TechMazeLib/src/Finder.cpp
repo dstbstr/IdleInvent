@@ -58,8 +58,7 @@ namespace TechMaze {
             case CountCorrect: CountCorrectOnly(result); break;
             case CountLowHigh: HighLowCountOnly(result); break;
             case LowHighDetail: HighLowDetail(result); break;
-            case AllDetail: break;
-            default: break;
+            default: case AllDetail: break;
         }
 
         return result;

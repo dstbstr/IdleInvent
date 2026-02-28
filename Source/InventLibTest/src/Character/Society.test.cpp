@@ -1,11 +1,11 @@
 #include "CommonTest.h"
 
 #include "InventLib/Character/Society.h"
+#include "InventLib/Effects/Effect.h"
 #include "InventLib/Projects/Population.h"
 #include "InventLib/GameState/GameSettings.h"
 
 #include <GameState/GameTime.h>
-#include <Mechanics/Effect.h>
 #include <Resources/Resource.h>
 
 namespace Invent {

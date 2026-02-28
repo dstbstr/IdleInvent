@@ -26,6 +26,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Character/RebirthBenefits.cpp
 	src/Character/Society.cpp
 
+	src/Effects/Effect.cpp
+
 	src/GameState/InventGameState.cpp
 
 	src/Inventory/Item.cpp 
@@ -41,6 +43,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/RandomEvents/LaborEvents.cpp
 	src/RandomEvents/MagicEvents.cpp
 	src/RandomEvents/NaturalEvents.cpp
+	src/RandomEvents/RandomEvent.cpp
 	src/RandomEvents/RandomEvents.cpp
 	src/RandomEvents/WealthEvents.cpp
 
@@ -80,4 +83,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Ui/Screens/Research.cpp
     src/Ui/Screens/Screens.cpp
     src/Ui/Screens/Settings.cpp
-)
+  "inc/InventLib/Constants.h")

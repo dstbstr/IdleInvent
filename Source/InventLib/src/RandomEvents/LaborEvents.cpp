@@ -1,7 +1,7 @@
 #include "InventLib/RandomEvents/RandomEvents.h"
+#include "InventLib/Effects/Effect.h"
 
 #include <GameState/GameTime.h>
-#include <Mechanics/RandomEvent.h>
 
 namespace Invent {
 	namespace RandomEvents {

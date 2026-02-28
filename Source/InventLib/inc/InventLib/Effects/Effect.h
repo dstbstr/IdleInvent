@@ -6,7 +6,6 @@
 
 #include <string>
 
-//TODO: Move this to game lib
 enum struct EffectTarget {
     AllProjectEfficiency,
     AllProjectRate,

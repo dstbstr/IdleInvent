@@ -1,25 +1,24 @@
 #include "InventLib/RandomEvents/RandomEvents.h"
-
-#include <Mechanics/RandomEvent.h>
+#include "InventLib/RandomEvents/RandomEvent.h"
 #include <GameState/GameTime.h>
 
 namespace Invent {
 	namespace RandomEvents {
 		namespace KnowledgeEvents {
 			// disasters
-			RandomEvent Misinformation;
-			RandomEvent Censorship;
-			RandomEvent BookBurnings;
+			const RandomEvent Misinformation;
+			const RandomEvent Censorship;
+			const RandomEvent BookBurnings;
 
 			// positive events
-			RandomEvent BestSeller;
-			RandomEvent ResearchGrant;
-			RandomEvent Discovery;
+			const RandomEvent BestSeller;
+			const RandomEvent ResearchGrant;
+			const RandomEvent Discovery;
 
 			// mixed events
-			RandomEvent Conference;
-			RandomEvent MadScientist;
-			RandomEvent FringeSect;
+			const RandomEvent Conference;
+			const RandomEvent MadScientist;
+			const RandomEvent FringeSect;
 
 			void RegisterAll() {
 				::RandomEvents::RegisterEvent(Misinformation, Rarity::Regular);

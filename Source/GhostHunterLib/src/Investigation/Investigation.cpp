@@ -2,22 +2,25 @@
 #include "GhostHunter/Formatting.h"
 
 namespace {
+    inline constexpr auto Short = OneSecond * 10;
+    inline constexpr auto Long = OneSecond * 30;
+
 	// TODO: Probably move this to Location
 	BaseTime TimeByLocation(GhostHunter::LocationName location) {
 		switch(location) {
 			using enum GhostHunter::LocationName;
-			case Shed: return OneSecond * 10;
-			case School: return OneSecond * 30;
-			case House: return OneSecond * 30;
-			case Church: return OneSecond * 30;
-			case Hotel: return OneSecond * 30;
-			case Prison: return OneSecond * 30;
-			case Hospital: return OneSecond * 30;
-			case Sanitorium: return OneSecond * 30;
+			case Shed: return Short;
+			case School: return Long;
+			case House: return Long;
+			case Church: return Long;
+			case Hotel: return Long;
+			case Prison: return Long;
+			case Hospital: return Long;
+			case Sanitorium: return Long;
 			default: break;
 		}
 		DR_ASSERT_MSG(false, "Unknown Location: " + GhostHunter::ToString(location));
-		return OneSecond * 30;
+		return Long;
     }
 }
 namespace GhostHunter {

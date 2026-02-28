@@ -26,9 +26,10 @@ namespace {
 
     void ApplyItems(Modifier& mod) {
         for(auto id: ExpeditionItems) {
-            auto item = Invent::FindItemById(id).value();
-            for(auto effect: item.Effects) {
-                mod += effect.Modifier;
+            if(auto item = Invent::FindItemById(id)) {
+                for(auto effect: item->Effects) {
+                    mod += effect.Modifier;
+                }
             }
         }
     }
@@ -65,11 +66,12 @@ namespace {
         std::vector<size_t> toRemove{};
         for(auto id: ExpeditionItems) {
             ImGui::PushID(static_cast<int>(id));
-            auto item = Invent::FindItemById(id).value();
-            ImGui::Text("%s", item.Name.c_str());
-            ImGui::SameLine();
-            if(ImGui::SmallButton("x")) {
-                toRemove.push_back(id);
+            if(auto item = Invent::FindItemById(id)) {
+                ImGui::Text("%s", item->Name.c_str());
+                ImGui::SameLine();
+                if(ImGui::SmallButton("x")) {
+                    toRemove.push_back(id);
+                }
             }
             ImGui::PopID();
         }
@@ -82,8 +84,9 @@ namespace {
         if(ImGui::CollapsingHeader("Shop")) {
             auto allItems = Invent::GetItemsByType(Invent::ItemType::Consumable);
             for(const auto& id: ExpeditionItems) {
-                auto item = Invent::FindItemById(id).value();
-                ImGui::Text("%s", item.Name.c_str());
+                if(auto item = Invent::FindItemById(id)) {
+                    ImGui::Text("%s", item->Name.c_str());
+                }
             }
 
             for(auto& item: allItems) {
@@ -99,7 +102,12 @@ namespace {
     }
 
     void RenderExpeditionOdds() {
-        auto expedition = Invent::ExpeditionFromString(SelectedExpedition->Name).value();
+        auto optionalExpedition = Invent::ExpeditionFromString(SelectedExpedition->Name);
+        if(!optionalExpedition.has_value()) {
+            DR_ASSERT_MSG(false, std::format("Failed to parse expedition name: {}", SelectedExpedition->Name));
+            return;
+        }
+        auto expedition = optionalExpedition.value();
         auto mod = Society->CurrentLife.BaseExplorationSuccessModifier;
         ApplyItems(mod);
         auto odds = Invent::ToRelativeOdds(Invent::GetExpeditionOdds(expedition, mod));
@@ -152,8 +160,8 @@ namespace {
     void RenderProgress() {
         auto timeProgress = static_cast<float>(SelectedExpedition->TimeProgress.count()) /
                             static_cast<float>(SelectedExpedition->TimeCost.count());
-        auto remainingTime = (SelectedExpedition->TimeCost.count() - SelectedExpedition->TimeProgress.count()) /
-                             std::max(size_t(1), SelectedExpedition->CurrentWorkers);
+        auto remainingTime = static_cast<u64>(SelectedExpedition->TimeCost.count() - SelectedExpedition->TimeProgress.count()) /
+                             std::max(1ull, SelectedExpedition->CurrentWorkers);
         auto label = std::format("{}", Constexpr::TimeString(remainingTime));
         ImGui::ProgressBar(timeProgress, ImVec2(-1, 0), label.c_str());
         if(ImGui::Button("Cancel")) {

@@ -2,8 +2,8 @@
 
 #include "InventLib/Character/Life.h"
 #include "InventLib/GameState/GameSettings.h"
+#include "InventLib/Effects/Effect.h"
 
-#include <Mechanics/Effect.h>
 #include <Resources/Resource.h>
 
 namespace Invent {

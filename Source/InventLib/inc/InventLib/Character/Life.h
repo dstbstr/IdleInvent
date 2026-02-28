@@ -1,5 +1,6 @@
 #pragma once
 
+#include "InventLib/Constants.h"
 #include "InventLib/GameState/GameSettings.h"
 #include "InventLib/Projects/Project.h"
 #include "InventLib/Projects/Research.h"
@@ -34,14 +35,14 @@ namespace Invent {
         std::map<std::string, size_t> Buildings{};
         std::unordered_map<ProjectType, std::vector<Project>> Projects{};
 
-        u8 WorkerDensity{5}; // Max Workers = CurrentPopulation / WorkerDensity
-        size_t MaxWorkers{3};
-        size_t AvailableWorkers{MaxWorkers};
+        u8 WorkerDensity{Constants::Life::WorkerDensity}; // Max Workers = CurrentPopulation / WorkerDensity
+        u64 MaxWorkers{Constants::Life::MaxWorkers};
+        u64 AvailableWorkers{Constants::Life::MaxWorkers};
 
-        size_t CurrentPopulation{15};
-        size_t MaxPopulation{30};
-        size_t CurrentTimeShards{0};
-        size_t MaxTimeShards{1 * 60 * 60 * 4}; // 4 hours
+        u64 CurrentPopulation{Constants::Life::CurrentPopulation};
+        u64 MaxPopulation{Constants::Life::MaxPopulation};
+        u64 CurrentTimeShards{Constants::Life::CurrentTimeShards};
+        u64 MaxTimeShards{Constants::Life::MaxTimeShards};
         
         Modifier TickModifier{.Add = 0, .Mul = 1.0F};
         void Tick(BaseTime elapsed);

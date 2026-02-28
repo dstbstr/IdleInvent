@@ -2,10 +2,10 @@
 #include "TestGameState.h"
 
 #include "InventLib/Achievements/Achievements.h"
+#include "InventLib/Effects/Effect.h"
 
 #include <GameState/GameState.h>
 #include <GameState/GameTime.h>
-#include <Mechanics/Effect.h>
 #include <Mechanics/Unlockable.h>
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>

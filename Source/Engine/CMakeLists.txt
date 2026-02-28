@@ -20,12 +20,11 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Instrumentation/LogWriter/StdOutLogWriter.cpp
 
 	src/Manage/EventManager.cpp
+	src/Manage/TickManager.cpp
 	
 	src/Mechanics/Advancement.cpp
-	src/Mechanics/Effect.cpp
 	src/Mechanics/Modifier.cpp
 	src/Mechanics/Progression.cpp
-	src/Mechanics/RandomEvent.cpp
 	src/Mechanics/Unlockable.cpp
 
 	src/Resources/Resource.cpp
@@ -35,4 +34,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Settings/PurchaseAmount.cpp
 
 	src/Utilities/Handle.cpp
-  "src/Manage/TickManager.cpp")
+)
