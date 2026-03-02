@@ -11,8 +11,8 @@ namespace Log {
 		return *this;
 	}
 
-	Filter& Filter::WithCustomMatcher(std::function<bool(const Entry&)> matcher) {
-		m_CustomMatcher = matcher;
+	Filter& Filter::WithCustomMatcher(std::function<bool(const Entry&)>&& matcher) {
+		m_CustomMatcher = std::move(matcher);
 		return *this;
 	}
 

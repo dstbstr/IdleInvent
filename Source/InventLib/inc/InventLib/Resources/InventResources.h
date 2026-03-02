@@ -1,13 +1,14 @@
 #pragma once
 
 #include <Resources/Resource.h>
+#include <array>
 
 namespace Invent {
     struct ResourceSave {
-        u16 Current[4]{}; // consider compressing this to u8
-        u16 Capacity[4]{}; // maybe store the index of the progression instead of the value
-        u16 BaseCapacity[4]{};
-        ModifierSave CapacityModifiers[4]{}; // only keep permanent modifiers
+        std::array<u16, 4> Current{}; // consider compressing this to u8
+        std::array<u16, 4> Capacity{}; // maybe store the index of the progression instead of the value
+        std::array<u16, 4> BaseCapacity{};
+        std::array<ModifierSave, 4> CapacityModifiers{}; // only keep permanent modifiers
     };
 
     enum struct ResourceName : u16 { 

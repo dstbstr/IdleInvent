@@ -67,7 +67,7 @@ namespace Invent::RandomEvents {
         save.Specialty = Specialty;
 	}
 
-    void MakeMoreCommon(RandomEvent event) {
+    void MakeMoreCommon(const RandomEvent& event) {
         //TODO: Yuck
         if(!::RandomEvents::IsEventRegistered(event)) return;
         auto rarity = ::RandomEvents::GetEventChance(event);
@@ -75,7 +75,7 @@ namespace Invent::RandomEvents {
         ::RandomEvents::RegisterEvent(event, MoreCommon(rarity));
     }
 
-    void MakeLessCommon(RandomEvent event) {
+    void MakeLessCommon(const RandomEvent& event) {
         if(!::RandomEvents::IsEventRegistered(event)) return;
         auto rarity = ::RandomEvents::GetEventChance(event);
         ::RandomEvents::UnregisterEvent(event);

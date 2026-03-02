@@ -5,18 +5,20 @@
 #include <vector>
 #include <format>
 
-Progression::Progression(const Progression& other) {
-    m_Permanent = other.m_Permanent;
-    m_Modifiers = other.m_Modifiers;
+Progression::Progression(const Progression& other) 
+    : m_Permanent(other.m_Permanent)
+    , m_Modifiers(other.m_Modifiers) {
     CalcProgress();
 }
 
 Progression::Progression(const ProgressionSave& save) {
     save.Permanent.Load(m_Permanent);
+    DR_ASSERT(save.TempCount <= ProgressionSave::MaxTempModifiers);
+
     for(auto i = 0u; i < save.TempCount; i++) {
 		Modifier mod;
-		save.Temp[i].Load(mod);
-        m_Modifiers.push_back({mod, OneMinute * save.Durations[i]});
+		save.Temp.at(i).Load(mod);
+        m_Modifiers.push_back({mod, OneMinute * save.Durations.at(i)});
 	}
 
     CalcProgress();
@@ -30,8 +32,8 @@ void Progression::Save(ProgressionSave& save) const {
     save.TempCount = static_cast<u8>(m_Modifiers.size());
     for(auto i = 0u; i < m_Modifiers.size(); i++) {
 		const auto& [mod, duration] = m_Modifiers[i];
-		mod.Save(save.Temp[i]);
-        save.Durations[i] = static_cast<u8>(duration.count() / OneMinute.count());
+		mod.Save(save.Temp.at(i));
+        save.Durations.at(i) = static_cast<u8>(duration.count() / OneMinute.count());
 	}
 }
 

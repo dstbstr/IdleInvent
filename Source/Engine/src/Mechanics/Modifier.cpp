@@ -11,7 +11,7 @@ void Modifier::Save(ModifierSave& outSave) const {
 
 void ModifierSave::Load(Modifier& outModifier) const {
 	outModifier.Add = Add;
-	outModifier.Mul = Mul / 1000.f;
+	outModifier.Mul = static_cast<f32>(Mul) / 1000.f;
 }
 
 std::string ToString(const Modifier& mod) {

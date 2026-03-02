@@ -69,8 +69,8 @@ namespace Graphics {
     }
 
     bool TryLoadFont(const std::string& id, const char* fontName, float fontSize) { const auto& io = ImGui::GetIO();
-        void* fontData;
-        size_t fontDataSize;
+        void* fontData = nullptr;
+        size_t fontDataSize = 0;
         if(!g_Platform->TryGetAsset(fontName, &fontData, fontDataSize)) {
             return false;
         }
@@ -91,8 +91,8 @@ namespace Graphics {
     void SetFont(const char* fontName, float fontSize) {
         ImGuiIO& io = ImGui::GetIO();
 
-        void* fontData;
-        size_t fontDataSize;
+        void* fontData = nullptr;
+        size_t fontDataSize = 0;
         if(!g_Platform->TryGetAsset(fontName, &fontData, fontDataSize)) {
             IM_ASSERT(false);
             abort();
@@ -108,8 +108,8 @@ namespace Graphics {
     bool TryLoadImageFile(const std::string& file) {
         if(g_Ctx->Images.contains(file)) return true;
 
-        void* fileData;
-        size_t fileSize;
+        void* fileData = nullptr;
+        size_t fileSize = 0;
         if(!g_Platform->TryGetAsset(file.c_str(), &fileData, fileSize)) {
             return false;
         }
@@ -129,7 +129,7 @@ namespace Graphics {
 
     void Render(RenderFn renderFn) {
         static ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
-        static const float clearColorWithAlpha[4] = {
+        static const std::array<float, 4> clearColorWithAlpha = {
             clearColor.x * clearColor.w, clearColor.y * clearColor.w, clearColor.z * clearColor.w, clearColor.w
         };
 
@@ -149,7 +149,7 @@ namespace Graphics {
 
         ImGui::Render();
 
-        g_Ctx->RenderFrame(clearColorWithAlpha);
+        g_Ctx->RenderFrame(clearColorWithAlpha.data());
     }
 } // namespace Graphics
 #endif

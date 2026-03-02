@@ -15,7 +15,7 @@ namespace Log {
 	struct Filter {
 		Filter& WithLevel(Level level);
 		Filter& WithFilePattern(const std::regex& pattern);
-		Filter& WithCustomMatcher(std::function<bool(const Entry&)> matcher);
+		Filter& WithCustomMatcher(std::function<bool(const Entry&)>&& matcher);
 
 		bool Matches(const Entry& entry) const;
 

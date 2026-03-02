@@ -1,4 +1,5 @@
 #ifdef WIN32
+// NOLINTBEGIN
 #include "D3dContext.h"
 #include "backends/imgui_impl_dx12.h"
 
@@ -20,13 +21,6 @@ constexpr void EnsureOk([[maybe_unused]] HRESULT hr) {
     IM_ASSERT(SUCCEEDED(hr));
     #endif
 }
-/*
-#ifdef DEBUG
-#define EnsureOk(hr) IM_ASSERT(SUCCEEDED(hr))
-#else
-#define EnsureOk(hr) (void)hr
-#endif
-*/
 
 void SetDebugObjectName(ID3D12DeviceChild* resource, std::string_view name) {
     resource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(name.size()), name.data());
@@ -238,8 +232,8 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
     ZeroMemory(&desc, sizeof(desc));
     desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     desc.Alignment = 0;
-    desc.Width = width;
-    desc.Height = height;
+    desc.Width = static_cast<UINT64>(width);
+    desc.Height = static_cast<UINT64>(height);
     desc.DepthOrArraySize = 1;
     desc.MipLevels = 1;
     desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -254,7 +248,7 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
     );
 
     auto uploadPitch =
-        (width * 4 + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1u) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1u);
+        (width * 4 + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
     auto uploadSize = height * uploadPitch;
     desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     desc.Alignment = 0;
@@ -280,14 +274,14 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
 
     // Write pixels into the upload resource
     void* mapped = nullptr;
-    D3D12_RANGE range = {0, uploadSize};
+    D3D12_RANGE range = {0ull, static_cast<SIZE_T>(uploadSize)};
     hr = uploadBuf->Map(0, &range, &mapped);
     EnsureOk(hr);
 
     auto mappedBytes = static_cast<unsigned char*>(mapped);
     for(auto y = 0; y < height; y++) {
         auto pitchOffset = static_cast<size_t>(y) * uploadPitch;
-        memcpy(mappedBytes + pitchOffset, imageData + y * width * 4, width * 4);
+        memcpy(mappedBytes + pitchOffset, imageData + static_cast<ptrdiff_t>(y * width * 4), static_cast<size_t>(width * 4));
     }
     uploadBuf->Unmap(0, &range);
 
@@ -302,8 +296,8 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
                   .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                   .Width = static_cast<unsigned int>(width),
                   .Height = static_cast<unsigned int>(height),
-                  .Depth = 1,
-                  .RowPitch = uploadPitch
+                  .Depth = 1u,
+                  .RowPitch = static_cast<UINT>(uploadPitch)
                  }
             }
         };
@@ -352,7 +346,7 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
     EnsureOk(hr);
 
     // execute the copy
-    cmdQueue->ExecuteCommandLists(1, (ID3D12CommandList* const*)cmdList.GetAddressOf());
+    cmdQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(cmdList.GetAddressOf()));
     hr = cmdQueue->Signal(fence.Get(), 1);
     EnsureOk(hr);
 
@@ -456,5 +450,5 @@ void CheckForLeaks() {
     #endif
 }
 
-#undef EnsureOk
+// NOLINTEND
 #endif

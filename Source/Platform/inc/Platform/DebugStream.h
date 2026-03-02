@@ -5,7 +5,7 @@
 
 struct DebugStream : public std::ostream {
     DebugStream();
-    ~DebugStream();
+    ~DebugStream() noexcept;
 
 private:
     struct DebugStreamBuf;

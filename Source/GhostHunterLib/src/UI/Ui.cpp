@@ -9,7 +9,7 @@
 namespace {
     class UiBuilder {
     public:
-        UiBuilder& AddPart(float height, std::function<void()> part) {
+        UiBuilder& AddPart(float height, const std::function<void()>& part) {
             m_Heights.push_back(height);
             m_Parts.push_back(part);
             return *this;

@@ -1,13 +1,13 @@
 #include "Instrumentation/LogWriter/StdOutLogWriter.h"
 
 namespace {
-    constexpr char InfoLineFormat[]{
+    constexpr auto InfoLineFormat{
         "[%s] " // Level
         "%s:%zu " // File:Line
         "%s\n" // Msg
     };
 
-    constexpr char ErrorLineFormat[]{
+    constexpr auto ErrorLineFormat{
         "[%8s] " // Level
         "%s:%zu " // File:Line
         "(%s) - " // Function name

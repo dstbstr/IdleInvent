@@ -5,8 +5,9 @@ Checks: >
     clang-analyzer-*,
     cppcoreguidelines-*,
     -cppcoreguidelines-pro-type-vararg,
+    -cppcoreguidelines-pro-type-union-access,
     -cppcoreguidelines-avoid-non-const-global-variables,
     -cppcoreguidelines-avoid-magic-numbers,
+    -cppcoreguidelines-macro-usage,
     performance-*,
     portability-*
-HeaderFilterRegex: '(inc/|src/)'

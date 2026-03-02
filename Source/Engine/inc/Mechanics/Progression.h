@@ -8,11 +8,13 @@
 
 #include <vector>
 #include <numeric>
+#include <array>
 
 struct ProgressionSave {
+    static constexpr size_t MaxTempModifiers = 8;
     ModifierSave Permanent{};
-    ModifierSave Temp[8]{}; //yuck
-    u8 Durations[8]{}; //yuck++
+    std::array<ModifierSave, MaxTempModifiers> Temp{}; //yuck
+    std::array<u8, MaxTempModifiers> Durations{}; //yuck++
     u8 TempCount{0};
 };
 

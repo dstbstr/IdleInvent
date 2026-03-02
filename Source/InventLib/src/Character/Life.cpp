@@ -261,7 +261,7 @@ namespace Invent {
         if(primary.Current >= primary.Capacity) return;
 
         auto progress = ResourceProgressions.at(ResourceName::Primary).GetProgress(elapsed);
-        progress *= MaxWorkers;
+        progress *= static_cast<s64>(MaxWorkers);
         // progress *= CurrentPopulation;
         primary.Current += progress;
         primary.Clamp();

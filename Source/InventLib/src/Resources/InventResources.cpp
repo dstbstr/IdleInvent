@@ -58,11 +58,11 @@ namespace Invent {
             auto name = static_cast<ResourceName>(id);
 
             auto r = Resource{};
-            r.Current = save.Current[id];
-            r.Capacity = save.Capacity[id];
-            r.BaseCapacity = save.BaseCapacity[id];
+            r.Current = save.Current.at(id);
+            r.Capacity = save.Capacity.at(id);
+            r.BaseCapacity = save.BaseCapacity.at(id);
             Modifier mod;
-            save.CapacityModifiers[id].Load(mod);
+            save.CapacityModifiers.at(id).Load(mod);
             r.AddCapacityModifier(mod);
             
             result[name] = r;
@@ -73,8 +73,8 @@ namespace Invent {
     void InventResourceCollection::Save(ResourceSave& save) const {
         for(const auto& [id, resource]: m_Resources) {
             // TODO: Compress or change type
-            save.Current[id] = static_cast<u16>(resource.Current);
-            save.Capacity[id] = static_cast<u16>(resource.Capacity);
+            save.Current.at(id) = static_cast<u16>(resource.Current);
+            save.Capacity.at(id) = static_cast<u16>(resource.Capacity);
         }
     }
 

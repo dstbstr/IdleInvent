@@ -38,7 +38,7 @@ namespace {
                 );
             }
 
-            stream << msg << std::endl << std::flush;
+            stream << msg << '\n' << std::flush;
             if(entry.LogLevel >= Log::Level::Error) {
                 PlatformDebugBreak();
                 abort();
