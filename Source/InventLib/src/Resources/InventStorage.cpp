@@ -16,16 +16,17 @@ namespace Invent {
             Log::Error(std::format("Invalid storage level {} for resource {}", level, ResourceType));
             return;
         }
-        Capacity = std::max(Capacity, capacities[level]);
+        Capacity = std::max(Capacity, capacities.at(level));
     }
     void InventStorageCollection::Load(const StorageSave& save) {
         Log::Info("Loading storage");
         for(auto id: GetAllResourceIds()) {
             auto store = Storage(id);
-            store.Stored = Constexpr::Decompress<size_t>(save.Stored[id]);
+            store.Stored = Constexpr::Decompress<size_t>(save.Stored.at(id));
             // find the 3 bits for this index
-            auto bits = (save.Capacity >> (id * 3)) & 0b111;
-            store.Capacity = capacities[bits];
+            const auto mask = 0b111;
+            auto bits = (save.Capacity >> (id * 3)) & mask;
+            store.Capacity = capacities.at(static_cast<size_t>(bits));
 
             // Log::Info(std::format( "Loading storage for resource {} with capacity {} and stored {}",
             // ToString(resource), save.Capacity[i], save.Stored[i]));
@@ -37,7 +38,7 @@ namespace Invent {
         Log::Info("Saving storage");
         for(auto id: GetAllResourceIds()) {
             const auto& resource = m_Storages.at(id);
-            save.Stored[id] = Constexpr::Compress(resource.Stored);
+            save.Stored.at(id) = Constexpr::Compress(resource.Stored);
             // find the 3 bits for this index
             auto bits =
                 std::distance(capacities.begin(), std::find(capacities.begin(), capacities.end(), resource.Capacity));

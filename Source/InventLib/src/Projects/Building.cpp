@@ -535,14 +535,14 @@ namespace {
     InventResourceCollection MakeResource(size_t followers, size_t knowledge, size_t money, size_t power) {
         InventResourceCollection result{};
         using enum ResourceName;
-        result.at(Followers).Current = Costs[followers];
-        result.at(Knowledge).Current = Costs[knowledge];
-        result.at(Money).Current = Costs[money];
-        result.at(Power).Current = Costs[power];
-        result.at(Followers).Capacity = Costs[followers];
-        result.at(Knowledge).Capacity = Costs[knowledge];
-        result.at(Money).Capacity = Costs[money];
-        result.at(Power).Capacity = Costs[power];
+        result.at(Followers).Current = Costs.at(followers);
+        result.at(Knowledge).Current = Costs.at(knowledge);
+        result.at(Money).Current = Costs.at(money);
+        result.at(Power).Current = Costs.at(power);
+        result.at(Followers).Capacity = Costs.at(followers);
+        result.at(Knowledge).Capacity = Costs.at(knowledge);
+        result.at(Money).Capacity = Costs.at(money);
+        result.at(Power).Capacity = Costs.at(power);
 
         return result;
     }
@@ -746,7 +746,7 @@ namespace Invent {
         project.Name = ToString(building);
         project.Description = GetDescription(building);
         project.Type = ProjectType::Build;
-        project.TimeCost = BaseTime(static_cast<size_t>(BuildingBaseTimeCost.at(building).count() * BuildingTimeScale[building](level)));
+        project.TimeCost = BaseTime(static_cast<size_t>(static_cast<f64>(BuildingBaseTimeCost.at(building).count()) * BuildingTimeScale[building](level)));
         project.ResourceCost = BuildingBaseResourceCost[building] * BuildingResourceScale[building](level);
         using namespace std::string_literals;
 

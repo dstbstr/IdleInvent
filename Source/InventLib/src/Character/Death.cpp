@@ -7,9 +7,34 @@
 #include <Utilities/IRandom.h>
 
 #include <format>
+namespace {
+    constexpr double SuddenWarning = 0.95;
+    constexpr double IllnessWarning = 0.85;
+    constexpr double SlowWarning = 0.7;
 
+    constexpr auto MinimumLifespan = OneGameYear * 20;
+    
+    constexpr double SuddenToD(double change) {
+        // lifespan reduced by 30-50%
+        const auto base = 0.5f;
+        const auto range = 0.2f;
+        return base + change * range;
+    }
+    constexpr double IllnessToD(double change) {
+        // lifespan increased or decreased by 20%
+        const auto base = 1.0f;
+        const auto range = 0.4f;
+        return base - range / 2 + change * range;
+    }
+    constexpr double SlowToD(double change) {
+        // lifespan increased by 25-40%
+        const auto base = 1.25f;
+        const auto range = 0.15f;
+        return base + change * range;
+    }
+}
 namespace Invent {
-    Death GenerateDeath(size_t baseLifeSpan) {
+    Death GenerateDeath(u32 baseLifeSpan) {
         IRandom& random = ServiceLocator::Get().GetRequired<IRandom>();
         Death death;
         NearDeath& nearDeath = death.NearDeathData;
@@ -21,32 +46,29 @@ namespace Invent {
         double warning = 1.0;
         switch(death.Type) {
         case DeathType::Sudden: {
-            // lifespan reduced by 30-50%
-            tod = 0.5f + change * 0.2f;
-            warning = 0.95;
+            tod = SuddenToD(change);
+            warning = SuddenWarning;
             nearDeath.WarningMessage = "You saw an ill omen, that can't be good";
             break;
         }
         case DeathType::Illness: {
-            // lifespan increased or decreased by 20%
-            tod = 0.8f + change * 0.4f;
-            warning = 0.85;
+            tod = IllnessToD(change);
+            warning = IllnessWarning;
             nearDeath.WarningMessage = "You're feeling a bit under the weather";
             break;
         }
         case DeathType::Slow: {
-            // lifespan increased by 25-40%
-            tod = 1.25f + change * 0.15f;
-            warning = 0.7;
+            tod = SlowToD(change);
+            warning = SlowWarning;
             nearDeath.WarningTime = OneMinute * random.GetNext(10, 20);
             nearDeath.WarningMessage = "You're healthy as an ox";
             break;
         }
         }
 
-        death.TimeOfDeath = static_cast<size_t>(baseLifeSpan * tod) * OneGameYear;
-        death.TimeOfDeath = std::max(death.TimeOfDeath, OneGameYear * 20); // minimum lifespan of 20 years
-        nearDeath.WarningTime = BaseTime(static_cast<size_t>(death.TimeOfDeath.count() * warning));
+        death.TimeOfDeath = static_cast<s64>(baseLifeSpan * tod) * OneGameYear;
+        death.TimeOfDeath = std::max(death.TimeOfDeath, MinimumLifespan);
+        nearDeath.WarningTime = BaseTime(static_cast<s64>(static_cast<double>(death.TimeOfDeath.count()) * warning));
 
         Log::Info(std::format("Cause of death will be {} at age {}", ToString(death), (death.TimeOfDeath.count() / OneGameYear.count())));
         return death;

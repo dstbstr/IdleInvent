@@ -14,7 +14,7 @@ namespace {
 	std::unordered_map<RandomEvent, std::pair<BaseTime, BaseTime>> EventCurrentSlot{};
 	std::optional<RandomEvent> ActiveEvent;
 
-	size_t GetRandomNumber(size_t max) {
+	auto GetRandomNumber(auto max) {
 		auto& random = ServiceLocator::Get().GetRequired<IRandom>();
 		return random.GetNext(1, max);
 	}

@@ -6,6 +6,7 @@ Checks: >
     cppcoreguidelines-*,
     -cppcoreguidelines-pro-type-vararg,
     -cppcoreguidelines-avoid-non-const-global-variables,
+    -cppcoreguidelines-avoid-magic-numbers,
     performance-*,
     portability-*
 HeaderFilterRegex: '(inc/|src/)'

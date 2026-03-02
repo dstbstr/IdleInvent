@@ -55,7 +55,7 @@ namespace Ui::Components::Project {
 
         ImGui::SameLine();
         auto timeProgress = static_cast<float>(project.TimeProgress.count()) / static_cast<float>(project.TimeCost.count());
-        auto remainingTime = (project.TimeCost.count() - project.TimeProgress.count()) / std::max(size_t(1), project.CurrentWorkers);
+        auto remainingTime = static_cast<u64>(project.TimeCost.count() - project.TimeProgress.count()) / std::max(1ull, project.CurrentWorkers);
         auto label = std::format("{}", Constexpr::TimeString(remainingTime));
         ImGui::ProgressBar(timeProgress, ImVec2(-1, 0), label.c_str());
 

@@ -7,7 +7,7 @@
 namespace Invent {
     struct StorageSave {
         // compressed size_t
-        u8 Stored[5]{};
+        std::array<u8, 5> Stored{};
 
         // 5 3 bit numbers
         u16 Capacity{};

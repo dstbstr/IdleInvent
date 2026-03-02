@@ -184,7 +184,7 @@ ResourceCollection operator-(const ResourceCollection& lhs, const ResourceCollec
 
 ResourceCollection& ResourceCollection::operator/=(size_t divisor) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current /= divisor;
+        resource.Current /= static_cast<s64>(divisor);
     }
 
     return *this;
@@ -192,7 +192,7 @@ ResourceCollection& ResourceCollection::operator/=(size_t divisor) {
 
 ResourceCollection& ResourceCollection::operator/=(f32 divisor) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current = static_cast<s64>(resource.Current / static_cast<f64>(divisor));
+        resource.Current = static_cast<s64>(static_cast<f64>(resource.Current) / static_cast<f64>(divisor));
     }
 
     return *this;
@@ -200,7 +200,7 @@ ResourceCollection& ResourceCollection::operator/=(f32 divisor) {
 
 ResourceCollection& ResourceCollection::operator/=(f64 divisor) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current = static_cast<s64>(std::trunc(resource.Current / divisor));
+        resource.Current = static_cast<s64>(static_cast<f64>(resource.Current) / divisor);
     }
 
     return *this;
@@ -223,7 +223,7 @@ ResourceCollection operator/(const ResourceCollection& lhs, f64 divisor) {
 
 ResourceCollection& ResourceCollection::operator*=(size_t multiplier) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current *= multiplier;
+        resource.Current *= static_cast<s64>(multiplier);
     }
 
     return *this;
@@ -236,7 +236,7 @@ ResourceCollection operator*(const ResourceCollection& lhs, size_t multiplier) {
 
 ResourceCollection& ResourceCollection::operator*=(f32 multiplier) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current = static_cast<s64>(resource.Current * multiplier);
+        resource.Current = static_cast<s64>(static_cast<f64>(resource.Current) * multiplier);
     }
 
     return *this;
@@ -244,7 +244,7 @@ ResourceCollection& ResourceCollection::operator*=(f32 multiplier) {
 
 ResourceCollection& ResourceCollection::operator*=(f64 multiplier) {
     for(auto& [name, resource]: m_Resources) {
-        resource.Current = static_cast<s64>(resource.Current * multiplier);
+        resource.Current = static_cast<s64>(static_cast<f64>(resource.Current) * multiplier);
     }
 
     return *this;

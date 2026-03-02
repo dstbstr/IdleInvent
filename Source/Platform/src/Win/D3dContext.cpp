@@ -78,7 +78,7 @@ D3dContext::D3dContext(Platform& platform) {
         auto rtvDescriptorSize = Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         auto rtvHandle = RtvHeap->GetCPUDescriptorHandleForHeapStart();
         for(auto i = 0u; i < BackBufferCount; i++) {
-            Descriptors[i] = rtvHandle;
+            Descriptors.at(i) = rtvHandle;
             rtvHandle.ptr += rtvDescriptorSize;
         }
     }
@@ -109,7 +109,7 @@ D3dContext::D3dContext(Platform& platform) {
     for(auto i = 0u; i < FramesInFlightCount; i++) {
         hr = Device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT, 
-            IID_PPV_ARGS(&FrameContext[i].CommandAllocator)
+            IID_PPV_ARGS(&FrameContext.at(i).CommandAllocator)
         );
         EnsureOk(hr);
     }
@@ -183,13 +183,13 @@ void D3dContext::CreateRenderTarget() {
     for(auto i = 0u; i < BackBufferCount; i++) {
         ComPtr<ID3D12Resource> backBuffer = nullptr;
         SwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer));
-        Device->CreateRenderTargetView(backBuffer.Get(), nullptr, Descriptors[i]);
-        Resources[i] = backBuffer;
+        Device->CreateRenderTargetView(backBuffer.Get(), nullptr, Descriptors.at(i));
+        Resources.at(i) = backBuffer;
     }
 }
 
 void D3dContext::WaitForLastSubmittedFrame() {
-    auto& frameCtx = FrameContext[FrameIndex % FramesInFlightCount];
+    auto& frameCtx = FrameContext.at(FrameIndex % FramesInFlightCount);
     auto fenceVal = frameCtx.FenceVal;
     if(fenceVal == 0) return; // no fence was signaled
 
@@ -203,19 +203,19 @@ void D3dContext::WaitForLastSubmittedFrame() {
 FrameContext* D3dContext::WaitForNextFrameResources() {
     auto nextFrameIdx = FrameIndex + 1;
     FrameIndex = nextFrameIdx;
-    HANDLE waitableObjects[] = {SwapChainWaitableObject, nullptr};
+    std::array<HANDLE, 2> waitableObjects{SwapChainWaitableObject, nullptr};
     DWORD numWaitableObjects = 1;
 
-    auto& frameCtx = FrameContext[nextFrameIdx % FramesInFlightCount];
+    auto& frameCtx = FrameContext.at(nextFrameIdx % FramesInFlightCount);
     auto fenceVal = frameCtx.FenceVal;
     if(fenceVal != 0) {
         frameCtx.FenceVal = 0;
         Fence->SetEventOnCompletion(fenceVal, FenceEvent);
-        waitableObjects[1] = FenceEvent;
+        waitableObjects.at(1) = FenceEvent;
         numWaitableObjects++;
     }
 
-    WaitForMultipleObjects(numWaitableObjects, waitableObjects, TRUE, INFINITE);
+    WaitForMultipleObjects(numWaitableObjects, waitableObjects.data(), TRUE, INFINITE);
 
     return &frameCtx;
 }
@@ -223,7 +223,8 @@ FrameContext* D3dContext::WaitForNextFrameResources() {
 std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data, size_t dataSize) {
     int width{0};
     int height{0};
-    auto imageData = stbi_load_from_memory((const unsigned char*)data, (int)dataSize, &width, &height, NULL, 4);
+    const unsigned char* charData = static_cast<const unsigned char*>(data);
+    auto imageData = stbi_load_from_memory(charData, static_cast<int>(dataSize), &width, &height, NULL, 4);
     if(imageData == NULL) return nullptr;
 
     ///////////
@@ -282,8 +283,11 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
     D3D12_RANGE range = {0, uploadSize};
     hr = uploadBuf->Map(0, &range, &mapped);
     EnsureOk(hr);
+
+    auto mappedBytes = static_cast<unsigned char*>(mapped);
     for(auto y = 0; y < height; y++) {
-        memcpy((void*)((uintptr_t)mapped + y * uploadPitch), imageData + y * width * 4, width * 4);
+        auto pitchOffset = static_cast<size_t>(y) * uploadPitch;
+        memcpy(mappedBytes + pitchOffset, imageData + y * width * 4, width * 4);
     }
     uploadBuf->Unmap(0, &range);
 

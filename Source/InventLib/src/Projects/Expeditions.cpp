@@ -184,7 +184,7 @@ namespace {
     };
 
     InventResourceCollection MakeResourceCollection(Expeditions expedition) {
-        auto val = 0;
+        auto val = 0ll;
         switch(expedition) {
         case Expeditions::ConvertAVillage: val = 0; break;
         case Expeditions::EstablishBoundaries: val = 1; break;
@@ -219,7 +219,7 @@ namespace {
         case Expeditions::LaunchSpacecraft: val = 6; break;
         }
 
-        size_t resourceAmount = 1'000 * Constexpr::Pow(10, val);
+        s64 resourceAmount = 1'000ll * Constexpr::Pow(10ll, val);
         InventResourceCollection result{};
 
         for(auto resource: SecondaryResources()) {
@@ -307,9 +307,14 @@ namespace Invent {
 
         auto roll = dist(gen);
 
-        if((roll -= baseOdds.Artifact) < 0 && !artifactFound) return ExpeditionOutcome::Artifact;
-        else if((roll -= baseOdds.Success) < 0) return ExpeditionOutcome::Resources;
-        else if((roll -= baseOdds.Nothing) < 0) return ExpeditionOutcome::Nothing;
+        // thresholds
+        const auto tArtifact = baseOdds.Artifact;
+        const auto tSuccess = tArtifact + baseOdds.Success;
+        const auto tNothing = tSuccess + baseOdds.Nothing;
+
+        if(roll < tArtifact && !artifactFound) return ExpeditionOutcome::Artifact;
+        else if(roll < tSuccess) return ExpeditionOutcome::Resources;
+        else if(roll < tNothing) return ExpeditionOutcome::Nothing;
         else return ExpeditionOutcome::Trajedy;
     }
 
