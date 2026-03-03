@@ -8,7 +8,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC 
     inc 
-#    ../external/stb-image
 )
 
 if (WIN32)

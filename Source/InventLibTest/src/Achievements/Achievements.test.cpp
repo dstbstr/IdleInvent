@@ -40,8 +40,8 @@ namespace Invent {
         void TearDown() override { unlockables->clear(); }
 
         GameState* gameState{nullptr};
-        std::unordered_map<std::string, Unlockable>* unlockables;
-        AchievementListener listener;
+        std::unordered_map<std::string, Unlockable>* unlockables{};
+        AchievementListener listener{};
     };
 
     TEST_F(AchievementsTest, Unlockables_AfterInitialize_ContainsAllTimeAchievements) {

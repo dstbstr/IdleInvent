@@ -41,7 +41,7 @@ namespace Ui::Screens::Settings {
             auto item = projectPriorities[i].c_str();
             ImGui::Selectable(item);
             if(ImGui::IsItemActive() && ! ImGui::IsItemHovered()) {
-                auto next = i + (ImGui::GetMouseDragDelta(0).y < 0 ? -1 : 1); // NOLINT
+                auto next = ImGui::GetMouseDragDelta(0).y < 0 ? i - 1 : i + 1;
                 if(next < max) {
                     std::swap(projectPriorities[i], projectPriorities[next]);
                     std::swap(gameSettings->ProjectPriority[i], gameSettings->ProjectPriority[next]);

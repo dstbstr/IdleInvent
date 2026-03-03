@@ -6,7 +6,7 @@ using namespace Microsoft::WRL;
 
 D3dAllocator::D3dAllocator(ID3D12Device* device, ComPtr<ID3D12DescriptorHeap> heap) 
 :Heap(std::move(heap)) {
-    IM_ASSERT(Heap == nullptr && FreeIndicies.empty());
+    IM_ASSERT(FreeIndicies.empty());
     auto desc = Heap->GetDesc();
     HeapType = desc.Type;
     HeapStartCpu = Heap->GetCPUDescriptorHandleForHeapStart();

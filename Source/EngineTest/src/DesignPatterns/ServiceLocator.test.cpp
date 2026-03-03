@@ -44,12 +44,12 @@ TEST_F(ServiceLocatorTest, Get_AfterDifferentQueryAndSet_ReturnsSetValue) {
 TEST_F(ServiceLocatorTest, ResetAll_RemovesEntries_InReverse) {
     static std::vector<std::string> order;
     struct A {
-        ~A() {
+        ~A() noexcept {
             order.push_back("A");
         }
     };
     struct B {
-        ~B() {
+        ~B() noexcept {
 			order.push_back("B");
 		}
 	};
@@ -65,6 +65,7 @@ TEST_F(ServiceLocatorTest, ResetAll_RemovesEntries_InReverse) {
 }
 
 struct IFoo {
+    IFoo() = default;
     virtual ~IFoo() = default;
     virtual int Get() const = 0;
 };

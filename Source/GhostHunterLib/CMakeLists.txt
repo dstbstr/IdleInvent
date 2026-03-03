@@ -6,7 +6,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 	Engine
     IdlePlatform
     imgui
-    #stbimage
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC inc)

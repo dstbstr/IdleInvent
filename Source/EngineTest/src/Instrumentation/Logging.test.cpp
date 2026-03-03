@@ -5,7 +5,7 @@
 
 struct TestLogSink : public Log::ISink {
 	TestLogSink(Log::Filter filter)
-		: ISink(filter) {}
+		: ISink(std::move(filter)) {}
 
 	void Write(const Log::Entry& entry) override {
 		messages.push_back(entry);
@@ -27,7 +27,7 @@ struct LoggingTest : public testing::Test {
 	}
 
 	bool DoesLog(Log::Level messageLevel, Log::Filter filter) {
-		TestLogSink sink(filter);
+		TestLogSink sink(std::move(filter));
 		switch (messageLevel) {
 			case Log::Level::Debug: Log::Debug("Test Debug"); break;
 			case Log::Level::Info: Log::Info("Test Info"); break;

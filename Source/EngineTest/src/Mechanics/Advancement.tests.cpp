@@ -29,9 +29,9 @@ namespace Invent {
 		
 		Advancement advancement{"Test", 10, Scale::Linear<int, 10>, 0 };
 
-		void SetProgress(s64 add, f32 mul) {
+		void SetProgress(u64 add, f32 mul) {
             advancement.Progress.ClearModifiers();
-            advancement.Progress.AddPermanent(Modifier{.Add = add, .Mul = mul});
+            advancement.Progress.AddPermanent(Modifier{.Add = static_cast<s64>(add), .Mul = mul});
 		}
 
 		AdvancementListener listener;
@@ -65,7 +65,7 @@ namespace Invent {
 	}
 
 	TEST_F(AdvancementTest, Tick_WithOneAndAHalfLevels_KeepsTheChange) {
-        auto tickAmount = static_cast<size_t>(static_cast<f32>(advancement.ExpToNextLevel) * 1.5F);
+        auto tickAmount = static_cast<u64>(static_cast<f32>(advancement.ExpToNextLevel) * 1.5F);
 		SetProgress(tickAmount, 1);
 		auto changeAmount = tickAmount - advancement.ExpToNextLevel;
 		advancement.Tick(OneSecond);

@@ -95,8 +95,7 @@ std::string ToString(EnumWithFromString e) {
 }
 TEST(EnumUtilsTest, FromString_WithMatchingString_ReturnsValue) {
     auto result = Enum::FromString<EnumWithFromString, true>("B");
-    ASSERT_TRUE(result.has_value());
-    ASSERT_EQ(result.value(), EnumWithFromString::B);
+    ASSERT_THAT(result, testing::Optional(EnumWithFromString::B));
 }
 TEST(EnumUtilsTest, FromString_WithNonMatchingString_ReturnsNullopt) {
 	auto result = Enum::FromString<EnumWithFromString, true>("D");
@@ -104,8 +103,7 @@ TEST(EnumUtilsTest, FromString_WithNonMatchingString_ReturnsNullopt) {
 }
 TEST(EnumUtilsTest, FromString_CaseInsensitive_MatchesIgnoringCase) {
 	auto result = Enum::FromString<EnumWithFromString, false>("c");
-	ASSERT_TRUE(result.has_value());
-	ASSERT_EQ(result.value(), EnumWithFromString::C);
+    ASSERT_THAT(result, testing::Optional(EnumWithFromString::C));
 }
 TEST(EnumUtilsTest, FromString_CaseSensitive_DoesNotMatchIgnoringCase) {
 	auto result = Enum::FromString<EnumWithFromString, true>("a");

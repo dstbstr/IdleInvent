@@ -233,7 +233,7 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
     desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     desc.Alignment = 0;
     desc.Width = static_cast<UINT64>(width);
-    desc.Height = static_cast<UINT64>(height);
+    desc.Height = static_cast<UINT>(height);
     desc.DepthOrArraySize = 1;
     desc.MipLevels = 1;
     desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -252,12 +252,12 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
     auto uploadSize = height * uploadPitch;
     desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     desc.Alignment = 0;
-    desc.Width = uploadSize;
-    desc.Height = 1;
-    desc.DepthOrArraySize = 1;
-    desc.MipLevels = 1;
+    desc.Width = static_cast<UINT64>(uploadSize);
+    desc.Height = 1u;
+    desc.DepthOrArraySize = 1u;
+    desc.MipLevels = 1u;
     desc.Format = DXGI_FORMAT_UNKNOWN;
-    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Count = 1u;
     desc.SampleDesc.Quality = 0;
     desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
     desc.Flags = D3D12_RESOURCE_FLAG_NONE;
@@ -280,7 +280,7 @@ std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data
 
     auto mappedBytes = static_cast<unsigned char*>(mapped);
     for(auto y = 0; y < height; y++) {
-        auto pitchOffset = static_cast<size_t>(y) * uploadPitch;
+        auto pitchOffset = static_cast<std::ptrdiff_t>(y * uploadPitch);
         memcpy(mappedBytes + pitchOffset, imageData + static_cast<ptrdiff_t>(y * width * 4), static_cast<size_t>(width * 4));
     }
     uploadBuf->Unmap(0, &range);

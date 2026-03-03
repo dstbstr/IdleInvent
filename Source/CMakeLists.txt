@@ -59,7 +59,6 @@ elseif(ANDROID)
     include(CMake/AndroidPackaging.cmake)
 endif()
 
-#set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=-*,android-*,bugprone-*,clang-analyzer-*,cppcoreguidelines-*,-cppcoreguidelines-pro-type-vararg,-cppcoreguidelines-avoid-non-const-global-variables,performance-*,portability-*")
 set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 add_subdirectory(Platform)
 add_subdirectory(Engine)
