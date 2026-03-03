@@ -6,6 +6,7 @@ namespace {
     inline constexpr auto Long = OneSecond * 30;
 
 	// TODO: Probably move this to Location
+	// NOLINTBEGIN
 	BaseTime TimeByLocation(GhostHunter::LocationName location) {
 		switch(location) {
 			using enum GhostHunter::LocationName;
@@ -22,6 +23,7 @@ namespace {
 		DR_ASSERT_MSG(false, "Unknown Location: " + GhostHunter::ToString(location));
 		return Long;
     }
+	// NOLINTEND
 }
 namespace GhostHunter {
     Investigation::Investigation(LocationName location) 

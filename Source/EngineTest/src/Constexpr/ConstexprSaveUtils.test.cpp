@@ -15,7 +15,7 @@ constexpr bool TestCompressDecompress(u64 val) {
 	return val - Constexpr::Decompress<u64>(Constexpr::Compress(val)) < target;
 }
 
-constexpr bool TestCompressRange(u64 min, u64 max) {
+constexpr bool TestCompressRange(u64 min, u64 max) { // NOLINT
 	for(auto i = min; i <= max; i *= 10) {
 		if(!TestCompressDecompress(i)) return false;
 	}

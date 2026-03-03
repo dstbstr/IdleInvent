@@ -10,6 +10,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     inc 
 )
 
+set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
+
+
 if (WIN32)
     target_sources(${PROJECT_NAME} PRIVATE
         src/Win/Win_DebugStream.cpp

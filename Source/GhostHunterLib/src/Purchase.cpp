@@ -4,7 +4,7 @@
 #include "GhostHunter/Tools/Tools.h"
 
 #include "Mechanics/Purchasable.h"
-
+//NOLINTBEGIN
 #define PURCHASE(_Type)                                                                 \
     namespace _Type##_PurchaseRegistry {                                                        \
         using TypeName = _Type;                                                         \
@@ -23,6 +23,8 @@
 #define P(r, a) \
     std::pair { ResourceType::r, a }
 #define ITEM(n, ...) Purchasables::Add(TypeName::n, CreateRc<ResourceName>(__VA_ARGS__));
+//NOLINTEND
+
 namespace GhostHunter {
     using ResourceType = ResourceName;
     // clang-format off

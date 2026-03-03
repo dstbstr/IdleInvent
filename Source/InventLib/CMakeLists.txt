@@ -9,10 +9,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC inc)
-# target_link_libraries(${PROJECT_NAME} PRIVATE
-# 	stbimage
-# )
-#target_include_directories(${PROJECT_NAME} PRIVATE ${stbimage_INCLUDE_DIRS})
+set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 
 target_sources(${PROJECT_NAME} PRIVATE
 	src/InventGame.cpp

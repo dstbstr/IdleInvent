@@ -10,6 +10,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC inc)
 target_precompile_headers(${PROJECT_NAME} PRIVATE inc/pch.h)
+set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 
 target_sources(${PROJECT_NAME} PRIVATE
     src/GhostHunterGame.cpp

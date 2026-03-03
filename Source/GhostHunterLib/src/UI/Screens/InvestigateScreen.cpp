@@ -99,8 +99,7 @@ namespace {
                     auto label = std::format("{} {}", ToString(member->Id), ToString(member->GetCurrentTool()->Id));
                     ImGui::Button(label.c_str());
                     if(ImGui::BeginDragDropSource()) {
-                        auto* dataPtr = &member;
-                        ImGui::SetDragDropPayload(GearRoomPayload, dataPtr, sizeof(member));
+                        ImGui::SetDragDropPayload(GearRoomPayload, static_cast<const void*>(&member), sizeof(GhostHunter::TeamMember*));
                         ImGui::TextUnformatted(label.c_str());
                         ImGui::EndDragDropSource();
                     }
@@ -167,8 +166,9 @@ namespace {
                 auto label = std::format("{} {}", member->Id, member->GetCurrentTool() ? ToString(member->GetCurrentTool()->Id) : "");
                 ImGui::Button(label.c_str());
                 if(member->GetCurrentTool() && ImGui::BeginDragDropSource()) {
-                    auto* dataPtr = &member;
-                    ImGui::SetDragDropPayload(MemberPayload, dataPtr, sizeof(member));
+                    ImGui::SetDragDropPayload(
+                        MemberPayload, static_cast<const void*>(&member), sizeof(GhostHunter::TeamMember*)
+                    );
                     ImGui::Text("%s %s", ToString(member->Id).c_str(), ToString(member->GetCurrentTool()->Id).c_str());
                     ImGui::EndDragDropSource();
                 }

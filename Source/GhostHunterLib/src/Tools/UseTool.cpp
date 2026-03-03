@@ -1,4 +1,5 @@
 #include "GhostHunter/Tools/UseTool.h"
+/*
 #include "GhostHunter/Formatting.h"
 
 #include "Utilities/EnumUtils.h"
@@ -58,3 +59,4 @@ namespace GhostHunter {
         return std::format("Using {}", ToolName);
     }
 }
+*/

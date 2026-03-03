@@ -45,12 +45,12 @@ TEST_F(ServiceLocatorTest, ResetAll_RemovesEntries_InReverse) {
     static std::vector<std::string> order;
     struct A {
         ~A() noexcept {
-            order.push_back("A");
+            try { order.push_back("A"); } catch(...) {}
         }
     };
     struct B {
         ~B() noexcept {
-			order.push_back("B");
+			try { order.push_back("B"); } catch(...) {}
 		}
 	};
 

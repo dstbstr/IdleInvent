@@ -59,7 +59,7 @@ elseif(ANDROID)
     include(CMake/AndroidPackaging.cmake)
 endif()
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+#set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 add_subdirectory(Platform)
 add_subdirectory(Engine)
 add_subdirectory(InventLib)

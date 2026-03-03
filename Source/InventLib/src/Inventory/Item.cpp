@@ -26,7 +26,7 @@ namespace {
         return Item{.Id = ItemsById.size(), .Name = name, .Description = description, .Type = type, .Effects = effects};
     }
 
-    Consumable MakeConsumable(Item baseItem, size_t maxStackSize, BaseTime duration) {
+    Consumable MakeConsumable(const Item& baseItem, size_t maxStackSize, BaseTime duration) {
         Consumable consumable{.MaxStackSize = maxStackSize, .CurrentStack = 0, .Duration = duration};
         consumable.Id = baseItem.Id;
         consumable.Name = baseItem.Name;

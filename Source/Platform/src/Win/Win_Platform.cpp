@@ -52,7 +52,7 @@ namespace {
             abort();
         }
         if(len >= buffer.size()) {
-            buffer.resize(32 * 1'024);
+            buffer.resize(32ull * 1'024ull);
             len = GetModuleFileNameA(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
             if(len == 0 || len == buffer.size()) {
                 abort();
@@ -73,6 +73,7 @@ namespace {
             break;
         case WM_CLOSE:
         case WM_QUIT: PostQuitMessage(0); return 0;
+        default: break;
         }
         
         
