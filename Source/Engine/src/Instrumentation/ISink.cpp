@@ -31,7 +31,7 @@ namespace Log {
 	}
 
 	ISink::ISink(Filter filter)
-		: m_Filter(filter)
+		: m_Filter(std::move(filter))
 	{
 		auto& services = ServiceLocator::Get().GetOrCreate<PubSub<Entry>>();
 

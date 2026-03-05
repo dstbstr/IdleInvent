@@ -3,7 +3,7 @@
     void ResourceConversion::Convert(ResourceCollection& target, size_t maxTimes) const {
         size_t times = std::min(maxTimes, GetMaxCount(target));
         auto cost = From * times;
-        if(cost <= target) {
+        if(target.CanAfford(cost)) {
             target -= cost;
             target += To * times;
             target.Clamp();

@@ -22,7 +22,7 @@ namespace {
 namespace Invent {
 	// NOLINTNEXTLINE
 	InventionLevel::InventionLevel(ResourceName resource, size_t age, size_t level, const std::string& name, const std::string& description, std::vector<std::string> prereqs, const std::vector<Effect>& effects, std::function<void()> extraOnUnlock, std::function<void()> extraOnPurchase)
-		: Name(name + " " + LevelSuffixes[level])
+		: Name(name + " " + LevelSuffixes.at(level))
         , Resource(resource)
 		, Age(age)
 		, Level(level)
@@ -35,7 +35,7 @@ namespace Invent {
 		, ExtraOnPurchase(std::move(extraOnPurchase))
 	{
         if(level > 0) {
-			Prerequisites.push_back(name + " " + LevelSuffixes[level - 1]);
+			Prerequisites.push_back(name + " " + LevelSuffixes.at(level - 1));
 		}
 	}
 

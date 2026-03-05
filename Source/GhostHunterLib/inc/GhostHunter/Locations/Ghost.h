@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace GhostHunter {
 	struct Ghost {
 		std::string Name;

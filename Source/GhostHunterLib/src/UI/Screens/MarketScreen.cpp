@@ -46,7 +46,7 @@ namespace {
             ImGui::SameLine();
             ImGui::PushID(static_cast<int>(tool));
             auto cost = Purchasables::GetCost<ToolName>(tool);
-            ImGui::BeginDisabled(cost > resources);
+            ImGui::BeginDisabled(!(resources.CanAfford(cost)));
             if(ImGui::Button("Purchase")) {
                 Purchasables::TryPurchase<ToolName>(tool, resources, BuyOnce::Yes);
             }

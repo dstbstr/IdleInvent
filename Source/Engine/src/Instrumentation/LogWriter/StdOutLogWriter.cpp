@@ -16,7 +16,7 @@ namespace {
 }
 
 StdOutLogWriter::StdOutLogWriter(Log::Filter filter)
-	: ISink(filter) {}
+	: ISink(std::move(filter)) {}
 
 void StdOutLogWriter::Write(const Log::Entry& entry) {
     switch (entry.LogLevel) {

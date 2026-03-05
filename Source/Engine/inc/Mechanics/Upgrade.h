@@ -72,7 +72,7 @@ namespace UpgradeManager {
     bool CanUpgrade(const T& upgradable, const ResourceCollection& resources) {
         auto costs = TryGetCost(upgradable);
         if(costs.has_value()) {
-            return !resources.AreAnyLessThan(costs.value());
+            return resources.CanAfford(costs.value());
         }
         return false;
     }

@@ -2,6 +2,8 @@
 #include "GhostHunter/Ui/Ui.h"
 #include "GhostHunter/GameState/GameSettings.h"
 
+#include <DesignPatterns/ServiceLocator.h>
+
 namespace {
     GhostHunter::GameSettings* gameSettings{nullptr};
 }

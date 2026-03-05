@@ -76,7 +76,7 @@ namespace Purchasables {
 		auto& r = _PurchaseDetails::GetRegistry<E>();
 		if(!r.contains(id)) return false;
 		auto cost = r.at(id);
-		return !(cost > resources);
+        return resources.CanAfford(cost);
 	}
 
 	template<PurchaseEnum E>

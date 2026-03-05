@@ -10,47 +10,6 @@
 #include <numeric>
 #include <ranges>
 
-namespace {
-// constexpr std::array BaseCosts = {60,    120,   180,   300,   480,   720,   900,   1'200,  1'500,  1'800,
-//                                 2'400, 3'000, 3'600, 4'800, 6'000, 7'200, 9'000, 10'800, 14'400, 21'600};
-} // namespace
-
-//TODO: Move to game lib
-/*
-std::vector<u16> GetRelativeResources(u16 resourceName) {
-    switch(resourceName) {
-        using enum u16;
-    case Followers: return {Followers, Power, Money, Knowledge};
-    case Power: return {Power, Money, Knowledge, Followers};
-    case Money: return {Money, Knowledge, Followers, Power};
-    case Knowledge: return {Knowledge, Followers, Power, Money};
-    default: DR_ASSERT_MSG(false, "Invalid resource name"); return {Unset};
-    }
-}
-
-// TODO: Move to game lib
-std::vector<u16> AllResources() {
-    static std::vector<u16> allResources = {
-        u16::Primary,
-        u16::Followers,
-        u16::Knowledge,
-        u16::Money,
-        u16::Power
-    };
-
-    return allResources;
-};
-
-// TODO: Move to game lib
-std::vector<u16> SecondaryResources() {
-    static std::vector<u16> secondaryResources = {
-        u16::Followers, u16::Knowledge, u16::Money, u16::Power
-    };
-
-    return secondaryResources;
-};
-*/
-
 void Resource::Clamp() { Current = std::max(s64(0LL), std::min(Capacity, Current)); }
 void Resource::AddCapacityModifier(Modifier modifier) {
     CapacityModifiers.push_back(modifier);
@@ -86,22 +45,13 @@ void ResourceCollection::Clamp() {
     }
 }
 
-bool ResourceCollection::AreAllLessThan(const ResourceCollection& other) const {
-	for(const auto& [name, resource]: m_Resources) {
-		if(resource.Current >= other.m_Resources.at(name).Current) {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool ResourceCollection::AreAnyLessThan(const ResourceCollection& other) const {
-    for(const auto& [name, resource]: m_Resources) {
-        if(resource.Current < other.m_Resources.at(name).Current) {
-			return true;
-		}
-	}
-    return false;
+bool ResourceCollection::CanAfford(const ResourceCollection& cost) const {
+    for(const auto& [name, resource] : m_Resources) {
+        if(resource.Current < cost.m_Resources.at(name).Current) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool ResourceCollection::IsEmpty() const {
@@ -129,14 +79,6 @@ Resource& ResourceCollection::operator[](u16 resource) { return m_Resources[reso
 
 const Resource& ResourceCollection::operator[](u16 resource) const { return m_Resources.at(resource); }
 
-bool operator<(const ResourceCollection& lhs, const ResourceCollection& rhs) {
-    for(const auto& [name, resource]: lhs.m_Resources) {
-        if(resource.Current >= rhs.m_Resources.at(name).Current) {
-            return false;
-        }
-    }
-    return true;
-}
 bool operator==(const ResourceCollection& lhs, const ResourceCollection& rhs) {
     for(const auto& [name, resource]: lhs.m_Resources) {
         if(resource.Current != rhs.m_Resources.at(name).Current) {
@@ -147,16 +89,6 @@ bool operator==(const ResourceCollection& lhs, const ResourceCollection& rhs) {
 }
 
 bool operator!=(const ResourceCollection& lhs, const ResourceCollection& rhs) { return !(lhs == rhs); }
-bool operator<=(const ResourceCollection& lhs, const ResourceCollection& rhs) {
-    for(const auto& [name, resource]: lhs.m_Resources) {
-        if(resource.Current > rhs.m_Resources.at(name).Current) {
-            return false;
-        }
-    }
-    return true;
-}
-bool operator>(const ResourceCollection& lhs, const ResourceCollection& rhs) { return !(lhs <= rhs); }
-bool operator>=(const ResourceCollection& lhs, const ResourceCollection& rhs) { return !(lhs < rhs); }
 
 ResourceCollection& ResourceCollection::operator+=(const ResourceCollection& rhs) {
     for(const auto& [name, resource]: rhs.m_Resources) {

@@ -6,6 +6,9 @@
 #include "Platform/Graphics.h"
 #include "Instrumentation/Logging.h"
 
+#include <vector>
+#include <functional>
+
 namespace {
     class UiBuilder {
     public:

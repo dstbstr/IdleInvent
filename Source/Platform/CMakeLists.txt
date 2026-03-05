@@ -6,6 +6,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     stbimage
 )
 
+# set_source_files_properties(mods/std.ixx PROPERTIES SKIP_LINTING ON)
+# target_sources(${PROJECT_NAME}
+#   PUBLIC
+#     FILE_SET CXX_MODULES FILES
+#       mods/std.ixx
+# )
+
 target_include_directories(${PROJECT_NAME} PUBLIC 
     inc 
 )

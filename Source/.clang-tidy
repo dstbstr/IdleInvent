@@ -12,4 +12,3 @@ Checks: >
     -cppcoreguidelines-macro-usage,
     performance-*,
     portability-*
-Header-Filter: 'inc/.*'

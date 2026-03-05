@@ -138,7 +138,7 @@ namespace {
     }
 
     void RenderStartExpedition() {
-        if(SelectedExpedition->ResourceProgress.AreAnyLessThan(SelectedExpedition->ResourceCost) || DedicatedWorkers == 0) {
+        if(!SelectedExpedition->ResourceProgress.CanAfford(SelectedExpedition->ResourceCost) || DedicatedWorkers == 0) {
             return;
         }
 

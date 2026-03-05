@@ -42,7 +42,7 @@ namespace {
     }                                                    \
     void _Location##Registry::Register()
 #define ROOM(_Name, _Images, _Audio, _Video, _Physical) \
-    GetRooms()[Type].push_back({_Name, MakeRc(_Images, _Audio, _Video, _Physical), MakeRc(_Images, _Audio, _Video, _Physical), std::nullopt})
+    GetRooms()[Type].emplace_back(_Name, MakeRc(_Images, _Audio, _Video, _Physical), MakeRc(_Images, _Audio, _Video, _Physical), std::nullopt)
 #define GHOST(_Name, _Description) \
     GetRooms()[Type].back().SpecialGuest = GhostHunter::Ghost { _Name, _Description }
 

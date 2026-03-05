@@ -27,7 +27,7 @@ namespace Invent {
     }
 
 	bool Project::IsComplete() const {
-		return TimeProgress >= TimeCost && ResourceCost <= ResourceProgress;
+        return TimeProgress >= TimeCost && ResourceProgress.CanAfford(ResourceCost);
 	}
 
 	void Project::Tick(BaseTime elapsed) {

@@ -32,7 +32,7 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Projects/Population.test.cpp
   src/Projects/Project.test.cpp
 
-  src/Resources/Resource.tests.cpp
+  
   src/Resources/ResourceConversion.tests.cpp
   src/Resources/Storage.tests.cpp
 

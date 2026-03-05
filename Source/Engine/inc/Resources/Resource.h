@@ -13,10 +13,6 @@
 #include <initializer_list>
 #include <utility>
 
-//std::vector<ResourceName> AllResources();
-//std::vector<ResourceName> SecondaryResources();
-//std::vector<ResourceName> GetRelativeResources(ResourceName resourceName);
-
 template<typename E>
 concept ResourceEnum = CountEnum<E> && ToStringEnum<E>;
 
@@ -46,8 +42,7 @@ public:
 	void AddResources(const std::vector<u16>& gameResources);
 
     void Clamp();
-    bool AreAllLessThan(const ResourceCollection& other) const;
-	bool AreAnyLessThan(const ResourceCollection& other) const;
+    bool CanAfford(const ResourceCollection& cost) const;
     bool IsEmpty() const;
 
 	std::string ToCostString() const;
@@ -77,10 +72,6 @@ public:
 
 	friend bool operator==(const ResourceCollection& lhs, const ResourceCollection& rhs);
 	friend bool operator!=(const ResourceCollection& lhs, const ResourceCollection& rhs);
-	friend bool operator<(const ResourceCollection& lhs, const ResourceCollection& rhs);
-	friend bool operator<=(const ResourceCollection& lhs, const ResourceCollection& rhs);
-	friend bool operator>(const ResourceCollection& lhs, const ResourceCollection& rhs);
-	friend bool operator>=(const ResourceCollection& lhs, const ResourceCollection& rhs);
 
 	ResourceCollection& operator+=(const ResourceCollection& rhs);
     friend ResourceCollection operator+(const ResourceCollection& lhs, const ResourceCollection& rhs);

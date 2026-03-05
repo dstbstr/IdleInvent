@@ -3,6 +3,23 @@
 #include <Constexpr/ConstexprStrUtils.h>
 
 #include <ranges>
+namespace {
+    // constexpr std::array BaseCosts = {60,    120,   180,   300,   480,   720,   900,   1'200,  1'500,  1'800,
+    //                                 2'400, 3'000, 3'600, 4'800, 6'000, 7'200, 9'000, 10'800, 14'400, 21'600};
+} // namespace
+
+/*
+std::vector<u16> GetRelativeResources(u16 resourceName) {
+    switch(resourceName) {
+        using enum u16;
+    case Followers: return {Followers, Power, Money, Knowledge};
+    case Power: return {Power, Money, Knowledge, Followers};
+    case Money: return {Money, Knowledge, Followers, Power};
+    case Knowledge: return {Knowledge, Followers, Power, Money};
+    default: DR_ASSERT_MSG(false, "Invalid resource name"); return {Unset};
+    }
+}
+*/
 
 namespace Invent {
     std::vector<ResourceName> AllResources() {
