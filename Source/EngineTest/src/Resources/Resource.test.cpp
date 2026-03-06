@@ -116,12 +116,28 @@ TEST(ResourceCollectionTest, CanAfford_WithEqualResources_ReturnsTrue) {
     ASSERT_TRUE(rc.CanAfford(rc));
 }
 
+TEST(ResourceCollectionTest, PlusOperator_AddsResource) {
+    using enum TestResource;
+    auto lhs = CreateRc<TestResource>({{TestResource::Sticks, 10}});
+    auto rhs = CreateRc<TestResource>({{TestResource::Sticks, 5}});
+    auto result = lhs + rhs;
+    ASSERT_EQ(result[TestResource::Sticks].Current, 15);
+}
+
 TEST(ResourceCollectionTest, PlusEquals_AddsResources) {
     using enum TestResource;
     auto lhs = CreateRc<TestResource>({{Sticks, 10}});
     auto rhs = CreateRc<TestResource>({{Sticks, 5}});
     lhs += rhs;
     ASSERT_EQ(lhs[Sticks].Current, 15);
+}
+
+TEST(ResourceCollectionTest, MinusOperator_AddsResource) {
+    using enum TestResource;
+    auto lhs = CreateRc<TestResource>({{TestResource::Sticks, 10}});
+    auto rhs = CreateRc<TestResource>({{TestResource::Sticks, 5}});
+    auto result = lhs - rhs;
+    ASSERT_EQ(result[TestResource::Sticks].Current, 5);
 }
 
 TEST(ResourceCollectionTest, MinusEquals_SubtractsResources) {
@@ -132,6 +148,13 @@ TEST(ResourceCollectionTest, MinusEquals_SubtractsResources) {
     ASSERT_EQ(lhs[Sticks].Current, 5);
 }
 
+TEST(ResourceCollectionTest, MultiplyOperator_ScalesResource) {
+    using enum TestResource;
+    auto rc = CreateRc<TestResource>({{TestResource::Sticks, 10}});
+    auto result = rc * 3ull;
+    ASSERT_EQ(result[TestResource::Sticks].Current, 30);
+}
+
 TEST(ResourceCollectionTest, MultiplyEquals_ScalesResources) {
     using enum TestResource;
     auto rc = CreateRc<TestResource>({{Sticks, 10}});
@@ -140,32 +163,19 @@ TEST(ResourceCollectionTest, MultiplyEquals_ScalesResources) {
     ASSERT_EQ(rc[Sticks].Current, 30);
 }
 
+TEST(ResourceCollectionTest, DivideOperator_DividesResource) {
+    using enum TestResource;
+    auto rc = CreateRc<TestResource>({{TestResource::Sticks, 10}});
+    auto result = rc / 3ull;
+    ASSERT_EQ(result[TestResource::Sticks].Current, 3);
+}
+
 TEST(ResourceCollectionTest, DivideEquals_DividesResources) {
     using enum TestResource;
     auto rc = CreateRc<TestResource>({{Sticks, 10}});
     rc /= 3ull;
 
     ASSERT_EQ(rc[Sticks].Current, 3);
-}
-
-
-TEST(ResourceCollectionTest, ToCostString_WithAllValues_IncludesAllNames) {
-    using enum TestResource;
-    auto rc = CreateRc<TestResource>({{Sticks, 2}, {Stones, 3}, {Bones, 4}});
-    auto str = rc.ToCostString();
-    ASSERT_THAT(str, HasSubstr("Sticks"));
-    ASSERT_THAT(str, HasSubstr("Stones"));
-    ASSERT_THAT(str, HasSubstr("Bones"));
-}
-
-TEST(ResourceCollectionTest, ToCostString_MissingValues_ExcludesMissinvValues) {
-    using enum TestResource;
-    auto rc = CreateRc<TestResource>({{Sticks, 2}, {Stones, 3}});
-
-    auto str = rc.ToCostString();
-    ASSERT_THAT(str, HasSubstr("Sticks"));
-    ASSERT_THAT(str, HasSubstr("Stones"));
-    ASSERT_THAT(str, Not(HasSubstr("Bones")));
 }
 
 TEST(ResourceCollectionTest, OperatorEqual_WithAllEqual_ReturnsTrue) {
@@ -186,3 +196,21 @@ TEST(ResourceCollectionTest, OperatorEqual_WithOneDifferent_ReturnsFalse) {
     ASSERT_TRUE(a != b);
 }
 
+TEST(ResourceCollectionTest, ToCostString_WithAllValues_IncludesAllNames) {
+    using enum TestResource;
+    auto rc = CreateRc<TestResource>({{Sticks, 2}, {Stones, 3}, {Bones, 4}});
+    auto str = rc.ToCostString();
+    ASSERT_THAT(str, HasSubstr("Sticks"));
+    ASSERT_THAT(str, HasSubstr("Stones"));
+    ASSERT_THAT(str, HasSubstr("Bones"));
+}
+
+TEST(ResourceCollectionTest, ToCostString_MissingValues_ExcludesMissinvValues) {
+    using enum TestResource;
+    auto rc = CreateRc<TestResource>({{Sticks, 2}, {Stones, 3}});
+
+    auto str = rc.ToCostString();
+    ASSERT_THAT(str, HasSubstr("Sticks"));
+    ASSERT_THAT(str, HasSubstr("Stones"));
+    ASSERT_THAT(str, Not(HasSubstr("Bones")));
+}
