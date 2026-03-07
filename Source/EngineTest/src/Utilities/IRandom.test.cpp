@@ -39,7 +39,7 @@ TEST(DefaultRandomTest, GetNextMinMax_With25And100_ReturnsBetween25And100) {
     const s64 minValue = 25;
     const s64 maxValue = 100;
 
-    for(auto i = 0; i < iterations; i++) {
+    for(auto i = 0u; i < iterations; i++) {
         auto value = random.GetNext(minValue, maxValue);
         ASSERT_TRUE(value >= minValue && value < maxValue);
 
@@ -51,7 +51,7 @@ TEST(DefaultRandomTest, GetNextMinMax_With25And100_ReturnsBetween25And100) {
 TEST(DefaultRandomTest, GetNextFloat_ReturnsBetween0And1) { 
     DefaultRandom random{};
     const u32 iterations = 100;
-    for(auto i = 0; i < iterations; i++) {
+    for(auto i = 0u; i < iterations; i++) {
         auto value = random.GetNextFloat();
         ASSERT_TRUE(value >= 0.0f && value < 1.0f);
     }

@@ -52,17 +52,12 @@ namespace {
     auto LastTickTime = std::chrono::steady_clock::now();
     auto LastSaveTime = std::chrono::steady_clock::now();
 
-    EngineState* engineState{nullptr};
-    //Invent::SaveState* saveState;
-    //Platform* platform{nullptr};
-    ServiceLocator* services{nullptr};
-
     std::unique_ptr<GameLog> gameLog {nullptr};
 }
 
 Engine::~Engine() { 
-    m_Game.ShutDown(); 
-    services->ResetAll();
+    m_Game.ShutDown();
+    ServiceLocator::Get().ResetAll();
     Graphics::Shutdown();
     gameLog.reset();
 }
@@ -78,9 +73,8 @@ bool Engine::Initialize() {
     Log::Info("Debug Mode");
 #endif
 
-    services = &ServiceLocator::Get();
-    services->Set<Platform>(m_Platform);
-    engineState = &services->GetOrCreate<EngineState>();
+    auto& services = ServiceLocator::Get();
+    services.Set<Platform>(m_Platform);
 
     if(!m_Game.Initialize()) {
         Log::Error("Failed to initialize game");
@@ -88,7 +82,7 @@ bool Engine::Initialize() {
         return false;
     }
 
-    services->GetOrCreate<PubSub<FileOperation>>().Subscribe(m_Handles, [&](const FileOperation& request) {
+    services.GetOrCreate<PubSub<FileOperation>>().Subscribe(m_Handles, [&](const FileOperation& request) {
         switch(request) {
             using enum FileOperation;
             break; case Save: m_Game.SaveGame(); 
@@ -103,14 +97,15 @@ void Engine::Tick() const {
     using namespace std::chrono_literals;
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<BaseTime>(now - LastTickTime);
-    engineState->FrameNum++;
-    engineState->ElapsedTime += elapsed;
+    auto& engineState = ServiceLocator::Get().GetRequired<EngineState>();
+    engineState.FrameNum++;
+    engineState.ElapsedTime += elapsed;
     LastTickTime = now;
 
     m_Game.Tick(elapsed);
     if(now - LastSaveTime > 30s) {
         LastSaveTime = now;
-        services->GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
+        ServiceLocator::Get().GetRequired<PubSub<FileOperation>>().Publish(FileOperation::Save);
     }
     // TODO: Sleep to set FPS
 }

@@ -17,8 +17,10 @@ DebugStream::DebugStream(std::unique_ptr<DebugStreamBuf>&& buf)
     : std::ostream(buf.get())
     , m_Buf(std::move(buf)) {}
 
+// NOLINTBEGIN
 DebugStream::~DebugStream() noexcept {
-    m_Buf->sync(); // NOLINT
+    m_Buf->sync();
     m_Buf.reset();
 }
+// NOLINTEND
 #endif
