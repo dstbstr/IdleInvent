@@ -15,15 +15,17 @@
 #include <dxgidebug.h>
 #pragma comment(lib, "dxguid.lib")
 #endif
+namespace {
+    constexpr void EnsureOk([[maybe_unused]] HRESULT hr) {
+        #ifdef DEBUG
+        IM_ASSERT(SUCCEEDED(hr));
+        #endif
+    }
 
-constexpr void EnsureOk([[maybe_unused]] HRESULT hr) {
-    #ifdef DEBUG
-    IM_ASSERT(SUCCEEDED(hr));
-    #endif
-}
+    void SetDebugObjectName(ID3D12DeviceChild* resource, std::string_view name) {
+        resource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(name.size()), name.data());
+    }
 
-void SetDebugObjectName(ID3D12DeviceChild* resource, std::string_view name) {
-    resource->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(name.size()), name.data());
 }
 
 D3dContext::D3dContext(Platform& platform) {
@@ -215,317 +217,25 @@ FrameContext* D3dContext::WaitForNextFrameResources() {
 }
 
 std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromMemory(const void* data, size_t dataSize) {
-    int width{0};
-    int height{0};
-    const unsigned char* charData = static_cast<const unsigned char*>(data);
-    auto imageData = stbi_load_from_memory(charData, static_cast<int>(dataSize), &width, &height, NULL, 4);
-    if(imageData == NULL) return nullptr;
-
-    ///////////
-    D3D12_HEAP_PROPERTIES props;
-    memset(&props, 0, sizeof(D3D12_HEAP_PROPERTIES));
-    props.Type = D3D12_HEAP_TYPE_DEFAULT;
-    props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-    D3D12_RESOURCE_DESC desc;
-    ZeroMemory(&desc, sizeof(desc));
-    desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    desc.Alignment = 0;
-    desc.Width = static_cast<UINT64>(width);
-    desc.Height = static_cast<UINT>(height);
-    desc.DepthOrArraySize = 1;
-    desc.MipLevels = 1;
-    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.SampleDesc.Count = 1;
-    desc.SampleDesc.Quality = 0;
-    desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-    ID3D12Resource* tex = nullptr;
-    Device->CreateCommittedResource(
-        &props, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COPY_DEST, NULL, IID_PPV_ARGS(&tex)
-    );
-
-    auto uploadPitch =
-        (width * 4 + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
-    auto uploadSize = height * uploadPitch;
-    desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    desc.Alignment = 0;
-    desc.Width = static_cast<UINT64>(uploadSize);
-    desc.Height = 1u;
-    desc.DepthOrArraySize = 1u;
-    desc.MipLevels = 1u;
-    desc.Format = DXGI_FORMAT_UNKNOWN;
-    desc.SampleDesc.Count = 1u;
-    desc.SampleDesc.Quality = 0;
-    desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-    props.Type = D3D12_HEAP_TYPE_UPLOAD;
-    props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-    ComPtr<ID3D12Resource> uploadBuf;
-    auto hr = Device->CreateCommittedResource(
-        &props, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, IID_PPV_ARGS(&uploadBuf)
-    );
-    EnsureOk(hr);
-
-    // Write pixels into the upload resource
-    void* mapped = nullptr;
-    D3D12_RANGE range = {0ull, static_cast<SIZE_T>(uploadSize)};
-    hr = uploadBuf->Map(0, &range, &mapped);
-    EnsureOk(hr);
-
-    auto mappedBytes = static_cast<unsigned char*>(mapped);
-    for(auto y = 0; y < height; y++) {
-        auto pitchOffset = static_cast<std::ptrdiff_t>(y * uploadPitch);
-        memcpy(mappedBytes + pitchOffset, imageData + static_cast<ptrdiff_t>(y * width * 4), static_cast<size_t>(width * 4));
-    }
-    uploadBuf->Unmap(0, &range);
-
-    auto srcLocation = D3D12_TEXTURE_COPY_LOCATION{
-        .pResource = uploadBuf.Get(),
-        .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
-        .PlacedFootprint =
-            {
-            .Offset = 0,
-            .Footprint =
-                 {
-                  .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-                  .Width = static_cast<unsigned int>(width),
-                  .Height = static_cast<unsigned int>(height),
-                  .Depth = 1u,
-                  .RowPitch = static_cast<UINT>(uploadPitch)
-                 }
-            }
-        };
-
-    auto destLocation = D3D12_TEXTURE_COPY_LOCATION{
-        .pResource = tex, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, .SubresourceIndex = 0
-    };
-
-    auto barrier = D3D12_RESOURCE_BARRIER{
-        .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-        .Transition = {
-            .pResource = tex,
-            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-            .StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
-            .StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE}
-    };
-
-    // Temp command queue
-    ComPtr<ID3D12Fence> fence;
-    hr = Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-    EnsureOk(hr);
-
-    auto queueDesc = D3D12_COMMAND_QUEUE_DESC{
-        .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-        .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
-        .NodeMask = 1
-    };
-
-    ComPtr<ID3D12CommandQueue> cmdQueue;
-    hr = Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&cmdQueue));
-    EnsureOk(hr);
-
-    ComPtr<ID3D12CommandAllocator> cmdAlloc;
-    hr = Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&cmdAlloc));
-    EnsureOk(hr);
-
-    ComPtr<ID3D12GraphicsCommandList> cmdList;
-    hr = Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmdAlloc.Get(), NULL, IID_PPV_ARGS(&cmdList));
-    EnsureOk(hr);
-
-    cmdList->CopyTextureRegion(&destLocation, 0, 0, 0, &srcLocation, NULL);
-    cmdList->ResourceBarrier(1, &barrier);
-    hr = cmdList->Close();
-    EnsureOk(hr);
-
-    // execute the copy
-    cmdQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(cmdList.GetAddressOf()));
-    hr = cmdQueue->Signal(fence.Get(), 1);
-    EnsureOk(hr);
-
-    auto event = CreateEvent(0, 0, 0, 0);
-    IM_ASSERT(event != NULL);
-    CHandle eventHandle(event);
-
-    fence->SetEventOnCompletion(1, eventHandle);
-    WaitForSingleObject(eventHandle, INFINITE);
-
-    // Create Shader Resource View (SRV) for texture
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
-    ZeroMemory(&srvDesc, sizeof(srvDesc));
-    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels = desc.MipLevels;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle;
-    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
-    Alloc->Alloc(&cpuHandle, &gpuHandle);
-
-    Device->CreateShaderResourceView(tex, &srvDesc, cpuHandle);
-
-    return std::make_unique<DX12Image>(width, height, static_cast<long long>(gpuHandle.ptr), tex);
+    int width{0}, height{0};
+    auto* pixels = stbi_load_from_memory(static_cast<const unsigned char*>(data), static_cast<int>(dataSize), &width, &height, nullptr, 4);
+    if(!pixels) return nullptr;
+    auto result = UploadPixels(pixels, width * 4, 0, 0, width, height);
+    stbi_image_free(pixels);
+    return result;
 }
 
 std::unique_ptr<DX12Image> D3dContext::TryLoadTextureFromPixels(
     const void* data, size_t fullWidth, size_t x, size_t y, size_t width, size_t height
 ) {
-    D3D12_HEAP_PROPERTIES props;
-    memset(&props, 0, sizeof(D3D12_HEAP_PROPERTIES));
-    props.Type = D3D12_HEAP_TYPE_DEFAULT;
-    props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-    D3D12_RESOURCE_DESC desc;
-    ZeroMemory(&desc, sizeof(desc));
-    desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    desc.Alignment = 0;
-    desc.Width = static_cast<UINT64>(width);
-    desc.Height = static_cast<UINT>(height);
-    desc.DepthOrArraySize = 1;
-    desc.MipLevels = 1;
-    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.SampleDesc.Count = 1;
-    desc.SampleDesc.Quality = 0;
-    desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-    ID3D12Resource* tex = nullptr;
-    auto hr = Device->CreateCommittedResource(
-        &props, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COPY_DEST, NULL, IID_PPV_ARGS(&tex)
+    return UploadPixels(
+        static_cast<const unsigned char*>(data),
+        static_cast<int>(fullWidth * 4),
+        static_cast<int>(x),
+        static_cast<int>(y),
+        static_cast<int>(width),
+        static_cast<int>(height)
     );
-    EnsureOk(hr);
-
-    auto uploadPitch = (width * 4 + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
-    auto uploadSize = height * uploadPitch;
-    desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    desc.Alignment = 0;
-    desc.Width = static_cast<UINT64>(uploadSize);
-    desc.Height = 1u;
-    desc.DepthOrArraySize = 1u;
-    desc.MipLevels = 1u;
-    desc.Format = DXGI_FORMAT_UNKNOWN;
-    desc.SampleDesc.Count = 1u;
-    desc.SampleDesc.Quality = 0;
-    desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-    desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-    props.Type = D3D12_HEAP_TYPE_UPLOAD;
-    props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-    ComPtr<ID3D12Resource> uploadBuf;
-    hr = Device->CreateCommittedResource(
-        &props, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, IID_PPV_ARGS(&uploadBuf)
-    );
-    EnsureOk(hr);
-
-    void* mapped = nullptr;
-    D3D12_RANGE range = {0ull, static_cast<SIZE_T>(uploadSize)};
-    hr = uploadBuf->Map(0, &range, &mapped);
-    EnsureOk(hr);
-
-    auto* mappedBytes = static_cast<unsigned char*>(mapped);
-    for(auto row = 0; row < height; row++) {
-        auto srcOffset = static_cast<ptrdiff_t>((y + row) * fullWidth * 4 + x * 4);
-        auto dstOffset = static_cast<ptrdiff_t>(row * uploadPitch);
-        memcpy(mappedBytes + dstOffset, static_cast<const unsigned char*>(data) + srcOffset, width * 4);
-    }
-    uploadBuf->Unmap(0, &range);
-
-    auto srcLocation = D3D12_TEXTURE_COPY_LOCATION{
-        .pResource = uploadBuf.Get(),
-        .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
-        .PlacedFootprint = {
-            .Offset = 0,
-            .Footprint = {
-                  .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-                  .Width = static_cast<unsigned int>(width),
-                  .Height = static_cast<unsigned int>(height),
-                  .Depth = 1u,
-                  .RowPitch = static_cast<UINT>(uploadPitch)
-            }
-        }
-    };
-
-    auto destLocation = D3D12_TEXTURE_COPY_LOCATION{
-        .pResource = tex, 
-        .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, 
-        .SubresourceIndex = 0
-    };
-
-    auto barrier = D3D12_RESOURCE_BARRIER{
-        .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
-        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
-        .Transition = {
-            .pResource = tex,
-            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
-            .StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
-            .StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-        }
-    };
-
-    ComPtr<ID3D12Fence> fence;
-    hr = Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-    EnsureOk(hr);
-
-    auto queueDesc = D3D12_COMMAND_QUEUE_DESC{
-        .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
-        .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
-        .NodeMask = 1
-    };
-
-    ComPtr<ID3D12CommandQueue> cmdQueue;
-    hr = Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&cmdQueue));
-    EnsureOk(hr);
-
-    ComPtr<ID3D12CommandAllocator> cmdAlloc;
-    hr = Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&cmdAlloc));
-    EnsureOk(hr);
-
-    ComPtr<ID3D12GraphicsCommandList> cmdList;
-    hr = Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmdAlloc.Get(), NULL, IID_PPV_ARGS(&cmdList));
-    EnsureOk(hr);
-
-    cmdList->CopyTextureRegion(&destLocation, 0, 0, 0, &srcLocation, NULL);
-    cmdList->ResourceBarrier(1, &barrier);
-    hr = cmdList->Close();
-    EnsureOk(hr);
-
-    cmdQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(cmdList.GetAddressOf()));
-    hr = cmdQueue->Signal(fence.Get(), 1);
-    EnsureOk(hr);
-
-    auto event = CreateEvent(0, 0, 0, 0);
-    IM_ASSERT(event != NULL);
-    CHandle eventHandle(event);
-    fence->SetEventOnCompletion(1, eventHandle);
-    WaitForSingleObject(eventHandle, INFINITE);
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
-    ZeroMemory(&srvDesc, sizeof(srvDesc));
-    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels = 1u;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle;
-    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
-    Alloc->Alloc(&cpuHandle, &gpuHandle);
-
-    Device->CreateShaderResourceView(tex, &srvDesc, cpuHandle);
-
-    return std::make_unique<DX12Image>(static_cast<int>(width), static_cast<int>(height), static_cast<long long>(gpuHandle.ptr), tex);
 }
 
 void D3dContext::Resize(UINT width, UINT height) {
@@ -601,6 +311,156 @@ void CheckForLeaks() {
             debug->Release();
         }
     #endif
+}
+
+std::unique_ptr<DX12Image>
+D3dContext::UploadPixels(const unsigned char* pixels, int srcStride, int srcX, int srcY, int width, int height) {
+    D3D12_HEAP_PROPERTIES props;
+    memset(&props, 0, sizeof(D3D12_HEAP_PROPERTIES));
+    props.Type = D3D12_HEAP_TYPE_DEFAULT;
+    props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+    D3D12_RESOURCE_DESC desc;
+    ZeroMemory(&desc, sizeof(desc));
+    desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    desc.Alignment = 0;
+    desc.Width = static_cast<UINT64>(width);
+    desc.Height = static_cast<UINT>(height);
+    desc.DepthOrArraySize = 1;
+    desc.MipLevels = 1;
+    desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+    ID3D12Resource* tex = nullptr;
+    auto hr = Device->CreateCommittedResource(
+        &props, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COPY_DEST, NULL, IID_PPV_ARGS(&tex)
+    );
+    EnsureOk(hr);
+
+    auto uploadPitch = (width * 4 + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) & ~(D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1);
+    auto uploadSize = height * uploadPitch;
+    desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+    desc.Alignment = 0;
+    desc.Width = static_cast<UINT64>(uploadSize);
+    desc.Height = 1u;
+    desc.DepthOrArraySize = 1u;
+    desc.MipLevels = 1u;
+    desc.Format = DXGI_FORMAT_UNKNOWN;
+    desc.SampleDesc.Count = 1u;
+    desc.SampleDesc.Quality = 0;
+    desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+    desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+    props.Type = D3D12_HEAP_TYPE_UPLOAD;
+    props.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    props.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+
+    ComPtr<ID3D12Resource> uploadBuf;
+    hr = Device->CreateCommittedResource(
+        &props, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, IID_PPV_ARGS(&uploadBuf)
+    );
+    EnsureOk(hr);
+
+    void* mapped = nullptr;
+    D3D12_RANGE range = {0ull, static_cast<SIZE_T>(uploadSize)};
+    hr = uploadBuf->Map(0, &range, &mapped);
+    EnsureOk(hr);
+
+    auto* mappedBytes = static_cast<unsigned char*>(mapped);
+    for(auto row = 0; row < height; row++) {
+        auto srcOffset = static_cast<ptrdiff_t>((srcY + row) * srcStride + srcX * 4);
+        auto dstOffset = static_cast<ptrdiff_t>(row * uploadPitch);
+        memcpy(mappedBytes + dstOffset, pixels + srcOffset, static_cast<size_t>(width * 4));
+    }
+    uploadBuf->Unmap(0, &range);
+
+    auto srcLocation = D3D12_TEXTURE_COPY_LOCATION{
+        .pResource = uploadBuf.Get(),
+        .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+        .PlacedFootprint = {
+            .Offset = 0,
+            .Footprint = {
+                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+                .Width = static_cast<unsigned int>(width),
+                .Height = static_cast<unsigned int>(height),
+                .Depth = 1u,
+                .RowPitch = static_cast<UINT>(uploadPitch)
+            }
+        }
+    };
+
+    auto destLocation = D3D12_TEXTURE_COPY_LOCATION{
+        .pResource = tex, .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX, .SubresourceIndex = 0
+    };
+
+    auto barrier = D3D12_RESOURCE_BARRIER{
+        .Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
+        .Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE,
+        .Transition = {
+            .pResource = tex,
+            .Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES,
+            .StateBefore = D3D12_RESOURCE_STATE_COPY_DEST,
+            .StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+        }
+    };
+
+    ComPtr<ID3D12Fence> fence;
+    hr = Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+    EnsureOk(hr);
+
+    auto queueDesc = D3D12_COMMAND_QUEUE_DESC{
+        .Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
+        .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+        .Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
+        .NodeMask = 1
+    };
+
+    ComPtr<ID3D12CommandQueue> cmdQueue;
+    hr = Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&cmdQueue));
+    EnsureOk(hr);
+
+    ComPtr<ID3D12CommandAllocator> cmdAlloc;
+    hr = Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&cmdAlloc));
+    EnsureOk(hr);
+
+    ComPtr<ID3D12GraphicsCommandList> cmdList;
+    hr = Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmdAlloc.Get(), NULL, IID_PPV_ARGS(&cmdList));
+    EnsureOk(hr);
+
+    cmdList->CopyTextureRegion(&destLocation, 0, 0, 0, &srcLocation, NULL);
+    cmdList->ResourceBarrier(1, &barrier);
+    hr = cmdList->Close();
+    EnsureOk(hr);
+
+    cmdQueue->ExecuteCommandLists(1, reinterpret_cast<ID3D12CommandList* const*>(cmdList.GetAddressOf()));
+    hr = cmdQueue->Signal(fence.Get(), 1);
+    EnsureOk(hr);
+
+    auto event = CreateEvent(0, 0, 0, 0);
+    IM_ASSERT(event != NULL);
+    CHandle eventHandle(event);
+    fence->SetEventOnCompletion(1, eventHandle);
+    WaitForSingleObject(eventHandle, INFINITE);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    ZeroMemory(&srvDesc, sizeof(srvDesc));
+    srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1u;
+    srvDesc.Texture2D.MostDetailedMip = 0;
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle;
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
+    Alloc->Alloc(&cpuHandle, &gpuHandle);
+
+    Device->CreateShaderResourceView(tex, &srvDesc, cpuHandle);
+
+    return std::make_unique<DX12Image>(width, height, static_cast<long long>(gpuHandle.ptr), tex);
 }
 
 // NOLINTEND

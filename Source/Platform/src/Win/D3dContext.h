@@ -56,6 +56,7 @@ private:
     bool SwapChainOccluded{false};
     std::unique_ptr<D3dAllocator> Alloc{nullptr};
 
+    std::unique_ptr<DX12Image> UploadPixels(const unsigned char* pixels, int srcStride, int srcX, int srcY, int width, int height);
     void CreateRenderTarget();
     // void CleanupRenderTarget();
     void WaitForLastSubmittedFrame();
