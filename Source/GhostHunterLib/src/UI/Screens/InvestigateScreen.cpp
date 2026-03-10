@@ -18,7 +18,7 @@ namespace {
     inline constexpr auto SlotBorderWidth = 2.f;
     inline constexpr auto BorderColor = IM_COL32(180, 180, 180, 255);
     inline constexpr auto DummySize = ImVec2(0.f, 8.f);
-    inline constexpr auto IconSize = ImVec2(128.f, 128.f);
+    inline constexpr auto IconSize = ImVec2(32.f, 32.f);
 
     constexpr auto* ToolPayload = "GHOSTHUNTER_TOOL";
     constexpr auto* MemberPayload = "GHOSTHUNTER_MEMBER";
@@ -97,13 +97,19 @@ namespace {
                     continue;
                 }
                 for(const auto* member : members) {
+                    auto dragSource = [&] {
+                        if(ImGui::BeginDragDropSource()) {
+                            ImGui::SetDragDropPayload(GearRoomPayload, static_cast<const void*>(&member), sizeof(GhostHunter::TeamMember*));
+                            ImGui::TextUnformatted(ToString(member->Id).c_str());
+                            ImGui::EndDragDropSource();
+                        }
+                    };
                     auto label = std::format("{} {}", ToString(member->Id), ToString(member->GetCurrentTool()->Id));
-                    ImGui::Button(label.c_str());
-                    if(ImGui::BeginDragDropSource()) {
-                        ImGui::SetDragDropPayload(GearRoomPayload, static_cast<const void*>(&member), sizeof(GhostHunter::TeamMember*));
-                        ImGui::TextUnformatted(label.c_str());
-                        ImGui::EndDragDropSource();
-                    }
+                    ImGui::Button(ToString(member->Id).c_str());
+                    dragSource();
+                    ImGui::SameLine();
+                    ImGui::ImageButton(label.c_str(), ToIcon(member->GetCurrentTool()->Id), IconSize);
+                    dragSource();
                 }
             }
 
@@ -165,21 +171,33 @@ namespace {
                 auto* member = members[i];
                 ImGui::PushID(static_cast<int>(i));
                 auto label = std::format("{} {}", member->Id, member->GetCurrentTool() ? ToString(member->GetCurrentTool()->Id) : "");
-                ImGui::Button(label.c_str());
-                if(member->GetCurrentTool() && ImGui::BeginDragDropSource()) {
-                    ImGui::SetDragDropPayload(
-                        MemberPayload, static_cast<const void*>(&member), sizeof(GhostHunter::TeamMember*)
-                    );
-                    ImGui::Text("%s %s", ToString(member->Id).c_str(), ToString(member->GetCurrentTool()->Id).c_str());
-                    ImGui::EndDragDropSource();
-                }
-                if(!member->GetCurrentTool() && ImGui::BeginDragDropTarget()) {
-                    if(const auto* payload = ImGui::AcceptDragDropPayload(ToolPayload)) {
-                        ToolName id = *static_cast<ToolName*>(payload->Data);
-                        member->SetCurrentTool(&life->GetInventory().OwnedTools.at(id));
+                auto dragSource = [&] {
+                    if(ImGui::BeginDragDropSource()) {
+                        ImGui::SetDragDropPayload(MemberPayload, static_cast<const void*>(&member), sizeof(GhostHunter::TeamMember*));
+                        ImGui::TextUnformatted(label.c_str());
+                        ImGui::EndDragDropSource();
                     }
-                    ImGui::EndDragDropTarget();
+                };
+                auto dragTarget = [&] {
+                    if(ImGui::BeginDragDropTarget()) {
+                        if(const auto* payload = ImGui::AcceptDragDropPayload(ToolPayload)) {
+                            ToolName id = *static_cast<ToolName*>(payload->Data);
+                            member->SetCurrentTool(&life->GetInventory().OwnedTools.at(id));
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+                };
+
+                ImGui::Button(ToString(member->Id).c_str());
+                if (member->GetCurrentTool()) {
+                    dragSource();
+                    ImGui::SameLine();
+                    ImGui::ImageButton(label.c_str(), ToIcon(member->GetCurrentTool()->Id), IconSize);
+                    dragSource();
+                } else {
+                    dragTarget();
                 }
+
                 ImGui::PopID();
                 ImGui::Spacing();
             }
@@ -189,7 +207,6 @@ namespace {
             for(const auto& tool : ownedTools) {
                 if(!availableTools.contains(tool)) continue;
                 ImGui::PushID(static_cast<int>(toolIndex++));
-                //ImGui::Button(ToString(tool).c_str());
                 ImGui::ImageButton(ToString(tool).c_str(), ToIcon(tool), IconSize);
                 if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                     ImGui::SetDragDropPayload(ToolPayload, &tool, sizeof(tool));
