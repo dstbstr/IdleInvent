@@ -205,6 +205,39 @@ namespace Graphics {
         return success;
     }
 
+    // TODO: Untested
+    bool TryLoadSpriteSheet(const std::string& file, const std::vector<SpriteRegion>& regions) {
+        void* fileData = nullptr;
+        size_t fileSize = 0;
+        if(!g_Platform->TryGetAsset(file.c_str(), &fileData, fileSize)) return false;
+
+        int sheetWidth = 0, sheetHeight = 0;
+        auto* pixels = stbi_load_from_memory(
+            static_cast<const unsigned char*>(fileData),
+            static_cast<int>(fileSize),
+            &sheetWidth,
+            &sheetHeight,
+            nullptr,
+            4
+        );
+        if(!pixels) return false;
+        bool success = true;
+        for(const auto& region: regions) {
+            if(Images.contains(region.Name)) continue;
+            auto img =
+                TryLoadTextureFromPixels(pixels, sheetWidth, region.X, region.Y, region.Width, region.Height);
+            if(img) {
+                Images.emplace(region.Name, std::move(img));
+            } else {
+                success = false;
+                break;
+            }
+        }
+        stbi_image_free(pixels);
+        return success;
+    }
+
+
     ImTextureID GetImageHandle(const std::string& file) {
         IM_ASSERT(Images.contains(file));
         return Images.at(file).ToHandle();

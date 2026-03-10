@@ -8,6 +8,7 @@
 
 #include "Utilities/EnumUtils.h"
 #include "Mechanics/Purchasable.h"
+#include "Platform/Graphics.h"
 
 #include <unordered_set>
 
@@ -17,7 +18,7 @@ namespace {
     inline constexpr auto SlotBorderWidth = 2.f;
     inline constexpr auto BorderColor = IM_COL32(180, 180, 180, 255);
     inline constexpr auto DummySize = ImVec2(0.f, 8.f);
-
+    inline constexpr auto IconSize = ImVec2(128.f, 128.f);
 
     constexpr auto* ToolPayload = "GHOSTHUNTER_TOOL";
     constexpr auto* MemberPayload = "GHOSTHUNTER_MEMBER";
@@ -188,7 +189,8 @@ namespace {
             for(const auto& tool : ownedTools) {
                 if(!availableTools.contains(tool)) continue;
                 ImGui::PushID(static_cast<int>(toolIndex++));
-                ImGui::Button(ToString(tool).c_str());
+                //ImGui::Button(ToString(tool).c_str());
+                ImGui::ImageButton(ToString(tool).c_str(), ToIcon(tool), IconSize);
                 if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                     ImGui::SetDragDropPayload(ToolPayload, &tool, sizeof(tool));
                     ImGui::TextUnformatted(ToString(tool).c_str());
@@ -257,7 +259,7 @@ namespace {
 namespace GhostHunter::Ui::Screens::Investigate {
     bool Initialize() { 
         life = &Life::Get();
-        return true; 
+        return AreToolIconsLoaded();
     }
 
     void ShutDown() {}

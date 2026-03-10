@@ -6,6 +6,8 @@
 #include "Mechanics/Accumulator.h"
 #include "Mechanics/Upgrade.h"
 
+#include "Platform/Graphics.h"
+
 namespace GhostHunter {
     struct Room;
 
@@ -25,6 +27,9 @@ namespace GhostHunter {
 
     std::string ToString(ToolName tool);
     std::string Describe(ToolName tool);
+
+    bool AreToolIconsLoaded();
+    ImTextureID ToIcon(ToolName tool);
 
     class Tool {
         std::vector<Accumulator> m_Accumulators;

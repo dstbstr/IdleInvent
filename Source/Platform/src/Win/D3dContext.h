@@ -25,6 +25,7 @@ struct D3dContext {
     ~D3dContext();
     FrameContext* WaitForNextFrameResources();
     std::unique_ptr<DX12Image> TryLoadTextureFromMemory(const void* data, size_t dataSize);
+    std::unique_ptr<DX12Image> TryLoadTextureFromPixels(const void* data, size_t fullWidth, size_t x, size_t y, size_t width, size_t height);
     void Resize(UINT width, UINT height);
     bool NextFrame();
     void RenderFrame(const float* clearColorWithAlpha);
@@ -56,7 +57,7 @@ private:
     std::unique_ptr<D3dAllocator> Alloc{nullptr};
 
     void CreateRenderTarget();
-    void CleanupRenderTarget();
+    // void CleanupRenderTarget();
     void WaitForLastSubmittedFrame();
 };
 

@@ -9,6 +9,7 @@
 #include <tchar.h>
 #include <fstream>
 #include <unordered_map>
+#include <stb_image.h>
 
 // #include <iostream>
 
@@ -120,6 +121,64 @@ namespace Graphics {
         }
         g_Ctx->Images.emplace(file, std::move(img));
         return true;
+    }
+
+    bool TryLoadSpriteSheet(const std::string& file) {
+        auto txtName = file.substr(0, file.find_last_of('.')) + ".txt";
+        void* rawData = nullptr;
+        size_t txtSize = 0;
+        if(!g_Platform->TryGetAsset(txtName.c_str(), &rawData, txtSize)) return false;
+        const char* txtData = static_cast<const char*>(rawData);
+        std::istringstream regionsFile(txtData);
+
+        //std::ifstream regionsFile(txtName);
+        //if(!regionsFile.is_open()) return false;
+        std::vector<SpriteRegion> regions;
+        std::string line;
+        while(std::getline(regionsFile, line)) {
+            SpriteRegion region;
+            std::istringstream iss(line);
+            if(!(iss >> region.Name >> region.X >> region.Y >> region.Width >> region.Height)) {
+                return false; // Error parsing line
+            }
+            regions.push_back(region);
+        }
+        return TryLoadSpriteSheet(file, regions);
+    }
+
+    bool TryLoadSpriteSheet(const std::string& file, const std::vector<SpriteRegion>& regions) {
+        void* fileData = nullptr;
+        size_t fileSize = 0;
+        if(!g_Platform->TryGetAsset(file.c_str(), &fileData, fileSize)) return false;
+
+        int sheetWidth = 0, sheetHeight = 0;
+        auto* pixels = stbi_load_from_memory(
+            static_cast<const unsigned char*>(fileData),
+            static_cast<int>(fileSize),
+            &sheetWidth,
+            &sheetHeight,
+            nullptr,
+            4
+        );
+        if(!pixels) return false;
+        bool success = true;
+        for (const auto& region : regions) {
+            if(g_Ctx->Images.contains(region.Name)) continue;
+            auto img =
+                g_Ctx->TryLoadTextureFromPixels(pixels, sheetWidth, region.X, region.Y, region.Width, region.Height);
+            if (img) {
+                g_Ctx->Images.emplace(region.Name, std::move(img));
+            } else {
+                success = false;
+                break;
+            }
+        }
+        stbi_image_free(pixels);
+        return success;
+    }
+
+    bool IsImageValid(const std::string& name) {
+        return g_Ctx && g_Ctx->Images.contains(name); 
     }
 
     ImTextureID GetImageHandle(const std::string& file) {

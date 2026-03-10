@@ -10,6 +10,15 @@
 #include "Mechanics/Purchasable.h"
 #include "Resources/Resource.h"
 
+namespace {
+	constexpr auto* CameraIcon = "Camera";
+	constexpr auto* FlashlightIcon = "Flashlight";
+	constexpr auto* EmfDetectorIcon = "EmfDetector";
+	constexpr auto* ThermalCameraIcon = "ThermalCamera";
+	constexpr auto* EvpRecorderIcon = "EvpRecorder";
+	constexpr auto* LaserGridIcon = "LaserGrid";
+	constexpr auto* SpiritBoxIcon = "SpiritBox";
+}
 
 namespace GhostHunter {
     static_assert(UpgradableType<Tool>);
@@ -27,6 +36,34 @@ namespace GhostHunter {
 			default: return "Unset";
             };
 	}
+
+	bool AreToolIconsLoaded() {
+		return Graphics::IsImageValid(CameraIcon) &&
+			Graphics::IsImageValid(FlashlightIcon) &&
+			Graphics::IsImageValid(EmfDetectorIcon) && 
+			Graphics::IsImageValid(ThermalCameraIcon) &&
+			Graphics::IsImageValid(EvpRecorderIcon) &&
+			Graphics::IsImageValid(LaserGridIcon) &&
+            Graphics::IsImageValid(SpiritBoxIcon);
+	}
+
+	ImTextureID ToIcon(ToolName tool) {
+		// These names come from ToolSpireSheet.txt
+        std::string icon;
+        using enum GhostHunter::ToolName;
+        switch(tool) {
+        case Camera: icon = CameraIcon; break;
+        case Flashlight: icon = FlashlightIcon; break;
+        case EmfDetector: icon = EmfDetectorIcon; break;
+        case ThermalCamera: icon = ThermalCameraIcon; break;
+        case EvpRecorder: icon = EvpRecorderIcon; break;
+        case LaserGrid: icon = LaserGridIcon; break;
+        case SpiritBox: icon = SpiritBoxIcon; break;
+        default: return 0;
+        }
+
+        return Graphics::GetImageHandle(icon);
+    }
 
 	Tool::Tool(ToolName id, QualityType level) 
 		: m_Accumulators(GetAccumulators(id, level)) 

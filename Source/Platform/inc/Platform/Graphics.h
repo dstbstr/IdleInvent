@@ -4,6 +4,11 @@
 #include <imgui.h> // Do I want this dependency, or change ImTextureID to void*?
 #include <utility>
 
+struct SpriteRegion {
+    std::string Name;
+    size_t X, Y, Width, Height;
+};
+
 namespace Graphics {
     using RenderFn = void (*)();
     bool Initialize(Platform& platform);
@@ -15,6 +20,10 @@ namespace Graphics {
     ImFont* GetFont(const std::string& id);
 
     bool TryLoadImageFile(const std::string& file);
+    bool TryLoadSpriteSheet(const std::string& file); // assumes fileName.txt for details
+    bool TryLoadSpriteSheet(const std::string& file, const std::vector<SpriteRegion>& regions);
+
+    bool IsImageValid(const std::string& name);
     ImTextureID GetImageHandle(const std::string& file);
 
     extern float ScreenHeight;

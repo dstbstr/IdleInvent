@@ -75,6 +75,7 @@ bool Engine::Initialize() {
 
     auto& services = ServiceLocator::Get();
     services.Set<Platform>(m_Platform);
+    services.Set<EngineState>();
 
     if(!m_Game.Initialize()) {
         Log::Error("Failed to initialize game");

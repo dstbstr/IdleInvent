@@ -11,6 +11,8 @@
 namespace {
     GhostHunter::Life* life{nullptr};
 
+    constexpr auto IconSize = ImVec2(128.f, 128.f);
+
     void RenderSell() {
         auto& allMedia = life->GetInventory().CreatedMedia;
         if(allMedia.empty()) return;
@@ -42,7 +44,8 @@ namespace {
         for(auto tool: available) {
             if(owned.contains(tool)) continue;
 
-            ImGui::Text("%s", ToString(tool).c_str());
+            //ImGui::Text("%s", ToString(tool).c_str());
+            ImGui::Image(ToIcon(tool), IconSize);
             ImGui::SameLine();
             ImGui::PushID(static_cast<int>(tool));
             auto cost = Purchasables::GetCost<ToolName>(tool);
@@ -62,7 +65,10 @@ namespace {
 
         int id = 0;
         for(auto& [toolId, tool]: owned) {
-            ImGui::Text("%s", tool.Describe().c_str());
+            //ImGui::Text("%s", tool.Describe().c_str());
+            ImGui::Image(ToIcon(toolId), IconSize);
+            ImGui::SameLine();
+            ImGui::Text("%s", ToString(tool.Level).c_str());
             ImGui::SameLine();
             ImGui::PushID(id++);
             ImGui::BeginDisabled(!UpgradeManager::CanUpgrade(tool, resources));
@@ -78,7 +84,7 @@ namespace {
 namespace GhostHunter::Ui::Screens::Market {
     bool Initialize() { 
         life = &Life::Get();
-        return true; 
+        return AreToolIconsLoaded();
     }
 
     void ShutDown() {}
