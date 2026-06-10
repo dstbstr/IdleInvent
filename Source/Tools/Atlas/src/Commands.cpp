@@ -208,6 +208,78 @@ namespace {
 
         return atlas;
     }
+
+    /////////
+    // Split
+    /////////
+    struct AtlasRegion {
+        std::string Name{};
+        Pos Pos{};
+        Dims Dims{};
+    };
+
+    bool ParseMetadata(const std::filesystem::path& txtPath, std::vector<AtlasRegion>& outRegions, std::ostream& err) {
+        auto file = std::ifstream(txtPath, std::ios::binary);
+        if(!file) {
+            err << "Failed to open file: " << txtPath << "\n";
+            return false;
+        }
+        std::string line;
+        size_t lineNum = 0;
+        while(std::getline(file, line)) {
+            ++lineNum;
+            if(!line.empty() && line.back() == '\r') line.pop_back();
+            if(line.empty()) continue;
+
+            AtlasRegion region;
+            std::istringstream stream(line);
+            if(!(stream >> region.Name >> region.Pos.X >> region.Pos.Y >> region.Dims.W >> region.Dims.H)) {
+                err << "Malformed line: " << lineNum << "\n";
+                return false;
+            }
+            outRegions.push_back(std::move(region));
+        }
+
+        if(outRegions.empty()) {
+            err << "No regions found\n";
+            return false;
+        }
+
+        return true;
+    }
+
+    bool ExtractRegion(const std::vector<std::byte>& atlas, Dims atlasDims, const AtlasRegion& region, const std::filesystem::path& dest, std::ostream& err) {
+        if(region.Dims.W > atlasDims.W || region.Pos.X > atlasDims.W - region.Dims.W ||
+            region.Dims.H > atlasDims.H || region.Pos.Y > atlasDims.H - region.Dims.H) {
+            err << "Region '" << region.Name << "' is out of atlas bounds\n";
+            return false;
+        }
+        if(region.Dims.Area() == 0) {
+            err << "Region '" << region.Name << "' has zero area\n";
+            return false;
+        }
+
+        auto pixels = std::vector<std::byte>(region.Dims.Area() * 4);
+        for(size_t row = 0; row < region.Dims.H; ++row) {
+            const auto* src = &atlas[(((region.Pos.Y + row) * atlasDims.W) + region.Pos.X) * 4];
+            auto* dst = &pixels[row * region.Dims.W * 4];
+            std::memcpy(dst, src, region.Dims.W * 4);
+        }
+
+        if(!stbi_write_png(
+               dest.string().c_str(), // filename
+               static_cast<int>(region.Dims.W), // width
+               static_cast<int>(region.Dims.H), // height
+               4, // channels
+               pixels.data(), // data
+               static_cast<int>(region.Dims.W * 4) // stride
+           )) {
+            err << "Failed to write image: " << dest << "\n";
+            return false;
+        }
+
+        return true;
+    }
 }
 
 struct BuildAtlasArgs : CliParser::IArgs {
@@ -271,5 +343,68 @@ COMMAND(BuildAtlas, BuildAtlasArgs, args) {
 
     std::cout << "\nAtlas created successfully: \n" << pngPath << "\n" << txtPath << "\n";
 }
+
+struct SplitAtlasArgs : CliParser::IArgs {
+    OPTION(std::string, 'a', Atlas, "Path to the atlas");
+    OPTION(std::optional<std::string>, 'o', OutDir, "Output directory for extracted images");
+};
+
+COMMAND(SplitAtlas, SplitAtlasArgs, args) {
+    auto stem = args.Atlas;
+    if(stem.ends_with(".png") || stem.ends_with(".txt")) {
+        stem = stem.substr(0, stem.find_last_of('.'));
+    }
+    auto pngPath = std::filesystem::path(stem + ".png");
+    auto txtPath = std::filesystem::path(stem + ".txt");
+    if(!std::filesystem::exists(pngPath)) {
+        std::cerr << "Atlas image not found: " << pngPath << "\n";
+        outResult = 1;
+        return;
+    }
+    if(!std::filesystem::exists(txtPath)) {
+        std::cerr << "Metadata file not found: " << txtPath << "\n";
+        outResult = 1;
+        return;
+    }
+
+    std::vector<AtlasRegion> regions;
+    if(!ParseMetadata(txtPath, regions, std::cerr)) {
+        outResult = 2;
+        return;
+    }
+
+    // load atlas
+    int w = 0, h = 0, channels = 0;
+    auto* data = stbi_load(pngPath.string().c_str(), &w, &h, &channels, 4);
+    if(!data) {
+        std::cerr << "Failed to load atlas image: " << pngPath << "\n";
+        outResult = 3;
+        return;
+    }
+
+    auto atlasDims = Dims{w, h};
+    auto atlas = std::vector<std::byte>(atlasDims.Area() * 4);
+    std::memcpy(atlas.data(), data, atlas.size());
+    stbi_image_free(data);
+
+    auto outDir = std::filesystem::path(args.OutDir.value_or(pngPath.parent_path().string()));
+    std::error_code ec;
+    if(std::filesystem::create_directories(outDir, ec); ec) {
+        std::cerr << "Failed to create output directory: " << ec.message() << "\n";
+        outResult = 4;
+        return;
+    }
+
+    for(const auto& region : regions) {
+        if(!ExtractRegion(atlas, atlasDims, region, outDir / (region.Name + ".png"), std::cerr)) {
+            outResult = 5;
+            return;
+        }
+    }
+
+    std::cout << "\nAtlas split into " << regions.size() << " regions\n" << outDir << "\n";
+}
+
+
 // prevent the linker from stripping out the command functions
 void InitializeCommands(){}

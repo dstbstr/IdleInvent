@@ -44,7 +44,7 @@ namespace {
         for(auto tool: available) {
             if(owned.contains(tool)) continue;
 
-            auto sprite = ToSpriteLabeled(tool);
+            auto sprite = ToSprite(tool);
             ImGui::Image(sprite.Texture, IconSize, sprite.UvMin, sprite.UvMax);
             ImGui::SameLine();
             ImGui::PushID(static_cast<int>(tool));

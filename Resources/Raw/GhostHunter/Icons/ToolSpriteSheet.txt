@@ -1,0 +1,7 @@
+Camera 63 184 272 219
+Flashlight 374 185 250 218
+EmfDetector 706 184 226 219
+ThermalCamera 38 527 230 265
+EvpRecorder 301 527 182 265
+LaserGrid 504 584 223 203
+SpiritBox 787 506 181 283

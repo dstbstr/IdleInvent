@@ -11,7 +11,7 @@
 #include "Resources/Resource.h"
 
 namespace {
-    // These names come from ToolSpireSheet.txt
+    // These names come from Tools.txt
 	constexpr auto* CameraIcon = "Camera";
 	constexpr auto* FlashlightIcon = "Flashlight";
 	constexpr auto* EmfDetectorIcon = "EmfDetector";
@@ -79,12 +79,6 @@ namespace GhostHunter {
         std::string icon = ToIconString(tool);
         if(icon.empty()) return Sprite();
         return Graphics::GetSprite(icon);
-    }
-
-	Sprite ToSpriteLabeled(ToolName tool) {
-        std::string icon = ToIconString(tool);
-        if(icon.empty()) return Sprite();
-        return Graphics::GetSprite(icon + "Label");
     }
 
 	Tool::Tool(ToolName id, QualityType level) 

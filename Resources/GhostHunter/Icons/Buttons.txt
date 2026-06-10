@@ -1,5 +1,5 @@
-Button_Castle 2 2 256 256
-Button_Coin 260 2 256 256
-Button_Detector 518 2 256 256
-Button_Journal 776 2 256 256
-Button_Tombstone 1034 2 256 256
+Castle 2 2 256 256
+Coin 260 2 256 256
+Detector 518 2 256 256
+Journal 776 2 256 256
+Tombstone 1034 2 256 256

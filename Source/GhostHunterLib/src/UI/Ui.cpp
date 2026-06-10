@@ -10,7 +10,7 @@
 #include <functional>
 
 namespace {
-    constexpr auto ToolsSprites = "Icons/ToolSpriteSheet.png";
+    constexpr auto ToolsSprites = "Icons/Tools.png";
     constexpr auto ButtonSprites = "Icons/Buttons.png";
 
     class UiBuilder {

@@ -5,11 +5,11 @@
 #include <Platform/Graphics.h>
 
 namespace {
-    constexpr auto CoinIcon = "Button_Coin";
-    constexpr auto ToolsIcon = "Button_Detector";
-    constexpr auto InvestigateIcon = "Button_Castle";
-    constexpr auto EditIcon = "Button_Journal";
-    constexpr auto PrestigeIcon = "Button_Tombstone";
+    constexpr auto CoinIcon = "Coin";
+    constexpr auto ToolsIcon = "Detector";
+    constexpr auto InvestigateIcon = "Castle";
+    constexpr auto EditIcon = "Journal";
+    constexpr auto PrestigeIcon = "Tombstone";
     constexpr int IconSize = 64;
 } // namespace
 
