@@ -1,8 +1,6 @@
 #include <Platform/PlatformMain.h>
 #include <Engine.h>
-//#include <InventLib/InventGame.h>
-//#include <TechMaze/TechMazeGame.h>
-#include <GhostHunter/GhostHunterGame.h>
+#include GAME_HEADER // defined by CMakeLists.txt
 
 #include <memory>
 
@@ -29,7 +27,6 @@ private:
 };
 
 std::unique_ptr<IGameState> GetGameState(Platform& platform) {
-    //using CurrentGame = GameState<TechMaze::TechMazeGame>;
-    using CurrentGame = GameState<GhostHunter::GhostHunterGame>;
+    using CurrentGame = GameState<GAME_TYPE>; // defined by CMakeLists.txt
     return std::make_unique<CurrentGame>(platform);
 }

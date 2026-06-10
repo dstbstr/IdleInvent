@@ -44,8 +44,8 @@ namespace {
         for(auto tool: available) {
             if(owned.contains(tool)) continue;
 
-            //ImGui::Text("%s", ToString(tool).c_str());
-            ImGui::Image(ToIcon(tool), IconSize);
+            auto sprite = ToSpriteLabeled(tool);
+            ImGui::Image(sprite.Texture, IconSize, sprite.UvMin, sprite.UvMax);
             ImGui::SameLine();
             ImGui::PushID(static_cast<int>(tool));
             auto cost = Purchasables::GetCost<ToolName>(tool);
@@ -65,8 +65,8 @@ namespace {
 
         int id = 0;
         for(auto& [toolId, tool]: owned) {
-            //ImGui::Text("%s", tool.Describe().c_str());
-            ImGui::Image(ToIcon(toolId), IconSize);
+            auto sprite = ToSprite(toolId);
+            ImGui::Image(sprite.Texture, IconSize, sprite.UvMin, sprite.UvMax);
             ImGui::SameLine();
             ImGui::Text("%s", ToString(tool.Level).c_str());
             ImGui::SameLine();

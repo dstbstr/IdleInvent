@@ -108,7 +108,8 @@ namespace {
                     ImGui::Button(ToString(member->Id).c_str());
                     dragSource();
                     ImGui::SameLine();
-                    ImGui::ImageButton(label.c_str(), ToIcon(member->GetCurrentTool()->Id), IconSize);
+                    auto sprite = ToSprite(member->GetCurrentTool()->Id);
+                    ImGui::ImageButton(label.c_str(), sprite.Texture, IconSize, sprite.UvMin, sprite.UvMax);
                     dragSource();
                 }
             }
@@ -192,7 +193,8 @@ namespace {
                 if (member->GetCurrentTool()) {
                     dragSource();
                     ImGui::SameLine();
-                    ImGui::ImageButton(label.c_str(), ToIcon(member->GetCurrentTool()->Id), IconSize);
+                    auto sprite = ToSprite(member->GetCurrentTool()->Id);
+                    ImGui::ImageButton(label.c_str(), sprite.Texture, IconSize, sprite.UvMin, sprite.UvMax);
                     dragSource();
                 } else {
                     dragTarget();
@@ -207,7 +209,8 @@ namespace {
             for(const auto& tool : ownedTools) {
                 if(!availableTools.contains(tool)) continue;
                 ImGui::PushID(static_cast<int>(toolIndex++));
-                ImGui::ImageButton(ToString(tool).c_str(), ToIcon(tool), IconSize);
+                auto sprite = ToSprite(tool);
+                ImGui::ImageButton(ToString(tool).c_str(), sprite.Texture, IconSize, sprite.UvMin, sprite.UvMax);
                 if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
                     ImGui::SetDragDropPayload(ToolPayload, &tool, sizeof(tool));
                     ImGui::TextUnformatted(ToString(tool).c_str());

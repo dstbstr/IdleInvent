@@ -11,6 +11,7 @@
 #include "Resources/Resource.h"
 
 namespace {
+    // These names come from ToolSpireSheet.txt
 	constexpr auto* CameraIcon = "Camera";
 	constexpr auto* FlashlightIcon = "Flashlight";
 	constexpr auto* EmfDetectorIcon = "EmfDetector";
@@ -18,6 +19,20 @@ namespace {
 	constexpr auto* EvpRecorderIcon = "EvpRecorder";
 	constexpr auto* LaserGridIcon = "LaserGrid";
 	constexpr auto* SpiritBoxIcon = "SpiritBox";
+
+	std::string ToIconString(GhostHunter::ToolName tool) {
+		using enum GhostHunter::ToolName;
+		switch(tool) {
+			case Camera: return CameraIcon;
+			case Flashlight: return FlashlightIcon;
+			case EmfDetector: return EmfDetectorIcon;
+			case ThermalCamera: return ThermalCameraIcon;
+			case EvpRecorder: return EvpRecorderIcon;
+			case LaserGrid: return LaserGridIcon;
+			case SpiritBox: return SpiritBoxIcon;
+			default: return "";
+		}
+	}
 }
 
 namespace GhostHunter {
@@ -38,31 +53,38 @@ namespace GhostHunter {
 	}
 
 	bool AreToolIconsLoaded() {
-		return Graphics::IsImageValid(CameraIcon) &&
-			Graphics::IsImageValid(FlashlightIcon) &&
-			Graphics::IsImageValid(EmfDetectorIcon) && 
-			Graphics::IsImageValid(ThermalCameraIcon) &&
-			Graphics::IsImageValid(EvpRecorderIcon) &&
-			Graphics::IsImageValid(LaserGridIcon) &&
-            Graphics::IsImageValid(SpiritBoxIcon);
+		return 
+			Graphics::IsSpriteValid(CameraIcon) &&
+			Graphics::IsSpriteValid(FlashlightIcon) &&
+			Graphics::IsSpriteValid(EmfDetectorIcon) && 
+			Graphics::IsSpriteValid(ThermalCameraIcon) &&
+			Graphics::IsSpriteValid(EvpRecorderIcon) &&
+			Graphics::IsSpriteValid(LaserGridIcon) &&
+            Graphics::IsSpriteValid(SpiritBoxIcon);
 	}
 
 	ImTextureID ToIcon(ToolName tool) {
-		// These names come from ToolSpireSheet.txt
-        std::string icon;
-        using enum GhostHunter::ToolName;
-        switch(tool) {
-        case Camera: icon = CameraIcon; break;
-        case Flashlight: icon = FlashlightIcon; break;
-        case EmfDetector: icon = EmfDetectorIcon; break;
-        case ThermalCamera: icon = ThermalCameraIcon; break;
-        case EvpRecorder: icon = EvpRecorderIcon; break;
-        case LaserGrid: icon = LaserGridIcon; break;
-        case SpiritBox: icon = SpiritBoxIcon; break;
-        default: return 0;
-        }
-
+        std::string icon = ToIconString(tool);
+        if(icon.empty()) return 0;
         return Graphics::GetImageHandle(icon);
+    }
+
+	ImTextureID ToIconLabeled(ToolName tool) {
+        std::string icon = ToIconString(tool);
+        if(icon.empty()) return 0;
+        return Graphics::GetImageHandle(icon + "Label");
+	}
+
+	Sprite ToSprite(ToolName tool) {
+        std::string icon = ToIconString(tool);
+        if(icon.empty()) return Sprite();
+        return Graphics::GetSprite(icon);
+    }
+
+	Sprite ToSpriteLabeled(ToolName tool) {
+        std::string icon = ToIconString(tool);
+        if(icon.empty()) return Sprite();
+        return Graphics::GetSprite(icon + "Label");
     }
 
 	Tool::Tool(ToolName id, QualityType level) 

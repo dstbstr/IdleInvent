@@ -10,7 +10,8 @@
 #include <functional>
 
 namespace {
-    constexpr auto ToolsSprites = "Icon/ToolSpriteSheet.png";
+    constexpr auto ToolsSprites = "Icons/ToolSpriteSheet.png";
+    constexpr auto ButtonSprites = "Icons/Buttons.png";
 
     class UiBuilder {
     public:
@@ -50,6 +51,7 @@ namespace GhostHunter::Ui {
         DR_ASSERT(Graphics::TryLoadFont("H4", headerFont, 12.0f));
 
         DR_ASSERT(Graphics::TryLoadSpriteSheet(ToolsSprites));
+        DR_ASSERT(Graphics::TryLoadSpriteSheet(ButtonSprites));
         DR_ASSERT(Screens::BottomContent::Initialize());
         DR_ASSERT(Screens::MainContent::Initialize());
         DR_ASSERT(Screens::TopContent::Initialize());

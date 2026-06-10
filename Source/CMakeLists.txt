@@ -22,6 +22,17 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 #################################
+# Durandal Libs
+#################################
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CliParser)
+    add_subdirectory("CliParser")
+else()
+    FetchContent_Declare(CliParser GIT_REPOSITORY https://github.com/dstbstr/CliParser GIT_TAG origin/main)
+    FetchContent_MakeAvailable(CliParser)
+endif()
+
+#################################
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -60,6 +71,7 @@ elseif(ANDROID)
 endif()
 
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+add_subdirectory(Tools)
 add_subdirectory(Platform)
 add_subdirectory(Engine)
 add_subdirectory(InventLib)

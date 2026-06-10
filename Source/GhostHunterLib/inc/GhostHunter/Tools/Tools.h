@@ -30,6 +30,9 @@ namespace GhostHunter {
 
     bool AreToolIconsLoaded();
     ImTextureID ToIcon(ToolName tool);
+    ImTextureID ToIconLabeled(ToolName tool);
+    Sprite ToSprite(ToolName tool);
+    Sprite ToSpriteLabeled(ToolName tool);
 
     class Tool {
         std::vector<Accumulator> m_Accumulators;

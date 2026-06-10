@@ -9,6 +9,12 @@ struct SpriteRegion {
     size_t X, Y, Width, Height;
 };
 
+struct Sprite {
+    ImTextureID Texture{};
+    ImVec2 UvMin{0.0f, 0.0f};
+    ImVec2 UvMax{1.0f, 1.0f};
+};
+
 namespace Graphics {
     using RenderFn = void (*)();
     bool Initialize(Platform& platform);
@@ -24,6 +30,8 @@ namespace Graphics {
     bool TryLoadSpriteSheet(const std::string& file, const std::vector<SpriteRegion>& regions);
 
     bool IsImageValid(const std::string& name);
+    bool IsSpriteValid(const std::string& name);
+    Sprite GetSprite(const std::string& name);
     ImTextureID GetImageHandle(const std::string& file);
 
     extern float ScreenHeight;

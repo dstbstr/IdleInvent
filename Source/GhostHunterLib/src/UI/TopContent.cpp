@@ -40,7 +40,7 @@ namespace {
 } // namespace
 
 namespace GhostHunter::Ui::Screens::TopContent {
-    constexpr auto SettingsIcon = "Icon/SettingsIcon64.png";
+    constexpr auto SettingsIcon = "Icons/Settings.png";
     bool Initialize() {
         auto& services = ServiceLocator::Get();
         gameSettings = services.Get<GhostHunter::GameSettings>();
