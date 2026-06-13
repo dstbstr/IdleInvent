@@ -11,4 +11,5 @@ Checks: >
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-macro-usage,
     performance-*,
-    portability-*
+    portability-*,
+    -portability-avoid-pragma-once

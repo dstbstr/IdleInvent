@@ -1,7 +1,7 @@
 project(IdleGame LANGUAGES CXX)
 
-set(GAME "GhostHunter" CACHE STRING "Which game to build")
-set_property(CACHE GAME PROPERTY STRINGS GhostHunter TechMaze Invent) # for GUI dropdowns
+set(GAME "PetPyramid" CACHE STRING "Which game to build")
+set_property(CACHE GAME PROPERTY STRINGS GhostHunter TechMaze Invent PetPyramid) # for GUI dropdowns
 
 if(GAME STREQUAL "GhostHunter")
     set(GAME_LIB GhostHunterLib)
@@ -15,6 +15,10 @@ elseif(GAME STREQUAL "Invent")
     set(GAME_LIB InventLib)
     set(GAME_HEADER "Invent/InventGame.h")
     set(GAME_TYPE Invent::InventGame)
+elseif(GAME STREQUAL "PetPyramid")
+    set(GAME_LIB PetPyramidLib)
+    set(GAME_HEADER "Pets/PetPyramidGame.h")
+    set(GAME_TYPE Pets::PetPyramidGame)
 else()
     message(FATAL_ERROR "Invalid game selected: ${GAME}")
 endif()
