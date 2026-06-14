@@ -10,6 +10,7 @@ Checks: >
     -cppcoreguidelines-avoid-non-const-global-variables,
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-macro-usage,
+    -cppcoreguidelines-non-private-member-variables-in-classes,
     performance-*,
     portability-*,
     -portability-avoid-pragma-once

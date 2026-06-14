@@ -26,6 +26,7 @@ namespace Graphics {
     ImFont* GetFont(const std::string& id);
 
     bool TryLoadImageFile(const std::string& file);
+    bool TryLoadSpriteRegions(const std::string& file, std::vector<SpriteRegion>& outRegions);
     bool TryLoadSpriteSheet(const std::string& file); // assumes fileName.txt for details
     bool TryLoadSpriteSheet(const std::string& file, const std::vector<SpriteRegion>& regions);
 

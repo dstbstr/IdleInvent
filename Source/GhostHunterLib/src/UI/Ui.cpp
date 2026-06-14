@@ -4,6 +4,7 @@
 #include "GhostHunter/Ui/BottomContent.h"
 
 #include "Platform/Graphics.h"
+#include "Ui/UiBuilder.h"
 #include "Instrumentation/Logging.h"
 
 #include <vector>
@@ -12,7 +13,7 @@
 namespace {
     constexpr auto ToolsSprites = "Icons/Tools.png";
     constexpr auto ButtonSprites = "Icons/Buttons.png";
-
+    /*
     class UiBuilder {
     public:
         UiBuilder& AddPart(float height, const std::function<void()>& part) {
@@ -40,15 +41,12 @@ namespace {
         std::vector<float> m_Heights{};
         std::vector<std::function<void()>> m_Parts{};
     };
+    */
 } // namespace
 
 namespace GhostHunter::Ui {
     bool Initialize() {
-        static const auto headerFont = "DroidSans.ttf";
-        DR_ASSERT(Graphics::TryLoadFont("H1", headerFont, 32.0f));
-        DR_ASSERT(Graphics::TryLoadFont("H2", headerFont, 24.0f));
-        DR_ASSERT(Graphics::TryLoadFont("H3", headerFont, 16.0f));
-        DR_ASSERT(Graphics::TryLoadFont("H4", headerFont, 12.0f));
+        InitializeFonts("DroidSans.ttf");
 
         DR_ASSERT(Graphics::TryLoadSpriteSheet(ToolsSprites));
         DR_ASSERT(Graphics::TryLoadSpriteSheet(ButtonSprites));

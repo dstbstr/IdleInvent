@@ -7,7 +7,7 @@
 #include <string>
 
 namespace Invent {
-    enum struct ProjectType {Research, Build, Explore, Population};
+    enum struct ProjectType : u8 {Research, Build, Explore, Population};
     std::vector<ProjectType> AllProjectTypes();
 
     std::string ToString(ProjectType type);

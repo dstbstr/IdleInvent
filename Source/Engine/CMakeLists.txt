@@ -12,6 +12,8 @@ set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 target_sources(${PROJECT_NAME} PRIVATE
 	src/Engine.cpp
 
+	 src/Animation/Animation.cpp 
+
 	src/DesignPatterns/PubSub.cpp
 
 	src/GameState/GameState.cpp

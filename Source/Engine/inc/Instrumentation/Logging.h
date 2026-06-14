@@ -9,7 +9,7 @@
 #include <ostream>
 
 namespace Log {
-	enum struct Level {
+	enum struct Level : std::uint8_t {
 		Debug,
 		Info,
 		Warning,
@@ -19,9 +19,9 @@ namespace Log {
 	struct Entry {
 		Entry(Level level, std::string msg, Debug::Context context)
 			: LogLevel(level)
-			, Message(msg)
+			, Message(std::move(msg))
 			, Time(std::chrono::system_clock::now())
-			, Context(context)
+			, Context(std::move(context))
 		{}
 
 		Level LogLevel{};

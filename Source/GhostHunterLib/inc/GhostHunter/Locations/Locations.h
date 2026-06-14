@@ -41,11 +41,11 @@ namespace GhostHunter {
         void EndInvestigation();
     };
 
-    namespace _LocationDetails {
+    namespace Private_LocationDetails {
         std::vector<Room> RoomsByLocation(LocationName location);
         BaseTime GetCooldownTime(LocationName location);
         std::string Describe(LocationName location);
-    } // namespace _Details
+    } // namespace Private_LocationDetails
 
     std::string ToString(LocationName location);
     std::string Describe(LocationName location);

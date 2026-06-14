@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace _TypeImpl {
+namespace Private_TypeImpl {
     template<typename T>
     static constexpr std::string_view Name() {
 #ifdef _MSC_VER
@@ -37,7 +37,7 @@ namespace Type {
 
     template<typename T>
     static std::string Name() {
-        std::string s{_TypeImpl::Name<T>()};
+        std::string s{Private_TypeImpl::Name<T>()};
         static std::vector<std::string> toRemove = {"struct", "class", "enum", "union"};
         for(const auto& token: toRemove) {
             s = Constexpr::RemoveAll(s, token);

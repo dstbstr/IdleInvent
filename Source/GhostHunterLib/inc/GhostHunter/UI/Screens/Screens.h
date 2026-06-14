@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
+#include "Platform/NumTypes.h"
 
 namespace GhostHunter::Ui {
-    enum struct Screen { Editing, Investigate, Market, Prestige, Settings };
+    enum struct Screen : u8 { Editing, Investigate, Market, Prestige, Settings };
 
     std::string ToString(Screen screen);
 

@@ -5,7 +5,11 @@
 
 struct DebugStream : public std::ostream {
     DebugStream();
-    ~DebugStream() noexcept;
+    ~DebugStream() noexcept override;
+    DebugStream(const DebugStream&) = default;
+    DebugStream& operator=(const DebugStream&) = default;
+    DebugStream(DebugStream&&) = default;
+    DebugStream& operator=(DebugStream&&) = default;
 
 private:
     struct DebugStreamBuf;

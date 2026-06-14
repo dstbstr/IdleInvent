@@ -10,8 +10,8 @@
 
 namespace GhostHunter {
     Location::Location(LocationName name) 
-        : m_CooldownAccumulator(_LocationDetails::GetCooldownTime(name), [name](){Life::Get().GetLocation(name).OnCooldown(); })
-        , m_Rooms(_LocationDetails::RoomsByLocation(name))
+        : m_CooldownAccumulator(Private_LocationDetails::GetCooldownTime(name), [name](){Life::Get().GetLocation(name).OnCooldown(); })
+        , m_Rooms(Private_LocationDetails::RoomsByLocation(name))
         , Id(name)
     {
         auto& services = ServiceLocator::Get();
@@ -45,7 +45,7 @@ namespace GhostHunter {
     }
         
     std::string Describe(LocationName location) { 
-        return _LocationDetails::Describe(location); 
+        return Private_LocationDetails::Describe(location); 
     }
 
 } // namespace GhostHunter

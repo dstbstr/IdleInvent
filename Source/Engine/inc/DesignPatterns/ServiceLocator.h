@@ -13,12 +13,14 @@ struct ServiceLocator {
 		return instance;
 	}
 
-    ~ServiceLocator() {
+    ~ServiceLocator() noexcept {
         services.clear();
     }
 
     ServiceLocator(const ServiceLocator&) = delete;
     ServiceLocator& operator=(const ServiceLocator&) = delete;
+    ServiceLocator(ServiceLocator&&) = delete;
+    ServiceLocator& operator=(ServiceLocator&&) = delete;
 
     template<typename T, typename... Args>
     void Set(Args&&... args) {

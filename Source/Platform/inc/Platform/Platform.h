@@ -6,7 +6,12 @@
 
 struct Platform {
     Platform(void* app);
-    ~Platform();
+    ~Platform() noexcept;
+    Platform(const Platform&) = default;
+    Platform& operator=(const Platform&) = default;
+    Platform(Platform&&) = default;
+    Platform& operator=(Platform&&) = default;
+
     std::filesystem::path GetRootPath() const;
     DebugStream& GetDebugStream() const;
     

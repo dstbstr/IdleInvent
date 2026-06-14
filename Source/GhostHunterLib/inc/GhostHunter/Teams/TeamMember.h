@@ -1,9 +1,10 @@
 #pragma once
 #include "GhostHunter/Tools/Tools.h"
 #include "GhostHunter/Locations/Room.h"
+#include <Platform/NumTypes.h>
 
 namespace GhostHunter {
-	enum struct MemberName {
+	enum struct MemberName : u8 {
 		Unset,
 
 		You,

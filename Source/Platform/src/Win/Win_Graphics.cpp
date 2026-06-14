@@ -133,29 +133,30 @@ namespace Graphics {
         return true;
     }
 
+    bool TryLoadSpriteRegions(const std::string& file, std::vector<SpriteRegion>& outRegions) {
+        void* fileData = nullptr;
+        size_t fileSize = 0;
+        if(!g_Platform->TryGetAsset(file.c_str(), &fileData, fileSize)) return false;
+        // returned buffer is not null terminated, so create with the known size
+        std::string txtData(static_cast<const char*>(fileData), fileSize);
+        IM_FREE(fileData);
+
+        std::istringstream ss(txtData);
+        std::string line;
+        while(std::getline(ss, line)) {
+            if(line.empty()) continue;
+            std::istringstream lineStream(line);
+            SpriteRegion region{};
+            lineStream >> region.Name >> region.X >> region.Y >> region.Width >> region.Height;
+            outRegions.push_back(region);
+        }
+        return true;
+    }
+
     bool TryLoadSpriteSheet(const std::string& file) {
         auto txtName = file.substr(0, file.find_last_of('.')) + ".txt";
-        void* rawData = nullptr;
-        size_t txtSize = 0;
-        if(!g_Platform->TryGetAsset(txtName.c_str(), &rawData, txtSize)) return false;
-        // returned buffer is not null terminated, so create with the known size
-        std::string txtData(static_cast<const char*>(rawData), txtSize);
-        IM_FREE(rawData);
-
-        std::istringstream regionsFile(txtData);
         std::vector<SpriteRegion> regions;
-        std::string line;
-        while(std::getline(regionsFile, line)) {
-            if(!line.empty() && line.back() == '\r') line.pop_back(); // handle crlf
-            if(line.empty()) continue;
-
-            SpriteRegion region;
-            std::istringstream iss(line);
-            if(!(iss >> region.Name >> region.X >> region.Y >> region.Width >> region.Height)) {
-                return false; // Error parsing line
-            }
-            regions.push_back(region);
-        }
+        if(!TryLoadSpriteRegions(txtName, regions)) return false;
         return TryLoadSpriteSheet(file, regions);
     }
 

@@ -88,6 +88,7 @@ namespace Constexpr {
             scaled /= 1000.0;
             ++suffixIndex;
         }
+        suffixIndex = std::min(suffixIndex, suffixes.size() - 1);
 
         auto scaledInt = static_cast<int>(scaled);
         std::array<char, 13> wholePart{};

@@ -58,7 +58,7 @@ namespace GhostHunter::Ui::Screens::TopContent {
         }
         ImGui::SameLine();
         RenderFps();
-        ImGui::PushFont(Ui::GetFont(Ui::FontSizes::H3));
+        ImGui::PushFont(GetFont(FontSizes::H3));
         RenderResources();
         ImGui::PopFont();
     }
