@@ -460,7 +460,7 @@ D3dContext::UploadPixels(const unsigned char* pixels, int srcStride, int srcX, i
 
     Device->CreateShaderResourceView(tex, &srvDesc, cpuHandle);
 
-    return std::make_unique<DX12Image>(width, height, static_cast<long long>(gpuHandle.ptr), tex);
+    return std::make_unique<DX12Image>(Dims{.Width = width, .Height = height}, static_cast<long long>(gpuHandle.ptr), tex);
 }
 
 // NOLINTEND

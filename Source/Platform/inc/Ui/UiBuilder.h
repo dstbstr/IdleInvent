@@ -19,12 +19,12 @@ public:
         std::string label;
         for(auto i = 0u; i < m_Parts.size(); ++i) {
             ImGui::SetNextWindowPos(ImVec2(0, startY));
-            ImGui::SetNextWindowSize(ImVec2(Graphics::ScreenWidth, m_Heights[i]));
+            ImGui::SetNextWindowSize(ImVec2(Graphics::ScreenWidth, m_Heights.at(i)));
             label = std::format("Section {}", i);
             ImGui::Begin(label.c_str(), nullptr, BaseUiFlags);
-            m_Parts[i]();
+            m_Parts.at(i)();
             ImGui::End();
-            startY += m_Heights[i];
+            startY += m_Heights.at(i);
             // DR_ASSERT_MSG(startY <= Graphics::ScreenHeight, "UI parts exceed window height");
         }
     }

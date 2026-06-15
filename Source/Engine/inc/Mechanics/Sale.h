@@ -38,7 +38,7 @@ void SellAll(std::vector<T>& items) {
 template<SellableType T>
 void Sell(std::vector<T>& items, size_t index) {
     if(index < items.size()) {
-        auto& item = items[index];
+        auto& item = items.at(index);
         auto& ps = ServiceLocator::Get().GetRequired<PubSub<Sale<T>>>();
         ps.Publish({item.Id, item.Level});
         items.erase(items.begin() + static_cast<std::vector<T>::difference_type>(index));

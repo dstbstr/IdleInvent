@@ -13,7 +13,7 @@ namespace {
     constexpr std::optional<std::pair<std::string_view, size_t>> TrySplitFrame(std::string_view name) {
         size_t digitCount = name.size();
         while(digitCount > 0) {
-            auto c = name[digitCount - 1];
+            auto c = name.at(digitCount - 1);
             if(c < '0' || c > '9') break;
             --digitCount;
         }
@@ -21,7 +21,7 @@ namespace {
         if(digitCount == 0) return std::nullopt; // name is only digits, no prefix
 
         auto num = name.substr(digitCount);
-        size_t frame;
+        size_t frame{};
         const auto [_, ec] = std::from_chars(num.data(), num.data() + num.size(), frame);
         if(ec != std::errc{}) return std::nullopt; // not a valid number
 
@@ -113,7 +113,7 @@ void AnimationPlayer::Tick(BaseTime elapsed) {
 
 Sprite AnimationPlayer::Current() const { 
 	DR_ASSERT(m_Frame < m_Animation->Frames.size());
-	return m_Animation->Frames[m_Frame]; 
+	return m_Animation->Frames.at(m_Frame); 
 }
 
 void AnimationPlayer::SetPlaybackSpeed(double speed)

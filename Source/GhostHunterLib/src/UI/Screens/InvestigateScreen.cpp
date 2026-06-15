@@ -75,7 +75,7 @@ namespace {
 
         for(size_t i = 0; i < rooms.size(); i++) {
             std::vector<GhostHunter::TeamMember*> members;
-            const GhostHunter::Room& room = rooms[i];
+            const GhostHunter::Room& room = rooms.at(i);
             if(teamMap.contains(room.Name)) {
                 members = teamMap.at(room.Name);
             }
@@ -129,7 +129,7 @@ namespace {
                     if(const auto* payload = ImGui::AcceptDragDropPayload(MemberPayload)) {
                         if(payload->DataSize == sizeof(GhostHunter::TeamMember*)) {
                             auto* member = *static_cast<GhostHunter::TeamMember* const*>(payload->Data);
-                            member->SetCurrentRoom(&rooms[i]);
+                            member->SetCurrentRoom(&rooms.at(i));
                         }
                     }
                     ImGui::EndDragDropTarget();

@@ -173,8 +173,8 @@ namespace Graphics {
 
         const auto& sheet = *g_Ctx->Images.at(file);
         const auto handle = sheet.ToHandle();
-        const float w = static_cast<float>(sheet.Width);
-        const float h = static_cast<float>(sheet.Height);
+        const float w = static_cast<float>(sheet.Dims.Width);
+        const float h = static_cast<float>(sheet.Dims.Height);
 
         for(const auto& r : regions) {
             const ImVec2 uvMin{static_cast<float>(r.X) / w, static_cast<float>(r.Y) / h};

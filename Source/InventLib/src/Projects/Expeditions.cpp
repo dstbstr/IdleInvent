@@ -111,37 +111,37 @@ namespace {
 
     std::unordered_map<Expeditions, Odds> BaseOdds = {
         // Followers
-        {Expeditions::ConvertAVillage, BaseOddsValues[0]},
-        {Expeditions::EstablishBoundaries, BaseOddsValues[1]},
-        {Expeditions::WageWar, BaseOddsValues[2]},
-        {Expeditions::ExpandNation, BaseOddsValues[3]},
-        {Expeditions::EstablishTreaty, BaseOddsValues[4]},
-        {Expeditions::CombineNations, BaseOddsValues[5]},
-        {Expeditions::CommunicateWithAliens, BaseOddsValues[6]},
+        {Expeditions::ConvertAVillage, BaseOddsValues.at(0)},
+        {Expeditions::EstablishBoundaries, BaseOddsValues.at(1)},
+        {Expeditions::WageWar, BaseOddsValues.at(2)},
+        {Expeditions::ExpandNation, BaseOddsValues.at(3)},
+        {Expeditions::EstablishTreaty, BaseOddsValues.at(4)},
+        {Expeditions::CombineNations, BaseOddsValues.at(5)},
+        {Expeditions::CommunicateWithAliens, BaseOddsValues.at(6)},
         // Knowledge
-        {Expeditions::RecordHistory, BaseOddsValues[0]},
-        {Expeditions::CreateSchoolOfThought, BaseOddsValues[1]},
-        {Expeditions::CreateWrittenLanguage, BaseOddsValues[2]},
-        {Expeditions::AuthorBook, BaseOddsValues[3]},
-        {Expeditions::OpenUniversity, BaseOddsValues[4]},
-        {Expeditions::ImproveHttp, BaseOddsValues[5]},
-        {Expeditions::QuantumBreakthrough, BaseOddsValues[6]},
+        {Expeditions::RecordHistory, BaseOddsValues.at(0)},
+        {Expeditions::CreateSchoolOfThought, BaseOddsValues.at(1)},
+        {Expeditions::CreateWrittenLanguage, BaseOddsValues.at(2)},
+        {Expeditions::AuthorBook, BaseOddsValues.at(3)},
+        {Expeditions::OpenUniversity, BaseOddsValues.at(4)},
+        {Expeditions::ImproveHttp, BaseOddsValues.at(5)},
+        {Expeditions::QuantumBreakthrough, BaseOddsValues.at(6)},
         // Money
-        {Expeditions::FindNewResources, BaseOddsValues[0]},
-        {Expeditions::TradeWithNeighbours, BaseOddsValues[1]},
-        {Expeditions::MintCoins, BaseOddsValues[2]},
-        {Expeditions::EstablishBank, BaseOddsValues[3]},
-        {Expeditions::EstablishCommodity, BaseOddsValues[4]},
-        {Expeditions::CombineCurrencies, BaseOddsValues[5]},
-        {Expeditions::TradeWithAliens, BaseOddsValues[6]},
+        {Expeditions::FindNewResources, BaseOddsValues.at(0)},
+        {Expeditions::TradeWithNeighbours, BaseOddsValues.at(1)},
+        {Expeditions::MintCoins, BaseOddsValues.at(2)},
+        {Expeditions::EstablishBank, BaseOddsValues.at(3)},
+        {Expeditions::EstablishCommodity, BaseOddsValues.at(4)},
+        {Expeditions::CombineCurrencies, BaseOddsValues.at(5)},
+        {Expeditions::TradeWithAliens, BaseOddsValues.at(6)},
         // Power
-        {Expeditions::CreateTools, BaseOddsValues[0]},
-        {Expeditions::EstablishFarm, BaseOddsValues[1]},
-        {Expeditions::InventMachine, BaseOddsValues[2]},
-        {Expeditions::BuildStructure, BaseOddsValues[3]},
-        {Expeditions::FindPowerSource, BaseOddsValues[4]},
-        {Expeditions::ImproveNuclearPower, BaseOddsValues[5]},
-        {Expeditions::LaunchSpacecraft, BaseOddsValues[6]},
+        {Expeditions::CreateTools, BaseOddsValues.at(0)},
+        {Expeditions::EstablishFarm, BaseOddsValues.at(1)},
+        {Expeditions::InventMachine, BaseOddsValues.at(2)},
+        {Expeditions::BuildStructure, BaseOddsValues.at(3)},
+        {Expeditions::FindPowerSource, BaseOddsValues.at(4)},
+        {Expeditions::ImproveNuclearPower, BaseOddsValues.at(5)},
+        {Expeditions::LaunchSpacecraft, BaseOddsValues.at(6)},
     };
 
     constexpr std::array<BaseTime, 7> BaseTimeCostValues = {
@@ -150,37 +150,37 @@ namespace {
 
     std::unordered_map<Expeditions, BaseTime> BaseTimeCosts = {
         // Followers
-        {Expeditions::ConvertAVillage, BaseTimeCostValues[0]},
-        {Expeditions::EstablishBoundaries, BaseTimeCostValues[1]},
-        {Expeditions::WageWar, BaseTimeCostValues[2]},
-        {Expeditions::ExpandNation, BaseTimeCostValues[3]},
-        {Expeditions::EstablishTreaty, BaseTimeCostValues[4]},
-        {Expeditions::CombineNations, BaseTimeCostValues[5]},
-        {Expeditions::CommunicateWithAliens, BaseTimeCostValues[6]},
+        {Expeditions::ConvertAVillage, BaseTimeCostValues.at(0)},
+        {Expeditions::EstablishBoundaries, BaseTimeCostValues.at(1)},
+        {Expeditions::WageWar, BaseTimeCostValues.at(2)},
+        {Expeditions::ExpandNation, BaseTimeCostValues.at(3)},
+        {Expeditions::EstablishTreaty, BaseTimeCostValues.at(4)},
+        {Expeditions::CombineNations, BaseTimeCostValues.at(5)},
+        {Expeditions::CommunicateWithAliens, BaseTimeCostValues.at(6)},
         // Knowledge
-        {Expeditions::RecordHistory, BaseTimeCostValues[0]},
-        {Expeditions::CreateSchoolOfThought, BaseTimeCostValues[1]},
-        {Expeditions::CreateWrittenLanguage, BaseTimeCostValues[2]},
-        {Expeditions::AuthorBook, BaseTimeCostValues[3]},
-        {Expeditions::OpenUniversity, BaseTimeCostValues[4]},
-        {Expeditions::ImproveHttp, BaseTimeCostValues[5]},
-        {Expeditions::QuantumBreakthrough, BaseTimeCostValues[6]},
+        {Expeditions::RecordHistory, BaseTimeCostValues.at(0)},
+        {Expeditions::CreateSchoolOfThought, BaseTimeCostValues.at(1)},
+        {Expeditions::CreateWrittenLanguage, BaseTimeCostValues.at(2)},
+        {Expeditions::AuthorBook, BaseTimeCostValues.at(3)},
+        {Expeditions::OpenUniversity, BaseTimeCostValues.at(4)},
+        {Expeditions::ImproveHttp, BaseTimeCostValues.at(5)},
+        {Expeditions::QuantumBreakthrough, BaseTimeCostValues.at(6)},
         // Money
-        {Expeditions::FindNewResources, BaseTimeCostValues[0]},
-        {Expeditions::TradeWithNeighbours, BaseTimeCostValues[1]},
-        {Expeditions::MintCoins, BaseTimeCostValues[2]},
-        {Expeditions::EstablishBank, BaseTimeCostValues[3]},
-        {Expeditions::EstablishCommodity, BaseTimeCostValues[4]},
-        {Expeditions::CombineCurrencies, BaseTimeCostValues[5]},
-        {Expeditions::TradeWithAliens, BaseTimeCostValues[6]},
+        {Expeditions::FindNewResources, BaseTimeCostValues.at(0)},
+        {Expeditions::TradeWithNeighbours, BaseTimeCostValues.at(1)},
+        {Expeditions::MintCoins, BaseTimeCostValues.at(2)},
+        {Expeditions::EstablishBank, BaseTimeCostValues.at(3)},
+        {Expeditions::EstablishCommodity, BaseTimeCostValues.at(4)},
+        {Expeditions::CombineCurrencies, BaseTimeCostValues.at(5)},
+        {Expeditions::TradeWithAliens, BaseTimeCostValues.at(6)},
         // Power
-        {Expeditions::CreateTools, BaseTimeCostValues[0]},
-        {Expeditions::EstablishFarm, BaseTimeCostValues[1]},
-        {Expeditions::InventMachine, BaseTimeCostValues[2]},
-        {Expeditions::BuildStructure, BaseTimeCostValues[3]},
-        {Expeditions::FindPowerSource, BaseTimeCostValues[4]},
-        {Expeditions::ImproveNuclearPower, BaseTimeCostValues[5]},
-        {Expeditions::LaunchSpacecraft, BaseTimeCostValues[6]},
+        {Expeditions::CreateTools, BaseTimeCostValues.at(0)},
+        {Expeditions::EstablishFarm, BaseTimeCostValues.at(1)},
+        {Expeditions::InventMachine, BaseTimeCostValues.at(2)},
+        {Expeditions::BuildStructure, BaseTimeCostValues.at(3)},
+        {Expeditions::FindPowerSource, BaseTimeCostValues.at(4)},
+        {Expeditions::ImproveNuclearPower, BaseTimeCostValues.at(5)},
+        {Expeditions::LaunchSpacecraft, BaseTimeCostValues.at(6)},
     };
 
     InventResourceCollection MakeResourceCollection(Expeditions expedition) {
@@ -223,8 +223,8 @@ namespace {
         InventResourceCollection result{};
 
         for(auto resource: SecondaryResources()) {
-            result[resource].Current = resourceAmount;
-            result[resource].Capacity = resourceAmount;
+            result.at(resource).Current = resourceAmount;
+            result.at(resource).Capacity = resourceAmount;
         }
         return result;
     }

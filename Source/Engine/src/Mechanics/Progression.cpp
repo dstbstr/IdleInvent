@@ -31,7 +31,7 @@ void Progression::Save(ProgressionSave& save) const {
         
     save.TempCount = static_cast<u8>(m_Modifiers.size());
     for(auto i = 0u; i < m_Modifiers.size(); i++) {
-		const auto& [mod, duration] = m_Modifiers[i];
+		const auto& [mod, duration] = m_Modifiers.at(i);
 		mod.Save(save.Temp.at(i));
         save.Durations.at(i) = static_cast<u8>(duration.count() / OneMinute.count());
 	}

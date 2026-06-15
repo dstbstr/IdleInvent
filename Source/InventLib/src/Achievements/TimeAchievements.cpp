@@ -28,7 +28,7 @@ namespace {
             [requiredTime]() { return GetCurrentTime() >= requiredTime; },
             [current]() -> std::vector<Unlockable> {
                 auto& services = ServiceLocator::Get();
-                services.GetRequired<PubSub<Achievement>>().Publish(Achievements::Time[current]);
+                services.GetRequired<PubSub<Achievement>>().Publish(Achievements::Time.at(current));
                 services.GetRequired<PubSub<std::vector<Effect>>>().Publish(Effects);
                 return {};
             }

@@ -20,7 +20,7 @@ namespace {
         ImGui::Separator();
 
         for(size_t i = 0; i < allMedia.size(); i++) {
-            const auto& media = allMedia[i];
+            const auto& media = allMedia.at(i);
             ImGui::Text("%s", std::format("{}", media).c_str());
             ImGui::SameLine();
             ImGui::PushID(static_cast<int>(i));
