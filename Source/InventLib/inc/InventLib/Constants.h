@@ -8,7 +8,6 @@ namespace Invent::Constants {
         inline constexpr u64 CurrentPopulation{15};
         inline constexpr u64 MaxPopulation{30};
         inline constexpr u64 CurrentTimeShards{0};
-        inline constexpr u64 MaxTimeShards{1 * 60 * 60 * 4}; // 4 hours
-
+        inline constexpr u64 MaxTimeShards{1ull * 60ull * 60ull * 4ull}; // 4 hours
 	}
 }

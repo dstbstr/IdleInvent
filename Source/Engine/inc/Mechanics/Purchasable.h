@@ -20,7 +20,7 @@ struct Purchase {
     E Id;
 };
 
-namespace _PurchaseDetails {
+namespace Private_PurchaseDetails {
 	template<PurchaseEnum E>
     inline std::unordered_map<E, ResourceCollection>& GetRegistry() {
 		static std::unordered_map<E, ResourceCollection> registry{};
@@ -34,7 +34,7 @@ namespace _PurchaseDetails {
 
 	template<PurchaseEnum E>
 	struct PurchaseRegistrar {
-		PurchaseRegistrar(std::function<void()> initFn) {
+		PurchaseRegistrar(const std::function<void()>& initFn) {
 			GetInitFns().push_back(initFn);
 		}
     };
@@ -44,19 +44,19 @@ enum struct BuyOnce : u8 { Yes, No };
 
 namespace Purchasables {
 	inline void InitializeAll() {
-		for(const auto& fn : _PurchaseDetails::GetInitFns()) {
+		for(const auto& fn : Private_PurchaseDetails::GetInitFns()) {
 			fn();
 		}
     }
 	template<PurchaseEnum E>
-	void Add(E id, ResourceCollection costs) {
-        auto& r = _PurchaseDetails::GetRegistry<E>();
+	void Add(E id, const ResourceCollection& costs) {
+        auto& r = Private_PurchaseDetails::GetRegistry<E>();
         r.emplace(id, costs);
 	}
 
 	template<PurchaseEnum E>
 	ResourceCollection GetCost(E id) {
-		auto& r = _PurchaseDetails::GetRegistry<E>();
+		auto& r = Private_PurchaseDetails::GetRegistry<E>();
 		DR_ASSERT_MSG(r.contains(id), "Unknown purchasable");
 		return r.at(id);
     }
@@ -64,7 +64,7 @@ namespace Purchasables {
 	template<PurchaseEnum E>
 	std::vector<std::pair<E, ResourceCollection>> GetAvailable() {
 		std::vector<std::pair<E, ResourceCollection>> result;
-		auto& r = _PurchaseDetails::GetRegistry<E>();
+		auto& r = Private_PurchaseDetails::GetRegistry<E>();
 		for(const auto& [id, cost] : r) {
 			result.push_back(std::make_pair(id, cost));
 		}
@@ -73,7 +73,7 @@ namespace Purchasables {
 
 	template<PurchaseEnum E>
     bool CanPurchase(E id, const ResourceCollection& resources) {
-		auto& r = _PurchaseDetails::GetRegistry<E>();
+		auto& r = Private_PurchaseDetails::GetRegistry<E>();
 		if(!r.contains(id)) return false;
 		auto cost = r.at(id);
         return resources.CanAfford(cost);
@@ -82,7 +82,7 @@ namespace Purchasables {
 	template<PurchaseEnum E>
 	bool TryPurchase(E id, ResourceCollection& resources, BuyOnce buyOnce) {
         if(!CanPurchase<E>(id, resources)) return false;
-        auto& r = _PurchaseDetails::GetRegistry<E>();
+        auto& r = Private_PurchaseDetails::GetRegistry<E>();
         auto cost = r.at(id);
 		resources -= cost;
 		if(buyOnce == BuyOnce::Yes) {
@@ -107,7 +107,7 @@ namespace Purchasables {
     }
 
 	template<PurchaseEnum E>
-	void Listen(std::vector<ScopedHandle>& outHandles, std::function<void(const Purchase<E>&)> listener) {
+	void Listen(std::vector<ScopedHandle>& outHandles, const std::function<void(const Purchase<E>&)>& listener) {
 		GetPs<E>().Subscribe(outHandles, listener);
     }
 }

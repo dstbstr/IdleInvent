@@ -2,7 +2,7 @@
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 ResourceConversion::ResourceConversion(const std::string& name, ResourceCollection from, ResourceCollection to)
-: Name(name), From(from), To(to) {}
+: Name(name), From(std::move(from)), To(std::move(to)) {}
 
 void ResourceConversion::Convert(ResourceCollection& target, size_t maxTimes) const {
     size_t times = std::min(maxTimes, GetMaxCount(target));

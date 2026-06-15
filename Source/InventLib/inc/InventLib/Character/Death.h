@@ -13,9 +13,9 @@ namespace Invent {
     struct DeathSave {
         u8 DeathYear{0};
         u8 NearDeathYear{0};
-        u8 TypeOfDeath : 2;
-        u8 HasWarned : 1;
-        u8 Padding : 5;
+        u8 TypeOfDeath : 2{};
+        u8 HasWarned : 1{};
+        u8 Padding : 5{};
     };
 
     struct NearDeath {

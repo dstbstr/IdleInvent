@@ -7,13 +7,13 @@ namespace Invent {
     struct InventGame : public ::Game {
         InventGame(::Platform& platform) : Game(platform) {}
 
-        virtual bool Initialize();
-        virtual void ShutDown();
+        bool Initialize() override;
+        void ShutDown() override;
 
-        virtual void LoadGame();
-        virtual void SaveGame();
-        virtual void DeleteGame();
+        void LoadGame() override;
+        void SaveGame() override;
+        void DeleteGame() override;
 
-        virtual void Tick(BaseTime elapsed);
+        void Tick(BaseTime elapsed) override;
     };
 }

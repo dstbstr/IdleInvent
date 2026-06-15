@@ -39,8 +39,8 @@ enum struct EffectTarget : u8 {
 std::string ToString(EffectTarget target);
 
 struct Effect {
-    EffectTarget Target;
-    Modifier Modifier;
+    EffectTarget Target{};
+    Modifier Modifier{};
 };
 
 std::string Describe(const Effect& effect);

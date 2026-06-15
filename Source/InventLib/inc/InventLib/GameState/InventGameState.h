@@ -14,15 +14,15 @@ namespace Invent {
 	};
 	struct InventGameState : public GameState {
         InventGameState();
-        ~InventGameState() = default;
-        InventGameState(const InventGameState& other) = delete;
-        InventGameState& operator=(const InventGameState& other) = delete;
-        InventGameState(InventGameState&& other) noexcept = delete;
-        InventGameState& operator=(InventGameState&& other) noexcept = delete;
+        //~InventGameState() = default;
+        //InventGameState(const InventGameState& other) = delete;
+        //InventGameState& operator=(const InventGameState& other) = delete;
+        //InventGameState(InventGameState&& other) noexcept = delete;
+        //InventGameState& operator=(InventGameState&& other) noexcept = delete;
 
         void Save(InventGameStateSave& save) const;
         void Load(const InventGameStateSave& save);
-        void Tick(BaseTime elapsed);
+        void Tick(BaseTime elapsed) override ;
         InventStorageCollection Storages;
         //GameCharacter Character;
         //Life CurrentLife;

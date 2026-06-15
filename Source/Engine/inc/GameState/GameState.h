@@ -8,10 +8,17 @@ struct GameStateSave {
 };
 
 struct GameState {
+    GameState() = default;
+    virtual ~GameState() = default;
+    GameState(const GameState&) = delete;
+    GameState& operator=(const GameState&) = delete;
+    GameState(GameState&&) = delete;
+    GameState& operator=(GameState&&) = delete;
+
     void Load(const GameStateSave& save);
     void Save(GameStateSave& save) const;
 
-	void Tick(BaseTime elapsed);
+	virtual void Tick(BaseTime elapsed);
 
 	BaseTime TimeElapsed{};
 	BaseTime CurrentRunElapsed{};

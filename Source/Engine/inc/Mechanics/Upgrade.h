@@ -24,7 +24,7 @@ concept UpgradableType = DescribeSelf<T> && HasId<T> &&
 
 template<UpgradableType T>
 struct UpgradeEvent {
-    const T& Upgrade;
+    const T* Upgrade;
     std::string Description;
 };
 
@@ -94,7 +94,7 @@ namespace UpgradeManager {
         auto description = std::format("Upgraded from {} to {}", before, after);
         Log::Info(description);
         auto& pubSub = ServiceLocator::Get().GetRequired<PubSub<UpgradeEvent<T>>>();
-        pubSub.Publish({upgradable, description});
+        pubSub.Publish({&upgradable, description});
     }
 } // namespace UpgradeManager
 

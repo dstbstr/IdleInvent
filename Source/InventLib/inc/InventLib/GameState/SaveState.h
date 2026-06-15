@@ -10,9 +10,9 @@
 namespace Invent {
     struct SaveState {
         //Technologies::SaveState TechSaveState;
-        Achievements::SaveState AchievementState;
-        GameStateSave GameStateSaveState;
-        RandomEvents::SaveState RandomEventState;
-        GameSettingsSave GameSettingsSaveState;
+        Achievements::SaveState AchievementState{};
+        GameStateSave GameStateSaveState{};
+        RandomEvents::SaveState RandomEventState{};
+        GameSettingsSave GameSettingsSaveState{};
     };
 }

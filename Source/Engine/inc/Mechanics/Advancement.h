@@ -22,13 +22,13 @@ struct Advancement {
 	u64 ExpToNextLevel{ 0 };
 	Progression Progress{};
 
-	Advancement(const std::string& name, u64 maxLevel, std::function<u64(u64)> levelCosts, u64 initialLevelCost, Progression progress = {}) 
+	Advancement(const std::string& name, u64 maxLevel, const std::function<u64(u64)>& levelCosts, u64 initialLevelCost, Progression progress = {}) 
 		: Name(name)
 		, InitialCost(initialLevelCost)
 		, MaxLevel(maxLevel)
 		, NextLevelCost(levelCosts)
 		, ExpToNextLevel(initialLevelCost + levelCosts(1))
-		, Progress(progress)
+		, Progress(std::move(progress))
 	{
 	}
 

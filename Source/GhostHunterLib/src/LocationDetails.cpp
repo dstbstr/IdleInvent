@@ -98,10 +98,10 @@ LOCATION(Sanitorium, OneHour * 4, "Who are we kidding, this place is certainly h
 #undef ROOM
 #undef GHOST
 
-namespace GhostHunter::_LocationDetails {
+namespace GhostHunter::Private_LocationDetails {
     std::vector<Room> RoomsByLocation(LocationName location) { return GetRooms().at(location); }
 
     BaseTime GetCooldownTime(LocationName location) { return GetCooldownTimes().at(location); }
 
     std::string Describe(LocationName location) { return Descriptions().at(location); }
-} // namespace GhostHunter::_LocationDetails
+} // namespace GhostHunter::Private_LocationDetails

@@ -24,7 +24,7 @@ private:
 	std::shared_ptr<Control> m_Control{std::make_shared<Control>()};
 
 public:
-	[[nodiscard]] ScopedHandle Subscribe(std::function<void(const TEvent&)> subscriber) {
+	[[nodiscard]] ScopedHandle Subscribe(const std::function<void(const TEvent&)>& subscriber) {
 		auto handle = Handles::Next();
         {
             std::lock_guard lock(m_Control->Mtx);
@@ -39,11 +39,11 @@ public:
 		});
 	}
 
-	void Subscribe(std::vector<ScopedHandle>& outHandles, std::function<void(const TEvent&)> subscriber) {
+	void Subscribe(std::vector<ScopedHandle>& outHandles, const std::function<void(const TEvent&)>& subscriber) {
 		outHandles.push_back(Subscribe(subscriber));
     }
 
-	void Alarm(std::function<void(const TEvent&)> onAlarm) {
+	void Alarm(const std::function<void(const TEvent&)>& onAlarm) {
         std::lock_guard lock(m_Control->Mtx);
         m_Control->Alarms.push_back(onAlarm);
 	}

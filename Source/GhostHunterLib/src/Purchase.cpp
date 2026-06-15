@@ -12,7 +12,7 @@
         struct _AutoRegister_##_Type {                                                  \
             _AutoRegister_##_Type() {                                                   \
                 _register_##_Type();                                                    \
-                ::_PurchaseDetails::GetInitFns().push_back([] {                         \
+                ::Private_PurchaseDetails::GetInitFns().push_back([] {                         \
                     ::ServiceLocator::Get().CreateIfMissing<PubSub<Purchase<_Type>>>(); \
                 });                                                                     \
             }                                                                           \
