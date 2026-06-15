@@ -1,3 +1,5 @@
 #pragma once
 
-enum struct FileOperation { Load, Save, Delete };
+#include <Platform/NumTypes.h>
+
+enum struct FileOperation : u8 { Load, Save, Delete };

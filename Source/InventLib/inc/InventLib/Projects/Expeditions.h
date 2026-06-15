@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace Invent {
-    enum struct Expeditions {
+    enum struct Expeditions : u8 {
         //// Followers
         ConvertAVillage,
         EstablishBoundaries,
@@ -47,7 +47,7 @@ namespace Invent {
         LAST = LaunchSpacecraft
     };
 
-    enum struct ExpeditionOutcome {
+    enum struct ExpeditionOutcome : u8 {
         Artifact,
         Resources,
         Nothing,

@@ -11,7 +11,7 @@ namespace Invent {
         std::array<ModifierSave, 4> CapacityModifiers{}; // only keep permanent modifiers
     };
 
-    enum struct ResourceName : u16 { 
+    enum struct ResourceName : u8 { 
         Unset, 
         Primary, 
         Followers, 
@@ -29,12 +29,6 @@ namespace Invent {
 
     struct InventResourceCollection : public ResourceCollection {
         InventResourceCollection() : ResourceCollection(GetAllResourceIds()) {}
-        //InventResourceCollection(const InventResourceCollection& other) 
-        //    : ResourceCollection(other) {}
-        //InventResourceCollection operator=(const InventResourceCollection& other) {
-        //    ResourceCollection::operator=(other);
-        //    return *this;
-        //}
 
         std::string Describe() const;
 
@@ -48,39 +42,20 @@ namespace Invent {
         Resource& operator[](ResourceName resource);
         const Resource& operator[](ResourceName resource) const;
 
-        InventResourceCollection& operator*=(f32 rhs) {
-            for(auto& [name, resource]: m_Resources) {
-                resource.Current = static_cast<s64>(static_cast<f32>(resource.Current) * rhs);
-            }
-
-            return *this;
-        }
-        InventResourceCollection& operator*=(f64 rhs) {
-            for(auto& [name, resource]: m_Resources) {
-                resource.Current = static_cast<s64>(static_cast<f64>(resource.Current) * rhs);
-            }
-
-            return *this;
-        }
-        InventResourceCollection& operator*=(size_t rhs) {
-            for(auto& [name, resource]: m_Resources) {
-                resource.Current = static_cast<s64>(static_cast<size_t>(resource.Current) * rhs);
-            }
-
-            return *this;
-        }
-
-        friend InventResourceCollection operator*(const InventResourceCollection& lhs, f32 rhs) {
+        friend InventResourceCollection operator*(const InventResourceCollection& lhs, f32 rhs) { 
             auto result = lhs;
-            return result *= rhs;
+            result *= rhs;
+            return result;
         }
         friend InventResourceCollection operator*(const InventResourceCollection& lhs, f64 rhs) {
             auto result = lhs;
-            return result *= rhs;
+            result *= rhs;
+            return result;
         }
         friend InventResourceCollection operator*(const InventResourceCollection& lhs, size_t rhs) {
             auto result = lhs;
-            return result *= rhs;
+            result *= rhs;
+            return result;
         }
     };
 

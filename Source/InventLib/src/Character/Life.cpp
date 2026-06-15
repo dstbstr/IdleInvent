@@ -275,7 +275,7 @@ namespace Invent {
         };
         auto modSecondaryCap = [this](const Modifier& mod) {
             for(auto resource: SecondaryResources()) {
-                Resources[resource].AddCapacityModifier(mod);
+                Resources.at(resource).AddCapacityModifier(mod);
             }
         };
 
@@ -296,7 +296,7 @@ namespace Invent {
             }
         };
 
-        auto& primary = Resources[ResourceName::Primary];
+        auto& primary = Resources.at(ResourceName::Primary);
         auto mod = effect.Modifier;
 
         Log::Info(std::format("Applying effect: {} with modifier: {}", ToString(effect.Target), ToString(mod)));
@@ -304,13 +304,13 @@ namespace Invent {
         switch(effect.Target) {
         case EffectTarget::AllProjectEfficiency: modProjectsEfficiency(mod); break;
         case EffectTarget::AllProjectRate: modProjectsRate(mod); break;
-        case EffectTarget::BuildRate: ProjectTimeCostModifiers[ProjectType::Build] += mod; break;
-        case EffectTarget::BuildEfficiency: ProjectResourceCostModifiers[ProjectType::Build] += mod; break;
-        case EffectTarget::ExploreRate: ProjectTimeCostModifiers[ProjectType::Explore] += mod; break;
-        case EffectTarget::ExploreEfficiency: ProjectResourceCostModifiers[ProjectType::Explore] += mod; break;
-        case EffectTarget::ResearchRate: ProjectTimeCostModifiers[ProjectType::Research] += mod; break;
-        case EffectTarget::ResearchEfficiency: ProjectResourceCostModifiers[ProjectType::Research] += mod; break;
-        case EffectTarget::PopulationRate: ProjectTimeCostModifiers[ProjectType::Population] += mod; break;
+        case EffectTarget::BuildRate: ProjectTimeCostModifiers.at(ProjectType::Build) += mod; break;
+        case EffectTarget::BuildEfficiency: ProjectResourceCostModifiers.at(ProjectType::Build) += mod; break;
+        case EffectTarget::ExploreRate: ProjectTimeCostModifiers.at(ProjectType::Explore) += mod; break;
+        case EffectTarget::ExploreEfficiency: ProjectResourceCostModifiers.at(ProjectType::Explore) += mod; break;
+        case EffectTarget::ResearchRate: ProjectTimeCostModifiers.at(ProjectType::Research) += mod; break;
+        case EffectTarget::ResearchEfficiency: ProjectResourceCostModifiers.at(ProjectType::Research) += mod; break;
+        case EffectTarget::PopulationRate: ProjectTimeCostModifiers.at(ProjectType::Population) += mod; break;
         case EffectTarget::PopulationCap: MaxPopulation = mod.Apply(MaxPopulation); break;
         case EffectTarget::WorkerDensity: {
             auto working = MaxWorkers - AvailableWorkers;
@@ -319,18 +319,18 @@ namespace Invent {
             AvailableWorkers = MaxWorkers - working;
             break;
         }
-        case EffectTarget::PrimaryRate: ResourceProgressions[ResourceName::Primary].AddPermanent(mod); break;
+        case EffectTarget::PrimaryRate: ResourceProgressions.at(ResourceName::Primary).AddPermanent(mod); break;
         case EffectTarget::PrimaryCap: primary.AddCapacityModifier(mod); break;
         case EffectTarget::AllSecondaryRate: modSecondaryRate(mod); break;
         case EffectTarget::AllSecondaryCap: modSecondaryCap(mod); break;
-        case EffectTarget::FollowerCap: Resources[ResourceName::Followers].AddCapacityModifier(mod); break;
-        case EffectTarget::FollowerRate: ResourceProgressions[ResourceName::Followers].AddPermanent(mod); break;
-        case EffectTarget::KnowledgeRate: ResourceProgressions[ResourceName::Knowledge].AddPermanent(mod); break;
-        case EffectTarget::KnowledgeCap: Resources[ResourceName::Knowledge].AddCapacityModifier(mod); break;
-        case EffectTarget::MoneyRate: ResourceProgressions[ResourceName::Money].AddPermanent(mod); break;
-        case EffectTarget::MoneyCap: Resources[ResourceName::Money].AddCapacityModifier(mod); break;
-        case EffectTarget::PowerRate: ResourceProgressions[ResourceName::Power].AddPermanent(mod); break;
-        case EffectTarget::PowerCap: Resources[ResourceName::Power].AddCapacityModifier(mod); break;
+        case EffectTarget::FollowerCap: Resources.at(ResourceName::Followers).AddCapacityModifier(mod); break;
+        case EffectTarget::FollowerRate: ResourceProgressions.at(ResourceName::Followers).AddPermanent(mod); break;
+        case EffectTarget::KnowledgeRate: ResourceProgressions.at(ResourceName::Knowledge).AddPermanent(mod); break;
+        case EffectTarget::KnowledgeCap: Resources.at(ResourceName::Knowledge).AddCapacityModifier(mod); break;
+        case EffectTarget::MoneyRate: ResourceProgressions.at(ResourceName::Money).AddPermanent(mod); break;
+        case EffectTarget::MoneyCap: Resources.at(ResourceName::Money).AddCapacityModifier(mod); break;
+        case EffectTarget::PowerRate: ResourceProgressions.at(ResourceName::Power).AddPermanent(mod); break;
+        case EffectTarget::PowerCap: Resources.at(ResourceName::Power).AddCapacityModifier(mod); break;
         case EffectTarget::ConversionPower: modConversionPower(mod); break;
         case EffectTarget::TimeShardCap: MaxTimeShards = mod.Apply(MaxTimeShards); break;
         case EffectTarget::TickPower: TickModifier += mod; break;

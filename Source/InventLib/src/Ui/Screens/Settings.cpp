@@ -38,13 +38,13 @@ namespace Ui::Screens::Settings {
         // TODO: test if this will work with touch instead of mouse
         const auto max = projectPriorities.size();
         for(size_t i = 0; i < max; i++) {
-            auto item = projectPriorities[i].c_str();
+            auto item = projectPriorities.at(i).c_str();
             ImGui::Selectable(item);
             if(ImGui::IsItemActive() && ! ImGui::IsItemHovered()) {
                 auto next = ImGui::GetMouseDragDelta(0).y < 0 ? i - 1 : i + 1;
                 if(next < max) {
-                    std::swap(projectPriorities[i], projectPriorities[next]);
-                    std::swap(gameSettings->ProjectPriority[i], gameSettings->ProjectPriority[next]);
+                    std::swap(projectPriorities.at(i), projectPriorities.at(next));
+                    std::swap(gameSettings->ProjectPriority.at(i), gameSettings->ProjectPriority.at(next));
 
                     society->CurrentLife.ClearWorkers();
                     society->CurrentLife.ShiftWorkers();

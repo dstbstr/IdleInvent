@@ -12,10 +12,7 @@ struct ResourceConversion {
     void ModifyFrom(const Modifier& effect);
 
 private:
-    ResourceConversion(const std::string& name, ResourceCollection from, ResourceCollection to)
-		: Name(name)
-		, From(from)
-		, To(to) {}
+    ResourceConversion(const std::string& name, ResourceCollection from, ResourceCollection to);
     friend class ResourceConversionBuilder;
 
     ResourceCollection From;

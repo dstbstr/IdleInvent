@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace Invent {
-    enum struct ItemType {
+    enum struct ItemType : u8 {
         Consumable,
         Quest,
 

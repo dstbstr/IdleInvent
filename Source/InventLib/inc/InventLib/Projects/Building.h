@@ -9,7 +9,7 @@
 #include <optional>
 
 namespace Invent {
-	enum struct Building {
+	enum struct Building : u8 {
 		Staff, Symbol, Shrine,
         Samurai, Militia, Castle,
         Army, Siegework, Navy,

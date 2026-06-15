@@ -35,7 +35,7 @@ namespace Invent {
             save.ShowFps = ShowFps;
             save.PurchaseChoice = static_cast<u8>(PurchaseChoice);
             for(size_t i = 0; i < 4; i++) {
-                save.ProjectPriority |= static_cast<u8>(ProjectPriority[i]) << static_cast<u8>(i * 2);
+                save.ProjectPriority |= static_cast<u8>(ProjectPriority.at(i)) << static_cast<u8>(i * 2);
             }
         }
     };

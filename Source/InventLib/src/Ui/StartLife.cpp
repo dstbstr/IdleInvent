@@ -52,8 +52,8 @@ namespace Ui::StartLife {
                 society->Start(static_cast<Invent::ResourceName>(specialty), *gameSettings);
                 //cheating
                 for(auto resource : Invent::SecondaryResources()) {
-                    society->CurrentLife.Resources[resource].Current = 10000;
-                    society->CurrentLife.Resources[resource].Capacity = 10000;
+                    society->CurrentLife.Resources.at(resource).Current = 10000;
+                    society->CurrentLife.Resources.at(resource).Capacity = 10000;
                 }
                 society->CurrentLife.MaxPopulation = 1000;
                 society->CurrentLife.CurrentPopulation = society->CurrentLife.MaxPopulation - 1;

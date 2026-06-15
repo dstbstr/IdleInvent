@@ -63,11 +63,13 @@ public:
 	const Resource& operator[](u16 resource) const;
     template<ResourceEnum E>
 	Resource& operator[](E e) {
+		// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
         return operator[](static_cast<u16>(e));
 	}
     template<ResourceEnum E>
     const Resource& operator[](E e) const {
-		return operator[](static_cast<u16>(e));
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
+        return operator[](static_cast<u16>(e));
     }
 
 	friend bool operator==(const ResourceCollection& lhs, const ResourceCollection& rhs);
@@ -111,6 +113,7 @@ ResourceCollection CreateRc() {
 	auto keys = Enum::GetAllValues<E>();
 	ResourceCollection rc;
 	for(const auto key : keys) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
         rc[key].Name = ToString(static_cast<E>(key));
     }
 
@@ -121,7 +124,7 @@ template<ResourceEnum E>
 ResourceCollection CreateRc(std::initializer_list<std::pair<E, s64>> values) {
     auto rc = CreateRc<E>();
 	for(const auto& [key, value] : values) {
-		rc[key].Current = value;
+		rc.at(key).Current = value;
 	}
     return rc;
 }

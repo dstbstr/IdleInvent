@@ -3,7 +3,7 @@
 #include <string>
 
 namespace Invent {
-    enum struct QualityPrefix {
+    enum struct QualityPrefix : u8 {
         Cursed,
         WornOut,
         SlightlyUsed,
@@ -13,7 +13,7 @@ namespace Invent {
         FIRST = Cursed,
         LAST = Magical
     };
-    enum struct QualityGeneral {
+    enum struct QualityGeneral : u8 {
         Poor,
         Common,
         Good,
@@ -24,7 +24,7 @@ namespace Invent {
         FIRST = Poor,
         LAST = Ultimate
     };
-    enum struct QualityMaterial {
+    enum struct QualityMaterial : u8 {
         Wooden,
         Stone,
         Iron,
@@ -35,7 +35,7 @@ namespace Invent {
         FIRST = Wooden,
         LAST = Alien
     };
-    enum struct QualityPostFix {
+    enum struct QualityPostFix : u8 {
         IThink,
         AccordingToVern,
         None,

@@ -41,7 +41,8 @@ namespace Invent {
             for(auto i = 0u; i < std::min(size_t(64), All.size()); i++) {
                 bool unlocked = save.Achievements0 & (1ull << i);
                 if(!unlocked) {
-                    unlockables.emplace(All[i].Name, All[i].Unlock);
+                    auto e = All.at(i);
+                    unlockables.emplace(e.Name, e.Unlock);
                 }
             }
 		}

@@ -10,7 +10,7 @@
         struct _AutoRegister {                                                                 \
             _AutoRegister() {                                                                  \
                 _register();                                                                   \
-                ::UpgradeManager::_Details::GetInitFns().push_back([] {                        \
+                ::UpgradeManager::Private_Details::GetInitFns().push_back([] {                        \
                     ::ServiceLocator::Get().CreateIfMissing<PubSub<UpgradeEvent<TypeName>>>(); \
                 });                                                                            \
             }                                                                                  \
@@ -21,7 +21,7 @@
 #define P(_resource, b) \
     std::pair { ResourceType::_resource, b }
 #define ITEM(n, ...)                                                                      \
-    ::UpgradeManager::_Details::GetUpgradeCosts<TypeName>()[TypeName::IdType::n] = []() { \
+    ::UpgradeManager::Private_Details::GetUpgradeCosts<TypeName>()[TypeName::IdType::n] = []() { \
         std::unordered_map<TypeName::LevelType, ResourceCollection> result{};             \
         __VA_ARGS__                                                                       \
         return result;                                                                    \
@@ -171,7 +171,7 @@ namespace GhostHunter {
 #undef UPGRADE
 
 void InitializeUpgrades() {
-    for(const auto& fn: UpgradeManager::_Details::GetInitFns()) {
+    for(const auto& fn: UpgradeManager::Private_Details::GetInitFns()) {
         fn();
     }
 }

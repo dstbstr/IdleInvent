@@ -79,12 +79,12 @@ struct QualityUpgradeTest : public testing::Test {
     ResourceCollection missingOne = CreateRc<ResourceName>(std::pair(ResourceName::Cash, 250));
 
 	void SetUp() override {
-		auto& costs = UpgradeManager::_Details::GetUpgradeCosts<QualityUpgrade>();
+		auto& costs = UpgradeManager::Private_Details::GetUpgradeCosts<QualityUpgrade>();
         costs[Thing::ThingA][Quality::Medium] = upgradeCost;
         ServiceLocator::Get().CreateIfMissing<PubSub<UpgradeEvent<QualityUpgrade>>>();
 	}
 	void TearDown() override {
-		auto& costs = UpgradeManager::_Details::GetUpgradeCosts<QualityUpgrade>();
+		auto& costs = UpgradeManager::Private_Details::GetUpgradeCosts<QualityUpgrade>();
         costs.clear();
 	}
 };
@@ -99,7 +99,7 @@ TEST_F(QualityUpgradeTest, CanUpgrade_MissingResource_ReturnsFalse) {
     ASSERT_FALSE(UpgradeManager::CanUpgrade(q, missingOne));
 }
 TEST_F(QualityUpgradeTest, CanUpgrade_MaxQuality_ReturnsFalse) {
-    auto& costs = UpgradeManager::_Details::GetUpgradeCosts<QualityUpgrade>();
+    auto& costs = UpgradeManager::Private_Details::GetUpgradeCosts<QualityUpgrade>();
     costs[Thing::ThingA][Quality::COUNT] = upgradeCost; // ensure that a record exists
     q.Level = Quality::High;
     ASSERT_FALSE(UpgradeManager::CanUpgrade(q, enough));
@@ -143,7 +143,7 @@ struct NumericUpgradeTest : public testing::Test {
     ResourceCollection notEnough = CreateRc<ResourceName>(std::pair(ResourceName::Cash, 1));
 
     void SetUp() override {
-        auto& costFns = UpgradeManager::_Details::GetUpgradeCostFns<NumericUpgrade>();
+        auto& costFns = UpgradeManager::Private_Details::GetUpgradeCostFns<NumericUpgrade>();
         costFns[Thing::ThingA] = [](u32 level) {
             auto cash = Scale::Linear<u32, 2>(level);
             return CreateRc<ResourceName>(std::pair(ResourceName::Cash, cash));
@@ -151,7 +151,7 @@ struct NumericUpgradeTest : public testing::Test {
         ServiceLocator::Get().CreateIfMissing<PubSub<UpgradeEvent<NumericUpgrade>>>();
     }
     void TearDown() override {
-        auto& costs = UpgradeManager::_Details::GetUpgradeCosts<NumericUpgrade>();
+        auto& costs = UpgradeManager::Private_Details::GetUpgradeCosts<NumericUpgrade>();
         costs.clear();
     }
 };

@@ -46,7 +46,7 @@ void Sell(std::vector<T>& items, size_t index) {
 }
 
 namespace SalesManager {
-    namespace _Details {
+    namespace Private_Details {
         template<SellableType T>
         std::unordered_map<typename T::IdType, std::unordered_map<typename T::LevelType, ResourceCollection>>&
         GetSaleValues() {
@@ -73,12 +73,12 @@ namespace SalesManager {
         }
         if(nextLevel == level) return {};
 
-        const auto& valueFns = _Details::GetSaleValueFns<T>();
+        const auto& valueFns = Private_Details::GetSaleValueFns<T>();
         if(valueFns.contains(id)) {
             return valueFns.at(id)(nextLevel);
         }
 
-        const auto& idValues = _Details::GetSaleValues<T>();
+        const auto& idValues = Private_Details::GetSaleValues<T>();
         if(!idValues.contains(id)) return {};
         const auto& levelValues = idValues.at(id);
         if(!levelValues.contains(nextLevel)) {
@@ -87,12 +87,12 @@ namespace SalesManager {
 
         return levelValues.at(nextLevel);
     }
-    namespace _Details {
+    namespace Private_Details {
         inline std::vector<std::function<void()>>& GetInitFns() {
             static std::vector<std::function<void()>> fns{};
             return fns;
         }
-    } // namespace SalesManager::_Details
+    } // namespace SalesManager::Private_Details
 } // namespace SalesManager
 
 /*

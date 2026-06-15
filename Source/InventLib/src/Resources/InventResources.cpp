@@ -82,7 +82,7 @@ namespace Invent {
             save.CapacityModifiers.at(id).Load(mod);
             r.AddCapacityModifier(mod);
             
-            result[name] = r;
+            result.at(name) = r;
         }
         return result;
     }

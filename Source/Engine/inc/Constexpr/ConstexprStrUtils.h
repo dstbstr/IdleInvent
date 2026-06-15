@@ -2,12 +2,13 @@
 
 #include <Platform/NumTypes.h>
 
-#include <vector>
-#include <string>
-#include <string_view>
 #include <array>
 #include <charconv>
+#include <concepts>
 #include <ranges>
+#include <string>
+#include <string_view>
+#include <vector>
 #ifdef __has_include
     #if __has_include(<version>)
         #include <version>
@@ -15,6 +16,14 @@
 #endif
 
 namespace Constexpr {
+    constexpr std::string ToString(std::integral auto value) {
+        std::array<char, 24> buf{};
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        auto result = std::to_chars(buf.data(), buf.data() + buf.size(), value);
+        return std::string(buf.data(), result.ptr);
+    }
+    constexpr std::string ToString(const char* cstr) { return std::string(cstr); }
+
     constexpr std::vector<std::string_view> Split(std::string_view input, std::string_view delimiter, bool keepEmpties = false) {
         size_t last = 0;
         size_t next = 0;
@@ -34,11 +43,19 @@ namespace Constexpr {
         return result;
     }
 
-    constexpr std::string Join(std::string delimeter, const auto& parts) {
+    constexpr std::string Join(const std::string& delimeter, const auto& parts) {
 #if defined(__cpp_lib_ranges_join_with)
-        return std::views::join_with(parts, delimeter) 
+        return parts
+            | std::views::transform([](const auto& part) {
+                using Raw = std::decay_t<decltype(part)>;
+                if constexpr(std::is_same_v<Raw, std::string> || std::is_same_v<std::string_view, Raw>) {
+                    return part;
+                } else {
+                    return ToString(part);
+                }
+            })
+            | std::views::join_with(delimeter) 
             | std::ranges::to<std::string>();
-        
 #else
 		std::string result;
 
@@ -49,7 +66,7 @@ namespace Constexpr {
             if constexpr(std::is_same_v<std::string, Raw> || std::is_same_v<std::string_view, Raw>) {
 				result += part;
 			} else {
-				result += std::to_string(part);
+				result += ToString(part);
 			}
 			result += delimeter;
 		}
@@ -60,9 +77,23 @@ namespace Constexpr {
 #endif
 	}
 
+    template<typename T>
+    constexpr std::string Join(const std::string& delimeter, std::initializer_list<T> parts) {
+        return Join(delimeter, std::ranges::subrange(parts.begin(), parts.end()));
+    }
+
     constexpr std::string Join(char delimeter, auto parts) {
 #if defined(__cpp_lib_ranges_join_with)
-        return std::views::join_with(parts, delimeter)
+        return parts 
+            | std::views::transform([](const auto& part) {
+                using Raw = std::decay_t<decltype(part)>;
+                if constexpr(std::is_same_v<Raw, std::string> || std::is_same_v<std::string_view, Raw>) {
+                    return part;
+                } else {
+                    return ToString(part);
+                }
+            }) 
+            | std::views::join_with(delimeter) 
             | std::ranges::to<std::string>();
 #else
         std::string result;
@@ -78,10 +109,14 @@ namespace Constexpr {
 #endif
     }
 
-    constexpr std::string HumanReadable(auto value) {
-        using namespace std::string_literals;
-        static_assert(std::is_integral_v<decltype(value)>, "HumanReadable only supports integral types");
-        std::array suffixes {""s, "K"s, "M"s, "B"s, "T"s, "Qa"s, "Qi"s, "Sx"s, "Sp"s, "Oc"s, "No"s, "Dc"s};
+    template<typename T>
+    constexpr std::string Join(char delimeter, std::initializer_list<T> parts) {
+        return Join(delimeter, std::ranges::subrange(parts.begin(), parts.end()));
+    }
+
+    constexpr std::string HumanReadable(std::integral auto value) {
+        using namespace std::string_view_literals;
+        std::array suffixes {""sv, "K"sv, "M"sv, "B"sv, "T"sv, "Qa"sv, "Qi"sv, "Sx"sv, "Sp"sv, "Oc"sv, "No"sv, "Dc"sv};
         double scaled = static_cast<double>(value);
         size_t suffixIndex = 0;
         while(scaled >= 1000) {
@@ -91,42 +126,17 @@ namespace Constexpr {
         suffixIndex = std::min(suffixIndex, suffixes.size() - 1);
 
         auto scaledInt = static_cast<int>(scaled);
-        std::array<char, 13> wholePart{};
-        std::to_chars(wholePart.data(), wholePart.data() + wholePart.size(), scaledInt);
+        auto result = ToString(scaledInt);
 
         if(auto fraction = static_cast<int>((scaled - scaledInt) * 100); fraction > 0) {
-            std::array<char, 3> decimalPart{};
-            std::to_chars(decimalPart.data(), decimalPart.data() + decimalPart.size(), fraction);        
-            return std::string(wholePart.data()) + "." + std::string(decimalPart.data()) + suffixes[suffixIndex];
-        } else {
-            return std::string(wholePart.data()) + suffixes[suffixIndex];
+            result += "." + ToString(fraction);
         }
+        result += suffixes.at(suffixIndex);
+        return result;
     }
 
     constexpr bool IsDigit(char c) { return c >= '0' && c <= '9'; }
-
-    constexpr std::string ToString(auto val) {
-        bool negate = false;
-        if constexpr(std::is_signed_v<decltype(val)>) {
-            if(val < 0) {
-                negate = true;
-                val = -val;
-            }
-        }
-
-        std::string result;
-        while(val >= 10) {
-            result.push_back(static_cast<char>('0' + (val % 10)));
-            val /= 10;
-        }
-        result.push_back(static_cast<char>('0' + (val % 10)));
-        if(negate) {
-            result.push_back('-');
-        }
-
-        std::reverse(result.begin(), result.end());
-        return result;
-    }
+    constexpr bool IsDigit(std::integral auto v) = delete;
 
     constexpr std::string TrimStart(std::string_view s, const std::vector<char>& toRemove = {' ', '\n', '\t', '\r'}) {
         return s | 
@@ -146,13 +156,13 @@ namespace Constexpr {
         return TrimStart(TrimEnd(s, toRemove), toRemove);
     }
 
-    constexpr std::string RemoveAll(const std::string& from, const std::string& what) {
-        std::string result = from;
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    constexpr std::string RemoveAll(std::string from, std::string_view what) {
         size_t pos = 0;
-        while((pos = result.find(what, pos)) != std::string::npos) {
-            result.erase(pos, what.length());
+        while((pos = from.find(what, pos)) != std::string::npos) {
+            from.erase(pos, what.length());
         }
-        return result;
+        return from;
     }
 
     constexpr std::string TimeString(auto ms) {

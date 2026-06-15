@@ -9,7 +9,7 @@
 #include <optional>
 
 namespace Invent {
-    enum struct Invention {
+    enum struct Invention : u8 {
         // Followers
         Totem,
         Warlord,

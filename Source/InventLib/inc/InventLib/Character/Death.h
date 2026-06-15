@@ -4,7 +4,7 @@
 #include <Platform/NumTypes.h>
 
 namespace Invent {
-    enum struct DeathType {
+    enum struct DeathType : u8 {
         Sudden,
         Illness,
         Slow

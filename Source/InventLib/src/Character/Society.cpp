@@ -116,14 +116,14 @@ namespace Invent {
             "secondary rate {}, secondary cap {} Max Projects {} "
             "BuildRate Rate {}, ExploreRate Rate {}, ResearchRate Rate {}",
             ToString(specialty),
-            CurrentLife.ResourceProgressions[ResourceName::Primary].GetProgress(OneSecond),
-            CurrentLife.Resources[ResourceName::Primary].Capacity,
-            CurrentLife.ResourceProgressions[ResourceName::Followers].GetProgress(OneSecond),
-            CurrentLife.Resources[ResourceName::Followers].Capacity,
+            CurrentLife.ResourceProgressions.at(ResourceName::Primary).GetProgress(OneSecond),
+            CurrentLife.Resources.at(ResourceName::Primary).Capacity,
+            CurrentLife.ResourceProgressions.at(ResourceName::Followers).GetProgress(OneSecond),
+            CurrentLife.Resources.at(ResourceName::Followers).Capacity,
             CurrentLife.MaxWorkers,
-            CurrentLife.ProjectTimeCostModifiers[ProjectType::Build].Mul,
-            CurrentLife.ProjectTimeCostModifiers[ProjectType::Explore].Mul,
-            CurrentLife.ProjectTimeCostModifiers[ProjectType::Research].Mul
+            CurrentLife.ProjectTimeCostModifiers.at(ProjectType::Build).Mul,
+            CurrentLife.ProjectTimeCostModifiers.at(ProjectType::Explore).Mul,
+            CurrentLife.ProjectTimeCostModifiers.at(ProjectType::Research).Mul
         ));
     }
 

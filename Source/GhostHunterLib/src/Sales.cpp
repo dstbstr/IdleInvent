@@ -9,7 +9,7 @@
         struct _AutoRegister {                                                         \
             _AutoRegister() {                                                          \
                 _register();                                                           \
-                ::SalesManager::_Details::GetInitFns().push_back([] {                  \
+                ::SalesManager::Private_Details::GetInitFns().push_back([] {                  \
                     ::ServiceLocator::Get().CreateIfMissing<PubSub<Sale<TypeName>>>(); \
                 });                                                                    \
             }                                                                          \
@@ -18,7 +18,7 @@
     void _TypeName##_SaleRegistry::_register()
 
 #define ITEM(n, ...)                                                                  \
-    ::SalesManager::_Details::GetSaleValues<TypeName>()[TypeName::IdType::n] = []() { \
+    ::SalesManager::Private_Details::GetSaleValues<TypeName>()[TypeName::IdType::n] = []() { \
         std::unordered_map<TypeName::LevelType, ResourceCollection> result{};         \
         __VA_ARGS__                                                                   \
         return result;                                                                \
@@ -103,7 +103,7 @@ namespace GhostHunter {
 #undef SALE
 
 void InitializeSales() {
-    for(const auto& fn : ::SalesManager::_Details::GetInitFns()) {
+    for(const auto& fn : ::SalesManager::Private_Details::GetInitFns()) {
         fn();
     }
 }

@@ -29,7 +29,7 @@ struct UpgradeEvent {
 };
 
 namespace UpgradeManager {
-    namespace _Details {
+    namespace Private_Details {
         template<UpgradableType T>
         std::unordered_map<typename T::IdType, std::unordered_map<typename T::LevelType, ResourceCollection>>&
         GetUpgradeCosts() {
@@ -41,7 +41,7 @@ namespace UpgradeManager {
             static std::unordered_map<typename T::IdType, std::function<ResourceCollection(typename T::LevelType)>> costFns;
             return costFns;
         }
-    } // namespace _Details
+    } // namespace Private_Details
 
     template<UpgradableType T>
     std::optional<ResourceCollection> TryGetCost(const T& t) {
@@ -53,12 +53,12 @@ namespace UpgradeManager {
         }
         if(level == t.Level) return {};
 
-        const auto& costFns = _Details::GetUpgradeCostFns<T>();
+        const auto& costFns = Private_Details::GetUpgradeCostFns<T>();
         if(costFns.contains(t.Id)) {
             return costFns.at(t.Id)(level);
         }
 
-        const auto& upgrades = _Details::GetUpgradeCosts<T>();
+        const auto& upgrades = Private_Details::GetUpgradeCosts<T>();
         if(!upgrades.contains(t.Id)) return {};
         const auto& levelCosts = upgrades.at(t.Id);
         if(!levelCosts.contains(level)) {
@@ -98,9 +98,9 @@ namespace UpgradeManager {
     }
 } // namespace UpgradeManager
 
-namespace UpgradeManager::_Details {
+namespace UpgradeManager::Private_Details {
     inline std::vector<std::function<void()>>& GetInitFns() {
         static std::vector<std::function<void()>> fns{};
         return fns;
     }
-} // namespace UpgradeManager::_Details
+} // namespace UpgradeManager::Private_Details

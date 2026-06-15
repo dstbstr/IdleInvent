@@ -6,7 +6,7 @@
 
 #include <string>
 
-enum struct EffectTarget {
+enum struct EffectTarget : u8 {
     AllProjectEfficiency,
     AllProjectRate,
     BuildRate,

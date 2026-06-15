@@ -72,8 +72,8 @@ namespace {
         }
 
         for(auto resource: SecondaryResources()) {
-            result[resource].Current = val;
-            result[resource].Capacity = val;
+            result.at(resource).Current = val;
+            result.at(resource).Capacity = val;
         }
 
         return result;
@@ -83,8 +83,8 @@ namespace {
         std::vector<Project> projects;
         for(auto i = 0u; i < names.size(); i++) {
             Project p{};
-            p.Name = ToString(names[i]);
-            p.Description = GetDescription(names[i]);
+            p.Name = ToString(names.at(i));
+            p.Description = GetDescription(names.at(i));
             p.EffectDescription = "Unlocks new buildings.";
             p.Type = ProjectType::Research;
             p.ResourceCost = MakeResourceCollection(i);

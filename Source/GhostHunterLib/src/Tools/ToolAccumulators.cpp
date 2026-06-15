@@ -18,11 +18,13 @@
         {_Time, [](void* room) {                                                                      \
              if(!room) return;                                                                        \
              auto* r = static_cast<GhostHunter::Room*>(room);                                         \
-             auto avail = r->AvailableResources[GhostHunter::ResourceName::_Currency].Current;        \
+             auto& currency = r->AvailableResources.at(GhostHunter::ResourceName::_Currency);        \
+             auto avail = currency.Current;                                                          \
              auto gained = std::min(avail, static_cast<s64>(_Amt));                                   \
-             r->AvailableResources[GhostHunter::ResourceName::_Currency].Current -= gained;           \
+             currency.Current -= gained;                                                             \
              auto& inventory = ServiceLocator::Get().GetRequired<GhostHunter::Life>().GetInventory(); \
-             inventory.Resources[GhostHunter::ResourceName::_Currency].Current += gained;             \
+             auto& invCurrency = inventory.Resources.at(GhostHunter::ResourceName::_Currency);       \
+             invCurrency.Current += gained;                                                          \
          }}                                                                                           \
     );
 
