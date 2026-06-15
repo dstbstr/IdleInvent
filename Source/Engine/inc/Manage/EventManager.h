@@ -10,6 +10,10 @@
 struct IEvent {
     virtual ~IEvent() = default;
 	IEvent(BaseTime ttl) : Duration(ttl), Ttl(ttl) {}
+    IEvent(const IEvent&) = delete;
+    IEvent& operator=(const IEvent&) = delete;
+    IEvent(IEvent&&) = delete;
+    IEvent& operator=(IEvent&&) = delete;
 
     BaseTime Duration{0};
 	BaseTime Ttl{0};
@@ -40,7 +44,7 @@ public:
 
     template<typename T, typename... Args>
     Handle StartEvent(OnEndFn onEnd, Args&&... args) {
-        return StartEvent(std::move(onEnd), std::make_unique<T>(args...));
+        return StartEvent(std::move(onEnd), std::make_unique<T>(std::forward<Args>(args)...));
     }
 
 	const IEvent* GetEvent(Handle handle) const;

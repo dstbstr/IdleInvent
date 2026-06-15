@@ -169,7 +169,7 @@ namespace {
         if(ImGui::BeginTable("GearTable", 2, ImGuiTableFlags_SizingStretchSame)) {
             ImGui::TableNextColumn();
             for(size_t i = 0; i < members.size(); i++) {
-                auto* member = members[i];
+                auto* member = members.at(i);
                 ImGui::PushID(static_cast<int>(i));
                 auto label = std::format("{} {}", member->Id, member->GetCurrentTool() ? ToString(member->GetCurrentTool()->Id) : "");
                 auto dragSource = [&] {

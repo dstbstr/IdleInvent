@@ -28,6 +28,10 @@ namespace Log {
 	struct ISink {
 		ISink(Filter filter);
 		virtual ~ISink() = default;
+        ISink(const ISink&) = delete;
+        ISink& operator=(const ISink&) = delete;
+        ISink(ISink&&) = delete;
+        ISink& operator=(ISink&&) = delete;
 
 		virtual void Write(const Entry& entry) = 0;
 

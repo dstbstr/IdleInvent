@@ -1,4 +1,5 @@
 #include "Animation/Animation.h"
+#include "Constexpr/ConstexprStrUtils.h"
 #include "Instrumentation/Logging.h"
 #include "Platform/Graphics.h"
 
@@ -21,11 +22,10 @@ namespace {
         if(digitCount == 0) return std::nullopt; // name is only digits, no prefix
 
         auto num = name.substr(digitCount);
-        size_t frame{};
-        const auto [_, ec] = std::from_chars(num.data(), num.data() + num.size(), frame);
-        if(ec != std::errc{}) return std::nullopt; // not a valid number
+        auto frame = Constexpr::TryFromString<size_t>(num);
+        if(!frame) return std::nullopt; // trailing part is not a number
 
-        return std::make_pair(name.substr(0, digitCount), frame);
+        return std::make_pair(name.substr(0, digitCount), *frame);
     }
 
     static_assert(TrySplitFrame("Hero0").has_value());
@@ -99,7 +99,7 @@ AnimationPlayer::AnimationPlayer(const Animation& animation, BaseTime duration, 
 void AnimationPlayer::Tick(BaseTime elapsed) {
     if(!m_Playing || IsFinished()) return;
 
-	m_Elapsed += BaseTime{ static_cast<u64>(elapsed.count() * m_Speed) };
+	m_Elapsed += BaseTime{ static_cast<u64>(static_cast<decltype(m_Speed)>(elapsed.count()) * m_Speed) };
     auto n = m_Animation->Frames.size();
 	if(m_Loop) {
         m_Elapsed %= m_Duration;

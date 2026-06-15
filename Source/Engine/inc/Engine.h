@@ -11,6 +11,11 @@ public:
     Engine(Platform& platform, Game& game) : m_Platform(platform), m_Game(game) {}
     ~Engine();
 
+    Engine(const Engine& other) = delete;
+    Engine& operator=(const Engine& other) = delete;
+    Engine(Engine&& other) noexcept = delete;
+    Engine& operator=(Engine&& other) noexcept = delete;
+
     bool Initialize();
     void Tick() const;
 

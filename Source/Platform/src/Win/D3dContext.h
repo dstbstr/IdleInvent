@@ -23,6 +23,11 @@ struct FrameContext {
 struct D3dContext {
     D3dContext(Platform& platform);
     ~D3dContext();
+    D3dContext(const D3dContext&) = delete;
+    D3dContext& operator=(const D3dContext&) = delete;
+    D3dContext(D3dContext&&) = delete;
+    D3dContext& operator=(D3dContext&&) = delete;
+
     FrameContext* WaitForNextFrameResources();
     std::unique_ptr<DX12Image> TryLoadTextureFromMemory(const void* data, size_t dataSize);
     std::unique_ptr<DX12Image> TryLoadTextureFromPixels(const void* data, size_t fullWidth, size_t x, size_t y, size_t width, size_t height);

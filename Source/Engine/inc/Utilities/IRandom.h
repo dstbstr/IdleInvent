@@ -5,7 +5,12 @@
 #include <random>
 
 struct IRandom {
+    IRandom() = default;
 	virtual ~IRandom() = default;
+	IRandom(const IRandom&) = delete;
+    IRandom& operator=(const IRandom&) = delete;
+    IRandom(IRandom&&) = delete;
+    IRandom& operator=(IRandom&&) = delete;
 
 	virtual u64 GetNextU() = 0;
     virtual u64 GetNextU(u64 max) = 0;

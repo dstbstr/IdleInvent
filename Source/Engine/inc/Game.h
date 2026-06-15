@@ -8,6 +8,10 @@
 struct Game {
     Game(Platform& platform) : Platform(platform) {}
     virtual ~Game() = default;
+    Game(const Game& other) = delete;
+    Game& operator=(const Game& other) = delete;
+    Game(Game&& other) noexcept = delete;
+    Game& operator=(Game&& other) noexcept = delete;
 
     virtual bool Initialize() = 0;
     virtual void ShutDown() = 0;

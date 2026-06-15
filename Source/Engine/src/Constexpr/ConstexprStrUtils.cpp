@@ -6,6 +6,13 @@
 namespace Constexpr {
     using namespace std::literals;
 
+    static_assert(ToString(123) == "123");
+    static_assert(ToString(0) == "0");
+
+    static_assert(TryFromString<int>("123") == 123);
+    static_assert(TryFromString<int>("-123") == -123);
+    static_assert(TryFromString<int>("abc") == std::nullopt);
+
     static_assert(Split("Hello World", " ") == std::vector<std::string_view>{"Hello"sv, "World"sv});
     static_assert(Split("Hello   World", " ") == std::vector<std::string_view>{"Hello"sv, "World"sv});
     static_assert(Split("Hello   World", " ", true) == std::vector<std::string_view>{"Hello"sv, ""sv, ""sv, "World"sv});

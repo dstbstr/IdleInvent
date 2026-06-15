@@ -10,6 +10,33 @@ Progression::Progression(const Progression& other)
     , m_Modifiers(other.m_Modifiers) {
     CalcProgress();
 }
+Progression& Progression::operator=(const Progression& other) {
+    if(this == &other) return *this;
+    m_Permanent = other.m_Permanent;
+    m_Modifiers = other.m_Modifiers;
+    CalcProgress();
+    return *this;
+}
+
+Progression::Progression(Progression&& other) noexcept
+    : m_Permanent(other.m_Permanent)
+    , m_Modifiers(other.m_Modifiers)
+    , m_Progress(other.m_Progress)
+    , m_Remainder(other.m_Remainder) {
+    other.m_Progress = 0.0f;
+    other.m_Remainder = 0.0f;
+}
+
+Progression& Progression::operator=(Progression&& other) noexcept {
+    if(this == &other) return *this;
+    m_Permanent = other.m_Permanent;
+    m_Modifiers = other.m_Modifiers;
+    m_Progress = other.m_Progress;
+    m_Remainder = other.m_Remainder;
+    other.m_Progress = 0.0f;
+    other.m_Remainder = 0.0f;
+    return *this;
+}
 
 Progression::Progression(const ProgressionSave& save) {
     save.Permanent.Load(m_Permanent);
@@ -35,13 +62,6 @@ void Progression::Save(ProgressionSave& save) const {
 		mod.Save(save.Temp.at(i));
         save.Durations.at(i) = static_cast<u8>(duration.count() / OneMinute.count());
 	}
-}
-
-Progression& Progression::operator=(const Progression& other) {
-    m_Permanent = other.m_Permanent;
-	m_Modifiers = other.m_Modifiers;
-	CalcProgress();
-	return *this;
 }
 
 void Progression::AddPermanent(Modifier mod) {

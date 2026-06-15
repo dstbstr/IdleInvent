@@ -20,9 +20,13 @@ struct ProgressionSave {
 
 struct Progression {
     Progression() = default;
-    Progression(const ProgressionSave& save);
+    ~Progression() = default;
     Progression(const Progression& other);
-    Progression& operator=(const Progression & other);
+    Progression& operator=(const Progression& other);
+    Progression(Progression&& other) noexcept;
+    Progression& operator=(Progression&& other) noexcept;
+
+    Progression(const ProgressionSave& save);
 
     void Save(ProgressionSave& save) const;
 

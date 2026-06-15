@@ -5,6 +5,7 @@
 #include <array>
 #include <charconv>
 #include <concepts>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <string_view>
@@ -23,6 +24,19 @@ namespace Constexpr {
         return std::string(buf.data(), result.ptr);
     }
     constexpr std::string ToString(const char* cstr) { return std::string(cstr); }
+
+    template<typename T>
+    constexpr std::optional<T> TryFromString(std::string_view str) {
+        T result{};
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        auto res = std::from_chars(str.data(), str.data() + str.size(), result);
+        if(res.ec != std::errc()) return std::nullopt;
+        return result;
+    }
+    template<typename T>
+    constexpr T FromString(std::string_view str) {
+        return *TryFromString<T>(str);
+    }
 
     constexpr std::vector<std::string_view> Split(std::string_view input, std::string_view delimiter, bool keepEmpties = false) {
         size_t last = 0;

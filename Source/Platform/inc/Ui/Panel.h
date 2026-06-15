@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 
+/*
 // Top third, full width = Top | Left | Right | HCenter
 // Right 2/3, full height = HCenter | Right | Top | Bottom | VCenter
 // Top Left Corner = Top | Left
@@ -28,3 +29,4 @@ private:
     std::vector<std::unique_ptr<Panel>> m_Children{};
     std::pair<f32, f32> m_Dimensions{0.0f, 0.0f};
 };
+*/

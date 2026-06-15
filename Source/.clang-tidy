@@ -3,6 +3,7 @@ Checks: >
     android-*,
     bugprone-*,
     clang-analyzer-*,
+    -clang-analyzer-optin.core.EnumCastOutOfRange,
     cppcoreguidelines-*,
     -cppcoreguidelines-pro-type-vararg,
     -cppcoreguidelines-pro-type-union-access,

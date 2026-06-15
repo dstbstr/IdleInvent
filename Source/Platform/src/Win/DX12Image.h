@@ -14,6 +14,11 @@ struct DX12Image {
         , TextureId(textureId)
         , Texture(tex) {}
 
+    DX12Image(const DX12Image&) = default;
+    DX12Image& operator=(const DX12Image&) = default;
+    DX12Image(DX12Image&&) noexcept = default;
+    DX12Image& operator=(DX12Image&&) noexcept = default;
+
     ~DX12Image() {
         if(Texture) {
             Texture->Release();
