@@ -59,4 +59,13 @@ namespace Constexpr {
     static_assert(TimeString(OneHour) == "1h");
     static_assert(TimeString(OneDay) == "1d");
     static_assert(TimeString(OneDay + OneHour + OneMinute + OneSecond) == "1d 1h 1m 1s");
+
+    static_assert(RemoveAll("Hello World", " ") == "HelloWorld");
+    static_assert(RemoveAll("Hello World", "z") == "Hello World");
+    static_assert(RemoveAll("ABC", "a") == "ABC");
+
+    static_assert(ToLower("ABC") == "abc");
+    static_assert(ToLower("abc") == "abc");
+    static_assert(ToUpper("abc") == "ABC");
+    static_assert(ToUpper("ABC") == "ABC");
 }

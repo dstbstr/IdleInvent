@@ -44,7 +44,7 @@ private:
     const Animation* m_Animation;
     BaseTime m_Elapsed{0};
     BaseTime m_Duration{0};
-    f64 m_Speed{1.0};
+    f32 m_Speed{1.0};
     bool m_Loop{true};
     bool m_Visible{true};
     bool m_Playing{false};
