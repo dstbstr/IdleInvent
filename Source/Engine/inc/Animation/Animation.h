@@ -38,7 +38,7 @@ public:
     void Hide();
     void ToggleVisible();
 
-    void SetPlaybackSpeed(double speed);
+    void SetPlaybackSpeed(f32 speed);
 
 private:
     const Animation* m_Animation;

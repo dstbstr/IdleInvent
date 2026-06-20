@@ -2,7 +2,7 @@ project(IdlePlatform LANGUAGES CXX)
 
 add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    imgui
+    imgui # TODO: Consider removing this separate the responsibility with IdleUi
     stbimage
 )
 
@@ -28,8 +28,7 @@ if (WIN32)
         src/Win/Win_Platform.cpp
         src/Win/D3dAllocator.cpp
         src/Win/D3dContext.cpp 
-        "src/Ui/Panel.cpp"
-     "src/Ui/UiUtil.cpp")
+    )
     target_link_libraries(${PROJECT_NAME} PRIVATE
         d3d12
         dxgi

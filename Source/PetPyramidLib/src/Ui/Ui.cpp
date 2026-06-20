@@ -1,48 +1,42 @@
 #include "Pets/Ui/Ui.h"
-#include <Animation/Animation.h>
-#include <Manage/TickManager.h>
+#include "Pets/Ui/TopContent.h"
+#include "Pets/Ui/MainContent.h"
+#include "Pets/Ui/BottomContent.h"
+
 #include <Instrumentation/Logging.h>
-#include <DesignPatterns/ServiceLocator.h>
+#include <Platform/Graphics.h>
+#include <Ui/UiBuilder.h>
 #include <Ui/UiUtil.h>
 
 namespace {
-    std::vector<AnimationPlayer> g_Anims;
-    std::vector<ScopedHandle> g_Handles;
-
-	constexpr auto HeroSheet = "Animation/Hero.png";
-    constexpr ImVec2 ImageSize{64, 64};
-}
+    constexpr auto ButtonSprites = "Icons/Buttons.png";
+} // namespace
 
 namespace Pets::Ui {
 	bool Initialize() {
-        InitializeFonts("DroidSans.ttf");
+		InitializeFonts("DroidSans.ttf");
+		
+        DR_ASSERT(Graphics::TryLoadSpriteSheet(ButtonSprites));
+        DR_ASSERT(Screens::BottomContent::Initialize());
+        DR_ASSERT(Screens::MainContent::Initialize());
+        DR_ASSERT(Screens::TopContent::Initialize());
 
-        auto& animSource = ServiceLocator::Get().GetRequired<std::unordered_map<std::string, Animation>>();
-        if(!TryLoadAnimations(HeroSheet, animSource)) {
-            Log::Error(std::format("Failed to load animations for sheet: {}", HeroSheet));
-            return false;
-        }
-        g_Anims.emplace_back(AnimationPlayer::PlayNew(animSource.at("Hero"), OneSecond, true));
-        TickManager::Get().Register(g_Handles, [](BaseTime elapsed) { 
-            for(auto& player: g_Anims) {
-                player.Tick(elapsed);
-            }
-        });
-		return true;
-	}
+        return true;
+    }
 
 	void Render() {
-		ImGui::Begin("PetPyramid");
-        for(const auto& player: g_Anims) {
-            auto frame = player.Current();
-            ImGui::Image(frame.Texture, ImageSize, frame.UvMin, frame.UvMax);
-        }
-		ImGui::End();
+		auto screenHeight = Graphics::ScreenHeight;
+		UiBuilder()
+			.AddPart(screenHeight * 0.15f, Screens::TopContent::Render)
+			.AddPart(screenHeight * 0.65f, Screens::MainContent::Render)
+			.AddPart(screenHeight * 0.2f, Screens::BottomContent::Render)
+			.Build();
 	}
 
-	void ShutDown() { 
-        g_Handles.clear();
-        g_Anims.clear();
+	void ShutDown() {
+		Screens::TopContent::ShutDown();
+		Screens::MainContent::ShutDown();
+		Screens::BottomContent::ShutDown();
 	}
 
     ImFont* GetFont(FontSizes fontSize) {

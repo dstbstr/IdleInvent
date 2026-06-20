@@ -116,10 +116,10 @@ Sprite AnimationPlayer::Current() const {
 	return m_Animation->Frames.at(m_Frame); 
 }
 
-void AnimationPlayer::SetPlaybackSpeed(double speed)
+void AnimationPlayer::SetPlaybackSpeed(f32 speed)
 {
-    DR_ASSERT(speed > 0.0);
-    DR_ASSERT(speed < 1000.0); // sanity check
+    DR_ASSERT(speed > 0.0f);
+    DR_ASSERT(speed < 1000.0f); // sanity check
     m_Speed = speed;
 }
 

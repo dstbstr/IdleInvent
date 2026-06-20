@@ -115,7 +115,7 @@ Platform::Platform(void*) {
     ::UpdateWindow(hWnd);
 }
 
-Platform::~Platform() {
+Platform::~Platform() noexcept {
     ::DestroyWindow(hWnd);
     ::UnregisterClassW(windowClass.lpszClassName, windowClass.hInstance);
 }

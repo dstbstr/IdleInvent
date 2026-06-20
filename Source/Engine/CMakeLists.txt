@@ -37,4 +37,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Settings/PurchaseAmount.cpp
 
 	src/Utilities/Handle.cpp
- "src/Constexpr/ConstexprStrUtils.cpp")
+ "src/Constexpr/ConstexprStrUtils.cpp" "inc/DesignPatterns/Tree.h")

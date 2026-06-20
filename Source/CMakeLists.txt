@@ -73,12 +73,14 @@ endif()
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 add_subdirectory(Tools)
 add_subdirectory(Platform)
+add_subdirectory(Ui)
 add_subdirectory(Engine)
 add_subdirectory(InventLib)
 add_subdirectory(TechMazeLib)
 add_subdirectory(GhostHunterLib)
 add_subdirectory(PetPyramidLib)
 add_subdirectory(Game)
+add_subdirectory(SampleUI)
 if(IncludeTests)
     FetchContent_MakeAvailable(googletest)
 
@@ -91,7 +93,7 @@ endif()
 
 
 # Apply compiler definitions to all targets
-foreach(target IN ITEMS IdlePlatform Engine InventLib IdleGame PetPyramidLib)
+foreach(target IN ITEMS IdlePlatform Engine InventLib IdleGame PetPyramidLib SampleUI)
     target_compile_definitions(${target} PRIVATE ${compiler_definitions})
 endforeach()
 if(IncludeTests)

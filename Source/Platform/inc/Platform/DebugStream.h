@@ -6,10 +6,10 @@
 struct DebugStream : public std::ostream {
     DebugStream();
     ~DebugStream() noexcept override;
-    DebugStream(const DebugStream&) = default;
-    DebugStream& operator=(const DebugStream&) = default;
-    DebugStream(DebugStream&&) = default;
-    DebugStream& operator=(DebugStream&&) = default;
+    DebugStream(const DebugStream&) = delete;
+    DebugStream& operator=(const DebugStream&) = delete;
+    DebugStream(DebugStream&&) = delete;
+    DebugStream& operator=(DebugStream&&) = delete;
 
 private:
     struct DebugStreamBuf;
