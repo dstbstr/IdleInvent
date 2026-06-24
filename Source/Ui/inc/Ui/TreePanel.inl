@@ -7,16 +7,16 @@ namespace Ui::Details {
     template<typename T>
     struct LayoutNode {
         const typename Tree<RenderNode<T>>::Node* TreeNode{nullptr};
-        ImVec2 Pos{0.f, 0.f};
-        ImVec2 Size{0.f, 0.f};
+        Rect Bounds;
 
         constexpr ImVec2 GetConnectPoint(ConnectPoint point) const {
+            auto [pos, size] = Bounds;
             switch(point) {
                 using enum ConnectPoint;
-                case North: return {Pos.x + Size.x * 0.5f, Pos.y};
-                case East: return {Pos.x + Size.x, Pos.y + Size.y * 0.5f};
-                case South: return {Pos.x + Size.x * 0.5f, Pos.y + Size.y};
-                case West: return {Pos.x, Pos.y + Size.y * 0.5f};
+                case North: return {pos.x + size.x * 0.5f, pos.y};
+                case East: return {pos.x + size.x, pos.y + size.y * 0.5f};
+                case South: return {pos.x + size.x * 0.5f, pos.y + size.y};
+                case West: return {pos.x, pos.y + size.y * 0.5f};
             }
 
             return {};
@@ -28,7 +28,13 @@ namespace Ui::Details {
         if(!node) return;
         if(outLayers.size() <= depth) outLayers.emplace_back();
 
-        outLayers.at(depth).push_back({.TreeNode = node, .Size = node->Value.BaseSize});
+        outLayers.at(depth).push_back({
+            .TreeNode = node, 
+            .Bounds = {
+                .Pos = ImVec2(0.f, 0.f), 
+                .Size = node->Value.BaseSize
+            }
+        });
         for(const auto& child: node->Children) {
             BuildLayers(child.get(), depth + 1, outLayers);
         }
@@ -45,12 +51,16 @@ namespace Ui::Details {
         for(auto& layer: outLayers) {
             auto layerHeight = 0.f;
             for(const auto& item: layer) {
-                layerHeight = std::max(layerHeight, item.Size.y);
+                layerHeight = std::max(layerHeight, item.Bounds.Size.y);
             }
-            auto x = config.Padding.x;
+
+            auto layerWidth = 0.f;
+            for(const auto& item: layer) layerWidth += item.Bounds.Size.x;
+            if(!layer.empty()) layerWidth += (layer.size() - 1) * config.Spacing.x;
+            auto x = -(layerWidth / 2.f);
             for(auto& item: layer) {
-                item.Pos = {x, y};
-                x += item.Size.x + config.Spacing.x;
+                item.Bounds.Pos = {x, y};
+                x += item.Bounds.Size.x + config.Spacing.x;
             }
 
             y += layerHeight + config.Spacing.y;
@@ -104,24 +114,14 @@ namespace Ui {
         default: break;
         }
 
+        auto origin = GetOrigin();
+        auto centerX = GetCenterX();
+
         for(auto& layer : m_Layers) {
             for(auto& node : layer) {
-                node.Pos.x += m_PanelConfig.Position.x;
-                node.Pos.y += m_PanelConfig.Position.y;
+                node.Bounds.Pos.x += origin.x + centerX;
+                node.Bounds.Pos.y += origin.y;
             }
-        }
-    }
-
-    template<typename T, typename RenderFn>
-    void TreePanel<T, RenderFn>::RenderBackground() const {
-        const auto panelMin = Details::ToScreenSpace(m_PanelConfig.Position);
-        const auto panelMax = Details::ToScreenSpace({m_PanelConfig.Position.x + m_PanelConfig.Size.x, m_PanelConfig.Position.y + m_PanelConfig.Size.y});
-
-        if(m_PanelConfig.BackgroundColor) {
-            ImGui::GetWindowDrawList()->AddRectFilled(panelMin, panelMax, *m_PanelConfig.BackgroundColor);
-        }
-        if(m_PanelConfig.BackgroundTexture) {
-            ImGui::GetWindowDrawList()->AddImage(*m_PanelConfig.BackgroundTexture, panelMin, panelMax);
         }
     }
 
@@ -139,8 +139,8 @@ namespace Ui {
         for(const auto& layer: m_Layers) {
             for(const auto& node: layer) {
                 if(!node.TreeNode || !node.TreeNode->Value.Visible) continue;
-                ImGui::SetCursorPos(node.Pos);
-                m_RenderFn(node.TreeNode->Value.Value, node.Size, node.Pos);
+                ImGui::SetCursorPos(node.Bounds.Pos);
+                m_RenderFn(node.TreeNode->Value.Value, node.Bounds);
             }
         }
     }

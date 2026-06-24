@@ -11,6 +11,11 @@
 #include <queue>
 #include <string>
 
+// TODO:
+// Calculate node position based on child count/sizes
+// Add Zooming to Panel
+// Add callbacks for node activation
+// Implement more growth directions
 namespace {
 	constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
@@ -19,9 +24,8 @@ namespace {
 	s32 NodeCount = 40;
 	s32 FanOut = 3;
 	ImVec2 NodeSize{64.f, 64.f};
-	f32 NodePadding = 12.f;
-	f32 NodeSpacing = 16.f;
-	ImVec2 PanelPanOffset{0.f, 0.f};
+	ImVec2 NodePadding{12.f, 12.f};
+	ImVec2 NodeSpacing{16.f, 16.f};
 
     Ui::TreeConfig TreeConfig{};
     Ui::PanelConfig PanelConfig{};
@@ -32,9 +36,10 @@ namespace {
 
 	using SampleRenderNode = Ui::RenderNode<SampleNode>;
 	using SampleTree = Tree<SampleRenderNode>;
-	using SampleRenderFn = std::function<void(const SampleNode&, ImVec2, ImVec2)>;
+	using SampleRenderFn = std::function<void(const SampleNode&, Ui::Rect)>;
 
 	SampleTree s_Tree{};
+    std::unique_ptr<Ui::TreePanel<SampleNode, SampleRenderFn>> s_Panel{};
 
 	SampleRenderNode MakeNode(std::string name) {
 		return SampleRenderNode{
@@ -86,19 +91,32 @@ namespace {
 
         return "Unknown";
 	}
+
+	void ResetPanel() {
+        s_Panel = std::make_unique<Ui::TreePanel<SampleNode, SampleRenderFn>>(
+            PanelConfig, s_Tree, TreeConfig, [](const SampleNode& node, Ui::Rect bounds) {
+                auto bottomRight = bounds.GetBottomRight();
+                ImGui::GetWindowDrawList()->AddRect(bounds.Pos, bottomRight, IM_COL32(255, 255, 255, 255), 4.f);
+                ImGui::SetCursorPos(bounds.Pos);
+                ImGui::TextUnformatted(node.Name.c_str());
+            }
+        );
+	}
 }
 
 namespace SampleUI::Ui::Screens::SampleTreePanel {
 	bool Initialize() {
         TreeConfig.Growth = ::Ui::GrowthDir::TopDown;
         TreeConfig.Connect = ::Ui::ConnectStyle::Line;
-        TreeConfig.Padding = {NodePadding, NodePadding};
-        TreeConfig.Spacing = {NodeSpacing, NodeSpacing};
-        PanelConfig.Position = {0.f, PanelTopOffsetY};
-        PanelConfig.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
+        TreeConfig.Padding = NodePadding;
+        TreeConfig.Spacing = NodeSpacing;
+        PanelConfig.Bounds.Pos = {0.f, PanelTopOffsetY};
+        PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
         PanelConfig.BackgroundColor = IM_COL32(32, 32, 32, 255);
 
 		RebuildTree();
+        ResetPanel();
+
 		return true;
 	}
 
@@ -125,54 +143,51 @@ namespace SampleUI::Ui::Screens::SampleTreePanel {
         rebuild |= ImGui::SliderInt("Total Nodes", &NodeCount, 0, 1'000);
         rebuild |= ImGui::SliderInt("Fan Out", &FanOut, 1, 10);
         rebuild |= ImGui::SliderFloat2("Node Size", &NodeSize.x, 16.f, 256.f);
-        rebuild |= ImGui::SliderFloat("Node Padding", &NodePadding, 0.f, 64.f);
-        rebuild |= ImGui::SliderFloat("Node Spacing", &NodeSpacing, 0.f, 64.f);
+        rebuild |= ImGui::SliderFloat2("Node Padding", &NodePadding.x, 0.f, 64.f);
+        rebuild |= ImGui::SliderFloat2("Node Spacing", &NodeSpacing.x, 0.f, 64.f);
 
+		if(rebuild) {
+            NodeSize.y = NodeSize.x;
+            TreeConfig.Padding = NodePadding;
+            TreeConfig.Spacing = NodeSpacing;
+            RebuildTree();
+        }
+
+		bool resetPanel = false;
 		int growthSelect = static_cast<int>(TreeConfig.Growth);
 		const char* growthLabels = "Top Down\0Bottom Up\0Left to Right\0Center Out";
 
 		if(ImGui::Combo("Growth Direction", &growthSelect, growthLabels, 4)) {
 			TreeConfig.Growth = static_cast<::Ui::GrowthDir>(growthSelect);
-			rebuild = true;
+			resetPanel = true;
 		}
-		ImGui::Text("Current: %s", ToLabel(TreeConfig.Growth));
+
+		int connectSelect = static_cast<int>(TreeConfig.Connect);
+        const char* connectLabels = "None\0Line\0Corner";
+		if(ImGui::Combo("Connect Style", &connectSelect, connectLabels, 3)) {
+			TreeConfig.Connect = static_cast<::Ui::ConnectStyle>(connectSelect);
+			resetPanel = true;
+		}
+
+		if(resetPanel) {
+            ResetPanel();
+		}
+
+		ImGui::Text("Current: %s, %s", ToLabel(TreeConfig.Growth), ToLabel(TreeConfig.Connect));
 		ImGui::TextUnformatted("Pan: drag with right mouse over panel area");
 		if(ImGui::Button("Reset Pan")) {
-			PanelPanOffset = {0.f, 0.f};
+            if(s_Panel) s_Panel->ResetPan();
 		}
 		ImGui::PopFont();
-		if(rebuild) {
-			NodeSize.y = NodeSize.x;
-			TreeConfig.Spacing = {NodeSpacing, NodeSpacing};
-			RebuildTree();
+
+		PanelConfig.Bounds.Pos = {0.f, PanelTopOffsetY};
+		PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
+
+		if(s_Panel) {
+            s_Panel->SetBounds(PanelConfig.Bounds);
+            s_Panel->Render();
 		}
 
-		PanelConfig.Position = {0.f, PanelTopOffsetY};
-		PanelConfig.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
-
-		const auto panelMin = PanelConfig.Position;
-		const auto panelMax = ImVec2{PanelConfig.Position.x + PanelConfig.Size.x, PanelConfig.Position.y + PanelConfig.Size.y};
-		if(ImGui::IsMouseHoveringRect(panelMin, panelMax, false) && ImGui::IsMouseDragging(ImGuiMouseButton_Right, 0.f)) {
-			const auto mouseDelta = ImGui::GetIO().MouseDelta;
-			PanelPanOffset.x += mouseDelta.x;
-			PanelPanOffset.y += mouseDelta.y;
-		}
-
-		TreeConfig.Padding = {NodePadding + PanelPanOffset.x, NodePadding + PanelPanOffset.y};
-
-		::Ui::TreePanel<SampleNode, SampleRenderFn> panel(
-			s_Tree,
-			PanelConfig,
-			TreeConfig,
-			[](const SampleNode& node, ImVec2 size, ImVec2 pos) {
-				const auto bottomRight = ImVec2{pos.x + size.x, pos.y + size.y};
-				ImGui::GetWindowDrawList()->AddRect(pos, bottomRight, IM_COL32(255, 255, 255, 255), 4.f);
-
-				ImGui::SetCursorPos(pos);
-				ImGui::TextUnformatted(node.Name.c_str());
-			}
-		);
-		panel.Render();
 		ImGui::End();
 	}
 } // namespace SampleUI::Ui::Screens::SampleTreePanel

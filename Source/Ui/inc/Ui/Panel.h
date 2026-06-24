@@ -1,32 +1,72 @@
 #pragma once
 #include "Platform/NumTypes.h"
-#include <utility>
-#include <vector>
-#include <memory>
+#include "Ui/Rect.h"
+#include <imgui.h>
+#include <optional>
 
-/*
-// Top third, full width = Top | Left | Right | HCenter
-// Right 2/3, full height = HCenter | Right | Top | Bottom | VCenter
-// Top Left Corner = Top | Left
-enum struct PanelPos {
-    FullScreen = 0,
-    Top = 1, 
-    Bottom = 1 << 1, 
-    VCenter = 1 << 2,
-    Left = 1 << 3,
-    Right = 1 << 4,
-    HCenter = 1 << 5
-};
+namespace Ui {
+    struct Connection;
 
+    struct PanelConfig {
+        Rect Bounds{};
+        std::optional<ImU32> BackgroundColor{std::nullopt};
+        std::optional<ImTextureID> BackgroundTexture{std::nullopt};        
+    };
 
-struct Panel {
-    Panel(PanelPos pos, const std::pair<f32, f32>& parentDimensions);
-    virtual ~Panel() = default;
-    virtual void Render() = 0;
-    std::pair<f32, f32> GetDimensions();
+    class Panel {
+    private:
+        Rect Bounds{};
+        ImVec2 PanOffset{};
+        std::optional<ImU32> BackgroundColor{std::nullopt};
+        std::optional<ImTextureID> BackgroundTexture{std::nullopt};
+        
+    protected:
+        ImVec2 GetOrigin() const { 
+            return {Bounds.Pos.x + PanOffset.x, Bounds.Pos.y + PanOffset.y}; 
+        }
+        f32 GetCenterX() const { return Bounds.Pos.x + (Bounds.Size.x * 0.5f); }
 
-private:
-    std::vector<std::unique_ptr<Panel>> m_Children{};
-    std::pair<f32, f32> m_Dimensions{0.0f, 0.0f};
-};
-*/
+    public:
+        Panel(
+            Rect bounds,
+            std::optional<ImU32> backgroundColor = std::nullopt,
+            std::optional<ImTextureID> backgroundTexture = std::nullopt)
+            : Bounds(bounds)
+            , BackgroundColor(backgroundColor)
+            , BackgroundTexture(backgroundTexture) {}
+
+        Panel(const PanelConfig& config)
+            : Bounds(config.Bounds)
+            , PanOffset({0.f, 0.f})
+            , BackgroundColor(config.BackgroundColor)
+            , BackgroundTexture(config.BackgroundTexture) {}
+
+        virtual ~Panel() = default;
+        Panel(const Panel&) = delete;
+        Panel& operator=(const Panel&) = delete;
+        Panel(Panel&&) = default;
+        Panel& operator=(Panel&&) = default;
+
+        void Render();
+
+        void SetBounds(Rect bounds) {
+            Bounds = bounds;
+        }
+
+        ImVec2 GetPanOffset() const { return PanOffset; }
+        void ResetPan() { PanOffset = {0.f, 0.f}; }
+
+    protected: 
+        virtual void RenderImpl() = 0;
+
+    private:
+        void UpdatePan();
+        void RenderBackground() const;
+    };
+
+    ImVec2 ToScreenSpace(const ImVec2& localPos);
+    Rect ToScreenSpace(const Rect& localRect);
+    void DrawLine(const Connection& connection);
+    void DrawCorner(const Connection& connection);
+
+}

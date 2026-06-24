@@ -1,51 +1,23 @@
 #pragma once
 
+#include "Ui/Panel.h"
+#include "Ui/Connection.h"
+
 #include <DesignPatterns/Tree.h>
 #include <Platform/NumTypes.h>
 
 #include <imgui.h>
 
 namespace Ui::Details {
-    enum struct ConnectPoint : u8 {North, East, South, West};
-    struct Connection {
-        ImVec2 From;
-        ImVec2 To;
-        f32 Thickness{1.f};
-        ImU32 Color{0xFFFFFFFF};
-    };
-
-    ImVec2 ToScreenSpace(const ImVec2& localPos);
-    void DrawLine(const Connection& connection);
-    void DrawCorner(const Connection& connection);
-
     template<typename T>
     struct LayoutNode;
 
     template<typename T>
     using LayoutLayer = std::vector<LayoutNode<T>>;
-
-    //template<typename T>
-    //static void BuildLayers(const typename Tree<RenderNode<T>>::Node* node, size_t depth, std::vector<LayoutLayer<T>>& outLayers);
-
-    //template<typename T>
-    //static void BuildLayoutTopDown(const Tree<RenderNode<T>>& tree, const TreePanelConfig& config, std::vector<LayoutLayer<T>>& outLayers);
-
-    //template<typename T>
-    //static void RenderConnectorsTopDown(const std::vector<LayoutLayer<T>>& layers, const TreePanelConfig& config);
-
-    //template<typename T>
-    //static void BuildLayout(const Tree<RenderNode<T>>& tree, std::vector<LayoutLayer<T>>& outLayers, const TreePanelConfig& config);
-
-    //template<typename T>
-    //static void RenderConnectors(const std::vector<LayoutLayer<T>>& layers, const TreePanelConfig& config);
-
-    //template<typename T, typename RenderFn>
-    //static void RenderNodes(const std::vector<LayoutLayer<T>>& layers, RenderFn& renderFn);
 }
 
 namespace Ui {
     enum struct GrowthDir : u8 { TopDown, BottomUp, LeftRight, CenterOut };
-    enum struct ConnectStyle : u8 { None, Line, Corner };
 
     struct TreeConfig {
         GrowthDir Growth{GrowthDir::TopDown};
@@ -56,13 +28,6 @@ namespace Ui {
         ImU32 ConnectorColor{0xFFFFFFFF};
     };
 
-    struct PanelConfig {
-        ImVec2 Position{0.f, 0.f};
-        ImVec2 Size{0.f, 0.f};
-        std::optional<ImU32> BackgroundColor{std::nullopt};
-        std::optional<ImTextureID> BackgroundTexture{std::nullopt};
-    };
-
     template<typename T>
     struct RenderNode {
         T Value;
@@ -71,42 +36,49 @@ namespace Ui {
     };
 
     template<typename T, typename RenderFn>
-    class TreePanel {
+    class TreePanel : public Panel {
         const Tree<RenderNode<T>>* m_Tree;
         RenderFn m_RenderFn;
         TreeConfig m_TreeConfig;
-        PanelConfig m_PanelConfig;
         std::vector<Details::LayoutLayer<T>> m_Layers;
 
     public:
         TreePanel(
+            Rect bounds,
+            std::optional<ImU32> backgroundColor,
+            std::optional<ImTextureID> backgroundTexture,
             const Tree<RenderNode<T>>& tree,
-            const PanelConfig& panelConfig,
             const TreeConfig& treeConfig,
             RenderFn&& renderFn
         )
-            : m_Tree(&tree)
+            : Panel(bounds, backgroundColor, backgroundTexture)
+            , m_Tree(&tree)
             , m_RenderFn(std::move(renderFn))
-            , m_PanelConfig(panelConfig)
             , m_TreeConfig(treeConfig) {}
 
-        void Render() {
+        TreePanel(
+            const PanelConfig& panelConfig,
+            const Tree<RenderNode<T>>& tree,
+            const TreeConfig& treeConfig,
+            RenderFn&& renderFn
+        )
+            : Panel(panelConfig)
+            , m_Tree(&tree)
+            , m_RenderFn(std::move(renderFn))
+            , m_TreeConfig(treeConfig) {}
+
+        void RenderImpl() override {
             m_Layers.clear();
 
             BuildLayout();
-            RenderBackground();
 
-            const auto panelMin = Details::ToScreenSpace(m_PanelConfig.Position);
-            const auto panelMax = Details::ToScreenSpace({m_PanelConfig.Position.x + m_PanelConfig.Size.x, m_PanelConfig.Position.y + m_PanelConfig.Size.y});
-            ImGui::PushClipRect(panelMin, panelMax, true);
             RenderConnectors();
+
             RenderNodes();
-            ImGui::PopClipRect();
         }
 
     private:
         void BuildLayout();
-        void RenderBackground() const;
         void RenderConnectors() const;
         void RenderNodes() const;
     };
