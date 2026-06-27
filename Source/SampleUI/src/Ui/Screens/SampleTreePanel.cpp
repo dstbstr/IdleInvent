@@ -36,7 +36,7 @@ namespace {
 
 	using SampleRenderNode = Ui::RenderNode<SampleNode>;
 	using SampleTree = Tree<SampleRenderNode>;
-	using SampleRenderFn = std::function<void(const SampleNode&, Ui::Rect)>;
+	using SampleRenderFn = std::function<void(const SampleNode&)>;
 
 	SampleTree s_Tree{};
     std::unique_ptr<Ui::TreePanel<SampleNode, SampleRenderFn>> s_Panel{};
@@ -93,14 +93,16 @@ namespace {
 	}
 
 	void ResetPanel() {
-        s_Panel = std::make_unique<Ui::TreePanel<SampleNode, SampleRenderFn>>(
-            PanelConfig, s_Tree, TreeConfig, [](const SampleNode& node, Ui::Rect bounds) {
-                auto bottomRight = bounds.GetBottomRight();
-                ImGui::GetWindowDrawList()->AddRect(bounds.Pos, bottomRight, IM_COL32(255, 255, 255, 255), 4.f);
-                ImGui::SetCursorPos(bounds.Pos);
-                ImGui::TextUnformatted(node.Name.c_str());
-            }
-        );
+		s_Panel = std::make_unique<Ui::TreePanel<SampleNode, SampleRenderFn>>(
+			PanelConfig, s_Tree, TreeConfig, [](const SampleNode& node) {
+				const auto pos = ImGui::GetWindowPos();
+				const auto size = ImGui::GetWindowSize();
+                ImGui::PushFont(GetFont(FontSizes::H4));
+				ImGui::GetWindowDrawList()->AddRect(pos, {pos.x + size.x, pos.y + size.y}, IM_COL32(255, 255, 255, 255), 4.f);
+				ImGui::TextUnformatted(node.Name.c_str());
+                ImGui::PopFont();
+			}
+		);
 	}
 }
 

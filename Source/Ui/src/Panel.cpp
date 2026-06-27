@@ -55,13 +55,15 @@ namespace Ui {
         UpdatePan();
         RenderBackground();
 
-        auto bounds = ToScreenSpace(Bounds);
-        auto min = bounds.Pos;
-        auto max = bounds.GetBottomRight();
-
-        ImGui::PushClipRect(min, max, true);
+        ImGui::SetCursorPos(Bounds.Pos);
+        ImGui::BeginChild(
+            ImGui::GetID(static_cast<const void*>(this)),
+            Bounds.Size,
+            0,
+            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
+        );
         RenderImpl();
-        ImGui::PopClipRect();
+        ImGui::EndChild();
     }
 
     void Panel::UpdatePan() {

@@ -24,7 +24,8 @@ namespace Ui {
         ImVec2 GetOrigin() const { 
             return {Bounds.Pos.x + PanOffset.x, Bounds.Pos.y + PanOffset.y}; 
         }
-        f32 GetCenterX() const { return Bounds.Pos.x + (Bounds.Size.x * 0.5f); }
+        f32 GetCenterX() const { return Bounds.Size.x * 0.5f; }
+        f32 GetCenterY() const { return Bounds.Size.y * 0.5f; }
 
     public:
         Panel(
