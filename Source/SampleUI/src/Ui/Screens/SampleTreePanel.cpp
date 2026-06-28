@@ -29,7 +29,7 @@ namespace {
     Ui::PanelConfig PanelConfig{};
 
 	struct SampleNode {
-        std::string Name;
+		std::string Name;
 	};
 
 	using SampleRenderNode = Ui::RenderNode<SampleNode>;
@@ -49,23 +49,29 @@ namespace {
 
 	void RebuildTree() {
 		s_Tree = SampleTree{};
-        if(NodeCount <= 0) return;
-        auto& root = s_Tree.EmplaceRoot(MakeNode("0"));
-        size_t created = 1;
-        std::queue<SampleTree::Node*> q;
-        q.push(&root);
+		if(NodeCount <= 0) return;
+		auto& root = s_Tree.EmplaceRoot(MakeNode("0"));
+		size_t created = 1;
+		std::queue<SampleTree::Node*> q;
+		q.push(&root);
 		while(created < NodeCount && !q.empty()) {
-            auto* parent = q.front();
-            q.pop();
+			auto* parent = q.front();
+			q.pop();
 
 			const auto& parentName = parent->Value.Value.Name;
 			for(size_t i = 0; i < FanOut && created < NodeCount; ++i) {
-                auto childName = parentName + "." + std::to_string(i);
-                auto& child = s_Tree.EmplaceChild(*parent, MakeNode(childName));
-                q.push(&child);
-                ++created;
+				auto childName = parentName + "." + std::to_string(i);
+				auto& child = s_Tree.EmplaceChild(*parent, MakeNode(childName));
+				q.push(&child);
+				++created;
 			}
 		}
+	}
+
+	void ShowAllNodes() {
+		s_Tree.ForEach([](SampleRenderNode& node) {
+			node.Visible = true;
+		});
 	}
 
 	const char* ToLabel(Ui::GrowthDir dir) {
@@ -111,10 +117,13 @@ namespace {
 			PanelConfig, s_Tree, TreeConfig, [](const SampleNode& node) {
 				const auto pos = ImGui::GetWindowPos();
 				const auto size = ImGui::GetWindowSize();
-                ImGui::PushFont(GetFont(FontSizes::H4));
+				ImGui::PushFont(GetFont(FontSizes::H4));
 				ImGui::GetWindowDrawList()->AddRect(pos, {pos.x + size.x, pos.y + size.y}, IM_COL32(255, 255, 255, 255), 4.f);
 				ImGui::TextUnformatted(node.Name.c_str());
-                ImGui::PopFont();
+				ImGui::PopFont();
+			},
+			[](Ui::RenderNode<SampleNode>& node) {
+				node.Visible = false;
 			}
 		);
 	}
@@ -190,15 +199,19 @@ namespace SampleUI::Ui::Screens::SampleTreePanel {
 			TreeConfig.Anchor = static_cast<::Ui::Anchor>(anchorSelect);
 		}
 
-		ImGui::Text("Current: %s, %s, %s", ToLabel(TreeConfig.Growth), ToLabel(TreeConfig.Connect), ToLabel(TreeConfig.Anchor));
 		ImGui::TextUnformatted("Pan: drag with right mouse over panel area");
 		if(ImGui::Button("Reset Pan")) {
-            if(s_Panel) s_Panel->ResetPan();
+			if(s_Panel) s_Panel->ResetPan();
+		}
+		ImGui::SameLine();
+		if(ImGui::Button("Show All")) {
+			ShowAllNodes();
 		}
 		ImGui::PopFont();
 
-		PanelConfig.Bounds.Pos = {0.f, PanelTopOffsetY};
-		PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
+		const auto panelTop = ImGui::GetCursorPosY() + 8.f;
+		PanelConfig.Bounds.Pos = {0.f, panelTop};
+		PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - panelTop};
 
 		if(s_Panel) {
             s_Panel->SetBounds(PanelConfig.Bounds);

@@ -3,11 +3,11 @@ namespace Ui::Details {
     template<typename T>
     static void PlaceLayersVertical(
         GrowthDir growth,
-        const typename Tree<RenderNode<T>>::Node* node,
+        typename Tree<RenderNode<T>>::Node* node,
         f32 left,
         f32 top,
         const TreeConfig& config,
-        const std::unordered_map<const typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*>& layoutMap
+        const std::unordered_map<typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*>& layoutMap
     ) {
         if(!node || !node->Value.Visible) return;
         const auto it = layoutMap.find(node);
@@ -58,14 +58,14 @@ namespace Ui::Details {
     }
 
     template<typename T>
-    static void BuildLayoutVertical(GrowthDir growth, const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers) {
+    static void BuildLayoutVertical(GrowthDir growth, Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers) {
         outLayers.clear();
-        const auto* root = tree.Root();
+        auto* root = tree.Root();
         if(!root || !root->Value.Visible) return;
 
         BuildLayers(root, 0, growth, config, outLayers);
 
-        std::unordered_map<const typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*> layoutMap;
+        std::unordered_map<typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*> layoutMap;
         for(auto& layer: outLayers) {
             for(auto& ln: layer) {
                 layoutMap.emplace(ln.TreeNode, &ln);

@@ -7,6 +7,7 @@
 #include <Platform/NumTypes.h>
 
 #include <imgui.h>
+#include <functional>
 
 namespace Ui::Details {
     template<typename T>
@@ -37,9 +38,10 @@ namespace Ui {
 
     template<typename T, typename RenderFn>
     class TreePanel : public Panel {
-        const Tree<RenderNode<T>>* m_Tree;
+        Tree<RenderNode<T>>* m_Tree;
         RenderFn m_RenderFn;
         const TreeConfig* m_TreeConfig;
+        std::function<void(RenderNode<T>&)> m_OnActivate;
         std::vector<Details::LayoutLayer<T>> m_Layers;
 
     public:
@@ -47,25 +49,29 @@ namespace Ui {
             Rect bounds,
             std::optional<ImU32> backgroundColor,
             std::optional<ImTextureID> backgroundTexture,
-            const Tree<RenderNode<T>>& tree,
+            Tree<RenderNode<T>>& tree,
             const TreeConfig& treeConfig,
-            RenderFn&& renderFn
+            RenderFn&& renderFn,
+            std::function<void(RenderNode<T>&)> onActivate = nullptr
         )
             : Panel(bounds, backgroundColor, backgroundTexture)
             , m_Tree(&tree)
             , m_RenderFn(std::move(renderFn))
-            , m_TreeConfig(&treeConfig) {}
+            , m_TreeConfig(&treeConfig)
+            , m_OnActivate(std::move(onActivate)) {}
 
         TreePanel(
             const PanelConfig& panelConfig,
-            const Tree<RenderNode<T>>& tree,
+            Tree<RenderNode<T>>& tree,
             const TreeConfig& treeConfig,
-            RenderFn&& renderFn
+            RenderFn&& renderFn,
+            std::function<void(RenderNode<T>&)> onActivate = nullptr
         )
             : Panel(panelConfig)
             , m_Tree(&tree)
             , m_RenderFn(std::move(renderFn))
-            , m_TreeConfig(&treeConfig) {}
+            , m_TreeConfig(&treeConfig)
+            , m_OnActivate(std::move(onActivate)) {}
 
         void RenderImpl() override {
             m_Layers.clear();
@@ -80,7 +86,7 @@ namespace Ui {
     private:
         void BuildLayout();
         void RenderConnectors() const;
-        void RenderNodes() const;
+        void RenderNodes();
     };
 }
 #include "TreePanel.inl"

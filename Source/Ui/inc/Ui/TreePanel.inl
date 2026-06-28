@@ -6,7 +6,7 @@
 namespace Ui::Details {
     template<typename T>
     struct LayoutNode {
-        const typename Tree<RenderNode<T>>::Node* TreeNode{nullptr};
+        typename Tree<RenderNode<T>>::Node* TreeNode{nullptr};
         Rect Bounds;
         Rect SubtreeBounds;
 
@@ -69,7 +69,7 @@ namespace Ui::Details {
 
     template<typename T>
     static Rect BuildLayers(
-        const typename Tree<RenderNode<T>>::Node* node,
+        typename Tree<RenderNode<T>>::Node* node,
         size_t depth,
         GrowthDir growth,
         const TreeConfig& config,
@@ -109,7 +109,7 @@ namespace Ui::Details {
         ConnectPoint childPort
     ) {
         using TreeNode = typename Tree<RenderNode<T>>::Node;
-        std::unordered_map<const TreeNode*, const LayoutNode<T>*> layoutByTreeNode;
+        std::unordered_map<TreeNode*, const LayoutNode<T>*> layoutByTreeNode;
         for(const auto& layer: layers) {
             for(const auto& layoutNode: layer) {
                 layoutByTreeNode.emplace(layoutNode.TreeNode, &layoutNode);
@@ -145,10 +145,10 @@ namespace Ui::Details {
     }
 
     template<typename T>
-    static void BuildLayoutVertical(GrowthDir growth, const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers);
+    static void BuildLayoutVertical(GrowthDir growth, Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers);
 
     template<typename T>
-    static void BuildLayoutLeftRight(const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers);
+    static void BuildLayoutLeftRight(Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers);
 }
 
 #include "TreePanel.Vertical.inl"
@@ -204,7 +204,7 @@ namespace Ui {
     }
 
     template<typename T, typename RenderFn>
-    void TreePanel<T, RenderFn>::RenderNodes() const {
+    void TreePanel<T, RenderFn>::RenderNodes() {
         for(const auto& layer: m_Layers) {
             for(const auto& node: layer) {
                 if(!node.TreeNode || !node.TreeNode->Value.Visible) continue;
@@ -216,6 +216,9 @@ namespace Ui {
                     ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
                 );
                 m_RenderFn(node.TreeNode->Value.Value);
+                if(m_OnActivate && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) {
+                    m_OnActivate(node.TreeNode->Value);
+                }
                 ImGui::EndChild();
             }
         }

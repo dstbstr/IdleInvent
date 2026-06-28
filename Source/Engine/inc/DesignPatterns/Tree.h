@@ -72,17 +72,36 @@ public:
         return FindIf(m_Root.get(), pred);
     }
 
+    template<typename Visitor>
+    void ForEach(Visitor visitor) {
+        ForEach(m_Root.get(), visitor);
+    }
+
+    template<typename Visitor>
+    void ForEach(Visitor visitor) const {
+        ForEach(m_Root.get(), visitor);
+    }
+
 private:
     std::unique_ptr<Node> m_Root{};
 
 	template<typename Predicate>
 	static Node* FindIf(Node* node, Predicate& pred) {
-        if(!node) return nullptr;
-        if(pred(node->Value)) return node;
+		if(!node) return nullptr;
+		if(pred(node->Value)) return node;
 		for(auto& child : node->Children) {
-            if(auto* found = FindIf(child.get(), pred)) return found;
+			if(auto* found = FindIf(child.get(), pred)) return found;
 		}
 
 		return nullptr;
+	}
+
+	template<typename Visitor>
+	static void ForEach(Node* node, Visitor& visitor) {
+		if(!node) return;
+		visitor(node->Value);
+		for(auto& child : node->Children) {
+			ForEach(child.get(), visitor);
+		}
 	}
 };
