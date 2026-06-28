@@ -5,6 +5,7 @@
 #include <Platform/Graphics.h>
 #include <Ui/UiUtil.h>
 #include <Ui/TreePanel.h>
+#include <Ui/ZoomFunc.h>
 
 #include <imgui.h>
 #include <functional>
@@ -12,9 +13,7 @@
 #include <string>
 
 // TODO:
-// Add Zooming to Panel
-// Add callbacks for node activation
-// Implement more growth directions
+// Implement CenterOut growth direction
 namespace {
 	constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
@@ -25,8 +24,11 @@ namespace {
 	ImVec2 NodeSize{64.f, 64.f};
 	ImVec2 NodeSpacing{16.f, 16.f};
 
-    Ui::TreeConfig TreeConfig{};
-    Ui::PanelConfig PanelConfig{};
+	enum struct ZoomMode : int { Fluid = 0, Discrete = 1 };
+	ZoomMode CurrentZoomMode = ZoomMode::Fluid;
+
+	Ui::TreeConfig TreeConfig{};
+	Ui::PanelConfig PanelConfig{};
 
 	struct SampleNode {
 		std::string Name;
@@ -72,6 +74,18 @@ namespace {
 		s_Tree.ForEach([](SampleRenderNode& node) {
 			node.Visible = true;
 		});
+	}
+
+	void ApplyZoomMode() {
+		switch(CurrentZoomMode) {
+			using enum ZoomMode;
+		case Fluid:
+			PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
+			break;
+		case Discrete:
+			PanelConfig.ZoomFn = Ui::Zoom::Discrete<f32, 0.5f, 0.75f, 1.0f, 1.5f, 2.0f>;
+			break;
+		}
 	}
 
 	const char* ToLabel(Ui::GrowthDir dir) {
@@ -137,6 +151,7 @@ namespace SampleUI::Ui::Screens::SampleTreePanel {
         PanelConfig.Bounds.Pos = {0.f, PanelTopOffsetY};
         PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
         PanelConfig.BackgroundColor = IM_COL32(32, 32, 32, 255);
+        ApplyZoomMode();
 
 		RebuildTree();
         ResetPanel();
@@ -199,9 +214,29 @@ namespace SampleUI::Ui::Screens::SampleTreePanel {
 			TreeConfig.Anchor = static_cast<::Ui::Anchor>(anchorSelect);
 		}
 
+		int zoomModeSelect = static_cast<int>(CurrentZoomMode);
+		const char* zoomModeLabels = "Fluid\0Discrete";
+		if(ImGui::Combo("Zoom Mode", &zoomModeSelect, zoomModeLabels, 2)) {
+			CurrentZoomMode = static_cast<ZoomMode>(zoomModeSelect);
+			ApplyZoomMode();
+			ResetPanel();
+		}
+
 		ImGui::TextUnformatted("Pan: drag with right mouse over panel area");
 		if(ImGui::Button("Reset Pan")) {
 			if(s_Panel) s_Panel->ResetPan();
+		}
+        ImGui::SameLine();
+		if(ImGui::Button("Zoom In")) {
+            if(s_Panel) s_Panel->ZoomIn();
+		}
+        ImGui::SameLine();
+        if(ImGui::Button("Zoom Out")) {
+            if(s_Panel) s_Panel->ZoomOut();
+		}
+		ImGui::SameLine();
+		if(ImGui::Button("Reset Zoom")) {
+			if(s_Panel) s_Panel->ResetZoom();
 		}
 		ImGui::SameLine();
 		if(ImGui::Button("Show All")) {

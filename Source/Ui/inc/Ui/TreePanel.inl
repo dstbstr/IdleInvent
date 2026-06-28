@@ -106,7 +106,8 @@ namespace Ui::Details {
         const std::vector<LayoutLayer<T>>& layers,
         const TreeConfig& config,
         ConnectPoint parentPort,
-        ConnectPoint childPort
+        ConnectPoint childPort,
+        f32 zoom = 1.f
     ) {
         using TreeNode = typename Tree<RenderNode<T>>::Node;
         std::unordered_map<TreeNode*, const LayoutNode<T>*> layoutByTreeNode;
@@ -130,7 +131,7 @@ namespace Ui::Details {
                     auto connection = Connection{
                         .From = parentPoint,
                         .To = childPoint,
-                        .Thickness = config.ConnectorThickness,
+                        .Thickness = config.ConnectorThickness * zoom,
                         .Color = config.ConnectorColor
                     };
                     switch(config.Connect) {
@@ -171,15 +172,23 @@ namespace Ui {
             break;
         }
 
-        auto pan = GetPanOffset();
+        const auto pan = GetPanOffset();
         const auto anchor = GetAnchor(m_TreeConfig->Anchor);
+        const auto zoom = GetZoom();
+        // Anchor stays in unscaled panel-local coords, so it's also the layout origin
+        // that wheel-zoom math needs to compensate around.
+        SetContentOrigin(anchor);
 
         for(auto& layer : m_Layers) {
             for(auto& node : layer) {
-                node.Bounds.Pos.x += pan.x + anchor.x;
-                node.Bounds.Pos.y += pan.y + anchor.y;
-                node.SubtreeBounds.Pos.x += pan.x + anchor.x;
-                node.SubtreeBounds.Pos.y += pan.y + anchor.y;
+                node.Bounds.Pos.x = node.Bounds.Pos.x * zoom + pan.x + anchor.x;
+                node.Bounds.Pos.y = node.Bounds.Pos.y * zoom + pan.y + anchor.y;
+                node.Bounds.Size.x *= zoom;
+                node.Bounds.Size.y *= zoom;
+                node.SubtreeBounds.Pos.x = node.SubtreeBounds.Pos.x * zoom + pan.x + anchor.x;
+                node.SubtreeBounds.Pos.y = node.SubtreeBounds.Pos.y * zoom + pan.y + anchor.y;
+                node.SubtreeBounds.Size.x *= zoom;
+                node.SubtreeBounds.Size.y *= zoom;
             }
         }
     }
@@ -187,16 +196,17 @@ namespace Ui {
     template<typename T, typename RenderFn>
     void TreePanel<T, RenderFn>::RenderConnectors() const {
         if(m_TreeConfig->Connect == ConnectStyle::None) return;
+        const auto zoom = GetZoom();
         switch(m_TreeConfig->Growth) {
             using enum GrowthDir;
         case TopDown:
-            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::South, ConnectPoint::North);
+            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::South, ConnectPoint::North, zoom);
             break;
         case BottomUp:
-            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::North, ConnectPoint::South);
+            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::North, ConnectPoint::South, zoom);
             break;
         case LeftRight:
-            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::East, ConnectPoint::West);
+            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::East, ConnectPoint::West, zoom);
             break;
         case CenterOut:
             break;
@@ -205,6 +215,7 @@ namespace Ui {
 
     template<typename T, typename RenderFn>
     void TreePanel<T, RenderFn>::RenderNodes() {
+        const auto zoom = GetZoom();
         for(const auto& layer: m_Layers) {
             for(const auto& node: layer) {
                 if(!node.TreeNode || !node.TreeNode->Value.Visible) continue;
@@ -215,6 +226,7 @@ namespace Ui {
                     0,
                     ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
                 );
+                ImGui::SetWindowFontScale(zoom);
                 m_RenderFn(node.TreeNode->Value.Value);
                 if(m_OnActivate && ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) {
                     m_OnActivate(node.TreeNode->Value);

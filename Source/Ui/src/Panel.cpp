@@ -2,6 +2,7 @@
 #include "Ui/Connection.h"
 
 #include <imgui.h>
+#include <algorithm>
 #include <cmath>
 #include <format>
 
@@ -46,6 +47,7 @@ namespace Ui {
 
     void Panel::Render() {
         UpdatePan();
+        UpdateZoom();
         RenderBackground();
 
         ImGui::SetCursorPos(Bounds.Pos);
@@ -69,6 +71,55 @@ namespace Ui {
             PanOffset.x += mouseDelta.x;
             PanOffset.y += mouseDelta.y;
         }
+    }
+
+    void Panel::ZoomAt(s32 delta, ImVec2 fixedPointPanelLocal) {
+        if(!ZoomFn || delta == 0) return;
+
+        const auto oldLevel = ZoomLevel;
+        const auto oldZoom = ZoomFn(oldLevel);
+
+        ZoomLevel += delta;
+        const auto newZoom = ZoomFn(ZoomLevel);
+
+        // ZoomFn clamps levels inside its own bounds, so when the factor doesn't change we
+        // know we hit the limit -- revert so ZoomLevel doesn't drift past where it can do work.
+        if(newZoom == oldZoom) {
+            ZoomLevel = oldLevel;
+            return;
+        }
+        if(oldZoom == 0.f) return;
+
+        const auto r = newZoom / oldZoom;
+        PanOffset.x = (fixedPointPanelLocal.x - ContentOrigin.x) * (1.f - r) + PanOffset.x * r;
+        PanOffset.y = (fixedPointPanelLocal.y - ContentOrigin.y) * (1.f - r) + PanOffset.y * r;
+    }
+
+    void Panel::ZoomIn() {
+        ZoomAt(+1, {Bounds.Size.x * 0.5f, Bounds.Size.y * 0.5f});
+    }
+
+    void Panel::ZoomOut() {
+        ZoomAt(-1, {Bounds.Size.x * 0.5f, Bounds.Size.y * 0.5f});
+    }
+
+    void Panel::UpdateZoom() {
+        if(!ZoomFn) return;
+
+        const auto bounds = ToScreenSpace(Bounds);
+        if(!ImGui::IsMouseHoveringRect(bounds.Pos, bounds.GetBottomRight(), false)) return;
+
+        const auto wheel = ImGui::GetIO().MouseWheel;
+        if(wheel == 0.f) return;
+
+        const auto mouseScreen = ImGui::GetIO().MousePos;
+        const ImVec2 mousePanelLocal{
+            mouseScreen.x - bounds.Pos.x,
+            mouseScreen.y - bounds.Pos.y
+        };
+
+        const s32 delta = wheel > 0.f ? +1 : -1;
+        ZoomAt(delta, mousePanelLocal);
     }
 
     void Panel::RenderBackground() const {

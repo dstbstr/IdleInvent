@@ -2,6 +2,7 @@
 #include "Platform/NumTypes.h"
 #include "Ui/Rect.h"
 #include <imgui.h>
+#include <functional>
 #include <optional>
 
 namespace Ui {
@@ -16,7 +17,8 @@ namespace Ui {
     struct PanelConfig {
         Rect Bounds{};
         std::optional<ImU32> BackgroundColor{std::nullopt};
-        std::optional<ImTextureID> BackgroundTexture{std::nullopt};        
+        std::optional<ImTextureID> BackgroundTexture{std::nullopt};
+        std::function<f32(s32)> ZoomFn{};
     };
 
     class Panel {
@@ -25,7 +27,10 @@ namespace Ui {
         ImVec2 PanOffset{};
         std::optional<ImU32> BackgroundColor{std::nullopt};
         std::optional<ImTextureID> BackgroundTexture{std::nullopt};
-        
+        s32 ZoomLevel{0};
+        std::function<f32(s32)> ZoomFn{};
+        ImVec2 ContentOrigin{};
+
     protected:
         ImVec2 GetOrigin() const { 
             return {Bounds.Pos.x + PanOffset.x, Bounds.Pos.y + PanOffset.y}; 
@@ -62,7 +67,8 @@ namespace Ui {
             : Bounds(config.Bounds)
             , PanOffset({0.f, 0.f})
             , BackgroundColor(config.BackgroundColor)
-            , BackgroundTexture(config.BackgroundTexture) {}
+            , BackgroundTexture(config.BackgroundTexture)
+            , ZoomFn(config.ZoomFn) {}
 
         virtual ~Panel() = default;
         Panel(const Panel&) = delete;
@@ -79,11 +85,31 @@ namespace Ui {
         ImVec2 GetPanOffset() const { return PanOffset; }
         void ResetPan() { PanOffset = {0.f, 0.f}; }
 
+        // Zoom is opt-in: pass a ZoomFn in PanelConfig to enable. GetZoom() returns 1.f when disabled.
+        bool ZoomEnabled() const { return static_cast<bool>(ZoomFn); }
+        f32 GetZoom() const { return ZoomFn ? ZoomFn(ZoomLevel) : 1.f; }
+        void ResetZoom() { ZoomLevel = 0; }
+
+        // Panel-local point where the consumer's content layout origin sits (e.g., the
+        // TreePanel anchor). Used by zoom-around-point math so wheel zoom keeps the cursor
+        // over the same content. Consumers should call this each frame before Render if it
+        // changes; default is (0, 0).
+        void SetContentOrigin(ImVec2 origin) { ContentOrigin = origin; }
+
+        // Change zoom by delta levels, adjusting PanOffset so that fixedPointPanelLocal
+        // (a point in panel-local coords) stays over the same content.
+        void ZoomAt(s32 delta, ImVec2 fixedPointPanelLocal);
+
+        // Convenience: zoom around the panel center. Intended for button-driven UI.
+        void ZoomIn();
+        void ZoomOut();
+
     protected: 
         virtual void RenderImpl() = 0;
 
     private:
         void UpdatePan();
+        void UpdateZoom();
         void RenderBackground() const;
     };
 
