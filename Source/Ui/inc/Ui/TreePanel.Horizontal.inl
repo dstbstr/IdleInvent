@@ -66,44 +66,6 @@ namespace Ui::Details {
         const auto rootIt = layoutMap.find(root);
         if(rootIt == layoutMap.end()) return;
         const auto rootHeight = rootIt->second->SubtreeBounds.Size.y;
-        PlaceLayersLeftRight(root, config.Padding.x, -rootHeight / 2.f, config, layoutMap);
-    }
-
-    template<typename T>
-    static void RenderLeftRightConnectors(const std::vector<LayoutLayer<T>>& layers, const TreeConfig& config) {
-        using TreeNode = typename Tree<RenderNode<T>>::Node;
-        std::unordered_map<const TreeNode*, const LayoutNode<T>*> layoutByTreeNode;
-        for(const auto& layer: layers) {
-            for(const auto& layoutNode: layer) {
-                layoutByTreeNode.emplace(layoutNode.TreeNode, &layoutNode);
-            }
-        }
-
-        for(const auto& layer: layers) {
-            for(const auto& node: layer) {
-                for(const auto& child: node.TreeNode->Children) {
-                    if(!child->Value.Visible) continue;
-
-                    const auto childIt = layoutByTreeNode.find(child.get());
-                    if(childIt == layoutByTreeNode.end() || childIt->second == nullptr) continue;
-
-                    const auto parentPoint = node.GetConnectPoint(ConnectPoint::East);
-                    const auto childPoint = childIt->second->GetConnectPoint(ConnectPoint::West);
-
-                    auto connection = Connection{
-                        .From = parentPoint,
-                        .To = childPoint,
-                        .Thickness = config.ConnectorThickness,
-                        .Color = config.ConnectorColor
-                    };
-                    switch(config.Connect) {
-                        using enum ConnectStyle;
-                    case ConnectStyle::Line: DrawLine(connection); break;
-                    case ConnectStyle::Corner: DrawCorner(connection); break;
-                    case ConnectStyle::None: break;
-                    }
-                }
-            }
-        }
+        PlaceLayersLeftRight(root, 0.f, -rootHeight / 2.f, config, layoutMap);
     }
 }

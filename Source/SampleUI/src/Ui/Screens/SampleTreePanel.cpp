@@ -12,7 +12,6 @@
 #include <string>
 
 // TODO:
-// Calculate node position based on child count/sizes
 // Add Zooming to Panel
 // Add callbacks for node activation
 // Implement more growth directions
@@ -24,7 +23,6 @@ namespace {
 	s32 NodeCount = 40;
 	s32 FanOut = 3;
 	ImVec2 NodeSize{64.f, 64.f};
-	ImVec2 NodePadding{12.f, 12.f};
 	ImVec2 NodeSpacing{16.f, 16.f};
 
     Ui::TreeConfig TreeConfig{};
@@ -82,14 +80,30 @@ namespace {
 	}
 
 	const char* ToLabel(Ui::ConnectStyle style) {
-        switch(style) {
-            using enum Ui::ConnectStyle;
+		switch(style) {
+			using enum Ui::ConnectStyle;
 			case None: return "None";
 			case Line: return "Line";
 			case Corner: return "Corner";
-        }
+		}
 
-        return "Unknown";
+		return "Unknown";
+	}
+
+	const char* ToLabel(Ui::Anchor anchor) {
+		switch(anchor) {
+			using enum Ui::Anchor;
+			case TopLeft: return "Top Left";
+			case TopCenter: return "Top Center";
+			case TopRight: return "Top Right";
+			case LeftCenter: return "Left Center";
+			case Center: return "Center";
+			case RightCenter: return "Right Center";
+			case BottomLeft: return "Bottom Left";
+			case BottomCenter: return "Bottom Center";
+			case BottomRight: return "Bottom Right";
+		}
+		return "Unknown";
 	}
 
 	void ResetPanel() {
@@ -110,7 +124,6 @@ namespace SampleUI::Ui::Screens::SampleTreePanel {
 	bool Initialize() {
         TreeConfig.Growth = ::Ui::GrowthDir::TopDown;
         TreeConfig.Connect = ::Ui::ConnectStyle::Line;
-        TreeConfig.Padding = NodePadding;
         TreeConfig.Spacing = NodeSpacing;
         PanelConfig.Bounds.Pos = {0.f, PanelTopOffsetY};
         PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
@@ -141,41 +154,43 @@ namespace SampleUI::Ui::Screens::SampleTreePanel {
 
         ImGui::PushFont(GetFont(FontSizes::H4));
 		ImGui::SetCursorPosY(ControlsOffsetY);
-        bool rebuild = false;
-        rebuild |= ImGui::SliderInt("Total Nodes", &NodeCount, 0, 1'000);
-        rebuild |= ImGui::SliderInt("Fan Out", &FanOut, 1, 10);
-        rebuild |= ImGui::SliderFloat2("Node Size", &NodeSize.x, 16.f, 256.f);
-        rebuild |= ImGui::SliderFloat2("Node Padding", &NodePadding.x, 0.f, 64.f);
-        rebuild |= ImGui::SliderFloat2("Node Spacing", &NodeSpacing.x, 0.f, 64.f);
+		bool rebuild = false;
+		rebuild |= ImGui::SliderInt("Total Nodes", &NodeCount, 0, 1'000);
+		rebuild |= ImGui::SliderInt("Fan Out", &FanOut, 1, 10);
+		rebuild |= ImGui::SliderFloat2("Node Size", &NodeSize.x, 16.f, 256.f);
+		rebuild |= ImGui::SliderFloat2("Node Spacing", &NodeSpacing.x, 0.f, 64.f);
 
 		if(rebuild) {
-            NodeSize.y = NodeSize.x;
-            TreeConfig.Padding = NodePadding;
-            TreeConfig.Spacing = NodeSpacing;
-            RebuildTree();
-        }
+			NodeSize.y = NodeSize.x;
+			TreeConfig.Spacing = NodeSpacing;
+			RebuildTree();
+		}
 
-		bool resetPanel = false;
 		int growthSelect = static_cast<int>(TreeConfig.Growth);
 		const char* growthLabels = "Top Down\0Bottom Up\0Left to Right\0Center Out";
-
 		if(ImGui::Combo("Growth Direction", &growthSelect, growthLabels, 4)) {
 			TreeConfig.Growth = static_cast<::Ui::GrowthDir>(growthSelect);
-			resetPanel = true;
 		}
 
 		int connectSelect = static_cast<int>(TreeConfig.Connect);
-        const char* connectLabels = "None\0Line\0Corner";
+		const char* connectLabels = "None\0Line\0Corner";
 		if(ImGui::Combo("Connect Style", &connectSelect, connectLabels, 3)) {
 			TreeConfig.Connect = static_cast<::Ui::ConnectStyle>(connectSelect);
-			resetPanel = true;
 		}
 
-		if(resetPanel) {
-            ResetPanel();
+		ImVec4 connectorColor = ImGui::ColorConvertU32ToFloat4(TreeConfig.ConnectorColor);
+		if(ImGui::ColorEdit4("Connector Color", &connectorColor.x)) {
+			TreeConfig.ConnectorColor = ImGui::ColorConvertFloat4ToU32(connectorColor);
+		}
+		ImGui::SliderFloat("Connector Thickness", &TreeConfig.ConnectorThickness, 1.f, 10.f);
+
+		int anchorSelect = static_cast<int>(TreeConfig.Anchor);
+		const char* anchorLabels = "Top Left\0Top Center\0Top Right\0Left Center\0Center\0Right Center\0Bottom Left\0Bottom Center\0Bottom Right";
+		if(ImGui::Combo("Anchor", &anchorSelect, anchorLabels, 9)) {
+			TreeConfig.Anchor = static_cast<::Ui::Anchor>(anchorSelect);
 		}
 
-		ImGui::Text("Current: %s, %s", ToLabel(TreeConfig.Growth), ToLabel(TreeConfig.Connect));
+		ImGui::Text("Current: %s, %s, %s", ToLabel(TreeConfig.Growth), ToLabel(TreeConfig.Connect), ToLabel(TreeConfig.Anchor));
 		ImGui::TextUnformatted("Pan: drag with right mouse over panel area");
 		if(ImGui::Button("Reset Pan")) {
             if(s_Panel) s_Panel->ResetPan();

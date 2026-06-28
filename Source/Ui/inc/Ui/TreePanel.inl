@@ -102,16 +102,53 @@ namespace Ui::Details {
     }
 
     template<typename T>
-    static void BuildLayoutTopDown(const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers);
+    static void RenderConnectors(
+        const std::vector<LayoutLayer<T>>& layers,
+        const TreeConfig& config,
+        ConnectPoint parentPort,
+        ConnectPoint childPort
+    ) {
+        using TreeNode = typename Tree<RenderNode<T>>::Node;
+        std::unordered_map<const TreeNode*, const LayoutNode<T>*> layoutByTreeNode;
+        for(const auto& layer: layers) {
+            for(const auto& layoutNode: layer) {
+                layoutByTreeNode.emplace(layoutNode.TreeNode, &layoutNode);
+            }
+        }
+
+        for(const auto& layer: layers) {
+            for(const auto& node: layer) {
+                for(const auto& child: node.TreeNode->Children) {
+                    if(!child->Value.Visible) continue;
+
+                    const auto childIt = layoutByTreeNode.find(child.get());
+                    if(childIt == layoutByTreeNode.end() || childIt->second == nullptr) continue;
+
+                    const auto parentPoint = node.GetConnectPoint(parentPort);
+                    const auto childPoint = childIt->second->GetConnectPoint(childPort);
+
+                    auto connection = Connection{
+                        .From = parentPoint,
+                        .To = childPoint,
+                        .Thickness = config.ConnectorThickness,
+                        .Color = config.ConnectorColor
+                    };
+                    switch(config.Connect) {
+                        using enum ConnectStyle;
+                    case ConnectStyle::Line: DrawLine(connection); break;
+                    case ConnectStyle::Corner: DrawCorner(connection); break;
+                    case ConnectStyle::None: break;
+                    }
+                }
+            }
+        }
+    }
 
     template<typename T>
-    static void RenderTopDownConnectors(const std::vector<LayoutLayer<T>>& layers, const TreeConfig& config);
+    static void BuildLayoutVertical(GrowthDir growth, const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers);
 
     template<typename T>
     static void BuildLayoutLeftRight(const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers);
-
-    template<typename T>
-    static void RenderLeftRightConnectors(const std::vector<LayoutLayer<T>>& layers, const TreeConfig& config);
 }
 
 #include "TreePanel.Vertical.inl"
@@ -121,57 +158,46 @@ namespace Ui::Details {
 namespace Ui {
     template<typename T, typename RenderFn>
     void TreePanel<T, RenderFn>::BuildLayout() {
-        switch(m_TreeConfig.Growth) {
+        switch(m_TreeConfig->Growth) {
             using enum GrowthDir;
         case TopDown:
-            Details::BuildLayoutTopDown(*m_Tree, m_TreeConfig, m_Layers);
+        case BottomUp:
+            Details::BuildLayoutVertical(m_TreeConfig->Growth, *m_Tree, *m_TreeConfig, m_Layers);
             break;
         case LeftRight:
-            Details::BuildLayoutLeftRight(*m_Tree, m_TreeConfig, m_Layers);
+            Details::BuildLayoutLeftRight(*m_Tree, *m_TreeConfig, m_Layers);
             break;
-        case BottomUp:
         case CenterOut:
             break;
         }
 
         auto pan = GetPanOffset();
-        ImVec2 center{};
-        switch(m_TreeConfig.Growth) {
-            using enum GrowthDir;
-        case TopDown:
-        case BottomUp:
-            center.x = GetCenterX();
-            break;
-        case LeftRight:
-            center.y = GetCenterY();
-            break;
-        case CenterOut:
-            center = {GetCenterX(), GetCenterY()};
-            break;
-        }
+        const auto anchor = GetAnchor(m_TreeConfig->Anchor);
 
         for(auto& layer : m_Layers) {
             for(auto& node : layer) {
-                node.Bounds.Pos.x += pan.x + center.x;
-                node.Bounds.Pos.y += pan.y + center.y;
-                node.SubtreeBounds.Pos.x += pan.x + center.x;
-                node.SubtreeBounds.Pos.y += pan.y + center.y;
+                node.Bounds.Pos.x += pan.x + anchor.x;
+                node.Bounds.Pos.y += pan.y + anchor.y;
+                node.SubtreeBounds.Pos.x += pan.x + anchor.x;
+                node.SubtreeBounds.Pos.y += pan.y + anchor.y;
             }
         }
     }
 
     template<typename T, typename RenderFn>
     void TreePanel<T, RenderFn>::RenderConnectors() const {
-        if(m_TreeConfig.Connect == ConnectStyle::None) return;
-        switch(m_TreeConfig.Growth) {
+        if(m_TreeConfig->Connect == ConnectStyle::None) return;
+        switch(m_TreeConfig->Growth) {
             using enum GrowthDir;
         case TopDown:
-            Details::RenderTopDownConnectors(m_Layers, m_TreeConfig);
-            break;
-        case LeftRight:
-            Details::RenderLeftRightConnectors(m_Layers, m_TreeConfig);
+            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::South, ConnectPoint::North);
             break;
         case BottomUp:
+            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::North, ConnectPoint::South);
+            break;
+        case LeftRight:
+            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::East, ConnectPoint::West);
+            break;
         case CenterOut:
             break;
         }

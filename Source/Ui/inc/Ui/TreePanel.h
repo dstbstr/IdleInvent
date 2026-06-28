@@ -22,7 +22,7 @@ namespace Ui {
     struct TreeConfig {
         GrowthDir Growth{GrowthDir::TopDown};
         ConnectStyle Connect{ConnectStyle::Line};
-        ImVec2 Padding{4.f, 4.f};
+        Anchor Anchor{Anchor::TopCenter};
         ImVec2 Spacing{4.f, 4.f};
         f32 ConnectorThickness{1.f};
         ImU32 ConnectorColor{0xFFFFFFFF};
@@ -39,7 +39,7 @@ namespace Ui {
     class TreePanel : public Panel {
         const Tree<RenderNode<T>>* m_Tree;
         RenderFn m_RenderFn;
-        TreeConfig m_TreeConfig;
+        const TreeConfig* m_TreeConfig;
         std::vector<Details::LayoutLayer<T>> m_Layers;
 
     public:
@@ -54,7 +54,7 @@ namespace Ui {
             : Panel(bounds, backgroundColor, backgroundTexture)
             , m_Tree(&tree)
             , m_RenderFn(std::move(renderFn))
-            , m_TreeConfig(treeConfig) {}
+            , m_TreeConfig(&treeConfig) {}
 
         TreePanel(
             const PanelConfig& panelConfig,
@@ -65,7 +65,7 @@ namespace Ui {
             : Panel(panelConfig)
             , m_Tree(&tree)
             , m_RenderFn(std::move(renderFn))
-            , m_TreeConfig(treeConfig) {}
+            , m_TreeConfig(&treeConfig) {}
 
         void RenderImpl() override {
             m_Layers.clear();

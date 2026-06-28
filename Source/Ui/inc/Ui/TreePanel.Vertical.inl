@@ -1,108 +1,82 @@
+// Vertical growth directions (TopDown, BottomUp).
 namespace Ui::Details {
-	template<typename T>
-	static void PlaceLayersTopDown(
-		const typename Tree<RenderNode<T>>::Node* node,
-		f32 left,
-		f32 top,
-		const TreeConfig& config,
-		const std::unordered_map<const typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*>& layoutMap
-	) {
-		if(!node || !node->Value.Visible) return;
-		const auto it = layoutMap.find(node);
-		if(it == layoutMap.end()) return;
-		auto& ln = *it->second;
+    template<typename T>
+    static void PlaceLayersVertical(
+        GrowthDir growth,
+        const typename Tree<RenderNode<T>>::Node* node,
+        f32 left,
+        f32 top,
+        const TreeConfig& config,
+        const std::unordered_map<const typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*>& layoutMap
+    ) {
+        if(!node || !node->Value.Visible) return;
+        const auto it = layoutMap.find(node);
+        if(it == layoutMap.end()) return;
+        auto& ln = *it->second;
 
-		const auto subtreeWidth = ln.SubtreeBounds.Size.x;
-		const auto baseW = ln.Bounds.Size.x;
-		const auto baseH = ln.Bounds.Size.y;
+        const auto subtreeWidth = ln.SubtreeBounds.Size.x;
+        const auto subtreeHeight = ln.SubtreeBounds.Size.y;
+        const auto baseW = ln.Bounds.Size.x;
+        const auto baseH = ln.Bounds.Size.y;
 
-		ln.SubtreeBounds.Pos = {left, top};
-		ln.Bounds.Pos = {
-			left + (subtreeWidth - baseW) / 2.f,
-			top
-		};
+        const bool topDown = (growth == GrowthDir::TopDown);
 
-		auto childrenWidth = 0.f;
-		size_t visibleChildren = 0;
-		for(const auto& child: node->Children) {
-			if(!child || !child->Value.Visible) continue;
-			const auto cit = layoutMap.find(child.get());
-			if(cit == layoutMap.end()) continue;
-			childrenWidth += cit->second->SubtreeBounds.Size.x;
-			++visibleChildren;
-		}
-		if(visibleChildren > 1) {
-			childrenWidth += (visibleChildren - 1) * config.Spacing.x;
-		}
+        ln.SubtreeBounds.Pos = {left, top};
+        ln.Bounds.Pos = {
+            left + (subtreeWidth - baseW) / 2.f,
+            topDown ? top : (top + subtreeHeight - baseH)
+        };
 
-		auto childLeft = left + (subtreeWidth - childrenWidth) / 2.f;
-		const auto childTop = top + baseH + config.Spacing.y;
-		for(const auto& child: node->Children) {
-			if(!child || !child->Value.Visible) continue;
-			const auto cit = layoutMap.find(child.get());
-			if(cit == layoutMap.end()) continue;
-			const auto cw = cit->second->SubtreeBounds.Size.x;
-			PlaceLayersTopDown(child.get(), childLeft, childTop, config, layoutMap);
-			childLeft += cw + config.Spacing.x;
-		}
-	}
+        auto childrenWidth = 0.f;
+        f32 childrenHeight = 0.f;
+        size_t visibleChildren = 0;
+        for(const auto& child: node->Children) {
+            if(!child || !child->Value.Visible) continue;
+            const auto cit = layoutMap.find(child.get());
+            if(cit == layoutMap.end()) continue;
+            childrenWidth += cit->second->SubtreeBounds.Size.x;
+            childrenHeight = std::max(childrenHeight, cit->second->SubtreeBounds.Size.y);
+            ++visibleChildren;
+        }
+        if(visibleChildren > 1) {
+            childrenWidth += (visibleChildren - 1) * config.Spacing.x;
+        }
 
-	template<typename T>
-	static void BuildLayoutTopDown(const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers) {
-		outLayers.clear();
-		const auto* root = tree.Root();
-		if(!root || !root->Value.Visible) return;
+        auto childLeft = left + (subtreeWidth - childrenWidth) / 2.f;
+        const auto childBlockTop = top + baseH + config.Spacing.y;
+        const auto childBlockBottom = top + childrenHeight;
+        for(const auto& child: node->Children) {
+            if(!child || !child->Value.Visible) continue;
+            const auto cit = layoutMap.find(child.get());
+            if(cit == layoutMap.end()) continue;
+            const auto cw = cit->second->SubtreeBounds.Size.x;
+            const auto ch = cit->second->SubtreeBounds.Size.y;
+            const auto childTop = topDown ? childBlockTop : (childBlockBottom - ch);
+            PlaceLayersVertical(growth, child.get(), childLeft, childTop, config, layoutMap);
+            childLeft += cw + config.Spacing.x;
+        }
+    }
 
-		BuildLayers(root, 0, GrowthDir::TopDown, config, outLayers);
+    template<typename T>
+    static void BuildLayoutVertical(GrowthDir growth, const Tree<RenderNode<T>>& tree, const TreeConfig& config, std::vector<LayoutLayer<T>>& outLayers) {
+        outLayers.clear();
+        const auto* root = tree.Root();
+        if(!root || !root->Value.Visible) return;
 
-		std::unordered_map<const typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*> layoutMap;
-		for(auto& layer: outLayers) {
-			for(auto& ln: layer) {
-				layoutMap.emplace(ln.TreeNode, &ln);
-			}
-		}
+        BuildLayers(root, 0, growth, config, outLayers);
 
-		const auto rootIt = layoutMap.find(root);
-		if(rootIt == layoutMap.end()) return;
-		const auto rootWidth = rootIt->second->SubtreeBounds.Size.x;
-		PlaceLayersTopDown(root, -rootWidth / 2.f, config.Padding.y, config, layoutMap);
-	}
+        std::unordered_map<const typename Tree<RenderNode<T>>::Node*, LayoutNode<T>*> layoutMap;
+        for(auto& layer: outLayers) {
+            for(auto& ln: layer) {
+                layoutMap.emplace(ln.TreeNode, &ln);
+            }
+        }
 
-	template<typename T>
-	static void RenderTopDownConnectors(const std::vector<LayoutLayer<T>>& layers, const TreeConfig& config) {
-		using TreeNode = typename Tree<RenderNode<T>>::Node;
-		std::unordered_map<const TreeNode*, const LayoutNode<T>*> layoutByTreeNode;
-		for(const auto& layer: layers) {
-			for(const auto& layoutNode: layer) {
-				layoutByTreeNode.emplace(layoutNode.TreeNode, &layoutNode);
-			}
-		}
-
-		for(const auto& layer: layers) {
-			for(const auto& node: layer) {
-				for(const auto& child: node.TreeNode->Children) {
-					if(!child->Value.Visible) continue;
-
-					const auto childIt = layoutByTreeNode.find(child.get());
-					if(childIt == layoutByTreeNode.end() || childIt->second == nullptr) continue;
-
-					const auto parentPoint = node.GetConnectPoint(ConnectPoint::South);
-					const auto childPoint = childIt->second->GetConnectPoint(ConnectPoint::North);
-
-					auto connection = Connection{
-						.From = parentPoint,
-						.To = childPoint,
-						.Thickness = config.ConnectorThickness,
-						.Color = config.ConnectorColor
-					};
-					switch(config.Connect) {
-						using enum ConnectStyle;
-					case ConnectStyle::Line: DrawLine(connection); break;
-					case ConnectStyle::Corner: DrawCorner(connection); break;
-					case ConnectStyle::None: break;
-					}
-				}
-			}
-		}
-	}
+        const auto rootIt = layoutMap.find(root);
+        if(rootIt == layoutMap.end()) return;
+        const auto rootWidth = rootIt->second->SubtreeBounds.Size.x;
+        const auto rootHeight = rootIt->second->SubtreeBounds.Size.y;
+        const auto initialTop = (growth == GrowthDir::TopDown) ? 0.f : -rootHeight;
+        PlaceLayersVertical(growth, root, -rootWidth / 2.f, initialTop, config, layoutMap);
+    }
 }

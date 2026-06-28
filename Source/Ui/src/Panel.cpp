@@ -35,20 +35,13 @@ namespace Ui {
         const auto dx = std::abs(to.x - from.x);
         const auto dy = std::abs(to.y - from.y);
 
-        ImVec2 p1, p2;
-        if(dy >= dx) {
-            const auto mid = (from.y + to.y) / 2.f;
-            p1 = ImVec2(from.x, mid);
-            p2 = ImVec2(to.x, mid);
-        } else {
-            const auto mid = (from.x + to.x) / 2.f;
-            p1 = ImVec2(mid, from.y);
-            p2 = ImVec2(mid, to.y);
-        }
+        // Travel along the main axis first, then bend once toward the destination on the cross axis.
+        const auto corner = (dy >= dx)
+            ? ImVec2{from.x, to.y}
+            : ImVec2{to.x, from.y};
 
-        drawList->AddLine(from, p1, connection.Color, connection.Thickness);
-        drawList->AddLine(p1, p2, connection.Color, connection.Thickness);
-        drawList->AddLine(p2, to, connection.Color, connection.Thickness);
+        drawList->AddLine(from, corner, connection.Color, connection.Thickness);
+        drawList->AddLine(corner, to, connection.Color, connection.Thickness);
     }
 
     void Panel::Render() {

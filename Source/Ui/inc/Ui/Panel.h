@@ -7,6 +7,12 @@
 namespace Ui {
     struct Connection;
 
+    enum struct Anchor : u8 {
+        TopLeft, TopCenter, TopRight,
+        LeftCenter, Center, RightCenter,
+        BottomLeft, BottomCenter, BottomRight
+    };
+
     struct PanelConfig {
         Rect Bounds{};
         std::optional<ImU32> BackgroundColor{std::nullopt};
@@ -26,6 +32,22 @@ namespace Ui {
         }
         f32 GetCenterX() const { return Bounds.Size.x * 0.5f; }
         f32 GetCenterY() const { return Bounds.Size.y * 0.5f; }
+        ImVec2 GetSize() const { return Bounds.Size; }
+        ImVec2 GetAnchor(Anchor anchor) const {
+            switch(anchor) {
+                using enum Anchor;
+            case TopLeft:      return {0.f, 0.f};
+            case TopCenter:    return {GetCenterX(), 0.f};
+            case TopRight:     return {Bounds.Size.x, 0.f};
+            case LeftCenter:   return {0.f, GetCenterY()};
+            case Center:       return {GetCenterX(), GetCenterY()};
+            case RightCenter:  return {Bounds.Size.x, GetCenterY()};
+            case BottomLeft:   return {0.f, Bounds.Size.y};
+            case BottomCenter: return {GetCenterX(), Bounds.Size.y};
+            case BottomRight:  return {Bounds.Size.x, Bounds.Size.y};
+            }
+            return {};
+        }
 
     public:
         Panel(
