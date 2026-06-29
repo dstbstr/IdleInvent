@@ -5,6 +5,7 @@
 #include <SampleUI/Screens/SampleParticles.h>
 
 #include <Instrumentation/Logging.h>
+#include <Ui/Dialog.h>
 #include <Ui/Overlay.h>
 
 namespace {
@@ -29,19 +30,24 @@ namespace SampleUI {
 		bool Initialize() {
 			activeScreenName = Screen::Landing;
 			activeScreenFn = Landing::Render;
-			return Landing::Initialize() && SampleTreePanel::Initialize() && SampleParticles::Initialize();
+			return ::Ui::Dialog::Initialize()
+				&& Landing::Initialize()
+				&& SampleTreePanel::Initialize()
+				&& SampleParticles::Initialize();
 		}
 
 		void ShutDown() {
 			Landing::ShutDown();
 			SampleTreePanel::ShutDown();
 			SampleParticles::ShutDown();
+			::Ui::Dialog::ShutDown();
 			activeScreenName = Screen::Landing;
 			activeScreenFn = Landing::Render;
 		}
 
 		void Render() {
 			activeScreenFn();
+			::Ui::Dialog::Render();
 			::Ui::Overlay::DrawFps();
 		}
 

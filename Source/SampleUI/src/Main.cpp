@@ -1,6 +1,7 @@
 #include <Engine.h>
 #include <Game.h>
 #include <DesignPatterns/ServiceLocator.h>
+#include <Instrumentation/LogWriter/StdOutLogWriter.h>
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
 #include <Platform/PlatformMain.h>
@@ -49,6 +50,8 @@ namespace SampleUiApp {
 		::Platform& m_Platform;
 		SampleGame m_Game;
 		Engine m_Engine;
+        StdOutLogWriter logWriter{Log::Filter{}};
+
 	};
 } // namespace SampleUiApp
 

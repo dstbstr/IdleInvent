@@ -4,6 +4,8 @@
 
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
+#include <Ui/Dialog.h>
+#include <Ui/Panel/CanvasPanel.h>
 #include <Ui/UiUtil.h>
 #include <Ui/Particle/ParticleSystem.h>
 
@@ -23,6 +25,7 @@ namespace {
     constexpr s32 MaxCapacity = 131072;
 
     std::unique_ptr<Ui::ParticleSystem> s_System{};
+    std::unique_ptr<Ui::CanvasPanel>    s_Canvas{};
     Ui::Emitter* s_UserEmitter = nullptr;
     std::vector<ScopedHandle> s_TickHandles{};
     s32 s_Capacity = static_cast<s32>(DefaultCapacity);
@@ -157,6 +160,7 @@ namespace {
 namespace SampleUI::Screens::SampleParticles {
     bool Initialize() {
         RebuildSystem();
+        s_Canvas = std::make_unique<Ui::CanvasPanel>(Ui::PanelConfig{});
         TickManager::Get().Register(s_TickHandles, [](BaseTime elapsed) {
             if(s_System) s_System->Update(elapsed);
         });
@@ -168,6 +172,7 @@ namespace SampleUI::Screens::SampleParticles {
         s_PresetEmitters.fill(nullptr);
         s_UserEmitter = nullptr;
         s_System.reset();
+        s_Canvas.reset();
     }
 
     void Render() {
@@ -206,6 +211,16 @@ namespace SampleUI::Screens::SampleParticles {
         ImGui::SameLine();
         ImGui::Text("Active: %zu / %zu", s_System ? s_System->ParticleCount() : 0u,
                                           s_System ? s_System->ParticleCapacity() : 0u);
+        ImGui::SameLine();
+        // TODO: remove once a dedicated SampleDialog screen exists.
+        if(ImGui::Button("Show Dialog") && !::Ui::Dialog::IsActive()) {
+            ::Ui::Dialog::Show({
+                .Text = "This is a test dialog. Click once to fast-forward the reveal, "
+                        "then click again to dismiss. Try holding the mouse on the "
+                        "canvas after closing -- particles should still respond.",
+                .CharsPerSecond = 45.f,
+            });
+        }
 
         ImGui::SliderInt("Capacity", &s_PendingCapacity, MinCapacity, MaxCapacity, "%d",
                          ImGuiSliderFlags_Logarithmic);
@@ -228,36 +243,44 @@ namespace SampleUI::Screens::SampleParticles {
 
         SyncEmitterFromUi();
 
-        // Treat the rest of the window as the spawn canvas. Sliders/buttons sit above
-        // canvasTop, so requiring the mouse to be inside the canvas naturally excludes
-        // slider-dragging from triggering emission.
-        const auto canvasTop = ImGui::GetCursorScreenPos().y + CanvasTopMargin;
-        const ImVec2 mouse = ImGui::GetIO().MousePos;
-        const bool mouseInCanvas = mouse.y >= canvasTop
-                                && mouse.x >= 0.f && mouse.x <= Graphics::ScreenWidth
-                                && mouse.y <= Graphics::ScreenHeight;
+        // Place the canvas in the remaining content area below the controls. Sliders and
+        // buttons live above canvasTop; the canvas owns everything from there to the bottom.
+        // CanvasPanel::Render places an InvisibleButton over its bounds, so ImGui's widget
+        // routing naturally blocks input when a higher window (e.g. the dialog) is on top.
+        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
+        const Ui::Rect canvasBounds{
+            ImVec2{0.f, canvasTop},
+            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight - canvasTop}
+        };
+        if(s_Canvas) {
+            s_Canvas->SetBounds(canvasBounds);
+            s_Canvas->Render();
+            const auto& input = s_Canvas->GetInput();
+            if(s_UserEmitter) {
+                s_UserEmitter->Enabled  = input.IsActivate;
+                s_UserEmitter->Position = input.MouseScreen;
+            }
 
-        if(s_UserEmitter) {
-            s_UserEmitter->Enabled  = ImGui::IsMouseDown(ImGuiMouseButton_Left) && mouseInCanvas;
-            s_UserEmitter->Position = mouse;
-        }
-
-        // Preset emitters: held key + (mostly) follow mouse. Multiple keys at once = layered.
-        for(size_t i = 0; i < s_Presets.size(); ++i) {
-            auto* emitter = s_PresetEmitters.at(i);
-            if(!emitter) continue;
-            const auto& preset = s_Presets.at(i);
-            const bool held = ImGui::IsKeyDown(preset.Key);
-            emitter->Enabled = held;
-            if(!held) continue;
-            switch(preset.PosMode) {
-                using enum PositionMode;
-                case FollowMouse:
-                    emitter->Position = mouseInCanvas ? mouse : ImVec2{Graphics::ScreenWidth * 0.5f, canvasTop + 50.f};
-                    break;
-                case TopOfScreen:
-                    emitter->Position = ImVec2{Graphics::ScreenWidth * 0.5f, canvasTop};
-                    break;
+            // Preset emitters: keyboard polling stays raw (global) since holding a number
+            // key to spawn from anywhere is the intended UX. Dialog or other modals can
+            // currently still spawn presets in the background -- accepted limitation.
+            for(size_t i = 0; i < s_Presets.size(); ++i) {
+                auto* emitter = s_PresetEmitters.at(i);
+                if(!emitter) continue;
+                const auto& preset = s_Presets.at(i);
+                const bool held = ImGui::IsKeyDown(preset.Key);
+                emitter->Enabled = held;
+                if(!held) continue;
+                switch(preset.PosMode) {
+                    using enum PositionMode;
+                    case FollowMouse:
+                        emitter->Position = input.IsHovered ? input.MouseScreen
+                                                            : ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Pos.y + 50.f};
+                        break;
+                    case TopOfScreen:
+                        emitter->Position = ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Pos.y};
+                        break;
+                }
             }
         }
 
