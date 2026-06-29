@@ -3,6 +3,7 @@
 #include <Platform/NumTypes.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <concepts>
 
@@ -25,12 +26,12 @@ namespace Ui::Zoom {
     template<std::floating_point T, T... Values>
     constexpr T Discrete(s32 level) {
         static_assert(sizeof...(Values) > 0, "Ui::Zoom::Discrete requires at least one value");
-        static constexpr T values[] = {Values...};
+        static constexpr auto values = std::array<T, sizeof...(Values)>{Values...};
         static constexpr s32 count = static_cast<s32>(sizeof...(Values));
         static constexpr s32 center = (count - 1) / 2;
         const s32 idx = center + level;
-        if(idx < 0) return values[0];
-        if(idx >= count) return values[count - 1];
-        return values[idx];
+        if(idx < 0) return values.at(0);
+        if(idx >= count) return values.at(count - 1);
+        return values.at(idx);
     }
 } // namespace Ui::Zoom

@@ -15,6 +15,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 
 target_sources(${PROJECT_NAME} PRIVATE
-    src/Panel.cpp
     src/UiUtil.cpp
-  "inc/Ui/Connection.h" "inc/Ui/Rect.h")
+
+    src/Panel/Panel.cpp
+
+    src/Particle/ParticleSystem.cpp
+)

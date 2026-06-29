@@ -24,7 +24,7 @@ namespace {
 
 	constexpr std::array<LandingButton, ButtonCols * ButtonRows> Buttons{{
 		{"Tree\nPanel", SampleUI::Ui::Screen::SampleTreePanel},
-		{"Unused", SampleUI::Ui::Screen::Landing},
+		{"Particles", SampleUI::Ui::Screen::SampleParticles},
 		{"Unused", SampleUI::Ui::Screen::Landing},
 		{"Unused", SampleUI::Ui::Screen::Landing},
 		{"Unused", SampleUI::Ui::Screen::Landing},
@@ -43,16 +43,20 @@ namespace {
 	};
 
 	struct GridLayout {
-        ImVec2 WindowSize;
-        ImVec2 Start;
-        f32 CellSize;
-        f32 Spacing;
-        size_t ColCount;
-        size_t RowCount;
+        ImVec2 WindowSize{};
+        ImVec2 Start{};
+        f32 CellSize{};
+        f32 Spacing{};
+        size_t ColCount{};
+        size_t RowCount{};
 
 		[[nodiscard]] constexpr Rect GetCell(size_t row, size_t col) const {
-			return { .Pos = {Start.x + col * (CellSize + Spacing), Start.y + row * (CellSize + Spacing)},
-                     .Size = {CellSize, CellSize} };
+			return { 
+				.Pos = {
+					Start.x + static_cast<f32>(col) * (CellSize + Spacing), 
+					Start.y + static_cast<f32>(row) * (CellSize + Spacing)
+				},
+                .Size = {CellSize, CellSize} };
 		}
         [[nodiscard]] constexpr size_t ToIndex(size_t row, size_t col) const { return row * ColCount + col; }
 	};

@@ -6,6 +6,12 @@
 
 struct IGameState {
     virtual ~IGameState() = default;
+    IGameState() = default;
+    IGameState(const IGameState&) = delete;
+    IGameState& operator=(const IGameState&) = delete;
+    IGameState(IGameState&&) = delete;
+    IGameState& operator=(IGameState&&) = delete;
+
     virtual bool Initialize() = 0;
     virtual void Run() = 0;
 };

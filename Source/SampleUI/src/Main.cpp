@@ -1,5 +1,7 @@
 #include <Engine.h>
 #include <Game.h>
+#include <DesignPatterns/ServiceLocator.h>
+#include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
 #include <Platform/PlatformMain.h>
 #include <SampleUI/Ui/Ui.h>
@@ -11,14 +13,18 @@ namespace SampleUiApp {
 	public:
 		explicit SampleGame(::Platform& platform) : Game(platform) {}
 
-		bool Initialize() override { return SampleUI::Ui::Initialize(); }
+		bool Initialize() override {
+			ServiceLocator::Get().CreateIfMissing<TickManager>();
+			return SampleUI::Ui::Initialize();
+		}
 		void ShutDown() override { SampleUI::Ui::ShutDown(); }
 
 		void LoadGame() override {}
 		void SaveGame() override {}
 		void DeleteGame() override {}
 
-		void Tick([[maybe_unused]] BaseTime elapsed) override {
+		void Tick(BaseTime elapsed) override {
+			TickManager::Get().Tick(elapsed);
 			Graphics::Render(SampleUI::Ui::Render);
 		}
 	};

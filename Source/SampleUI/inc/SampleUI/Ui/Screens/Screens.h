@@ -4,7 +4,7 @@
 #include <string>
 
 namespace SampleUI::Ui {
-	enum struct Screen : u8 { Landing, SampleTreePanel };
+	enum struct Screen : u8 { Landing, SampleTreePanel, SampleParticles };
 
 	std::string ToString(Screen screen);
 

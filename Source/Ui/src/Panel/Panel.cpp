@@ -1,5 +1,5 @@
-#include "Ui/Panel.h"
-#include "Ui/Connection.h"
+#include "Ui/Panel/Panel.h"
+#include "Ui/Panel/Connection.h"
 
 #include <imgui.h>
 #include <algorithm>

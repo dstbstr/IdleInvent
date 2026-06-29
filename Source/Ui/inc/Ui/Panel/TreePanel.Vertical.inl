@@ -39,7 +39,7 @@ namespace Ui::Details {
             ++visibleChildren;
         }
         if(visibleChildren > 1) {
-            childrenWidth += (visibleChildren - 1) * config.Spacing.x;
+            childrenWidth += static_cast<f32>(visibleChildren - 1) * config.Spacing.x;
         }
 
         auto childLeft = left + (subtreeWidth - childrenWidth) / 2.f;

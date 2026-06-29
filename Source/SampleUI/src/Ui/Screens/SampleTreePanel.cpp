@@ -4,8 +4,8 @@
 
 #include <Platform/Graphics.h>
 #include <Ui/UiUtil.h>
-#include <Ui/TreePanel.h>
-#include <Ui/ZoomFunc.h>
+#include <Ui/Panel/TreePanel.h>
+#include <Ui/Panel/ZoomFunc.h>
 
 #include <imgui.h>
 #include <functional>
@@ -13,7 +13,6 @@
 #include <string>
 
 // TODO:
-// Implement CenterOut growth direction
 namespace {
 	constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
@@ -24,7 +23,7 @@ namespace {
 	ImVec2 NodeSize{64.f, 64.f};
 	ImVec2 NodeSpacing{16.f, 16.f};
 
-	enum struct ZoomMode : int { Fluid = 0, Discrete = 1 };
+	enum struct ZoomMode : u8 { Fluid = 0, Discrete = 1 };
 	ZoomMode CurrentZoomMode = ZoomMode::Fluid;
 
 	Ui::TreeConfig TreeConfig{};
@@ -83,7 +82,7 @@ namespace {
 			PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
 			break;
 		case Discrete:
-			PanelConfig.ZoomFn = Ui::Zoom::Discrete<f32, 0.5f, 0.75f, 1.0f, 1.5f, 2.0f>;
+			PanelConfig.ZoomFn = Ui::Zoom::Discrete<f32, 0.25f, 0.5f, 1.0f, 2.f, 4.0f>;
 			break;
 		}
 	}
@@ -94,9 +93,8 @@ namespace {
 			case TopDown: return "Top Down";
 			case BottomUp: return "Bottom Up";
 			case LeftRight: return "Left to Right";
-			case CenterOut: return "Center Out";
 		}
-        return "Unknown";
+		return "Unknown";
 	}
 
 	const char* ToLabel(Ui::ConnectStyle style) {
@@ -191,8 +189,8 @@ namespace SampleUI::Ui::Screens::SampleTreePanel {
 		}
 
 		int growthSelect = static_cast<int>(TreeConfig.Growth);
-		const char* growthLabels = "Top Down\0Bottom Up\0Left to Right\0Center Out";
-		if(ImGui::Combo("Growth Direction", &growthSelect, growthLabels, 4)) {
+		const char* growthLabels = "Top Down\0Bottom Up\0Left to Right";
+		if(ImGui::Combo("Growth Direction", &growthSelect, growthLabels, 3)) {
 			TreeConfig.Growth = static_cast<::Ui::GrowthDir>(growthSelect);
 		}
 

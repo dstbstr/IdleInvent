@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Ui/Panel.h"
-#include "Ui/Connection.h"
+#include "Ui/Panel/Panel.h"
+#include "Ui/Panel/Connection.h"
 
 #include <DesignPatterns/Tree.h>
 #include <Platform/NumTypes.h>
@@ -18,7 +18,7 @@ namespace Ui::Details {
 }
 
 namespace Ui {
-    enum struct GrowthDir : u8 { TopDown, BottomUp, LeftRight, CenterOut };
+    enum struct GrowthDir : u8 { TopDown, BottomUp, LeftRight };
 
     struct TreeConfig {
         GrowthDir Growth{GrowthDir::TopDown};

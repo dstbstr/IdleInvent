@@ -2,6 +2,7 @@
 
 #include <SampleUI/Ui/Screens/Landing.h>
 #include <SampleUI/Ui/Screens/SampleTreePanel.h>
+#include <SampleUI/Ui/Screens/SampleParticles.h>
 
 #include <Instrumentation/Logging.h>
 
@@ -16,6 +17,7 @@ namespace SampleUI::Ui {
 			using enum Screen;
 			case Landing: return "Landing";
 			case SampleTreePanel: return "SampleTreePanel";
+            case SampleParticles: return "SampleParticles";
 		}
 
 		DR_ASSERT_MSG(false, "Invalid screen");
@@ -26,12 +28,13 @@ namespace SampleUI::Ui {
 		bool Initialize() {
 			activeScreenName = Screen::Landing;
 			activeScreenFn = Landing::Render;
-			return Landing::Initialize() && SampleTreePanel::Initialize();
+			return Landing::Initialize() && SampleTreePanel::Initialize() && SampleParticles::Initialize();
 		}
 
 		void ShutDown() {
 			Landing::ShutDown();
 			SampleTreePanel::ShutDown();
+			SampleParticles::ShutDown();
 			activeScreenName = Screen::Landing;
 			activeScreenFn = Landing::Render;
 		}
@@ -46,6 +49,7 @@ namespace SampleUI::Ui {
 				using enum Screen;
 				case Landing: activeScreenFn = Landing::Render; break;
 				case SampleTreePanel: activeScreenFn = SampleTreePanel::Render; break;
+                case SampleParticles: activeScreenFn = SampleParticles::Render; break;
 			}
 		}
 

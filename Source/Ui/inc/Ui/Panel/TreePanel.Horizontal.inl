@@ -33,7 +33,7 @@ namespace Ui::Details {
             ++visibleChildren;
         }
         if(visibleChildren > 1) {
-            childrenHeight += (visibleChildren - 1) * config.Spacing.y;
+            childrenHeight += static_cast<f32>(visibleChildren - 1) * config.Spacing.y;
         }
 
         const auto childLeft = left + baseW + config.Spacing.x;

@@ -1,7 +1,9 @@
 #include <DesignPatterns/Tree.h>
 #include <imgui.h>
 #include <Platform/NumTypes.h>
+#include <optional>
 #include <unordered_map>
+#include <utility>
 
 namespace Ui::Details {
     template<typename T>
@@ -36,8 +38,6 @@ namespace Ui::Details {
             parent.Size.y += child.Size.y;
             parent.Size.x = std::max(parent.Size.x, child.Size.x);
             break;
-        case CenterOut:
-            break;
         }
     }
 
@@ -61,8 +61,6 @@ namespace Ui::Details {
         case LeftRight:
             subtree.Size.y = std::max(subtree.Size.y, children.Size.y + siblingGaps * spacing.y);
             subtree.Size.x += spacing.x + children.Size.x;
-            break;
-        case CenterOut:
             break;
         }
     }
@@ -101,14 +99,31 @@ namespace Ui::Details {
         return subtreeBounds;
     }
 
+    // Maps each GrowthDir to the (parent port, child port) pair that connectors should
+    // attach to. Single source of truth -- if you add a new GrowthDir, the compiler will
+    // remind you to add a case here and connectors will Just Work for it.
+    // Returns std::nullopt for layouts that have no canonical port pair.
+    static constexpr std::optional<std::pair<ConnectPoint, ConnectPoint>> PortsForGrowth(GrowthDir growth) {
+        switch(growth) {
+            using enum GrowthDir;
+            case TopDown:   return std::pair{ConnectPoint::South, ConnectPoint::North};
+            case BottomUp:  return std::pair{ConnectPoint::North, ConnectPoint::South};
+            case LeftRight: return std::pair{ConnectPoint::East,  ConnectPoint::West};
+        }
+        return std::nullopt;
+    }
+
     template<typename T>
     static void RenderConnectors(
         const std::vector<LayoutLayer<T>>& layers,
         const TreeConfig& config,
-        ConnectPoint parentPort,
-        ConnectPoint childPort,
+        GrowthDir growth,
         f32 zoom = 1.f
     ) {
+        const auto ports = PortsForGrowth(growth);
+        if(!ports) return;
+        const auto [parentPort, childPort] = *ports;
+
         using TreeNode = typename Tree<RenderNode<T>>::Node;
         std::unordered_map<TreeNode*, const LayoutNode<T>*> layoutByTreeNode;
         for(const auto& layer: layers) {
@@ -154,7 +169,6 @@ namespace Ui::Details {
 
 #include "TreePanel.Vertical.inl"
 #include "TreePanel.Horizontal.inl"
-#include "TreePanel.CenterOut.inl"
 
 namespace Ui {
     template<typename T, typename RenderFn>
@@ -167,8 +181,6 @@ namespace Ui {
             break;
         case LeftRight:
             Details::BuildLayoutLeftRight(*m_Tree, *m_TreeConfig, m_Layers);
-            break;
-        case CenterOut:
             break;
         }
 
@@ -196,21 +208,7 @@ namespace Ui {
     template<typename T, typename RenderFn>
     void TreePanel<T, RenderFn>::RenderConnectors() const {
         if(m_TreeConfig->Connect == ConnectStyle::None) return;
-        const auto zoom = GetZoom();
-        switch(m_TreeConfig->Growth) {
-            using enum GrowthDir;
-        case TopDown:
-            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::South, ConnectPoint::North, zoom);
-            break;
-        case BottomUp:
-            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::North, ConnectPoint::South, zoom);
-            break;
-        case LeftRight:
-            Details::RenderConnectors(m_Layers, *m_TreeConfig, ConnectPoint::East, ConnectPoint::West, zoom);
-            break;
-        case CenterOut:
-            break;
-        }
+        Details::RenderConnectors(m_Layers, *m_TreeConfig, m_TreeConfig->Growth, GetZoom());
     }
 
     template<typename T, typename RenderFn>
