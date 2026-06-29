@@ -173,6 +173,7 @@ namespace SampleUI::Ui::Screens::SampleParticles {
 
         if(ImGui::Button("Back")) {
             Screens::SetActiveScreen(Screen::Landing);
+            ImGui::End();
             return;
         }
 
@@ -201,8 +202,6 @@ namespace SampleUI::Ui::Screens::SampleParticles {
         ImGui::SameLine();
         ImGui::Text("Active: %zu / %zu", s_System ? s_System->ParticleCount() : 0u,
                                           s_System ? s_System->ParticleCapacity() : 0u);
-        ImGui::SameLine();
-        ImGui::Text("FPS: %.0f", static_cast<double>(ImGui::GetIO().Framerate));
 
         ImGui::SliderInt("Capacity", &s_PendingCapacity, MinCapacity, MaxCapacity, "%d",
                          ImGuiSliderFlags_Logarithmic);

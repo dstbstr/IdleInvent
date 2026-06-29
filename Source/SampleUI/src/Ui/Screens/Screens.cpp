@@ -5,6 +5,7 @@
 #include <SampleUI/Ui/Screens/SampleParticles.h>
 
 #include <Instrumentation/Logging.h>
+#include <Ui/Overlay.h>
 
 namespace {
 	auto activeScreenName = SampleUI::Ui::Screen::Landing;
@@ -41,6 +42,7 @@ namespace SampleUI::Ui {
 
 		void Render() {
 			activeScreenFn();
+			::Ui::Overlay::DrawFps();
 		}
 
 		void SetActiveScreen(Screen screen) {
