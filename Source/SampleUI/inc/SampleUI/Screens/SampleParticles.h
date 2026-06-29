@@ -1,5 +1,5 @@
 #pragma once
-namespace SampleUI::Ui::Screens::SampleParticles {
+namespace SampleUI::Screens::SampleParticles {
     bool Initialize();
     void ShutDown();
 

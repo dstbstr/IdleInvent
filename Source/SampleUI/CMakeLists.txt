@@ -26,11 +26,12 @@ set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 
 target_sources(${PROJECT_NAME} PRIVATE
 	src/Main.cpp
-	src/Ui/Ui.cpp
-	src/Ui/Screens/Screens.cpp
-	src/Ui/Screens/Landing.cpp
-	src/Ui/Screens/SampleTreePanel.cpp
- "src/Ui/Screens/SampleParticles.cpp")
+	src/Ui.cpp
+	src/Screens/Screens.cpp
+	src/Screens/Landing.cpp
+	src/Screens/SampleTreePanel.cpp
+	src/Screens/SampleParticles.cpp
+)
 
 if(EXISTS ${SHARED_ASSET_DIR})
 	add_custom_target(SyncSampleUIAssets

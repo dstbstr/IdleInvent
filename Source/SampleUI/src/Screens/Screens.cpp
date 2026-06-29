@@ -1,18 +1,18 @@
-#include <SampleUI/Ui/Screens/Screens.h>
+#include <SampleUI/Screens/Screens.h>
 
-#include <SampleUI/Ui/Screens/Landing.h>
-#include <SampleUI/Ui/Screens/SampleTreePanel.h>
-#include <SampleUI/Ui/Screens/SampleParticles.h>
+#include <SampleUI/Screens/Landing.h>
+#include <SampleUI/Screens/SampleTreePanel.h>
+#include <SampleUI/Screens/SampleParticles.h>
 
 #include <Instrumentation/Logging.h>
 #include <Ui/Overlay.h>
 
 namespace {
-	auto activeScreenName = SampleUI::Ui::Screen::Landing;
-	void (*activeScreenFn)() = SampleUI::Ui::Screens::Landing::Render;
+	auto activeScreenName = SampleUI::Screen::Landing;
+	void (*activeScreenFn)() = SampleUI::Screens::Landing::Render;
 } // namespace
 
-namespace SampleUI::Ui {
+namespace SampleUI {
 	std::string ToString(Screen screen) {
 		switch(screen) {
 			using enum Screen;

@@ -1,6 +1,5 @@
-#include <SampleUI/Ui/Screens/Landing.h>
-
-#include <SampleUI/Ui/Screens/Screens.h>
+#include <SampleUI/Screens/Landing.h>
+#include <SampleUI/Screens/Screens.h>
 
 #include <Platform/Graphics.h>
 #include <Ui/UiUtil.h>
@@ -19,22 +18,22 @@ namespace {
 
 	struct LandingButton {
 		const char* Label;
-		SampleUI::Ui::Screen Target;
+		SampleUI::Screen Target;
 	};
 
 	constexpr std::array<LandingButton, ButtonCols * ButtonRows> Buttons{{
-		{"Tree\nPanel", SampleUI::Ui::Screen::SampleTreePanel},
-		{"Particles", SampleUI::Ui::Screen::SampleParticles},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
-		{"Unused", SampleUI::Ui::Screen::Landing},
+		{"Tree\nPanel", SampleUI::Screen::SampleTreePanel},
+		{"Particles", SampleUI::Screen::SampleParticles},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
+		{"Unused", SampleUI::Screen::Landing},
 	}};
 
 	struct Rect {
@@ -84,7 +83,7 @@ namespace {
 	}
 }
 
-namespace SampleUI::Ui::Screens::Landing {
+namespace SampleUI::Screens::Landing {
 	bool Initialize() {
 		return true;
 	}
@@ -125,4 +124,4 @@ namespace SampleUI::Ui::Screens::Landing {
 
 		ImGui::End();
 	}
-} // namespace SampleUI::Ui::Screens::Landing
+} // namespace SampleUI::Screens::Landing

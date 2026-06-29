@@ -1,6 +1,6 @@
-#include <SampleUI/Ui/Screens/SampleParticles.h>
+#include <SampleUI/Screens/SampleParticles.h>
 
-#include <SampleUI/Ui/Screens/Screens.h>
+#include <SampleUI/Screens/Screens.h>
 
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
@@ -46,8 +46,8 @@ namespace {
         const char* Name {nullptr};
         ImGuiKey Key {};
         PositionMode PosMode{};
-        ::Ui::Direction Direction{}; // applied via SetArc at rebuild time
-        ::Ui::Spread Spread{};       // applied via SetArc at rebuild time
+        Ui::Direction Direction{}; // applied via SetArc at rebuild time
+        Ui::Spread Spread{};       // applied via SetArc at rebuild time
         f32 JitterFracX{0.f};      // fraction of Graphics::ScreenWidth applied to PositionJitter.x at build time
         Ui::Emitter Config{};        // copied into the ParticleSystem at (re)creation; AngleMin/AngleMax overwritten
     };
@@ -64,7 +64,7 @@ namespace {
         // 1: Fountain -- upward arc, warm color, rides gravity
         Preset{
             .Name = "Fountain", .Key = ImGuiKey_1, .PosMode = PositionMode::FollowMouse,
-            .Direction = ::Ui::Direction::N, .Spread = ::Ui::Spread::Narrow,
+            .Direction = Ui::Direction::N, .Spread = Ui::Spread::Narrow,
             .Config = {
                 .RatePerSecond = 600.f,
                 .SpeedMin = 200.f, .SpeedMax = 380.f,
@@ -76,7 +76,7 @@ namespace {
         // 2: Sparks -- fast, short-lived, omni, zero gravity look
         Preset{
             .Name = "Sparks", .Key = ImGuiKey_2, .PosMode = PositionMode::FollowMouse,
-            .Direction = ::Ui::Direction::N, .Spread = ::Ui::Spread::Full,
+            .Direction = Ui::Direction::N, .Spread = Ui::Spread::Full,
             .Config = {
                 .RatePerSecond = 1200.f,
                 .SpeedMin = 350.f, .SpeedMax = 600.f,
@@ -88,7 +88,7 @@ namespace {
         // 3: Snow -- slow downward drift, scattered across screen width via PositionJitter
         Preset{
             .Name = "Snow", .Key = ImGuiKey_3, .PosMode = PositionMode::TopOfScreen,
-            .Direction = ::Ui::Direction::S, .Spread = ::Ui::Spread::Thin,
+            .Direction = Ui::Direction::S, .Spread = Ui::Spread::Thin,
             .JitterFracX = 0.5f, // PositionJitter.x = ScreenWidth * 0.5 at rebuild time
             .Config = {
                 .RatePerSecond = 200.f,
@@ -101,7 +101,7 @@ namespace {
         // 4: Fireworks -- dense omni burst, gravity pulls them down for a falling-star look
         Preset{
             .Name = "Fireworks", .Key = ImGuiKey_4, .PosMode = PositionMode::FollowMouse,
-            .Direction = ::Ui::Direction::N, .Spread = ::Ui::Spread::Full,
+            .Direction = Ui::Direction::N, .Spread = Ui::Spread::Full,
             .Config = {
                 .RatePerSecond = 3000.f,
                 .SpeedMin = 150.f, .SpeedMax = 420.f,
@@ -143,14 +143,14 @@ namespace {
         for(size_t i = 0; i < s_Presets.size(); ++i) {
             auto& emitter = s_System->AddEmitter(s_Presets.at(i).Config);
             // Resolve runtime-dependent fields here (ScreenWidth isn't valid at static init).
-            ::Ui::SetArc(emitter, s_Presets.at(i).Direction, s_Presets.at(i).Spread);
+            Ui::SetArc(emitter, s_Presets.at(i).Direction, s_Presets.at(i).Spread);
             emitter.PositionJitter.x = s_Presets.at(i).JitterFracX * Graphics::ScreenWidth;
             s_PresetEmitters.at(i) = &emitter;
         }
     }
 }
 
-namespace SampleUI::Ui::Screens::SampleParticles {
+namespace SampleUI::Screens::SampleParticles {
     bool Initialize() {
         RebuildSystem();
         TickManager::Get().Register(s_TickHandles, [](BaseTime elapsed) {

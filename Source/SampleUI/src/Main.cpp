@@ -4,7 +4,7 @@
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
 #include <Platform/PlatformMain.h>
-#include <SampleUI/Ui/Ui.h>
+#include <SampleUI/Ui.h>
 
 #include <memory>
 
@@ -15,9 +15,9 @@ namespace SampleUiApp {
 
 		bool Initialize() override {
 			ServiceLocator::Get().CreateIfMissing<TickManager>();
-			return SampleUI::Ui::Initialize();
+			return SampleUI::Initialize();
 		}
-		void ShutDown() override { SampleUI::Ui::ShutDown(); }
+		void ShutDown() override { SampleUI::ShutDown(); }
 
 		void LoadGame() override {}
 		void SaveGame() override {}
@@ -25,7 +25,7 @@ namespace SampleUiApp {
 
 		void Tick(BaseTime elapsed) override {
 			TickManager::Get().Tick(elapsed);
-			Graphics::Render(SampleUI::Ui::Render);
+			Graphics::Render(SampleUI::Render);
 		}
 	};
 

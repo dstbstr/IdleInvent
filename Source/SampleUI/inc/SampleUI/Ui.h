@@ -1,7 +1,7 @@
 #pragma once
 
-namespace SampleUI::Ui {
+namespace SampleUI {
 	bool Initialize();
 	void Render();
 	void ShutDown();
-} // namespace SampleUI::Ui
+}

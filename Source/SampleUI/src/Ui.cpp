@@ -1,9 +1,9 @@
-#include <SampleUI/Ui/Ui.h>
-#include <SampleUI/Ui/Screens/Screens.h>
+#include <SampleUI/Ui.h>
+#include <SampleUI/Screens/Screens.h>
 
 #include <Ui/UiUtil.h>
 
-namespace SampleUI::Ui {
+namespace SampleUI {
 	bool Initialize() {
 		InitializeFonts("DroidSans.ttf");
 		return Screens::Initialize();

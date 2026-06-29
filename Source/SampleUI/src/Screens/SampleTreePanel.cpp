@@ -1,6 +1,5 @@
-#include <SampleUI/Ui/Screens/SampleTreePanel.h>
-
-#include <SampleUI/Ui/Screens/Screens.h>
+#include <SampleUI/Screens/SampleTreePanel.h>
+#include <SampleUI/Screens/Screens.h>
 
 #include <Platform/Graphics.h>
 #include <Ui/UiUtil.h>
@@ -141,10 +140,10 @@ namespace {
 	}
 }
 
-namespace SampleUI::Ui::Screens::SampleTreePanel {
+namespace SampleUI::Screens::SampleTreePanel {
 	bool Initialize() {
-        TreeConfig.Growth = ::Ui::GrowthDir::TopDown;
-        TreeConfig.Connect = ::Ui::ConnectStyle::Line;
+        TreeConfig.Growth = Ui::GrowthDir::TopDown;
+        TreeConfig.Connect = Ui::ConnectStyle::Line;
         TreeConfig.Spacing = NodeSpacing;
         PanelConfig.Bounds.Pos = {0.f, PanelTopOffsetY};
         PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
