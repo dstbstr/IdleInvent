@@ -12,6 +12,7 @@ namespace Ui {
         bool Enabled{false};
         ImVec2 Position{};
         ImVec2 PositionJitter{}; // each spawn perturbs Position by uniform(-jitter, +jitter)
+        ImVec2 Gravity{}; // applied per-frame to every particle from this emitter (px/sec^2)
         f32 RatePerSecond{50.f};
         f32 AngleMin{0.f}, AngleMax{Constexpr::DegToRad(360.f)}; // spawn direction range, radians
         f32 SpeedMin{50.f}, SpeedMax{150.f}; // px/sec range

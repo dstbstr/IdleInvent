@@ -66,6 +66,7 @@ namespace {
             .Name = "Fountain", .Key = ImGuiKey_1, .PosMode = PositionMode::FollowMouse,
             .Direction = Ui::Direction::N, .Spread = Ui::Spread::Narrow,
             .Config = {
+                .Gravity = ImVec2{0.f, 200.f},
                 .RatePerSecond = 600.f,
                 .SpeedMin = 200.f, .SpeedMax = 380.f,
                 .LifeMinMs = 800, .LifeMaxMs = 1600,
@@ -91,6 +92,7 @@ namespace {
             .Direction = Ui::Direction::S, .Spread = Ui::Spread::Thin,
             .JitterFracX = 0.5f, // PositionJitter.x = ScreenWidth * 0.5 at rebuild time
             .Config = {
+                .Gravity = ImVec2{0.f, 30.f},
                 .RatePerSecond = 200.f,
                 .SpeedMin = 40.f, .SpeedMax = 90.f,
                 .LifeMinMs = 3000, .LifeMaxMs = 5000,
@@ -103,6 +105,7 @@ namespace {
             .Name = "Fireworks", .Key = ImGuiKey_4, .PosMode = PositionMode::FollowMouse,
             .Direction = Ui::Direction::N, .Spread = Ui::Spread::Full,
             .Config = {
+                .Gravity = ImVec2{0.f, 250.f},
                 .RatePerSecond = 3000.f,
                 .SpeedMin = 150.f, .SpeedMax = 420.f,
                 .LifeMinMs = 500, .LifeMaxMs = 1200,
@@ -132,6 +135,7 @@ namespace {
         s_UserEmitter->LifeMaxMs = static_cast<u16>(s_LifeRangeMs.at(1));
         s_UserEmitter->Size      = s_Size;
         s_UserEmitter->Color     = ImGui::ColorConvertFloat4ToU32(s_Color);
+        s_UserEmitter->Gravity   = s_Gravity;
     }
 
     // Build (or rebuild) the system at the current s_Capacity. User emitter is added first so
@@ -258,7 +262,6 @@ namespace SampleUI::Screens::SampleParticles {
         }
 
         if(s_System) {
-            s_System->SetGravity(s_Gravity);
             s_System->Render();
         }
 

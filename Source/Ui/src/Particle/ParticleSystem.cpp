@@ -50,9 +50,6 @@ namespace Ui {
         m_Emitters.clear();
     }
 
-    void ParticleSystem::SetGravity(ImVec2 g) { m_Gravity = g; }
-    ImVec2 ParticleSystem::GetGravity() const { return m_Gravity; }
-
     void ParticleSystem::Clear() { m_ActiveCount = 0; }
 
     // this is a hot loop, so we avoid bounds checking.
@@ -79,11 +76,14 @@ namespace Ui {
             }
         }
 
-        // 2) Tick existing particles + swap-and-pop dead ones.
+        // 2) Tick existing particles + swap-and-pop dead ones. Gravity is read from the
+        //    particle's owning emitter -- the emitter table is tiny and hot in L1 so the
+        //    indirection is effectively free.
         for(size_t i = 0; i < m_ActiveCount; /* manual increment */) {
             auto& p = m_Particles.at(i);
-            p.Velocity.x += m_Gravity.x * dtSec;
-            p.Velocity.y += m_Gravity.y * dtSec;
+            const auto& e = m_Emitters.at(p.EmitterId);
+            p.Velocity.x += e.Gravity.x * dtSec;
+            p.Velocity.y += e.Gravity.y * dtSec;
             p.Position.x += p.Velocity.x * dtSec;
             p.Position.y += p.Velocity.y * dtSec;
 

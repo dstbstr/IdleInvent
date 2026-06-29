@@ -20,9 +20,6 @@ namespace Ui {
         Emitter& AddEmitter(Emitter init);
         void     RemoveAllEmitters();
 
-        void     SetGravity(ImVec2 g);
-        ImVec2   GetGravity() const;
-
         void     Update(BaseTime elapsed);
 
         // Draws filled circles to ImGui::GetWindowDrawList() at each particle's screen
@@ -41,7 +38,6 @@ namespace Ui {
         std::vector<Particle> m_Particles;     // size == capacity, never resized after ctor
         size_t                m_ActiveCount{0};
         std::vector<Emitter>  m_Emitters;
-        ImVec2                m_Gravity{};
     };
 }
 
