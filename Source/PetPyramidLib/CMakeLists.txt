@@ -26,4 +26,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/CombatScreen.cpp
 	src/Ui/Screens/BestiaryScreen.cpp
 	src/Ui/Screens/RebirthScreen.cpp
-)
+ )
