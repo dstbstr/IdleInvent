@@ -2,6 +2,7 @@
 
 #include <Platform/NumTypes.h>
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <concepts>
@@ -171,12 +172,22 @@ namespace Constexpr {
     }
 
     // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-    constexpr std::string RemoveAll(std::string from, std::string_view what) {
+    // Builds a new string rather than erasing in place: libstdc++ cannot constant-evaluate
+    // std::string::find, so the erase loop would not work in a static_assert on gcc.
+    constexpr std::string RemoveAll(std::string_view from, std::string_view what) {
+        if(what.empty()) return std::string(from);
+
+        std::string result;
         size_t pos = 0;
-        while((pos = from.find(what, pos)) != std::string::npos) {
-            from.erase(pos, what.length());
+        while(pos < from.size()) {
+            if(from.substr(pos).starts_with(what)) {
+                pos += what.size();
+            } else {
+                result.push_back(from[pos]);
+                pos++;
+            }
         }
-        return from;
+        return result;
     }
 
     constexpr std::string TimeString(auto ms) {

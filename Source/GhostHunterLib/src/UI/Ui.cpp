@@ -1,7 +1,7 @@
-#include "GhostHunter/Ui/Ui.h"
-#include "GhostHunter/Ui/TopContent.h"
-#include "GhostHunter/Ui/MainContent.h"
-#include "GhostHunter/Ui/BottomContent.h"
+#include "GhostHunter/UI/Ui.h"
+#include "GhostHunter/UI/TopContent.h"
+#include "GhostHunter/UI/MainContent.h"
+#include "GhostHunter/UI/BottomContent.h"
 
 #include "Platform/Graphics.h"
 #include "Ui/UiBuilder.h"

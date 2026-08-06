@@ -5,10 +5,10 @@ add_executable(${PROJECT_NAME})
 set(SAMPLE_ASSET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../Resources/${PROJECT_NAME})
 set(SHARED_ASSET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../Resources/Shared)
 
-if(WIN32)
-	set(ASSET_DEST ${CMAKE_CURRENT_BINARY_DIR}/assets)
-elseif(ANDROID)
+if(ANDROID)
 	set(ASSET_DEST ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_apk/src/main/assets)
+else()
+	set(ASSET_DEST ${CMAKE_CURRENT_BINARY_DIR}/assets)
 endif()
 
 target_link_libraries(${PROJECT_NAME}

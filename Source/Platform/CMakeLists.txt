@@ -55,4 +55,14 @@ elseif (ANDROID)
     target_include_directories(${PROJECT_NAME} PUBLIC
         ${ANDROID_NDK}/sources/android/native_app_glue
     )
+elseif (UNIX)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/Linux/Linux_DebugStream.cpp
+        src/Linux/Linux_Graphics.cpp
+        src/Linux/Linux_Platform.cpp
+    )
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        glfw
+        OpenGL::GL
+    )
 endif()

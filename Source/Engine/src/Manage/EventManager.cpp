@@ -31,7 +31,7 @@ EventManager::EventManager() {
 
 Handle EventManager::StartEvent(OnEndFn onEnd, std::unique_ptr<IEvent>&& event) {
     auto handle = Handles::Next();
-    event->Handle = handle;
+    event->EventHandle = handle;
     m_Events.emplace(handle, std::pair(std::move(event), std::move(onEnd)));
 
     auto& startEvent = ServiceLocator::Get().GetRequired<PubSub<EventStart>>();

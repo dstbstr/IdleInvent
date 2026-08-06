@@ -90,8 +90,8 @@ bool TryLoadAnimations(const std::string& sheetName, std::unordered_map<std::str
 
 AnimationPlayer::AnimationPlayer(const Animation& animation, BaseTime duration, bool loop) 
 	: m_Animation(&animation)
-	, m_Loop(loop)
-	, m_Duration(duration) {
+	, m_Duration(duration)
+	, m_Loop(loop) {
     DR_ASSERT(animation.Frames.size() > 0);
     DR_ASSERT(static_cast<size_t>(m_Duration.count()) >= animation.Frames.size());
 }
@@ -104,11 +104,13 @@ void AnimationPlayer::Tick(BaseTime elapsed) {
 	if(m_Loop) {
         m_Elapsed %= m_Duration;
 	} else if(m_Elapsed >= m_Duration) {
-        m_Frame = n;
+        m_Frame = static_cast<u8>(n);
         return;
 	}
-	
-	m_Frame = static_cast<size_t>((m_Elapsed.count() * n) / m_Duration.count());
+
+	const auto elapsedTicks = static_cast<size_t>(m_Elapsed.count());
+	const auto durationTicks = static_cast<size_t>(m_Duration.count());
+	m_Frame = static_cast<u8>((elapsedTicks * n) / durationTicks);
 }
 
 Sprite AnimationPlayer::Current() const { 

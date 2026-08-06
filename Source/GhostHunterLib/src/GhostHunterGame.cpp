@@ -8,7 +8,7 @@
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Media/Market.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
-#include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/UI/Ui.h"
 
 #include <Platform/Graphics.h>
 #include <Manage/EventManager.h>

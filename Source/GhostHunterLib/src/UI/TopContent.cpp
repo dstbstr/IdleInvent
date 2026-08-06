@@ -1,7 +1,7 @@
-#include "GhostHunter/Ui/TopContent.h"
-#include "GhostHunter/Ui/Ui.h"
-#include "GhostHunter/Ui/Screens/Screens.h"
-#include "GhostHunter/Ui/Screens/SettingsScreen.h"
+#include "GhostHunter/UI/TopContent.h"
+#include "GhostHunter/UI/Ui.h"
+#include "GhostHunter/UI/Screens/Screens.h"
+#include "GhostHunter/UI/Screens/SettingsScreen.h"
 #include "GhostHunter/GameState/GameSettings.h"
 #include "GhostHunter/Resources/GhostHunterResources.h"
 

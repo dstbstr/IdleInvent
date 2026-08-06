@@ -1,12 +1,12 @@
 project(IdleGame LANGUAGES CXX)
 
 function(add_game_exe target game_lib game_header game_type)
-    if(WIN32)
-        add_executable(${target})
-        set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/assets")
-    elseif(ANDROID)
+    if(ANDROID)
         APK_ADD_EXECUTABLE(${target})
         set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/${target}_apk/src/main/assets")
+    else()
+        add_executable(${target})
+        set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/assets")
     endif()
 
     target_sources(${target} PRIVATE src/Main.cpp)

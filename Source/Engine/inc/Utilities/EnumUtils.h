@@ -3,6 +3,7 @@
 #include "Constexpr/ConstexprStrUtils.h"
 #include "Utilities/Concepts.h"
 
+#include <algorithm>
 #include <concepts>
 #include <vector>
 #include <optional>
@@ -65,9 +66,10 @@ namespace Enum {
             prev--;
         }
 
-        auto min = 0ull;
+        // must match prev's type exactly; size_t is not unsigned long long everywhere
+        size_t min = 0;
         if constexpr(UnsetEnum<E>) {
-            min = 1ull;
+            min = 1;
         }
         return static_cast<E>(std::max(prev, min));
     }

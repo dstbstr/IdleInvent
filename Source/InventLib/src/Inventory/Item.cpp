@@ -7,6 +7,7 @@
 #include <Platform/NumTypes.h>
 
 #include <format>
+#include <mutex>
 #include <unordered_map>
 
 
@@ -39,7 +40,7 @@ namespace {
     void Initialize() {
         auto CreateExploreItem = [](const std::string& name, const std::string& description, f32 multiplier) {
 			return MakeConsumable(
-				MakeItem(ItemType::Consumable, name, description, {Effect{.Target = EffectTarget::ExploreSuccessRate, .Modifier = Modifier{.Add = 0, .Mul = multiplier}}}), 10, OneInstant
+				MakeItem(ItemType::Consumable, name, description, {Effect{.Target = EffectTarget::ExploreSuccessRate, .Mod = Modifier{.Add = 0, .Mul = multiplier}}}), 10, OneInstant
 			);
 		};
         AddItem(CreateExploreItem("Rations", "Keeps the crew healthy longer.", 3.0f));

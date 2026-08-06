@@ -1,6 +1,6 @@
-#include "GhostHunter/Ui/BottomContent.h"
-#include "GhostHunter/Ui/Ui.h"
-#include "GhostHunter/Ui/Screens/Screens.h"
+#include "GhostHunter/UI/BottomContent.h"
+#include "GhostHunter/UI/Ui.h"
+#include "GhostHunter/UI/Screens/Screens.h"
 #include <Ui/UiUtil.h>
 #include <Platform/Graphics.h>
 

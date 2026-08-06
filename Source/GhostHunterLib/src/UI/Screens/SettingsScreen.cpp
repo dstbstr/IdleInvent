@@ -1,5 +1,5 @@
-#include "GhostHunter/Ui/Screens/SettingsScreen.h"
-#include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/UI/Screens/SettingsScreen.h"
+#include "GhostHunter/UI/Ui.h"
 #include "GhostHunter/GameState/GameSettings.h"
 
 #include <DesignPatterns/ServiceLocator.h>

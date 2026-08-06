@@ -1,5 +1,5 @@
-#include "GhostHunter/Ui/Screens/EditingScreen.h"
-#include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/UI/Screens/EditingScreen.h"
+#include "GhostHunter/UI/Ui.h"
 #include "GhostHunter/GameState/Life.h"
 #include "GhostHunter/Media/Media.h"
 #include "GhostHunter/Formatting.h"

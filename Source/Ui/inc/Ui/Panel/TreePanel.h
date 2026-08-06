@@ -23,7 +23,8 @@ namespace Ui {
     struct TreeConfig {
         GrowthDir Growth{GrowthDir::TopDown};
         ConnectStyle Connect{ConnectStyle::Line};
-        Anchor Anchor{Anchor::TopCenter};
+
+        Anchor AnchorPoint{Anchor::TopCenter};
         ImVec2 Spacing{4.f, 4.f};
         f32 ConnectorThickness{1.f};
         ImU32 ConnectorColor{0xFFFFFFFF};

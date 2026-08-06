@@ -1,5 +1,5 @@
-#include "GhostHunter/Ui/Screens/InvestigateScreen.h"
-#include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/UI/Screens/InvestigateScreen.h"
+#include "GhostHunter/UI/Ui.h"
 #include "GhostHunter/Locations/Locations.h"
 #include "GhostHunter/Investigation/Investigation.h"
 #include "GhostHunter/Formatting.h"

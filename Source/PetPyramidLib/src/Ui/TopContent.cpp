@@ -18,8 +18,6 @@ namespace {
 namespace Pets::Ui::Screens::TopContent {
     constexpr auto SettingsIcon = "Icons/Settings.png";
     bool Initialize() {
-        auto& services = ServiceLocator::Get();
-
         return Graphics::TryLoadImageFile(SettingsIcon);
     }
     void Render() {

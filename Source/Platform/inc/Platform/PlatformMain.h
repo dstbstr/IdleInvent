@@ -18,7 +18,7 @@ struct IGameState {
 
 std::unique_ptr<IGameState> GetGameState(Platform& platform);
 
-#ifdef WIN32
+#if defined(WIN32) || (defined(__linux__) && !defined(__ANDROID__))
 int main(int, char**) {
     InitMemoryCheck();
 

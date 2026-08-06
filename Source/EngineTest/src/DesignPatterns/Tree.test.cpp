@@ -1,5 +1,5 @@
 #include "CommonTest.h"
-#include "DesignPatterns/tree.h"
+#include "DesignPatterns/Tree.h"
 
 #include <string>
 #include <vector>

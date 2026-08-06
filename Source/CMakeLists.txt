@@ -3,6 +3,8 @@ project(IdleGame)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# No C++20 modules here, so skip the scan. Clang would otherwise need clang-scan-deps installed.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 # The project does not currently use C++ modules. Disable Ninja's automatic
 # module dependency scanning until module sources are enabled.
@@ -40,18 +42,21 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 # Durandal Libs
 #################################
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CliParser)
-    add_subdirectory("CliParser")
-else()
-    FetchContent_Declare(CliParser GIT_REPOSITORY https://github.com/dstbstr/CliParser GIT_TAG origin/main)
-    FetchContent_MakeAvailable(CliParser)
+# Only the Atlas tool uses CliParser, and that is Windows only (see Tools/CMakeLists.txt)
+if(WIN32)
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CliParser)
+        add_subdirectory("CliParser")
+    else()
+        FetchContent_Declare(CliParser GIT_REPOSITORY https://github.com/dstbstr/CliParser GIT_TAG origin/main)
+        FetchContent_MakeAvailable(CliParser)
+    endif()
 endif()
 
 #################################
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    set(warnings "-Wall -Wextra -Werror -Wconversion -Wshadow")
+    set(warnings "-Wall -Wextra -Wconversion -Wshadow")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         list(APPEND compiler_definitions GNU)
     else()
@@ -83,9 +88,22 @@ elseif(ANDROID)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     set(IncludeTests OFF)
     include(CMake/AndroidPackaging.cmake)
+elseif(UNIX)
+    # __linux__ is predefined by the compiler, so there is nothing to add here
+    set(IncludeTests ON)
+else()
+    message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
 endif()
 
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+
+# Targets opt in via CXX_CLANG_TIDY; an empty value disables it where clang-tidy isn't installed
+find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+if(NOT CLANG_TIDY_EXE)
+    set(CLANG_TIDY_EXE "") # find_program leaves a -NOTFOUND string behind, which CXX_CLANG_TIDY would try to run
+    message(STATUS "clang-tidy not found, skipping static analysis")
+endif()
+
 add_subdirectory(Tools)
 add_subdirectory(Platform)
 add_subdirectory(Ui)

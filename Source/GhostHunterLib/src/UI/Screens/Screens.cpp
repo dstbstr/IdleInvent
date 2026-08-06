@@ -1,10 +1,10 @@
-#include "GhostHunter/Ui/Screens/Screens.h"
+#include "GhostHunter/UI/Screens/Screens.h"
 
-#include "GhostHunter/Ui/Screens/EditingScreen.h"
-#include "GhostHunter/Ui/Screens/InvestigateScreen.h"
-#include "GhostHunter/Ui/Screens/MarketScreen.h"
-#include "GhostHunter/Ui/Screens/PrestigeScreen.h"
-#include "GhostHunter/Ui/Screens/SettingsScreen.h"
+#include "GhostHunter/UI/Screens/EditingScreen.h"
+#include "GhostHunter/UI/Screens/InvestigateScreen.h"
+#include "GhostHunter/UI/Screens/MarketScreen.h"
+#include "GhostHunter/UI/Screens/PrestigeScreen.h"
+#include "GhostHunter/UI/Screens/SettingsScreen.h"
 
 #include <Instrumentation/Logging.h>
 

@@ -1,5 +1,5 @@
-#include "GhostHunter/Ui/Screens/MarketScreen.h"
-#include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/UI/Screens/MarketScreen.h"
+#include "GhostHunter/UI/Ui.h"
 #include "GhostHunter/Inventory/Inventory.h"
 #include "GhostHunter/Formatting.h"
 #include "GhostHunter/GameState/Life.h"

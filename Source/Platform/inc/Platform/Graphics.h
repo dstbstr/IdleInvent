@@ -2,7 +2,9 @@
 
 #include "Platform.h"
 #include <imgui.h> // Do I want this dependency, or change ImTextureID to void*?
+#include <string>
 #include <utility>
+#include <vector>
 
 struct SpriteRegion {
     std::string Name;

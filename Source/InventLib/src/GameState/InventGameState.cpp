@@ -59,13 +59,13 @@ namespace Invent {
     void InventGameState::Save(InventGameStateSave& save) const {
         GameState::Save(save);
         //Character.Save(save.CharacterSave);
-        Storages.Save(save.StorageSave);
+        Storages.Save(save.Storage);
 
     }
     void InventGameState::Load(const InventGameStateSave& save) {
         GameState::Load(save);
         //Character.Load(save.CharacterSave);
-        Storages.Load(save.StorageSave);
+        Storages.Load(save.Storage);
     }
 
     void InventGameState::Tick(BaseTime elapsed) {
