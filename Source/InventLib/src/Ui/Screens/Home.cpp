@@ -1,10 +1,10 @@
-#include "InventLib/Character/Life.h"
-#include "InventLib/Character/Society.h"
-#include "InventLib/Projects/Project.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Ui/Components/ProjectComponent.h"
-#include "InventLib/Ui/Screens/Home.h"
-#include "InventLib/Ui/Ui.h"
+#include "Invent/Character/Life.h"
+#include "Invent/Character/Society.h"
+#include "Invent/Projects/Project.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Ui/Components/ProjectComponent.h"
+#include "Invent/Ui/Screens/Home.h"
+#include "Invent/Ui/Ui.h"
 
 #include <Constexpr/ConstexprStrUtils.h>
 #include <DesignPatterns/ServiceLocator.h>

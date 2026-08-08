@@ -1,5 +1,5 @@
 #pragma once
-#include "InventLib/RandomEvents/RandomEvent.h"
+#include "Invent/RandomEvents/RandomEvent.h"
 #include <GameState/GameTime.h>
 
 namespace Invent {

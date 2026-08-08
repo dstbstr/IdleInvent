@@ -1,7 +1,7 @@
-#include "InventLib/Character/Society.h"
+#include "Invent/Character/Society.h"
 
-#include "InventLib/Effects/Effect.h"
-#include "InventLib/GameState/GameSettings.h"
+#include "Invent/Effects/Effect.h"
+#include "Invent/GameState/GameSettings.h"
 
 #include <GameState/GameTime.h>
 #include <Instrumentation/Logging.h>

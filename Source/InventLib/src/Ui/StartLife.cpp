@@ -1,9 +1,9 @@
-#include "InventLib/Ui/StartLife.h"
-#include "InventLib/Ui/Ui.h"
-#include "InventLib/Ui/Screens/Screens.h"
-#include "InventLib/Character/Life.h"
-#include "InventLib/Character/Society.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Ui/StartLife.h"
+#include "Invent/Ui/Ui.h"
+#include "Invent/Ui/Screens/Screens.h"
+#include "Invent/Character/Life.h"
+#include "Invent/Character/Society.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <Platform/Graphics.h>

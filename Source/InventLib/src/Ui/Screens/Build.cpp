@@ -1,9 +1,9 @@
-#include "InventLib/Ui/Screens/Build.h"
-#include "InventLib/Character/Society.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Projects/Project.h"
-#include "InventLib/Ui/Ui.h"
-#include "InventLib/Ui/Components/ProjectComponent.h"
+#include "Invent/Ui/Screens/Build.h"
+#include "Invent/Character/Society.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Projects/Project.h"
+#include "Invent/Ui/Ui.h"
+#include "Invent/Ui/Components/ProjectComponent.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 

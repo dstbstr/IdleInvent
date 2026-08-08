@@ -1,11 +1,11 @@
 #include "CommonTest.h"
-#include "InventLib/Character/Life.h"
+#include "Invent/Character/Life.h"
 
-#include "InventLib/Character/Society.h"
-#include "InventLib/Effects/Effect.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Projects/Population.h"
-#include "InventLib/Projects/Project.h"
+#include "Invent/Character/Society.h"
+#include "Invent/Effects/Effect.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Projects/Population.h"
+#include "Invent/Projects/Project.h"
 
 namespace Invent {
     struct LifeTest : public ::testing::Test {

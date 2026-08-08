@@ -81,4 +81,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Ui/Screens/Research.cpp
     src/Ui/Screens/Screens.cpp
     src/Ui/Screens/Settings.cpp
-  "inc/InventLib/Constants.h")
+  )

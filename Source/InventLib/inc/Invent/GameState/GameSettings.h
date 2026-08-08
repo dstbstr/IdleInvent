@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InventLib/Projects/Project.h"
+#include "Invent/Projects/Project.h"
 
 #include <Platform/NumTypes.h>
 #include <Settings/PurchaseAmount.h>

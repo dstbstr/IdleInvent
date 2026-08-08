@@ -1,9 +1,9 @@
 #pragma once
 
-#include "InventLib/Technology/Technology.h"
-#include "InventLib/Achievements/Achievements.h"
-#include "InventLib/RandomEvents/RandomEvents.h"
-#include "InventLib/GameState/GameSettings.h"
+#include "Invent/Technology/Technology.h"
+#include "Invent/Achievements/Achievements.h"
+#include "Invent/RandomEvents/RandomEvents.h"
+#include "Invent/GameState/GameSettings.h"
 
 #include <GameState/GameState.h>
 

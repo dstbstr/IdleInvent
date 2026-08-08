@@ -1,5 +1,5 @@
-#include "InventLib/Projects/Population.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Projects/Population.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <GameState/GameTime.h>
 #include <Mechanics/ScaleFunc.h>

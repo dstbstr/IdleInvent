@@ -1,8 +1,8 @@
-#include "InventLib/Ui/Layout/PrimaryResource.h"
-#include "InventLib/Ui/Ui.h"
-#include "InventLib/Character/Life.h"
-#include "InventLib/Character/Society.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Ui/Layout/PrimaryResource.h"
+#include "Invent/Ui/Ui.h"
+#include "Invent/Character/Life.h"
+#include "Invent/Character/Society.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 

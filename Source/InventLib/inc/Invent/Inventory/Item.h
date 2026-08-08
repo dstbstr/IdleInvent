@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InventLib/Effects/Effect.h"
+#include "Invent/Effects/Effect.h"
 #include "GameState/GameTime.h"
 
 #include <string>

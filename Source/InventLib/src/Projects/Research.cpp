@@ -1,5 +1,5 @@
-#include "InventLib/Projects/Research.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Projects/Research.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <GameState/GameTime.h>
 #include <Instrumentation/Logging.h>

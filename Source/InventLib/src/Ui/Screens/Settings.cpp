@@ -1,7 +1,7 @@
-#include "InventLib/Ui/Screens/Settings.h"
-#include "InventLib/Character/Society.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Ui/Ui.h"
+#include "Invent/Ui/Screens/Settings.h"
+#include "Invent/Character/Society.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Ui/Ui.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>

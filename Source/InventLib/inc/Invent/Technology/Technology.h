@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InventLib/Technology/Invention.h"
+#include "Invent/Technology/Invention.h"
 
 #include <Mechanics/Unlockable.h>
 

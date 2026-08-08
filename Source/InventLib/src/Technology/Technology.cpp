@@ -1,4 +1,4 @@
-#include "InventLib/Technology/Technology.h"
+#include "Invent/Technology/Technology.h"
 
 #include <GameState/GameState.h>
 #include <Mechanics/Purchasable.h>

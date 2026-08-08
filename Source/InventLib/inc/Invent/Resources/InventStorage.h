@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <Resources/Storage.h>
 

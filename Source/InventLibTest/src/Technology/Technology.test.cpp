@@ -1,6 +1,6 @@
 #include "CommonTest.h"
-#include "InventLib/Technology/Technology.h"
-#include "InventLib/Technology/Invention.h"
+#include "Invent/Technology/Technology.h"
+#include "Invent/Technology/Invention.h"
 #include "TestGameState.h"
 
 #include <Constexpr/ConstexprStrUtils.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "InventLib/Character/Death.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Character/Death.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <Resources/Resource.h>
 

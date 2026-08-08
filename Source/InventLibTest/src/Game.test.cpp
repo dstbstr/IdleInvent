@@ -1,6 +1,6 @@
 #include "CommonTest.h"
 
-#include "InventLib/InventGame.h"
+#include "Invent/InventGame.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>

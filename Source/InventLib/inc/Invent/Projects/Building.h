@@ -1,8 +1,8 @@
 #pragma once
 
-#include "InventLib/Projects/Project.h"
-#include "InventLib/Projects/Research.h"
-#include "InventLib/Effects/Effect.h"
+#include "Invent/Projects/Project.h"
+#include "Invent/Projects/Research.h"
+#include "Invent/Effects/Effect.h"
 
 #include <vector>
 #include <unordered_map>

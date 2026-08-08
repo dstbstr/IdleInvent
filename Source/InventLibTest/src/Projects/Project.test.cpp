@@ -1,6 +1,6 @@
 #include "CommonTest.h"
 
-#include "InventLib/Projects/Project.h"
+#include "Invent/Projects/Project.h"
 
 namespace Invent {
     struct ProjectTest : public ::testing::Test {

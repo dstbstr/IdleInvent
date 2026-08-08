@@ -1,5 +1,5 @@
-#include "InventLib/RandomEvents/RandomEvents.h"
-#include "InventLib/Effects/Effect.h"
+#include "Invent/RandomEvents/RandomEvents.h"
+#include "Invent/Effects/Effect.h"
 
 #include <GameState/GameTime.h>
 

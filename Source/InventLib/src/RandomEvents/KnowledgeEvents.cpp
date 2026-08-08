@@ -1,5 +1,5 @@
-#include "InventLib/RandomEvents/RandomEvents.h"
-#include "InventLib/RandomEvents/RandomEvent.h"
+#include "Invent/RandomEvents/RandomEvents.h"
+#include "Invent/RandomEvents/RandomEvent.h"
 #include <GameState/GameTime.h>
 
 namespace Invent {

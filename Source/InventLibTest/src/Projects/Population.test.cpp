@@ -1,6 +1,6 @@
 #include "CommonTest.h"
 
-#include "InventLib/Projects/Population.h"
+#include "Invent/Projects/Population.h"
 
 namespace Invent {
     TEST(PopulationCap, TimeCost_AfterLevel_IsGreater) {

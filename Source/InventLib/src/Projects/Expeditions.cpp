@@ -1,4 +1,4 @@
-#include "InventLib/Projects/Expeditions.h"
+#include "Invent/Projects/Expeditions.h"
 
 #include <Constexpr/ConstexprMath.h>
 #include <Instrumentation/Logging.h>

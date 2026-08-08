@@ -1,4 +1,4 @@
-#include "InventLib/RandomEvents/RandomEvent.h"
+#include "Invent/RandomEvents/RandomEvent.h"
 #include "GameState/GameTime.h"
 
 #include "DesignPatterns/ServiceLocator.h"

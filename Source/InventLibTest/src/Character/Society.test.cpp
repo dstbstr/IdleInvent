@@ -1,9 +1,9 @@
 #include "CommonTest.h"
 
-#include "InventLib/Character/Society.h"
-#include "InventLib/Effects/Effect.h"
-#include "InventLib/Projects/Population.h"
-#include "InventLib/GameState/GameSettings.h"
+#include "Invent/Character/Society.h"
+#include "Invent/Effects/Effect.h"
+#include "Invent/Projects/Population.h"
+#include "Invent/GameState/GameSettings.h"
 
 #include <GameState/GameTime.h>
 #include <Resources/Resource.h>

@@ -1,6 +1,6 @@
 project(IdleGame LANGUAGES CXX)
 
-set(GAME "PetPyramid" CACHE STRING "Which game to build")
+set(GAME "Invent" CACHE STRING "Which game to build")
 set_property(CACHE GAME PROPERTY STRINGS GhostHunter TechMaze Invent PetPyramid) # for GUI dropdowns
 
 if(GAME STREQUAL "GhostHunter")

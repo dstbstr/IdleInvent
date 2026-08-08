@@ -1,7 +1,7 @@
 #pragma once
 
-#include "InventLib/Projects/Project.h"	
-#include "InventLib/Projects/Research.h"
+#include "Invent/Projects/Project.h"	
+#include "Invent/Projects/Research.h"
 
 #include <vector>
 

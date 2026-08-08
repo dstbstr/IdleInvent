@@ -1,7 +1,7 @@
-#include "InventLib/Projects/Building.h"
+#include "Invent/Projects/Building.h"
 
-#include "InventLib/Effects/Effect.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Effects/Effect.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <GameState/GameTime.h>
 #include <Instrumentation/Logging.h>

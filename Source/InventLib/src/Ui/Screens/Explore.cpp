@@ -1,11 +1,11 @@
-#include "InventLib/Character/Society.h"
-#include "InventLib/Projects/Expeditions.h"
-#include "InventLib/Projects/Project.h"
-#include "InventLib/Resources/InventResources.h"
-#include "InventLib/Ui/Components/ProjectComponent.h"
-#include "InventLib/Ui/Screens/Explore.h"
-#include "InventLib/Ui/Ui.h"
-#include "InventLib/Inventory/Item.h"
+#include "Invent/Character/Society.h"
+#include "Invent/Projects/Expeditions.h"
+#include "Invent/Projects/Project.h"
+#include "Invent/Resources/InventResources.h"
+#include "Invent/Ui/Components/ProjectComponent.h"
+#include "Invent/Ui/Screens/Explore.h"
+#include "Invent/Ui/Ui.h"
+#include "Invent/Inventory/Item.h"
 
 #include <Constexpr/ConstexprStrUtils.h>
 #include <Constexpr/ConstexprMath.h>

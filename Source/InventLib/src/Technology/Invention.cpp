@@ -1,5 +1,5 @@
-#include "InventLib/Technology/Invention.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Technology/Invention.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <Constexpr/ConstexprStrUtils.h>
 #include <DesignPatterns/PubSub.h>

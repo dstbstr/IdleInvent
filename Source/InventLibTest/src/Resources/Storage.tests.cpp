@@ -1,7 +1,7 @@
 #include "CommonTest.h"
 #include "TestGameState.h"
 
-#include "InventLib/Technology/Technology.h"
+#include "Invent/Technology/Technology.h"
 #include "Resources/Storage.h"
 
 /*

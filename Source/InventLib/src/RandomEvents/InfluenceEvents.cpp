@@ -1,4 +1,4 @@
-#include "InventLib/RandomEvents/RandomEvents.h"
+#include "Invent/RandomEvents/RandomEvents.h"
 #include <GameState/GameTime.h>
 
 /*

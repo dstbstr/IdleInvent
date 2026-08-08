@@ -1,9 +1,9 @@
-#include "InventLib/GameState/InventGameState.h"
+#include "Invent/GameState/InventGameState.h"
 
-#include "InventLib/Character/Death.h"
-#include "InventLib/RandomEvents/RandomEvents.h"
-#include "InventLib/Technology/TechAge.h"
-#include "InventLib/Technology/Technology.h"
+#include "Invent/Character/Death.h"
+#include "Invent/RandomEvents/RandomEvents.h"
+#include "Invent/Technology/TechAge.h"
+#include "Invent/Technology/Technology.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>

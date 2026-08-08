@@ -1,5 +1,5 @@
-#include "InventLib/Ui/Ui.h"
-#include "InventLib/Ui/Layout/Layout.h"
+#include "Invent/Ui/Ui.h"
+#include "Invent/Ui/Layout/Layout.h"
 
 #include <Instrumentation/Logging.h>
 #include <Platform/Graphics.h>
@@ -7,12 +7,14 @@
 
 namespace {
     bool hasInitialized {false};
+    constexpr auto IconSprites = "Icons/Icons.png";
 }
 
 namespace Ui {
     bool Initialize() {
         if(hasInitialized) return true;
-        
+        DR_ASSERT(Graphics::TryLoadSpriteSheet(IconSprites));
+
         auto success = Layout::Initialize();
         DR_ASSERT_MSG(success, "Failed to initialize UI");
         hasInitialized = true;

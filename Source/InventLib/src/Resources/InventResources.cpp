@@ -1,4 +1,4 @@
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <Constexpr/ConstexprStrUtils.h>
 

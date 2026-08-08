@@ -1,5 +1,5 @@
-#include "InventLib/Ui/Screens/Achievements.h"
-#include "InventLib/Ui/Ui.h"
+#include "Invent/Ui/Screens/Achievements.h"
+#include "Invent/Ui/Ui.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>

@@ -1,6 +1,6 @@
-#include "InventLib/Technology/Technology.h"
+#include "Invent/Technology/Technology.h"
 
-#include "InventLib/Technology/Invention.h"
+#include "Invent/Technology/Invention.h"
 
 #include <Mechanics/Purchasable.h>
 #include <Mechanics/Unlockable.h>

@@ -1,7 +1,7 @@
 #include "CommonTest.h"
 #include "Resources/ResourceConversion.h"
 
-//#include "InventLib/Character/Life.h"
+//#include "Invent/Character/Life.h"
 
 namespace Invent {
     std::vector<u16> Ids() { return {0, 1, 2, 3, 4}; }

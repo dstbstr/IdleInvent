@@ -1,8 +1,8 @@
 #pragma once
 
-#include "InventLib/Character/Life.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Effects/Effect.h"
+#include "Invent/Character/Life.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Effects/Effect.h"
 
 #include <Resources/Resource.h>
 

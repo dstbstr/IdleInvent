@@ -1,5 +1,5 @@
-#include "InventLib/Achievements/Achievements.h"
-#include "InventLib/Effects/Effect.h"
+#include "Invent/Achievements/Achievements.h"
+#include "Invent/Effects/Effect.h"
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>
 #include <GameState/GameState.h>

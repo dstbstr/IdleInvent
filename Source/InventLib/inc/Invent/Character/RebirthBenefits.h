@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InventLib/Effects/Effect.h"
+#include "Invent/Effects/Effect.h"
 
 #include <string>
 #include <unordered_map>

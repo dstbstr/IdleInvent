@@ -1,8 +1,8 @@
-#include "InventLib/Ui/Layout/Popups.h"
+#include "Invent/Ui/Layout/Popups.h"
 
-#include "InventLib/Character/Death.h"
-#include "InventLib/RandomEvents/RandomEvent.h"
-#include "InventLib/Ui/Ui.h"
+#include "Invent/Character/Death.h"
+#include "Invent/RandomEvents/RandomEvent.h"
+#include "Invent/Ui/Ui.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>

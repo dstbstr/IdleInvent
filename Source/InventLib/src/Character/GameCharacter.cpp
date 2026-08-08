@@ -1,4 +1,4 @@
-#include "InventLib/Character/GameCharacter.h"
+#include "Invent/Character/GameCharacter.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>

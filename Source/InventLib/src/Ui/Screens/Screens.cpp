@@ -1,12 +1,12 @@
-#include "InventLib/Ui/Screens/Screens.h"
-#include "InventLib/Ui/Screens/Achievements.h"
-#include "InventLib/Ui/Screens/Build.h"
-#include "InventLib/Ui/Screens/Explore.h"
-#include "InventLib/Ui/Screens/Home.h"
-#include "InventLib/Ui/Screens/Purchases.h"
-#include "InventLib/Ui/Screens/Research.h"
-#include "InventLib/Ui/Screens/Settings.h"
-#include "InventLib/Ui/StartLife.h"
+#include "Invent/Ui/Screens/Screens.h"
+#include "Invent/Ui/Screens/Achievements.h"
+#include "Invent/Ui/Screens/Build.h"
+#include "Invent/Ui/Screens/Explore.h"
+#include "Invent/Ui/Screens/Home.h"
+#include "Invent/Ui/Screens/Purchases.h"
+#include "Invent/Ui/Screens/Research.h"
+#include "Invent/Ui/Screens/Settings.h"
+#include "Invent/Ui/StartLife.h"
 
 #include <Instrumentation/Logging.h>
 

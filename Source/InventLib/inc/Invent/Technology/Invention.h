@@ -1,6 +1,6 @@
 #pragma once
-#include "InventLib/Effects/Effect.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Effects/Effect.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <Mechanics/Purchasable.h>
 #include <Mechanics/Unlockable.h>

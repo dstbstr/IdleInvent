@@ -1,7 +1,7 @@
-#include "InventLib/Character/Life.h"
-#include "InventLib/Projects/Project.h"
-#include "InventLib/Resources/InventResources.h"
-#include "InventLib/Ui/Components/ProjectComponent.h"
+#include "Invent/Character/Life.h"
+#include "Invent/Projects/Project.h"
+#include "Invent/Resources/InventResources.h"
+#include "Invent/Ui/Components/ProjectComponent.h"
 
 #include <Constexpr/ConstexprStrUtils.h>
 

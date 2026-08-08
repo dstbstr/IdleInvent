@@ -1,5 +1,5 @@
-#include "InventLib/Ui/Splash.h"
-#include "InventLib/Ui/Ui.h"
+#include "Invent/Ui/Splash.h"
+#include "Invent/Ui/Ui.h"
 
 #include "Instrumentation/Logging.h"
 #include <Platform/Graphics.h>

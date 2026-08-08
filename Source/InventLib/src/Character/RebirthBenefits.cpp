@@ -1,4 +1,4 @@
-#include "InventLib/Character/RebirthBenefits.h"
+#include "Invent/Character/RebirthBenefits.h"
 
 #include <unordered_map>
 

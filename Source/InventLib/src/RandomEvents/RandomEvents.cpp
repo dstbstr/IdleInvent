@@ -1,7 +1,7 @@
-#include "InventLib/RandomEvents/RandomEvents.h"
+#include "Invent/RandomEvents/RandomEvents.h"
 
-#include "InventLib/RandomEvents/RandomEvent.h"
-#include "InventLib/Technology/Invention.h"
+#include "Invent/RandomEvents/RandomEvent.h"
+#include "Invent/Technology/Invention.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>

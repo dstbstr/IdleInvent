@@ -1,9 +1,9 @@
 #include "CommonTest.h"
 #include "TestGameState.h"
 
-#include "InventLib/Technology/Invention.h"
-#include "InventLib/Technology/Technology.h"
-#include "InventLib/Technology/TechAge.h"
+#include "Invent/Technology/Invention.h"
+#include "Invent/Technology/Technology.h"
+#include "Invent/Technology/TechAge.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <DesignPatterns/PubSub.h>

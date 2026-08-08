@@ -1,6 +1,6 @@
 #include "CommonTest.h"
 
-#include "InventLib/Projects/Expeditions.h"
+#include "Invent/Projects/Expeditions.h"
 
 constexpr auto epsilon = 0.01F;
 

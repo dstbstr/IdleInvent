@@ -1,4 +1,4 @@
-#include "InventLib/Character/Death.h"
+#include "Invent/Character/Death.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <GameState/GameTime.h>

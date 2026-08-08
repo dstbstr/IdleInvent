@@ -1,12 +1,12 @@
-#include "InventLib/Character/Life.h"
+#include "Invent/Character/Life.h"
 
-#include "InventLib/Character/Society.h"
-#include "InventLib/Effects/Effect.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Projects/Building.h"
-#include "InventLib/Projects/Expeditions.h"
-#include "InventLib/Projects/Population.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Character/Society.h"
+#include "Invent/Effects/Effect.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Projects/Building.h"
+#include "Invent/Projects/Expeditions.h"
+#include "Invent/Projects/Population.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>

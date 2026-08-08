@@ -1,5 +1,5 @@
-#include "InventLib/Ui/Layout/EmptyBar.h"
-#include "InventLib/Ui/Ui.h"
+#include "Invent/Ui/Layout/EmptyBar.h"
+#include "Invent/Ui/Ui.h"
 
 namespace Ui::EmptyBar {
 

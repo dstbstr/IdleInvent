@@ -1,4 +1,4 @@
-#include "InventLib/Resources/InventStorage.h"
+#include "Invent/Resources/InventStorage.h"
 
 #include <Constexpr/ConstexprSaveUtils.h>
 #include <Instrumentation/Logging.h>

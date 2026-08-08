@@ -1,5 +1,5 @@
 #pragma once
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <GameState/GameTime.h>
 #include <Resources/Resource.h>

@@ -1,8 +1,8 @@
-#include "InventLib/Ui/Layout/TopBar.h"
-#include "InventLib/Character/Society.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Ui/Screens/Screens.h"
-#include "InventLib/Ui/Ui.h"
+#include "Invent/Ui/Layout/TopBar.h"
+#include "Invent/Character/Society.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Ui/Screens/Screens.h"
+#include "Invent/Ui/Ui.h"
 
 #include <Constexpr/ConstexprStrUtils.h>
 #include <DesignPatterns/PubSub.h>
@@ -13,7 +13,7 @@
 #include <imgui.h>
 
 namespace {
-    constexpr auto SettingsIcon = "Icon/SettingsIcon64.png";
+    constexpr auto SettingsIcon = "Icons/Settings.png";
 
     Invent::GameSettings* gameSettings{nullptr};
     //Image settingsIcon;

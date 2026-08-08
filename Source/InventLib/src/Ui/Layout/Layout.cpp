@@ -1,12 +1,12 @@
-#include "InventLib/Ui/Layout/Layout.h"
-#include "InventLib/Ui/Layout/EmptyBar.h"
-#include "InventLib/Ui/Layout/NavBar.h"
-#include "InventLib/Ui/Layout/NewsFeed.h"
-#include "InventLib/Ui/Layout/Popups.h"
-#include "InventLib/Ui/Layout/PrimaryResource.h"
-#include "InventLib/Ui/Layout/ResourceBar.h"
-#include "InventLib/Ui/Layout/TopBar.h"
-#include "InventLib/Ui/Screens/Screens.h"
+#include "Invent/Ui/Layout/Layout.h"
+#include "Invent/Ui/Layout/EmptyBar.h"
+#include "Invent/Ui/Layout/NavBar.h"
+#include "Invent/Ui/Layout/NewsFeed.h"
+#include "Invent/Ui/Layout/Popups.h"
+#include "Invent/Ui/Layout/PrimaryResource.h"
+#include "Invent/Ui/Layout/ResourceBar.h"
+#include "Invent/Ui/Layout/TopBar.h"
+#include "Invent/Ui/Screens/Screens.h"
 
 #include <Platform/Graphics.h>
 #include <Instrumentation/Logging.h>

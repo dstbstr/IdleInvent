@@ -1,10 +1,10 @@
 #pragma once
 
-#include "InventLib/Constants.h"
-#include "InventLib/GameState/GameSettings.h"
-#include "InventLib/Projects/Project.h"
-#include "InventLib/Projects/Research.h"
-#include "InventLib/Resources/InventResources.h"
+#include "Invent/Constants.h"
+#include "Invent/GameState/GameSettings.h"
+#include "Invent/Projects/Project.h"
+#include "Invent/Projects/Research.h"
+#include "Invent/Resources/InventResources.h"
 
 #include <GameState/GameTime.h>
 #include <Mechanics/Progression.h>

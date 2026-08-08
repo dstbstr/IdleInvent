@@ -1,6 +1,6 @@
 #include "CommonTest.h"
 
-#include "InventLib/Projects/Building.h"
+#include "Invent/Projects/Building.h"
 
 namespace Invent {
     TEST(Building, TimeCost_AfterLevel_IsGreater) { 

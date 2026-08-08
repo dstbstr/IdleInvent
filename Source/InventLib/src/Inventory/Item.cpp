@@ -1,6 +1,6 @@
-#include "InventLib/Inventory/Item.h"
-#include "InventLib/Inventory/ItemQuality.h"
-#include "InventLib/Effects/Effect.h"
+#include "Invent/Inventory/Item.h"
+#include "Invent/Inventory/ItemQuality.h"
+#include "Invent/Effects/Effect.h"
 
 #include <GameState/GameTime.h>
 #include <Mechanics/Modifier.h>
