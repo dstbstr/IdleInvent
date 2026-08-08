@@ -26,7 +26,6 @@ namespace Ui::ResourceBar {
     }
 
     void Render() {
-        ImGui::Begin("ResourceBar", nullptr, BaseFlags);
         ImGui::BeginTable("ResourceTable", 3);
         for(const auto& name : Invent::SecondaryResources()) {
             const auto& resource = life->Resources.at(name);
@@ -34,6 +33,5 @@ namespace Ui::ResourceBar {
             ImGui::Text("%s", std::format("{}: {}/{}", ToString(name), Constexpr::HumanReadable(resource.Current), Constexpr::HumanReadable(resource.Capacity)).c_str());
         }
         ImGui::EndTable();
-        ImGui::End();
     }
 }

@@ -24,8 +24,6 @@ namespace Ui::PrimaryResource {
         auto primary = Invent::ResourceName::Primary;
         const auto& resource = life->Resources.at(primary);
         auto progress = static_cast<f32>(resource.Current) / static_cast<f32>(resource.Capacity);
-        ImGui::Begin("Primary Resource", nullptr, BaseFlags);
         ImGui::ProgressBar(progress, ImVec2(-1, -1), std::format("Work: {}/{}", resource.Current, resource.Capacity).c_str());
-        ImGui::End();
     }
 }

@@ -29,10 +29,7 @@ namespace Ui::NavBar {
     
     void Render() {
         auto spacing = Graphics::ScreenWidth / 5;
-        //auto spacing = 200.0F;
-        //ImGui::Begin("NavBar", nullptr, BaseFlags | ImGuiWindowFlags_HorizontalScrollbar);
-        ImGui::Begin("NavBar", nullptr, BaseFlags);
- 
+
         auto homeIcon = Graphics::GetSprite(HomeIcon);
         if(ImGui::ImageButton("HomeIcon", homeIcon.Texture, { IconSize, IconSize }, homeIcon.UvMin, homeIcon.UvMax)) {
             Screens::SetActiveScreen(Screen::Home);
@@ -58,7 +55,5 @@ namespace Ui::NavBar {
         if(ImGui::ImageButton("AchievementIcon", achievementIcon.Texture, { IconSize, IconSize }, achievementIcon.UvMin, achievementIcon.UvMax)) {
             Screens::SetActiveScreen(Screen::Achievements);
         }
-
-        ImGui::End();
     }
 }

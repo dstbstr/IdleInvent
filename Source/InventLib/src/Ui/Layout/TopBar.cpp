@@ -77,8 +77,6 @@ namespace Ui::TopBar {
     }
 
     void Render() {
-        ImGui::Begin("TopBar", nullptr, BaseFlags);
-
         RenderSettings();
         ImGui::SameLine();
         RenderFps();
@@ -89,7 +87,5 @@ namespace Ui::TopBar {
 
         ImGui::SameLine(0, ImGui::GetContentRegionAvail().x * 0.15F);
         RenderPurchaseChoice();
-
-        ImGui::End();
     }
 } // namespace Ui::TopBar
