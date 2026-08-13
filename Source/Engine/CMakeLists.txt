@@ -12,7 +12,9 @@ set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 target_sources(${PROJECT_NAME} PRIVATE
 	src/Engine.cpp
 
-	 src/Animation/Animation.cpp 
+	src/Animation/Animation.cpp 
+
+	src/Constexpr/ConstexprStrUtils.cpp
 
 	src/DesignPatterns/PubSub.cpp
 
@@ -37,4 +39,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Settings/PurchaseAmount.cpp
 
 	src/Utilities/Handle.cpp
- "src/Constexpr/ConstexprStrUtils.cpp" "inc/DesignPatterns/Tree.h")
+	
+	src/World/World.cpp
+)
