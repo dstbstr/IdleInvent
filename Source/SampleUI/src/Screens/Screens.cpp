@@ -3,6 +3,7 @@
 #include <SampleUI/Screens/Landing.h>
 #include <SampleUI/Screens/SampleTreePanel.h>
 #include <SampleUI/Screens/SampleParticles.h>
+#include <SampleUI/Screens/SampleSimpleMap.h>
 
 #include <Instrumentation/Logging.h>
 #include <Ui/Dialog.h>
@@ -20,6 +21,7 @@ namespace SampleUI {
 			case Landing: return "Landing";
 			case SampleTreePanel: return "SampleTreePanel";
             case SampleParticles: return "SampleParticles";
+            case SampleSimpleMap: return "SampleSimpleMap";
 		}
 
 		DR_ASSERT_MSG(false, "Invalid screen");
@@ -33,13 +35,15 @@ namespace SampleUI {
 			return ::Ui::Dialog::Initialize()
 				&& Landing::Initialize()
 				&& SampleTreePanel::Initialize()
-				&& SampleParticles::Initialize();
+				&& SampleParticles::Initialize()
+				&& SampleSimpleMap::Initialize();
 		}
 
 		void ShutDown() {
 			Landing::ShutDown();
 			SampleTreePanel::ShutDown();
 			SampleParticles::ShutDown();
+			SampleSimpleMap::ShutDown();
 			::Ui::Dialog::ShutDown();
 			activeScreenName = Screen::Landing;
 			activeScreenFn = Landing::Render;
@@ -58,6 +62,7 @@ namespace SampleUI {
 				case Landing: activeScreenFn = Landing::Render; break;
 				case SampleTreePanel: activeScreenFn = SampleTreePanel::Render; break;
                 case SampleParticles: activeScreenFn = SampleParticles::Render; break;
+                case SampleSimpleMap: activeScreenFn = SampleSimpleMap::Render; break;
 			}
 		}
 

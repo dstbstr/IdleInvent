@@ -31,6 +31,10 @@ namespace Ui {
 		m_Input.MouseScreen  = ImGui::GetIO().MousePos;
 		m_Input.MouseLocal   = ScreenToLocal(m_Input.MouseScreen);
 		m_Input.MouseContent = LocalToContent(m_Input.MouseLocal);
+
+		if(m_RenderFn) {
+            m_RenderFn(*this);
+		}
 	}
 
 	ImVec2 CanvasPanel::ScreenToLocal(ImVec2 screen) const {

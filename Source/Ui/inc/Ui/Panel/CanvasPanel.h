@@ -31,7 +31,10 @@ namespace Ui {
 	// canvas only consumes the LEFT mouse button via an internal InvisibleButton.
 	class CanvasPanel : public Panel {
 	public:
+		using RenderFn = std::function<void(CanvasPanel& canvas)>;
+
 		explicit CanvasPanel(const PanelConfig& config) : Panel(config) {}
+		CanvasPanel(const PanelConfig& config, RenderFn renderFn) : Panel(config), m_RenderFn(std::move(renderFn)) {}
 
 		// Input state captured during the most recent Render() call.
 		[[nodiscard]] const CanvasInput& GetInput() const { return m_Input; }
@@ -50,6 +53,7 @@ namespace Ui {
 
 	private:
 		CanvasInput m_Input{};
+        RenderFn m_RenderFn{};
 		// True from the frame IsItemActivated() fires until the mouse fully releases.
 		// Distinguishes "press started on me" from "ActiveId inherited because another
 		// widget disappeared mid-press," which is a real edge case when modals close.

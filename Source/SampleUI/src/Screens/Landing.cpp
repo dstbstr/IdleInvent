@@ -24,7 +24,7 @@ namespace {
 	constexpr std::array<LandingButton, ButtonCols * ButtonRows> Buttons{{
 		{"Tree\nPanel", SampleUI::Screen::SampleTreePanel},
 		{"Particles", SampleUI::Screen::SampleParticles},
-		{"Unused", SampleUI::Screen::Landing},
+		{"Simple Map", SampleUI::Screen::SampleSimpleMap},
 		{"Unused", SampleUI::Screen::Landing},
 		{"Unused", SampleUI::Screen::Landing},
 		{"Unused", SampleUI::Screen::Landing},
