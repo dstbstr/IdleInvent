@@ -8,6 +8,38 @@
 
 /*
 How to use:
+auto path = AStar(start, end, MDistance);
+if(path) {
+    // path goes from start to end inclusive
+}
+
+More customization
+auto costFn = [](Coord from, Coord to) {
+    switch(GetTerrainAt(to)) {
+        case Terrain::Grass: return 1.f;
+        case Terrain::Water: return 2.f;
+        case Terrain::Mountain: return 3.f;
+    }
+};
+auto doneFn = [](Coord node) {
+    auto delta = std::abs(PlayerPos - node);
+    return (delta.x > 1 || delta.y > 1) && (delta.x + delta.y) < 10;
+};
+auto neighbors = [](Coord node) {
+    std::vector<Coord> result;
+    for(auto n : GetNeighbors(node)) {
+        auto t = GetTerrainAt(n);
+        if(t == Terrain::RedDoor && !Player.Inventory.Contains("RedKey")) continue;
+        result.push_back(n);
+    }
+    return result;
+};
+
+auto heuristicFn = [](Coord from, Coord to) {
+    return MDistance(from, to);
+};
+
+auto path = AStar(start, costFn, doneFn, heuristicFn, neighbors);
 */
 
 namespace World {
