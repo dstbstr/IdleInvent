@@ -24,6 +24,11 @@ namespace World {
         constexpr auto operator<=>(const WorldLocation&) const = default;
     };
 
+    constexpr u32 MDistance(Coord a, Coord b) {
+        // yeah, yeah, overflow is possible, fix it if it becomes a problem
+        return static_cast<u32>(Constexpr::Abs(a.X - b.X) + Constexpr::Abs(a.Y - b.Y));
+    }
+
 	struct SquareTopology {
         constexpr std::array<Coord, 4> GetNeighbors(Coord pos) const {
             return {
@@ -35,8 +40,7 @@ namespace World {
         }
 
         [[nodiscard]] constexpr u32 MinDistance(Coord from, Coord to) const {
-            // yeah, yeah, overflow is possible, fix it if it becomes a problem
-            return static_cast<u32>(Constexpr::Abs(from.X - to.X) + Constexpr::Abs(from.Y - to.Y));
+            return MDistance(from, to);
         }
 
     	[[nodiscard]] constexpr bool IsNeighbor(Coord a, Coord b) const {

@@ -83,12 +83,12 @@ add_subdirectory(Game)
 add_subdirectory(SampleUI)
 if(IncludeTests)
     FetchContent_MakeAvailable(googletest)
+    enable_testing()
 
     add_subdirectory(EngineTest)
     add_subdirectory(InventLibTest)
     add_subdirectory(GhostHunterLibTest)
     add_subdirectory(PetPyramidLibTest)
-    enable_testing()
 endif()
 
 

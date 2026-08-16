@@ -13,8 +13,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 include(GoogleTest)
-#gtest_discover_tests(${PROJECT_NAME})
-add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+gtest_discover_tests(${PROJECT_NAME})
+#add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE
   src/Main.cpp
@@ -25,6 +25,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
   src/DesignPatterns/PubSub.test.cpp 
   src/DesignPatterns/ServiceLocator.test.cpp
+  src/DesignPatterns/Tree.test.cpp
 
   src/Instrumentation/DebugContext.test.cpp 
   src/Instrumentation/Logging.test.cpp
@@ -38,9 +39,14 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Mechanics/ScaleFunc.tests.cpp
   src/Mechanics/Upgrade.test.cpp
 
+  src/Resources/Resource.test.cpp
+
   src/Utilities/Concepts.test.cpp
-  src/Utilities/Format.test.cpp
-  src/Utilities/IRandom.test.cpp 
   src/Utilities/EnumUtils.test.cpp
+  src/Utilities/Format.test.cpp
+  src/Utilities/Handle.test.cpp
+  src/Utilities/IRandom.test.cpp 
+  src/Utilities/TypeUtils.test.cpp
  
- "src/Utilities/Handle.test.cpp" "src/Resources/Resource.test.cpp" "src/Utilities/TypeUtils.test.cpp" "src/DesignPatterns/Tree.test.cpp")
+  src/World/AStar.test.cpp
+)

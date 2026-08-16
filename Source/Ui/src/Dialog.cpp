@@ -67,7 +67,7 @@ namespace {
 		std::vector<Token> tokens;
 		std::string current;
 		for(size_t i = 0; i < text.size(); ++i) {
-			const char c = text[i];
+			const char c = text.at(i);
 			if(c == '\n') {
 				if(!current.empty()) { tokens.push_back({std::move(current), false}); current.clear(); }
 				tokens.push_back({"", true});
@@ -90,7 +90,7 @@ namespace {
 				line.clear();
 				continue;
 			}
-			const auto candidate = line + tok.Text;
+			auto candidate = line + tok.Text;
 			const auto candidateWidth = ImGui::CalcTextSize(candidate.c_str()).x;
 			if(candidateWidth <= wrapWidth || line.empty()) {
 				line = std::move(candidate);
@@ -251,6 +251,7 @@ namespace Ui::Dialog {
 
 			const auto& page = s_Pages.at(s_CurrentPage);
 			ImGui::PushTextWrapPos(0.f);
+			// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 			ImGui::TextUnformatted(page.data(), page.data() + s_RevealedChars);
 			ImGui::PopTextWrapPos();
 
