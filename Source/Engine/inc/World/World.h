@@ -6,14 +6,15 @@
 
 namespace World {
     struct Coord {
-        s32 X, Y;
+        s32 X{}, Y{};
         constexpr auto operator<=>(const Coord&) const = default;
         constexpr Coord operator+(Coord delta) const { return {X + delta.X, Y + delta.Y}; }
     };
 	struct LocalPos {
-        f32 X, Y;
+        f32 X{}, Y{};
         constexpr auto operator<=>(const LocalPos&) const = default;
         constexpr LocalPos operator+(LocalPos delta) const { return {X + delta.X, Y + delta.Y}; }
+        constexpr LocalPos operator*(f32 scalar) const { return {X * scalar, Y * scalar}; }
     };
     using Displacement = LocalPos;
 
