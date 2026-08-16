@@ -44,6 +44,11 @@ namespace {
         Discrete,
         Fluid
     };
+    enum struct CameraKind : u8 {
+        Manual,
+        Locked,
+        Snap
+    };
 
     Ui::PanelConfig PanelConfig{};
     s32 WorldSeed = 42;
@@ -51,6 +56,8 @@ namespace {
     f32 WaterPercent = 0.2f;
     int SelectedMovement = static_cast<int>(MovementKind::Discrete);
     f32 MoveSpeed = 4.f;
+    int SelectedCamera = static_cast<int>(CameraKind::Manual);
+    f32 SnapPercent = 0.4f;
 
     enum struct TerrainType : u8 { Floor, Wall, Water };
 
@@ -140,7 +147,7 @@ namespace {
         timeSinceMove += elapsed;
 
         if(MoveRequest == MoveDir::None) return;
-        auto elapsedSeconds = elapsed.count() / 1000.f;
+        auto elapsedSeconds = static_cast<f32>(elapsed.count()) / 1000.f;
 
         auto delta = World::Displacement{};
         if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
@@ -148,19 +155,19 @@ namespace {
             if(!std::has_single_bit(bits)) {
                 return;
             }
-            delta.X += HasFlag(MoveRequest, MoveDir::Right);
-            delta.X -= HasFlag(MoveRequest, MoveDir::Left);
-            delta.Y += HasFlag(MoveRequest, MoveDir::Down);
-            delta.Y -= HasFlag(MoveRequest, MoveDir::Up);
+            delta.X += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Right));
+            delta.X -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Left));
+            delta.Y += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Down));
+            delta.Y -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Up));
             
             MoveRequest = MoveDir::None;
         } else if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
-            delta.X += HasFlag(MoveRequest, MoveDir::Right) * MoveSpeed * elapsedSeconds;
-            delta.X -= HasFlag(MoveRequest, MoveDir::Left) * MoveSpeed * elapsedSeconds;
-            delta.Y += HasFlag(MoveRequest, MoveDir::Down) * MoveSpeed * elapsedSeconds;
-            delta.Y -= HasFlag(MoveRequest, MoveDir::Up) * MoveSpeed * elapsedSeconds;
+            delta.X += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Right)) * MoveSpeed * elapsedSeconds;
+            delta.X -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Left)) * MoveSpeed * elapsedSeconds;
+            delta.Y += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Down)) * MoveSpeed * elapsedSeconds;
+            delta.Y -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Up)) * MoveSpeed * elapsedSeconds;
             if(std::abs(delta.X) + std::abs(delta.Y) > MoveSpeed * elapsedSeconds) {
-                auto scale = std::sqrt(2.0);
+                auto scale = std::sqrt(2.0f);
                 delta.X /= scale;
                 delta.Y /= scale;
             }
@@ -227,6 +234,34 @@ namespace {
         auto screenRadius = (pawn.Diameter * CellSize * canvas.GetZoom()) / 2.f;
 
         ImGui::GetWindowDrawList()->AddCircleFilled(screenCenter, screenRadius, IM_COL32(0, 255, 0, 255));
+    }
+
+    void UpdateCamera(Ui::CanvasPanel& canvas, const Pawn& pawn) {
+        auto camera = static_cast<CameraKind>(SelectedCamera);
+        if(camera == CameraKind::Manual) return;
+
+        auto pawnContent = pawn.Location.Pos * CellSize;
+        auto pawnLocal = canvas.ContentToLocal(ImVec2{pawnContent.X, pawnContent.Y});
+        auto targetLocal = canvas.GetLocalCenter();
+        auto delta = targetLocal - pawnLocal;
+
+        auto scaledCenter = pawn.Location.Pos * CellSize;
+        
+        auto contentCenter = ImVec2{scaledCenter.X, scaledCenter.Y};
+        
+        if(camera == CameraKind::Locked) {
+            canvas.PanBy(delta);
+        } else if(camera == CameraKind::Snap) {
+            auto size = canvas.GetViewportSize();
+            //auto percentX = pawnLocal.x / size.x;
+            //auto percentY = pawnLocal.y / size.y;
+            if(pawnLocal.x < size.x * SnapPercent || pawnLocal.x > size.x * (1.f - SnapPercent)) {
+                canvas.PanBy(ImVec2{delta.x, 0.f});
+            }
+            if(pawnLocal.y < size.y * SnapPercent || pawnLocal.y > size.y * (1.f - SnapPercent)) {
+                canvas.PanBy(ImVec2{0.f, delta.y});
+            }
+        }
     }
 
 } // namespace
@@ -313,6 +348,12 @@ namespace SampleUI::Screens::SampleNav {
             ImGui::InputInt("Move Interval (ms)", &moveIntervalMs);
         }
 
+        auto cameraOptions = "Manual\0Locked\0Snap\0";
+        ImGui::Combo("Camera Kind", &SelectedCamera, cameraOptions);
+
+        if(SelectedCamera == static_cast<int>(CameraKind::Snap)) {
+            ImGui::SliderFloat("Snap Percent", &SnapPercent, 0.1f, 0.5f);
+        }
         ImGui::PopFont();
 
         PollMoveRequest();
@@ -326,6 +367,7 @@ namespace SampleUI::Screens::SampleNav {
 
         if(Panel) {
             Panel->SetBounds(canvasBounds);
+            UpdateCamera(*Panel, PlayerPawn);
             Panel->Render();
         }
 

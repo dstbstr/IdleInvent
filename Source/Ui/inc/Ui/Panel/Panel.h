@@ -81,6 +81,9 @@ namespace Ui {
         void SetBounds(Rect bounds) {
             Bounds = bounds;
         }
+        
+        ImVec2 GetLocalCenter() const { return {GetCenterX(), GetCenterY()}; }
+        ImVec2 GetViewportSize() const { return Bounds.Size; }
 
         ImVec2 GetPanOffset() const { return PanOffset; }
         void ResetPan() { PanOffset = {0.f, 0.f}; }
@@ -103,6 +106,12 @@ namespace Ui {
         // Convenience: zoom around the panel center. Intended for button-driven UI.
         void ZoomIn();
         void ZoomOut();
+
+        void SetPanOffset(ImVec2 offset) { PanOffset = offset; }
+        void PanBy(ImVec2 delta) {
+            PanOffset.x += delta.x;
+            PanOffset.y += delta.y;
+        }
 
     protected: 
         virtual void RenderImpl() = 0;
