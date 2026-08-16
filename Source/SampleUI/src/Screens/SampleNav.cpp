@@ -55,9 +55,9 @@ namespace {
     f32 FloorPercent = 0.7f;
     f32 WaterPercent = 0.2f;
     int SelectedMovement = static_cast<int>(MovementKind::Discrete);
-    f32 MoveSpeed = 4.f;
-    int SelectedCamera = static_cast<int>(CameraKind::Manual);
-    f32 SnapPercent = 0.4f;
+    f32 MoveSpeed = 8.f;
+    int SelectedCamera = static_cast<int>(CameraKind::Snap);
+    f32 SnapPercent = 0.2f;
 
     enum struct TerrainType : u8 { Floor, Wall, Water };
 
@@ -203,7 +203,14 @@ namespace {
             return terrain == TerrainType::Floor;
         };
 
-        if(World::TryMove<Map::Width, Map::Height>(pawn.Location, delta, CanOccupy)) {
+        auto moved = false;
+        if(delta.X != 0.f) {
+            moved |= World::TryMove<Map::Width, Map::Height>(pawn.Location, {delta.X, 0.f}, CanOccupy); 
+        }
+        if(delta.Y != 0.f) {
+            moved |= World::TryMove<Map::Width, Map::Height>(pawn.Location, {0.f, delta.Y}, CanOccupy); 
+        }
+        if(moved) {
             timeSinceMove = BaseTime{};
         }
     }
@@ -245,16 +252,10 @@ namespace {
         auto targetLocal = canvas.GetLocalCenter();
         auto delta = targetLocal - pawnLocal;
 
-        auto scaledCenter = pawn.Location.Pos * CellSize;
-        
-        auto contentCenter = ImVec2{scaledCenter.X, scaledCenter.Y};
-        
         if(camera == CameraKind::Locked) {
             canvas.PanBy(delta);
         } else if(camera == CameraKind::Snap) {
             auto size = canvas.GetViewportSize();
-            //auto percentX = pawnLocal.x / size.x;
-            //auto percentY = pawnLocal.y / size.y;
             if(pawnLocal.x < size.x * SnapPercent || pawnLocal.x > size.x * (1.f - SnapPercent)) {
                 canvas.PanBy(ImVec2{delta.x, 0.f});
             }
