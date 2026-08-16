@@ -14,6 +14,7 @@
 
 #include <imgui.h>
 
+#include <bit>
 #include <chrono>
 #include <cmath>
 #include <memory>
@@ -49,7 +50,7 @@ namespace {
     f32 FloorPercent = 0.7f;
     f32 WaterPercent = 0.2f;
     int SelectedMovement = static_cast<int>(MovementKind::Discrete);
-    f32 MoveSpeed = 1.0f;
+    f32 MoveSpeed = 4.f;
 
     enum struct TerrainType : u8 { Floor, Wall, Water };
 
@@ -98,49 +99,106 @@ namespace {
         },
         .Diameter = 0.7f
     };
-    static MovementRequest MoveRequest = {};
+
+    enum struct MoveDir : u8 { None = 0, Up = 1 << 0, Down = 1 << 1, Left = 1 << 2, Right = 1 << 3 };
+    constexpr MoveDir operator|(MoveDir lhs, MoveDir rhs) { return static_cast<MoveDir>(static_cast<u8>(lhs) | static_cast<u8>(rhs)); }
+    constexpr MoveDir operator|=(MoveDir& lhs, MoveDir rhs) {
+        lhs = lhs | rhs;
+        return lhs;
+    }
+    constexpr bool HasFlag(MoveDir value, MoveDir flag) {
+        return (static_cast<u8>(value) & static_cast<u8>(flag)) != 0;
+    }
+
+    static MoveDir MoveRequest = MoveDir::None;
     static BaseTime timeSinceMove{};
     static int moveIntervalMs = 100;
 
     void PollMoveRequest() {
+        auto GetKeys = [](auto keyFn) {
+            auto keys = MoveDir::None;
+            if(keyFn(ImGuiKey_W) || keyFn(ImGuiKey_UpArrow)) keys |= MoveDir::Up;
+            if(keyFn(ImGuiKey_S) || keyFn(ImGuiKey_DownArrow)) keys |= MoveDir::Down;
+            if(keyFn(ImGuiKey_A) || keyFn(ImGuiKey_LeftArrow)) keys |= MoveDir::Left;
+            if(keyFn(ImGuiKey_D) || keyFn(ImGuiKey_RightArrow)) keys |= MoveDir::Right;
+
+            return keys;
+        };
+
         if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
             if(timeSinceMove < BaseTime(moveIntervalMs)) {
                 return;
             }
-
-            if(ImGui::IsKeyPressed(ImGuiKey_W) || ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
-                MoveRequest.Delta = {0.f, -1.f};
-            } else if(ImGui::IsKeyPressed(ImGuiKey_S) || ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
-                MoveRequest.Delta = {0.f, 1.f};
-            } else if(ImGui::IsKeyPressed(ImGuiKey_A) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
-                MoveRequest.Delta = {-1.f, 0.f};
-            } else if(ImGui::IsKeyPressed(ImGuiKey_D) || ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
-                MoveRequest.Delta = {1.f, 0.f};
-            } else {
-                return;
-            }
+            // HA! Function currying for the win!
+            MoveRequest = GetKeys([](auto key) { return ImGui::IsKeyPressed(key, false); });
+        } else if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
+            MoveRequest = GetKeys(ImGui::IsKeyDown);
         }
     }
 
     void TryMove(Pawn& pawn, BaseTime elapsed) {
         timeSinceMove += elapsed;
 
-        if(MoveRequest.IsDefault()) return;
+        if(MoveRequest == MoveDir::None) return;
+        auto elapsedSeconds = elapsed.count() / 1000.f;
+
+        auto delta = World::Displacement{};
+        if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
+            auto bits = static_cast<u8>(MoveRequest);
+            if(!std::has_single_bit(bits)) {
+                return;
+            }
+            delta.X += HasFlag(MoveRequest, MoveDir::Right);
+            delta.X -= HasFlag(MoveRequest, MoveDir::Left);
+            delta.Y += HasFlag(MoveRequest, MoveDir::Down);
+            delta.Y -= HasFlag(MoveRequest, MoveDir::Up);
+            
+            MoveRequest = MoveDir::None;
+        } else if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
+            delta.X += HasFlag(MoveRequest, MoveDir::Right) * MoveSpeed * elapsedSeconds;
+            delta.X -= HasFlag(MoveRequest, MoveDir::Left) * MoveSpeed * elapsedSeconds;
+            delta.Y += HasFlag(MoveRequest, MoveDir::Down) * MoveSpeed * elapsedSeconds;
+            delta.Y -= HasFlag(MoveRequest, MoveDir::Up) * MoveSpeed * elapsedSeconds;
+            if(std::abs(delta.X) + std::abs(delta.Y) > MoveSpeed * elapsedSeconds) {
+                auto scale = std::sqrt(2.0);
+                delta.X /= scale;
+                delta.Y /= scale;
+            }
+        }
         auto ToCoord = [](const World::LocalPos& pos) {
             return World::Coord{static_cast<s32>(std::floor(pos.X)), static_cast<s32>(std::floor(pos.Y))};
         };
         auto CanOccupy = [&](World::WorldLocation loc) { 
             if(loc.ChunkCoord != World::Coord{0, 0}) return false;
+            auto radius = pawn.Diameter / 2.f;
+            auto minX = static_cast<s32>(std::floor(loc.Pos.X - radius));
+            auto maxX = static_cast<s32>(std::floor(loc.Pos.X + radius));
+            auto minY = static_cast<s32>(std::floor(loc.Pos.Y - radius));
+            auto maxY = static_cast<s32>(std::floor(loc.Pos.Y + radius));
 
+            for(auto y = minY; y <= maxY; ++y) {
+                for(auto x = minX; x <= maxX; ++x) {
+                    auto cell = World::Coord(x, y);
+                    if(!Map::Contains(cell)) return false;
+                    if(WorldMap.At(cell) == TerrainType::Floor) continue;
+
+                    // check if we're overlapping a non floor tile
+                    auto closeX = std::clamp(loc.Pos.X, static_cast<f32>(x), static_cast<f32>(x + 1));
+                    auto closeY = std::clamp(loc.Pos.Y, static_cast<f32>(y), static_cast<f32>(y + 1));
+                    auto dx = loc.Pos.X - closeX;
+                    auto dy = loc.Pos.Y - closeY;
+
+                    if(dx * dx + dy * dy <= radius * radius) return false;
+                }
+            }
             auto coord = ToCoord(loc.Pos);
             auto terrain = WorldMap.At(coord);
             return terrain == TerrainType::Floor;
         };
 
-        if(World::TryMove<Map::Width, Map::Height>(pawn.Location, MoveRequest.Delta, CanOccupy)) {
+        if(World::TryMove<Map::Width, Map::Height>(pawn.Location, delta, CanOccupy)) {
             timeSinceMove = BaseTime{};
         }
-        MoveRequest.Reset();
     }
 
     void RenderMap(const Ui::CanvasPanel& canvas, const Map& chunk) {
@@ -240,7 +298,14 @@ namespace SampleUI::Screens::SampleNav {
         }
 
         auto movementOptions = "Discrete\0Fluid\0";
-        ImGui::Combo("Movement Type", &SelectedMovement, movementOptions);
+        if(ImGui::Combo("Movement Type", &SelectedMovement, movementOptions)) {
+            MoveRequest = MoveDir::None;
+            if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
+                auto& pos = PlayerPawn.Location.Pos;
+                pos.X = std::floor(pos.X) + 0.5f;
+                pos.Y = std::floor(pos.Y) + 0.5f;
+            }
+        }
 
         if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
             ImGui::InputFloat("Move Speed", &MoveSpeed);
