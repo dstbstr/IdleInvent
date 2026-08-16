@@ -5,6 +5,7 @@
 
 ## Learning Preferences
 - The user prefers guidance, design discussion, and teaching in Ask mode rather than having code implemented for them, so they can learn by doing the implementation themselves.
+- For exploratory samples, the user accepts unusual/invalid parameter combinations producing unusual visuals as long as they do not crash, and prefers not to over-engineer validation beyond the sample's learning goals.
 
 ## Code Requirements
 - For this project, the user prefers readable, simple coordinate arithmetic over defensive handling of impractically extreme INT_MIN/billion-cell cases unless real requirements later justify the added complexity.

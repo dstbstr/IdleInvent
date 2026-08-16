@@ -57,14 +57,4 @@ namespace World {
     }
 
     static_assert(ChunkTests());
-
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {0.0f, 0.0f}) == WorldLocation{{0, 0}, {0.0f, 0.0f}});
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {1.0f, 1.0f}) == WorldLocation{{0, 0}, {1.0f, 1.0f}});
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {16.0f, 0.0f}) == WorldLocation{{1, 0}, {0.0f, 0.0f}});
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {0.0f, 16.0f}) == WorldLocation{{0, 1}, {0.0f, 0.0f}});
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {-16.0f, 0.0f}) == WorldLocation{{-1, 0}, {0.0f, 0.0f}});
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {0.0f, -16.0f}) == WorldLocation{{0, -1}, {0.0f, 0.0f}});
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {32.0f, 32.0f}) == WorldLocation{{2, 2}, {0.0f, 0.0f}});
-    static_assert(Offset<16, 16>({{0, 0}, {0.0f, 0.0f}}, {-32.0f, -32.0f}) == WorldLocation{{-2, -2}, {0.0f, 0.0f}});
-
 } // namespace World

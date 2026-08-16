@@ -41,4 +41,5 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Utilities/Handle.cpp
 	
 	src/World/World.cpp
-)
+	src/World/Movement.cpp
+ )
