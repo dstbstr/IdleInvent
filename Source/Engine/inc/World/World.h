@@ -1,52 +1,50 @@
 #pragma once
 #include "Constexpr/ConstexprMath.h"
+#include "Geometry/Geometry.h"
 
 #include <Platform/NumTypes.h>
+
 #include <array>
+#include <cmath>
 
 namespace World {
-    struct Coord {
-        s32 X{}, Y{};
-        constexpr auto operator<=>(const Coord&) const = default;
-        constexpr Coord operator+(Coord delta) const { return {X + delta.X, Y + delta.Y}; }
-    };
-	struct LocalPos {
-        f32 X{}, Y{};
-        constexpr auto operator<=>(const LocalPos&) const = default;
-        constexpr LocalPos operator+(LocalPos delta) const { return {X + delta.X, Y + delta.Y}; }
-        constexpr LocalPos operator*(f32 scalar) const { return {X * scalar, Y * scalar}; }
-    };
+    struct WorldSpace;
+    struct ChunkSpace;
+
+    using ChunkCoord = Geometry::Pos2<s32, WorldSpace>;
+    using CellCoord = Geometry::Pos2<s32, ChunkSpace>;
+    using LocalPos = Geometry::Pos2<f32, ChunkSpace>;
     using Displacement = LocalPos;
 
-    struct WorldLocation {
-        Coord ChunkCoord{};
-        LocalPos Pos{};
-        constexpr auto operator<=>(const WorldLocation&) const = default;
-    };
-
-    constexpr u32 MDistance(Coord a, Coord b) {
-        // yeah, yeah, overflow is possible, fix it if it becomes a problem
-        return static_cast<u32>(Constexpr::Abs(a.X - b.X) + Constexpr::Abs(a.Y - b.Y));
+    constexpr CellCoord ToCellCoord(const LocalPos& local) {
+        return {
+            static_cast<s32>(std::floor(local.X)), 
+            static_cast<s32>(std::floor(local.Y))
+        };
     }
 
-	struct SquareTopology {
-        constexpr std::array<Coord, 4> GetNeighbors(Coord pos) const {
+    struct WorldLocation {
+        ChunkCoord Chunk{};
+        LocalPos Local{};
+        constexpr auto operator<=>(const WorldLocation&) const = default;
+
+        constexpr CellCoord ToCellCoord() const {
+            return World::ToCellCoord(Local);
+        }
+    };
+
+    namespace SquareTopology {
+        constexpr std::array<CellCoord, 4> GetNeighbors(CellCoord pos) {
             return {
-                Coord{pos.X - 1, pos.Y},
-                Coord{pos.X + 1, pos.Y},
-                Coord{pos.X, pos.Y - 1},
-                Coord{pos.X, pos.Y + 1}
+                CellCoord{pos.X - 1, pos.Y},
+                CellCoord{pos.X + 1, pos.Y},
+                CellCoord{pos.X, pos.Y - 1},
+                CellCoord{pos.X, pos.Y + 1}
             };
         }
 
-        [[nodiscard]] constexpr u32 MinDistance(Coord from, Coord to) const {
-            return MDistance(from, to);
-        }
-
-    	[[nodiscard]] constexpr bool IsNeighbor(Coord a, Coord b) const {
-            return MinDistance(a, b) == 1;
-        }
-    };
+        [[nodiscard]] constexpr bool IsNeighbor(CellCoord a, CellCoord b) { return MDistance(a, b) == 1; }
+    }
 
     template<typename TCell, size_t TWidth, size_t THeight>
     struct Chunk {
@@ -56,14 +54,14 @@ namespace World {
 
         std::array<std::array<TCell, TWidth>, THeight> Cells{};
 
-        [[nodiscard]] static constexpr bool Contains(Coord pos) {
+        [[nodiscard]] static constexpr bool Contains(CellCoord pos) {
             return pos.X >= 0 &&
                    pos.X < static_cast<s32>(Width) &&
                    pos.Y >= 0 &&
                    pos.Y < static_cast<s32>(Height);
         }
 
-        [[nodiscard]] constexpr TCell& At(Coord pos) { return Cells.at(pos.Y).at(pos.X); }
-        [[nodiscard]] constexpr const TCell& At(Coord pos) const { return Cells.at(pos.Y).at(pos.X); }
+        [[nodiscard]] constexpr TCell& At(CellCoord pos) { return Cells.at(pos.Y).at(pos.X); }
+        [[nodiscard]] constexpr const TCell& At(CellCoord pos) const { return Cells.at(pos.Y).at(pos.X); }
     };
 }

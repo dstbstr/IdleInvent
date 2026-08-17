@@ -2,28 +2,27 @@
 #include <algorithm>
 
 namespace World {
-    static_assert(Coord{0, 0} == Coord{0, 0});
-    static_assert(Coord{0, 1} != Coord{0, 0});
+    static_assert(ChunkCoord{0, 0} == ChunkCoord{0, 0});
+    static_assert(ChunkCoord{0, 1} != ChunkCoord{0, 0});
 
     static_assert(LocalPos{0.0f, 0.0f} == LocalPos{0.0f, 0.0f});
     static_assert(LocalPos{0.0f, 1.0f} != LocalPos{0.0f, 0.0f});
 
     constexpr bool SquareTopologyTests() {
-        SquareTopology top;
-        auto n = top.GetNeighbors({0, 0});
+        auto n = SquareTopology::GetNeighbors({0, 0});
         if(n.size() != 4) return false;
-        if(std::find(n.begin(), n.end(), Coord{-1, 0}) == n.end()) return false;
-        if(std::find(n.begin(), n.end(), Coord{1, 0}) == n.end()) return false;
-        if(std::find(n.begin(), n.end(), Coord{0, -1}) == n.end()) return false;
-        if(std::find(n.begin(), n.end(), Coord{0, 1}) == n.end()) return false;
+        if(std::find(n.begin(), n.end(), CellCoord{-1, 0}) == n.end()) return false;
+        if(std::find(n.begin(), n.end(), CellCoord{1, 0}) == n.end()) return false;
+        if(std::find(n.begin(), n.end(), CellCoord{0, -1}) == n.end()) return false;
+        if(std::find(n.begin(), n.end(), CellCoord{0, 1}) == n.end()) return false;
 
-        auto a = Coord{1, 1};
-        auto b = Coord{1, 2};
-        if(!top.IsNeighbor(a, b)) return false;
-        if(!top.IsNeighbor(b, a)) return false;
+        auto a = CellCoord{1, 1};
+        auto b = CellCoord{1, 2};
+        if(!SquareTopology::IsNeighbor(a, b)) return false;
+        if(!SquareTopology::IsNeighbor(b, a)) return false;
 
-        if(top.MinDistance(a, a) != 0) return false;
-        if(top.MinDistance(a, b) != 1) return false;
+        if(MDistance(a, a) != 0) return false;
+        if(MDistance(a, b) != 1) return false;
 
         return true;
     }

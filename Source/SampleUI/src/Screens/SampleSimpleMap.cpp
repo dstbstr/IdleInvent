@@ -43,49 +43,41 @@ namespace {
         return IM_COL32(0, 0, 0, 255);
     }
 
-    template<typename ChunkType>
-    constexpr ChunkType GenerateChunk() { 
+    template<size_t TWidth, size_t THeight>
+    constexpr World::Chunk<TerrainType, TWidth, THeight> GenerateChunk() { 
         using namespace World;
-        struct Rect {
-            Coord Tl;
-            Coord Br;
-            constexpr auto operator<=>(const Rect&) const = default;
-            constexpr Rect Expand(s32 dX = 1, s32 dY = 1) const {
-                return Rect{Tl + Coord{-dX, -dY}, Br + Coord{dX, dY}};
-            }
-            constexpr Rect Contract(s32 dX = 1, s32 dY = 1) const {
-                return Rect{Tl + Coord{dX, dY}, Br + Coord{-dX, -dY}};
-            }
-        };
+        using Rect = Geometry::Rect<s32, World::ChunkSpace>;
+        using CellSize = Geometry::Size2<s32, World::ChunkSpace>;
 
-        ChunkType result = {};
-        auto fullArea = Rect{Coord{0, 0}, Coord{ChunkType::Width - 1, ChunkType::Height - 1}};
+        Chunk<TerrainType, TWidth, THeight> result = {};
+
+        auto fullArea = Rect{CellCoord{0, 0}, CellCoord{TWidth, THeight}};
         auto waterArea = fullArea.Contract();
 
-        auto Fill = [&](Coord topLeft, Coord bottomRight, TerrainType t) {
-            auto startX = std::max(fullArea.Tl.X, topLeft.X);
-            auto startY = std::max(fullArea.Tl.Y, topLeft.Y);
-            auto endX = std::min(fullArea.Br.X, bottomRight.X);
-            auto endY = std::min(fullArea.Br.Y, bottomRight.Y);
+        auto Fill = [&](CellCoord topLeft, CellCoord bottomRight, TerrainType t) {
+            auto startX = std::max(fullArea.Tl().X, topLeft.X);
+            auto startY = std::max(fullArea.Tl().Y, topLeft.Y);
+            auto endX = std::min(fullArea.Br().X, bottomRight.X);
+            auto endY = std::min(fullArea.Br().Y, bottomRight.Y);
             if(startX > endX || startY > endY) return;
 
-            for(size_t row = startY; row <= endY; row++) {
-                for(size_t col = startX; col <= endX; col++) {
+            for(size_t row = startY; row < endY; row++) {
+                for(size_t col = startX; col < endX; col++) {
                     result.Cells.at(row).at(col) = t;
                 }
             }
         };
 
-        auto FillRect = [&](Rect r, TerrainType t) { Fill(r.Tl, r.Br, t); };
+        auto FillRect = [&](Rect r, TerrainType t) { Fill(r.Tl(), r.Br(), t); };
 
-        auto roomWidth = std::max(1, static_cast<s32>(ChunkType::Width * RoomWidth));
-        auto roomHeight = std::max(1, static_cast<s32>(ChunkType::Height * RoomHeight));
-        auto moatWidth = static_cast<s32>(ChunkType::Width * MoatWidth);
+        auto roomWidth = std::max(1, static_cast<s32>(TWidth * RoomWidth));
+        auto roomHeight = std::max(1, static_cast<s32>(THeight * RoomHeight));
+        auto moatWidth = static_cast<s32>(TWidth * MoatWidth);
 
-        auto MakeRoom = [&](Coord center) {
-            auto topLeft = Coord{center.X - roomWidth / 2, center.Y - roomHeight / 2};
-            auto bottomRight = Coord{center.X + roomWidth / 2, center.Y + roomHeight / 2};
-            auto room = Rect{topLeft, bottomRight};
+        auto MakeRoom = [&](CellCoord center) {
+            auto topLeft = CellCoord{center.X - roomWidth / 2, center.Y - roomHeight / 2};
+            auto size = CellSize{roomWidth, roomHeight};
+            auto room = Rect{topLeft, size};
             FillRect(room, TerrainType::Wall);
             auto floor = room.Contract();
             FillRect(floor, TerrainType::Floor);
@@ -94,20 +86,20 @@ namespace {
 
         auto MakeRoad = [&](Rect start, Rect end) {
             if(RoadWidth <= 0.f) return;
-            if(start.Tl.X > end.Br.X || start.Tl.Y > end.Br.Y) {
+            if(start.Tl().X > end.Br().X || start.Tl().Y > end.Br().Y) {
                 std::swap(start, end);
             }
 
-            if(start.Tl.X == end.Tl.X) {
-                auto roadWidth = static_cast<s32>(static_cast<f32>(roomWidth) * RoadWidth);
-                auto halfRoad = roadWidth / 2;
-                auto mid = start.Tl.X + (start.Br.X - start.Tl.X) / 2;
-                Fill({ mid - halfRoad, start.Br.Y}, {mid + halfRoad, end.Tl.Y}, TerrainType::Road);
-            } else if(start.Tl.Y == end.Tl.Y) {
-                auto roadWidth = static_cast<s32>(static_cast<f32>(roomHeight) * RoadWidth);
-                auto halfRoad = roadWidth / 2;
-                auto mid = start.Tl.Y + (start.Br.Y - start.Tl.Y) / 2;
-                Fill({start.Br.X, mid - halfRoad}, {end.Tl.X, mid + halfRoad}, TerrainType::Road);
+            if(start.Tl().X == end.Tl().X) {
+                auto roadWidth = std::max(1, static_cast<s32>(static_cast<f32>(roomWidth) * RoadWidth));
+                auto mid = start.Tl().X + (start.Br().X - start.Tl().X) / 2;
+                auto startX = mid - roadWidth / 2;
+                Fill({ startX, start.Br().Y}, {startX + roadWidth, end.Tl().Y}, TerrainType::Road);
+            } else if(start.Tl().Y == end.Tl().Y) {
+                auto roadWidth = std::max(1, static_cast<s32>(static_cast<f32>(roomHeight) * RoadWidth));
+                auto mid = start.Tl().Y + (start.Br().Y - start.Tl().Y) / 2;
+                auto startY = mid - roadWidth / 2;
+                Fill({start.Br().X, startY}, {end.Tl().X, startY + roadWidth}, TerrainType::Road);
             }
         };
 
@@ -116,10 +108,10 @@ namespace {
 
         auto halfWidth = static_cast<s32>(roomWidth / 2);
         auto halfHeight = static_cast<s32>(roomHeight / 2);
-        auto leftCenterX = waterArea.Tl.X + moatWidth + halfWidth;
-        auto rightCenterX = waterArea.Br.X - moatWidth - halfWidth;
-        auto topCenterY = waterArea.Tl.Y + moatWidth + halfHeight;
-        auto bottomCenterY = waterArea.Br.Y - moatWidth - halfHeight;
+        auto leftCenterX = waterArea.Tl().X + moatWidth + halfWidth;
+        auto rightCenterX = waterArea.Br().X - moatWidth - halfWidth;
+        auto topCenterY = waterArea.Tl().Y + moatWidth + halfHeight;
+        auto bottomCenterY = waterArea.Br().Y - moatWidth - halfHeight;
 
         auto TlRoom = MakeRoom({leftCenterX, topCenterY});
         auto TrRoom = MakeRoom({rightCenterX, topCenterY});
@@ -134,10 +126,9 @@ namespace {
         return result;
     }
 
-    static auto SmallChunk = GenerateChunk<World::Chunk<TerrainType, 16, 16>>();
-    static auto MediumChunk = GenerateChunk<World::Chunk<TerrainType, 32, 32>>();
-    static auto LargeChunk = GenerateChunk<World::Chunk<TerrainType, 64, 64>>();
-
+    static auto SmallChunk = GenerateChunk<16, 16>();
+    static auto MediumChunk = GenerateChunk<32, 32>();
+    static auto LargeChunk = GenerateChunk<64, 64>();
 }
 
 namespace SampleUI::Screens::SampleSimpleMap {
@@ -215,9 +206,9 @@ namespace SampleUI::Screens::SampleSimpleMap {
         //ImGui::SliderInt2("World Size", s_WorldSize.Data(), 1, 32);
 
         if(changed) {
-            SmallChunk = GenerateChunk<World::Chunk<TerrainType, 16, 16>>();
-            MediumChunk = GenerateChunk<World::Chunk<TerrainType, 32, 32>>();
-            LargeChunk = GenerateChunk<World::Chunk<TerrainType, 64, 64>>();
+            SmallChunk = GenerateChunk<16, 16>();
+            MediumChunk = GenerateChunk<32, 32>();
+            LargeChunk = GenerateChunk<64, 64>();
         }
         ImGui::PopFont();
 

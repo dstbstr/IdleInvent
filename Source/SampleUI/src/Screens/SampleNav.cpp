@@ -59,8 +59,8 @@ namespace {
     f32 MoveSpeed = 8.f;
     int SelectedCamera = static_cast<int>(CameraKind::Snap);
     f32 SnapPercent = 0.2f;
-    std::optional<World::Coord> TargetCell{};
-    std::optional<std::vector<World::Coord>> PathCells{};
+    std::optional<World::CellCoord> TargetCell{};
+    std::optional<std::vector<World::CellCoord>> PathCells{};
 
     enum struct TerrainType : u8 { Floor, Wall, Water };
 
@@ -106,8 +106,8 @@ namespace {
     static auto WorldMap = GenerateMap();
     static Pawn PlayerPawn = { 
         .Location = {
-            .ChunkCoord = { 0, 0 },
-            .Pos = {1.5f, 1.5f}
+            .Chunk = { 0, 0 },
+            .Local = {1.5f, 1.5f}
         },
         .Diameter = 0.7f
     };
@@ -126,45 +126,41 @@ namespace {
     static BaseTime timeSinceMove{};
     static int moveIntervalMs = 100;
 
-        World::Coord LocalPosToCell(const World::LocalPos& pos) {
-        return World::Coord{static_cast<s32>(std::floor(pos.X)), static_cast<s32>(std::floor(pos.Y))};
-    }
-
-    World::Coord ContentPosToCell(ImVec2 pos) {
-        return World::Coord{
+    World::CellCoord ContentPosToCell(ImVec2 pos) {
+        return World::CellCoord{
             static_cast<s32>(std::floor(pos.x / CellSize)), 
             static_cast<s32>(std::floor(pos.y / CellSize))
         };
     }
 
-    bool IsWalkable(World::Coord cell) {
+    bool IsWalkable(World::CellCoord cell) {
         if(!Map::Contains(cell)) return false;
         return WorldMap.At(cell) == TerrainType::Floor;
     }
 
     bool CanOccupy(World::WorldLocation loc, const Pawn& pawn) {
-        if(loc.ChunkCoord != World::Coord{0, 0}) return false;
+        if(loc.Chunk != World::ChunkCoord{0, 0}) return false;
         auto radius = pawn.Diameter / 2.f;
-        auto minX = static_cast<s32>(std::floor(loc.Pos.X - radius));
-        auto maxX = static_cast<s32>(std::floor(loc.Pos.X + radius));
-        auto minY = static_cast<s32>(std::floor(loc.Pos.Y - radius));
-        auto maxY = static_cast<s32>(std::floor(loc.Pos.Y + radius));
+        auto minX = static_cast<s32>(std::floor(loc.Local.X - radius));
+        auto maxX = static_cast<s32>(std::floor(loc.Local.X + radius));
+        auto minY = static_cast<s32>(std::floor(loc.Local.Y - radius));
+        auto maxY = static_cast<s32>(std::floor(loc.Local.Y + radius));
 
         for(auto y = minY; y <= maxY; ++y) {
             for(auto x = minX; x <= maxX; ++x) {
-                auto cell = World::Coord(x, y);
+                auto cell = World::CellCoord(x, y);
                 if(IsWalkable(cell)) continue;
 
                 // check if we're overlapping a non floor tile
-                auto closeX = std::clamp(loc.Pos.X, static_cast<f32>(x), static_cast<f32>(x + 1));
-                auto closeY = std::clamp(loc.Pos.Y, static_cast<f32>(y), static_cast<f32>(y + 1));
-                auto dx = loc.Pos.X - closeX;
-                auto dy = loc.Pos.Y - closeY;
+                auto closeX = std::clamp(loc.Local.X, static_cast<f32>(x), static_cast<f32>(x + 1));
+                auto closeY = std::clamp(loc.Local.Y, static_cast<f32>(y), static_cast<f32>(y + 1));
+                auto dx = loc.Local.X - closeX;
+                auto dy = loc.Local.Y - closeY;
 
                 if(dx * dx + dy * dy <= radius * radius) return false;
             }
         }
-        auto coord = LocalPosToCell(loc.Pos);
+        auto coord = loc.ToCellCoord();
         auto terrain = WorldMap.At(coord);
 
         return terrain == TerrainType::Floor;
@@ -192,12 +188,11 @@ namespace {
         }
     }
 
-    void FindPath(const World::Coord& start, const World::Coord& end) {
-        PathCells = World::AStar(start, end, [](World::Coord cell) {
-            auto topo = World::SquareTopology{};
-            auto neighbors = topo.GetNeighbors(cell);
-            std::vector<World::Coord> result{};
-            std::copy_if(neighbors.begin(), neighbors.end(), std::back_inserter(result), [](World::Coord c) {
+    void FindPath(const World::CellCoord& start, const World::CellCoord& end) {
+        PathCells = World::AStar(start, end, [](World::CellCoord cell) {
+            auto neighbors = World::SquareTopology::GetNeighbors(cell);
+            std::vector<World::CellCoord> result{};
+            std::copy_if(neighbors.begin(), neighbors.end(), std::back_inserter(result), [](World::CellCoord c) {
                 return IsWalkable(c);
             });
 
@@ -219,7 +214,7 @@ namespace {
             return;
         }
 
-        auto playerCell = LocalPosToCell(PlayerPawn.Location.Pos);
+        auto playerCell = PlayerPawn.Location.ToCellCoord();
         FindPath(playerCell, TargetCell.value());
     }
 
@@ -265,14 +260,14 @@ namespace {
         if(moved) {
             timeSinceMove = BaseTime{};
             if(TargetCell.has_value() && PathCells.has_value()) {
-                if(PathCells->at(0) == LocalPosToCell(pawn.Location.Pos)) {
+                if(PathCells->at(0) == pawn.Location.ToCellCoord()) {
                     PathCells->erase(PathCells->begin());
                     if(PathCells->empty()) {
                         PathCells.reset();
                         TargetCell.reset();
                     }
                 } else {
-                    FindPath(LocalPosToCell(pawn.Location.Pos), TargetCell.value());
+                    FindPath(pawn.Location.ToCellCoord(), TargetCell.value());
                 }
             }
         }
@@ -320,7 +315,7 @@ namespace {
     }
 
     void RenderPawn(const Ui::CanvasPanel& canvas, const Pawn& pawn) {
-        auto scaledCenter = pawn.Location.Pos * CellSize;
+        auto scaledCenter = pawn.Location.Local * CellSize;
         auto contentCenter = ImVec2{scaledCenter.X, scaledCenter.Y};
         auto screenCenter = canvas.ContentToScreen(contentCenter);
         auto screenRadius = (pawn.Diameter * CellSize * canvas.GetZoom()) / 2.f;
@@ -332,7 +327,7 @@ namespace {
         auto camera = static_cast<CameraKind>(SelectedCamera);
         if(camera == CameraKind::Manual) return;
 
-        auto pawnContent = pawn.Location.Pos * CellSize;
+        auto pawnContent = pawn.Location.Local * CellSize;
         auto pawnLocal = canvas.ContentToLocal(ImVec2{pawnContent.X, pawnContent.Y});
         auto targetLocal = canvas.GetLocalCenter();
         auto delta = targetLocal - pawnLocal;
@@ -423,9 +418,9 @@ namespace SampleUI::Screens::SampleNav {
         if(ImGui::Combo("Movement Type", &SelectedMovement, movementOptions)) {
             MoveRequest = MoveDir::None;
             if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
-                auto& pos = PlayerPawn.Location.Pos;
-                pos.X = std::floor(pos.X) + 0.5f;
-                pos.Y = std::floor(pos.Y) + 0.5f;
+                auto& local = PlayerPawn.Location.Local;
+                local.X = std::floor(local.X) + 0.5f;
+                local.Y = std::floor(local.Y) + 0.5f;
             }
         }
 

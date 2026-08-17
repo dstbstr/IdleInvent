@@ -8,24 +8,24 @@ namespace World {
         auto width = static_cast<f32>(TWidth);
         auto height = static_cast<f32>(THeight);
         auto result = from;
-        result.Pos.X += offset.X;
-        result.Pos.Y += offset.Y;
+        result.Local.X += offset.X;
+        result.Local.Y += offset.Y;
 
-        while(result.Pos.X < 0.0f) {
-            result.Pos.X += width;
-            result.ChunkCoord.X--;
+        while(result.Local.X < 0.0f) {
+            result.Local.X += width;
+            result.Chunk.X--;
         }
-        while(result.Pos.X >= width) {
-            result.Pos.X -= width;
-            result.ChunkCoord.X++;
+        while(result.Local.X >= width) {
+            result.Local.X -= width;
+            result.Chunk.X++;
         }
-        while(result.Pos.Y < 0.0f) {
-            result.Pos.Y += height;
-            result.ChunkCoord.Y--;
+        while(result.Local.Y < 0.0f) {
+            result.Local.Y += height;
+            result.Chunk.Y--;
         }
-        while(result.Pos.Y >= height) {
-            result.Pos.Y -= height;
-            result.ChunkCoord.Y++;
+        while(result.Local.Y >= height) {
+            result.Local.Y -= height;
+            result.Chunk.Y++;
         }
 
         return result;
