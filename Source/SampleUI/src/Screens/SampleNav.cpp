@@ -7,10 +7,11 @@
 #include <Ui/Panel/CanvasPanel.h>
 #include <Ui/Panel/ZoomFunc.h>
 #include <Ui/UiUtil.h>
-#include <World/Movement.h>
-#include <World/World.h>
 #include <Utilities/Handle.h>
 #include <Utilities/IRandom.h>
+#include <World/AStar.h>
+#include <World/Movement.h>
+#include <World/World.h>
 
 #include <imgui.h>
 
@@ -58,6 +59,8 @@ namespace {
     f32 MoveSpeed = 8.f;
     int SelectedCamera = static_cast<int>(CameraKind::Snap);
     f32 SnapPercent = 0.2f;
+    std::optional<World::Coord> TargetCell{};
+    std::optional<std::vector<World::Coord>> PathCells{};
 
     enum struct TerrainType : u8 { Floor, Wall, Water };
 
@@ -121,6 +124,50 @@ namespace {
     static BaseTime timeSinceMove{};
     static int moveIntervalMs = 100;
 
+        World::Coord LocalPosToCell(const World::LocalPos& pos) {
+        return World::Coord{static_cast<s32>(std::floor(pos.X)), static_cast<s32>(std::floor(pos.Y))};
+    }
+
+    World::Coord ContentPosToCell(ImVec2 pos) {
+        return World::Coord{
+            static_cast<s32>(std::floor(pos.x / CellSize)), 
+            static_cast<s32>(std::floor(pos.y / CellSize))
+        };
+    }
+
+    bool IsWalkable(World::Coord cell) {
+        if(!Map::Contains(cell)) return false;
+        return WorldMap.At(cell) == TerrainType::Floor;
+    }
+
+    bool CanOccupy(World::WorldLocation loc, const Pawn& pawn) {
+        if(loc.ChunkCoord != World::Coord{0, 0}) return false;
+        auto radius = pawn.Diameter / 2.f;
+        auto minX = static_cast<s32>(std::floor(loc.Pos.X - radius));
+        auto maxX = static_cast<s32>(std::floor(loc.Pos.X + radius));
+        auto minY = static_cast<s32>(std::floor(loc.Pos.Y - radius));
+        auto maxY = static_cast<s32>(std::floor(loc.Pos.Y + radius));
+
+        for(auto y = minY; y <= maxY; ++y) {
+            for(auto x = minX; x <= maxX; ++x) {
+                auto cell = World::Coord(x, y);
+                if(IsWalkable(cell)) continue;
+
+                // check if we're overlapping a non floor tile
+                auto closeX = std::clamp(loc.Pos.X, static_cast<f32>(x), static_cast<f32>(x + 1));
+                auto closeY = std::clamp(loc.Pos.Y, static_cast<f32>(y), static_cast<f32>(y + 1));
+                auto dx = loc.Pos.X - closeX;
+                auto dy = loc.Pos.Y - closeY;
+
+                if(dx * dx + dy * dy <= radius * radius) return false;
+            }
+        }
+        auto coord = LocalPosToCell(loc.Pos);
+        auto terrain = WorldMap.At(coord);
+
+        return terrain == TerrainType::Floor;
+    }
+
     void PollMoveRequest() {
         auto GetKeys = [](auto keyFn) {
             auto keys = MoveDir::None;
@@ -141,6 +188,34 @@ namespace {
         } else if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
             MoveRequest = GetKeys(ImGui::IsKeyDown);
         }
+    }
+
+    void FindPath(const World::Coord& start, const World::Coord& end) {
+        PathCells = World::AStar(start, end, [](World::Coord cell) {
+            auto topo = World::SquareTopology{};
+            auto neighbors = topo.GetNeighbors(cell);
+            std::vector<World::Coord> result{};
+            std::copy_if(neighbors.begin(), neighbors.end(), std::back_inserter(result), [](World::Coord c) {
+                return IsWalkable(c);
+            });
+
+            return result;
+        });
+    }
+
+    void PollPathRequest(const Ui::CanvasPanel& canvas) {
+        auto input = canvas.GetInput();
+        if(!input.IsActivate) return;
+
+        PathCells.reset();
+        TargetCell = ContentPosToCell(input.MouseContent);
+        if(!IsWalkable(TargetCell.value())) {
+            TargetCell.reset();
+            return;
+        }
+
+        auto playerCell = LocalPosToCell(PlayerPawn.Location.Pos);
+        FindPath(playerCell, TargetCell.value());
     }
 
     void TryMove(Pawn& pawn, BaseTime elapsed) {
@@ -172,46 +247,25 @@ namespace {
                 delta.Y /= scale;
             }
         }
-        auto ToCoord = [](const World::LocalPos& pos) {
-            return World::Coord{static_cast<s32>(std::floor(pos.X)), static_cast<s32>(std::floor(pos.Y))};
-        };
-        auto CanOccupy = [&](World::WorldLocation loc) { 
-            if(loc.ChunkCoord != World::Coord{0, 0}) return false;
-            auto radius = pawn.Diameter / 2.f;
-            auto minX = static_cast<s32>(std::floor(loc.Pos.X - radius));
-            auto maxX = static_cast<s32>(std::floor(loc.Pos.X + radius));
-            auto minY = static_cast<s32>(std::floor(loc.Pos.Y - radius));
-            auto maxY = static_cast<s32>(std::floor(loc.Pos.Y + radius));
 
-            for(auto y = minY; y <= maxY; ++y) {
-                for(auto x = minX; x <= maxX; ++x) {
-                    auto cell = World::Coord(x, y);
-                    if(!Map::Contains(cell)) return false;
-                    if(WorldMap.At(cell) == TerrainType::Floor) continue;
-
-                    // check if we're overlapping a non floor tile
-                    auto closeX = std::clamp(loc.Pos.X, static_cast<f32>(x), static_cast<f32>(x + 1));
-                    auto closeY = std::clamp(loc.Pos.Y, static_cast<f32>(y), static_cast<f32>(y + 1));
-                    auto dx = loc.Pos.X - closeX;
-                    auto dy = loc.Pos.Y - closeY;
-
-                    if(dx * dx + dy * dy <= radius * radius) return false;
-                }
-            }
-            auto coord = ToCoord(loc.Pos);
-            auto terrain = WorldMap.At(coord);
-            return terrain == TerrainType::Floor;
-        };
+        auto canOccupy = [&pawn](World::WorldLocation loc) { return CanOccupy(loc, pawn); };
 
         auto moved = false;
         if(delta.X != 0.f) {
-            moved |= World::TryMove<Map::Width, Map::Height>(pawn.Location, {delta.X, 0.f}, CanOccupy); 
+            moved |= World::TryMove<Map::Width, Map::Height>(pawn.Location, {delta.X, 0.f}, canOccupy); 
         }
         if(delta.Y != 0.f) {
-            moved |= World::TryMove<Map::Width, Map::Height>(pawn.Location, {0.f, delta.Y}, CanOccupy); 
+            moved |= World::TryMove<Map::Width, Map::Height>(pawn.Location, {0.f, delta.Y}, canOccupy); 
         }
         if(moved) {
             timeSinceMove = BaseTime{};
+            if(TargetCell.has_value() && PathCells.has_value()) {
+                if(PathCells->at(0) == LocalPosToCell(pawn.Location.Pos)) {
+                    PathCells->erase(PathCells->begin());
+                } else {
+                    FindPath(LocalPosToCell(pawn.Location.Pos), TargetCell.value());
+                }
+            }
         }
     }
 
@@ -231,6 +285,28 @@ namespace {
                     screenTl, screenBr, IM_COL32(0, 0, 0, 255), 0.f, ImDrawFlags_None, 1.f
                 );
             }
+        }
+    }
+
+    void RenderPath(const Ui::CanvasPanel& canvas) {
+        if(!TargetCell.has_value()) return;
+        if(!PathCells.has_value()) {
+            auto contentCenter = ImVec2{
+                (static_cast<f32>(TargetCell->X) + 0.5f) * CellSize, 
+                (static_cast<f32>(TargetCell->Y) + 0.5f) * CellSize
+            };
+            auto screenCenter = canvas.ContentToScreen(contentCenter);
+            auto screenRadius = (CellSize * canvas.GetZoom()) / 6.f;
+            ImGui::GetWindowDrawList()->AddCircleFilled(screenCenter, screenRadius, IM_COL32(255, 0, 0, 255));
+            return;
+        }
+
+        for(const auto& cell : PathCells.value()) {
+            auto contentCenter = ImVec2{(static_cast<f32>(cell.X) + 0.5f) * CellSize, (static_cast<f32>(cell.Y) + 0.5f) * CellSize};
+            auto screenCenter = canvas.ContentToScreen(contentCenter);
+            auto screenRadius = (CellSize * canvas.GetZoom()) / 6.f;
+
+            ImGui::GetWindowDrawList()->AddCircle(screenCenter, screenRadius, IM_COL32(0, 255, 255, 255));
         }
     }
 
@@ -276,6 +352,7 @@ namespace SampleUI::Screens::SampleNav {
 
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
             RenderMap(canvas, WorldMap);
+            RenderPath(canvas);
             RenderPawn(canvas, PlayerPawn);
         });
 
@@ -357,7 +434,6 @@ namespace SampleUI::Screens::SampleNav {
         }
         ImGui::PopFont();
 
-        PollMoveRequest();
 
         // Place the canvas in the remaining content area below the controls. Sliders and
         // buttons live above canvasTop; the canvas owns everything from there to the bottom.
@@ -368,6 +444,10 @@ namespace SampleUI::Screens::SampleNav {
 
         if(Panel) {
             Panel->SetBounds(canvasBounds);
+
+            PollMoveRequest();
+            PollPathRequest(*Panel);
+
             UpdateCamera(*Panel, PlayerPawn);
             Panel->Render();
         }
