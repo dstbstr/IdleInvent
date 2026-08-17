@@ -262,6 +262,10 @@ namespace {
             if(TargetCell.has_value() && PathCells.has_value()) {
                 if(PathCells->at(0) == LocalPosToCell(pawn.Location.Pos)) {
                     PathCells->erase(PathCells->begin());
+                    if(PathCells->empty()) {
+                        PathCells.reset();
+                        TargetCell.reset();
+                    }
                 } else {
                     FindPath(LocalPosToCell(pawn.Location.Pos), TargetCell.value());
                 }
