@@ -76,6 +76,8 @@ namespace {
 
     using Map = World::Chunk<TerrainType, 32, 32>;
     Map GenerateMap() {
+        TargetCell.reset();
+        PathCells.reset();
         auto rand = SeededRandom(static_cast<u32>(WorldSeed));
         Map map = {};
         for(size_t row = 0; row < Map::Height; ++row) {
