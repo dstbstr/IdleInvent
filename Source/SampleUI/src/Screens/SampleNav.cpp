@@ -27,7 +27,7 @@ namespace {
     constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
-    constexpr auto CellSize = 24.f;
+    constexpr auto CellSize = 64.f;
 
     struct Pawn {
         World::WorldLocation Location;
@@ -203,6 +203,9 @@ namespace {
 
             return result;
         });
+        if(PathCells.has_value()) {
+            PathCells->erase(PathCells->begin());
+        }
     }
 
     void PollPathRequest(const Ui::CanvasPanel& canvas) {
