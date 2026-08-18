@@ -62,6 +62,7 @@ namespace {
     f32 SnapPercent = 0.2f;
     std::optional<World::CellCoord> TargetCell{};
     std::optional<std::vector<World::CellCoord>> PathCells{};
+    bool AutoFollow = true;
 
     enum struct TerrainType : u8 { Floor, Wall, Water };
 
@@ -167,7 +168,22 @@ namespace {
         return terrain == TerrainType::Floor;
     }
 
-    void PollMoveRequest() {
+    bool ReachedWaypoint(const Pawn& pawn, World::CellCoord waypoint) {
+        if(static_cast<MovementKind>(SelectedMovement) == MovementKind::Discrete) {
+            return pawn.Location.ToCellCoord() == waypoint;
+        }
+
+        auto targetX = static_cast<f32>(waypoint.X) + 0.5f;
+        auto targetY = static_cast<f32>(waypoint.Y) + 0.5f;
+        auto dx = pawn.Location.Local.X - targetX;
+        auto dy = pawn.Location.Local.Y - targetY;
+
+        auto epsilon = 0.001f;
+
+        return dx * dx + dy * dy <= epsilon * epsilon;
+    }
+
+    MoveDir GetManualMoveRequest() {
         auto GetKeys = [](auto keyFn) {
             auto keys = MoveDir::None;
             if(keyFn(ImGuiKey_W) || keyFn(ImGuiKey_UpArrow)) keys |= MoveDir::Up;
@@ -179,13 +195,71 @@ namespace {
         };
 
         if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
-            if(timeSinceMove < BaseTime(moveIntervalMs)) {
-                return;
-            }
             // HA! Function currying for the win!
-            MoveRequest = GetKeys([](auto key) { return ImGui::IsKeyPressed(key, false); });
+            return GetKeys([](auto key) { return ImGui::IsKeyPressed(key, false); });
         } else if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
-            MoveRequest = GetKeys(ImGui::IsKeyDown);
+            return GetKeys(ImGui::IsKeyDown);
+        }
+    
+        return MoveDir::None;
+    }
+
+    std::optional<World::Displacement> GetManualMoveDelta(MoveDir moveRequest, BaseTime elapsed) {
+        if(moveRequest == MoveDir::None) return std::nullopt;
+
+        auto elapsedSeconds = static_cast<f32>(elapsed.count()) / 1000.f;
+
+        auto delta = World::Displacement{};
+        if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
+            auto bits = static_cast<u8>(moveRequest);
+            if(!std::has_single_bit(bits)) {
+                return std::nullopt;
+            }
+            delta.X += static_cast<f32>(HasFlag(moveRequest, MoveDir::Right));
+            delta.X -= static_cast<f32>(HasFlag(moveRequest, MoveDir::Left));
+            delta.Y += static_cast<f32>(HasFlag(moveRequest, MoveDir::Down));
+            delta.Y -= static_cast<f32>(HasFlag(moveRequest, MoveDir::Up));
+
+        } else if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
+            delta.X += static_cast<f32>(HasFlag(moveRequest, MoveDir::Right)) * MoveSpeed * elapsedSeconds;
+            delta.X -= static_cast<f32>(HasFlag(moveRequest, MoveDir::Left)) * MoveSpeed * elapsedSeconds;
+            delta.Y += static_cast<f32>(HasFlag(moveRequest, MoveDir::Down)) * MoveSpeed * elapsedSeconds;
+            delta.Y -= static_cast<f32>(HasFlag(moveRequest, MoveDir::Up)) * MoveSpeed * elapsedSeconds;
+            if(std::abs(delta.X) + std::abs(delta.Y) > MoveSpeed * elapsedSeconds) {
+                auto scale = std::sqrt(2.0f);
+                delta.X /= scale;
+                delta.Y /= scale;
+            }
+        }
+
+        return delta;
+    }
+
+    std::optional<World::Displacement> GetAutoMoveDelta(Pawn& pawn, BaseTime elapsed) {
+        if(!AutoFollow || !PathCells || PathCells->empty()) return std::nullopt;
+        auto movement = static_cast<MovementKind>(SelectedMovement);
+        auto next = PathCells->front();
+
+        if(movement == MovementKind::Discrete) {
+            auto current = pawn.Location.ToCellCoord();
+            return World::Displacement{static_cast<f32>(next.X - current.X), static_cast<f32>(next.Y - current.Y)};
+        } else {
+            auto current = pawn.Location.Local;
+            auto target = World::LocalPos{static_cast<f32>(next.X) + 0.5f, static_cast<f32>(next.Y) + 0.5f};
+
+            auto difference = World::Displacement{target.X - current.X, target.Y - current.Y};
+            auto distance = std::sqrt(difference.X * difference.X + difference.Y * difference.Y);
+            if(distance == 0.f) return std::nullopt;
+
+            auto elapsedSeconds = static_cast<f32>(elapsed.count()) / 1000.f;
+            auto maxStep = MoveSpeed * elapsedSeconds;
+            auto step = std::min(distance, maxStep);
+            auto scale = step / distance;
+
+            return World::Displacement{
+                difference.X * scale,
+                difference.Y * scale
+            };
         }
     }
 
@@ -219,35 +293,23 @@ namespace {
         FindPath(playerCell, TargetCell.value());
     }
 
-    void TryMove(Pawn& pawn, BaseTime elapsed) {
-        timeSinceMove += elapsed;
-
-        if(MoveRequest == MoveDir::None) return;
-        auto elapsedSeconds = static_cast<f32>(elapsed.count()) / 1000.f;
-
-        auto delta = World::Displacement{};
-        if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
-            auto bits = static_cast<u8>(MoveRequest);
-            if(!std::has_single_bit(bits)) {
-                return;
-            }
-            delta.X += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Right));
-            delta.X -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Left));
-            delta.Y += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Down));
-            delta.Y -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Up));
-            
-            MoveRequest = MoveDir::None;
-        } else if(SelectedMovement == static_cast<int>(MovementKind::Fluid)) {
-            delta.X += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Right)) * MoveSpeed * elapsedSeconds;
-            delta.X -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Left)) * MoveSpeed * elapsedSeconds;
-            delta.Y += static_cast<f32>(HasFlag(MoveRequest, MoveDir::Down)) * MoveSpeed * elapsedSeconds;
-            delta.Y -= static_cast<f32>(HasFlag(MoveRequest, MoveDir::Up)) * MoveSpeed * elapsedSeconds;
-            if(std::abs(delta.X) + std::abs(delta.Y) > MoveSpeed * elapsedSeconds) {
-                auto scale = std::sqrt(2.0f);
-                delta.X /= scale;
-                delta.Y /= scale;
+    void AdvancePath(const Pawn& pawn) {
+        if(TargetCell.has_value() && PathCells.has_value()) {
+            if(ReachedWaypoint(pawn, PathCells->at(0))) {
+                PathCells->erase(PathCells->begin());
+                if(PathCells->empty()) {
+                    PathCells.reset();
+                    TargetCell.reset();
+                }
+            } else {
+                if(!AutoFollow) {
+                    FindPath(pawn.Location.ToCellCoord(), TargetCell.value());
+                }
             }
         }
+    }
+
+    bool TryMove(Pawn& pawn, World::Displacement delta) {
 
         auto canOccupy = [&pawn](World::WorldLocation loc) { return CanOccupy(loc, pawn); };
 
@@ -258,20 +320,8 @@ namespace {
         if(delta.Y != 0.f) {
             moved |= World::TryMove<Map::Width, Map::Height>(pawn.Location, {0.f, delta.Y}, canOccupy); 
         }
-        if(moved) {
-            timeSinceMove = BaseTime{};
-            if(TargetCell.has_value() && PathCells.has_value()) {
-                if(PathCells->at(0) == pawn.Location.ToCellCoord()) {
-                    PathCells->erase(PathCells->begin());
-                    if(PathCells->empty()) {
-                        PathCells.reset();
-                        TargetCell.reset();
-                    }
-                } else {
-                    FindPath(pawn.Location.ToCellCoord(), TargetCell.value());
-                }
-            }
-        }
+
+        return moved;
     }
 
     void RenderMap(const Ui::CanvasPanel& canvas, const Map& chunk) {
@@ -346,6 +396,35 @@ namespace {
         }
     }
 
+    void UpdateMovement(Pawn& pawn, BaseTime elapsed) { 
+        timeSinceMove += elapsed;
+
+        auto movement = static_cast<MovementKind>(SelectedMovement);
+        if(movement == MovementKind::Discrete && timeSinceMove < BaseTime(moveIntervalMs)) {
+            return;
+        }
+
+        std::optional<World::Displacement> delta;
+        if(AutoFollow) {
+            if(PathCells.has_value()) {
+                delta = GetAutoMoveDelta(pawn, elapsed);
+            }
+        }
+        if(!delta.has_value()) {
+            auto moveRequest = GetManualMoveRequest();
+            delta = GetManualMoveDelta(moveRequest, elapsed);
+        }
+        if(!delta || *delta == World::Displacement{}) return;
+
+        if(TryMove(pawn, *delta)) {
+            if(movement == MovementKind::Discrete) {
+                timeSinceMove = BaseTime{};
+            }
+
+            AdvancePath(pawn);
+        }
+    }
+
 } // namespace
 
 namespace SampleUI::Screens::SampleNav {
@@ -363,7 +442,7 @@ namespace SampleUI::Screens::SampleNav {
         });
 
         TickManager::Get().Register(Handles, [](BaseTime elapsed) {
-            TryMove(PlayerPawn, elapsed);
+            UpdateMovement(PlayerPawn, elapsed);
         });
 
         return true;
@@ -438,6 +517,8 @@ namespace SampleUI::Screens::SampleNav {
         if(SelectedCamera == static_cast<int>(CameraKind::Snap)) {
             ImGui::SliderFloat("Snap Percent", &SnapPercent, 0.1f, 0.5f);
         }
+
+        ImGui::Checkbox("Auto Follow", &AutoFollow);
         ImGui::PopFont();
 
 
@@ -452,7 +533,6 @@ namespace SampleUI::Screens::SampleNav {
         if(Panel) {
             Panel->SetBounds(canvasBounds);
 
-            PollMoveRequest();
             PollPathRequest(*Panel);
 
             Panel->Render();
