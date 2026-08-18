@@ -14,18 +14,20 @@ namespace Ui::Details {
         if(it == layoutMap.end()) return;
         auto& ln = *it->second;
 
-        const auto subtreeWidth = ln.SubtreeBounds.Size.x;
-        const auto subtreeHeight = ln.SubtreeBounds.Size.y;
-        const auto baseW = ln.Bounds.Size.x;
-        const auto baseH = ln.Bounds.Size.y;
+        const auto subtreeWidth = ln.SubtreeBounds.GetWidth();
+        const auto subtreeHeight = ln.SubtreeBounds.GetHeight();
+        const auto baseW = ln.Bounds.GetWidth();
+        const auto baseH = ln.Bounds.GetHeight();
 
         const bool topDown = (growth == GrowthDir::TopDown);
 
-        ln.SubtreeBounds.Pos = {left, top};
-        ln.Bounds.Pos = {
-            left + (subtreeWidth - baseW) / 2.f,
+        ln.SubtreeBounds = UiRect::FromPosSize({left, top}, {subtreeWidth, subtreeHeight});
+        auto boundsMin = ImVec2{
+            left + (subtreeWidth - baseW) / 2.f, 
             topDown ? top : (top + subtreeHeight - baseH)
         };
+
+        ln.Bounds = UiRect::FromPosSize(boundsMin, {baseW, baseH});
 
         auto childrenWidth = 0.f;
         f32 childrenHeight = 0.f;
@@ -34,8 +36,8 @@ namespace Ui::Details {
             if(!child || !child->Value.Visible) continue;
             const auto cit = layoutMap.find(child.get());
             if(cit == layoutMap.end()) continue;
-            childrenWidth += cit->second->SubtreeBounds.Size.x;
-            childrenHeight = std::max(childrenHeight, cit->second->SubtreeBounds.Size.y);
+            childrenWidth += cit->second->SubtreeBounds.GetWidth();
+            childrenHeight = std::max(childrenHeight, cit->second->SubtreeBounds.GetHeight());
             ++visibleChildren;
         }
         if(visibleChildren > 1) {
@@ -49,8 +51,8 @@ namespace Ui::Details {
             if(!child || !child->Value.Visible) continue;
             const auto cit = layoutMap.find(child.get());
             if(cit == layoutMap.end()) continue;
-            const auto cw = cit->second->SubtreeBounds.Size.x;
-            const auto ch = cit->second->SubtreeBounds.Size.y;
+            const auto cw = cit->second->SubtreeBounds.GetWidth();
+            const auto ch = cit->second->SubtreeBounds.GetHeight();
             const auto childTop = topDown ? childBlockTop : (childBlockBottom - ch);
             PlaceLayersVertical(growth, child.get(), childLeft, childTop, config, layoutMap);
             childLeft += cw + config.Spacing.x;
@@ -74,8 +76,8 @@ namespace Ui::Details {
 
         const auto rootIt = layoutMap.find(root);
         if(rootIt == layoutMap.end()) return;
-        const auto rootWidth = rootIt->second->SubtreeBounds.Size.x;
-        const auto rootHeight = rootIt->second->SubtreeBounds.Size.y;
+        const auto rootWidth = rootIt->second->SubtreeBounds.GetWidth();
+        const auto rootHeight = rootIt->second->SubtreeBounds.GetHeight();
         const auto initialTop = (growth == GrowthDir::TopDown) ? 0.f : -rootHeight;
         PlaceLayersVertical(growth, root, -rootWidth / 2.f, initialTop, config, layoutMap);
     }

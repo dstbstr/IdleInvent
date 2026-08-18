@@ -2,6 +2,7 @@
 #include "SampleUI/Screens/Screens.h"
 
 #include <World/World.h>
+#include <Ui/UiGeometry.h>
 #include <Ui/UiUtil.h>
 #include <Ui/Panel/CanvasPanel.h>
 #include <Ui/Panel/ZoomFunc.h>
@@ -136,26 +137,20 @@ namespace SampleUI::Screens::SampleSimpleMap {
 
     bool Initialize() { 
         PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
-        PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
+        PanelConfig.BackgroundColor = IM_COL32_WHITE;
 
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
             auto renderChunk = [&](const auto& chunk) {
                 for(size_t row = 0; row < chunk.Height; row++) {
                     for(size_t col = 0; col < chunk.Width; col++) {
-                        auto cellType = chunk.Cells.at(row).at(col);
-                        auto color = TerrainToColor(cellType);
-                        auto x = static_cast<f32>(col) * CellSize;
-                        auto y = static_cast<f32>(row) * CellSize;
-                        auto topLeft = ImVec2(x, y);
-                        auto bottomRight = ImVec2(x + CellSize, y + CellSize);
+                        auto cell = World::CellCoord{static_cast<s32>(col), static_cast<s32>(row)};
 
-                        auto contentTl = ImVec2{static_cast<f32>(col) * CellSize, static_cast<f32>(row) * CellSize};
-                        auto contentBr = ImVec2{contentTl.x + CellSize, contentTl.y + CellSize};
-                        auto screenTl = canvas.ContentToScreen(contentTl);
-                        auto screenBr = canvas.ContentToScreen(contentBr);
-                        ImGui::GetWindowDrawList()->AddRectFilled(screenTl, screenBr, color);
-                        // border
-                        ImGui::GetWindowDrawList()->AddRect(screenTl, screenBr, IM_COL32(0, 0, 0, 255), 0.f, ImDrawFlags_None, 1.f);
+                        auto color = TerrainToColor(chunk.At(cell));
+                        auto contentBounds = Ui::ToUi(Ui::ToContentRect<CellSize>(cell));
+                        auto screen = canvas.ContentToScreen(contentBounds);
+                        auto* drawList = ImGui::GetWindowDrawList();
+                        drawList->AddRectFilled(screen.Min, screen.Max, color);
+                        drawList->AddRect(screen.Min, screen.Max, IM_COL32_BLACK, 0.f, ImDrawFlags_None, 1.f);
                     }
                 }
             };
@@ -203,8 +198,6 @@ namespace SampleUI::Screens::SampleSimpleMap {
         const char* sizeLabels = "Small\0Medium\0Large";
         ImGui::Combo("Chunk Size", &SelectedChunkSize, sizeLabels, 3);
 
-        //ImGui::SliderInt2("World Size", s_WorldSize.Data(), 1, 32);
-
         if(changed) {
             SmallChunk = GenerateChunk<16, 16>();
             MediumChunk = GenerateChunk<32, 32>();
@@ -214,9 +207,10 @@ namespace SampleUI::Screens::SampleSimpleMap {
 
         // Place the canvas in the remaining content area below the controls. Sliders and
         // buttons live above canvasTop; the canvas owns everything from there to the bottom.
-        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        const Ui::Rect canvasBounds{
-            ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight - canvasTop}
+        auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
+        Ui::UiRect canvasBounds{
+            ImVec2{0.f, canvasTop}, 
+            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}
         };
 
         if(Panel) {

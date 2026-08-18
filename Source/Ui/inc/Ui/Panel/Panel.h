@@ -1,6 +1,6 @@
 #pragma once
 #include "Platform/NumTypes.h"
-#include "Ui/Rect.h"
+#include "Ui/UiGeometry.h"
 #include <imgui.h>
 #include <functional>
 #include <optional>
@@ -15,7 +15,7 @@ namespace Ui {
     };
 
     struct PanelConfig {
-        Rect Bounds{};
+        UiRect Bounds{};
         std::optional<ImU32> BackgroundColor{std::nullopt};
         std::optional<ImTextureID> BackgroundTexture{std::nullopt};
         std::function<f32(s32)> ZoomFn{};
@@ -23,7 +23,7 @@ namespace Ui {
 
     class Panel {
     private:
-        Rect Bounds{};
+        UiRect Bounds{};
         ImVec2 PanOffset{};
         std::optional<ImU32> BackgroundColor{std::nullopt};
         std::optional<ImTextureID> BackgroundTexture{std::nullopt};
@@ -33,30 +33,30 @@ namespace Ui {
 
     protected:
         ImVec2 GetOrigin() const { 
-            return {Bounds.Pos.x + PanOffset.x, Bounds.Pos.y + PanOffset.y}; 
+            return {Bounds.Min.x + PanOffset.x, Bounds.Min.y + PanOffset.y}; 
         }
-        f32 GetCenterX() const { return Bounds.Size.x * 0.5f; }
-        f32 GetCenterY() const { return Bounds.Size.y * 0.5f; }
-        ImVec2 GetSize() const { return Bounds.Size; }
+        f32 GetCenterX() const { return Bounds.GetWidth() * 0.5f; }
+        f32 GetCenterY() const { return Bounds.GetHeight() * 0.5f; }
+        ImVec2 GetSize() const { return Bounds.GetSize(); }
         ImVec2 GetAnchor(Anchor anchor) const {
             switch(anchor) {
                 using enum Anchor;
             case TopLeft:      return {0.f, 0.f};
             case TopCenter:    return {GetCenterX(), 0.f};
-            case TopRight:     return {Bounds.Size.x, 0.f};
+            case TopRight:     return {Bounds.GetWidth(), 0.f};
             case LeftCenter:   return {0.f, GetCenterY()};
             case Center:       return {GetCenterX(), GetCenterY()};
-            case RightCenter:  return {Bounds.Size.x, GetCenterY()};
-            case BottomLeft:   return {0.f, Bounds.Size.y};
-            case BottomCenter: return {GetCenterX(), Bounds.Size.y};
-            case BottomRight:  return {Bounds.Size.x, Bounds.Size.y};
+            case RightCenter:  return {Bounds.GetWidth(), GetCenterY()};
+            case BottomLeft:   return {0.f, Bounds.GetHeight()};
+            case BottomCenter: return {GetCenterX(), Bounds.GetHeight()};
+            case BottomRight:  return {Bounds.GetWidth(), Bounds.GetHeight()};
             }
             return {};
         }
 
     public:
         Panel(
-            Rect bounds,
+            UiRect bounds,
             std::optional<ImU32> backgroundColor = std::nullopt,
             std::optional<ImTextureID> backgroundTexture = std::nullopt)
             : Bounds(bounds)
@@ -78,12 +78,12 @@ namespace Ui {
 
         void Render();
 
-        void SetBounds(Rect bounds) {
+        void SetBounds(UiRect bounds) {
             Bounds = bounds;
         }
         
         ImVec2 GetLocalCenter() const { return {GetCenterX(), GetCenterY()}; }
-        ImVec2 GetViewportSize() const { return Bounds.Size; }
+        ImVec2 GetViewportSize() const { return Bounds.GetSize(); }
 
         ImVec2 GetPanOffset() const { return PanOffset; }
         void ResetPan() { PanOffset = {0.f, 0.f}; }
@@ -123,7 +123,7 @@ namespace Ui {
     };
 
     ImVec2 ToScreenSpace(const ImVec2& localPos);
-    Rect ToScreenSpace(const Rect& localRect);
+    UiRect ToScreenSpace(const UiRect& localRect);
     void DrawLine(const Connection& connection);
     void DrawCorner(const Connection& connection);
 

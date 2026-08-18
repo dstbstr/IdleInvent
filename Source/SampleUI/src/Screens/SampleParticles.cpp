@@ -248,10 +248,11 @@ namespace SampleUI::Screens::SampleParticles {
         // CanvasPanel::Render places an InvisibleButton over its bounds, so ImGui's widget
         // routing naturally blocks input when a higher window (e.g. the dialog) is on top.
         const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        const Ui::Rect canvasBounds{
-            ImVec2{0.f, canvasTop},
-            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight - canvasTop}
+        auto canvasBounds = Ui::UiRect {
+            ImVec2{0.f, canvasTop}, 
+            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}
         };
+
         if(s_Canvas) {
             s_Canvas->SetBounds(canvasBounds);
             s_Canvas->Render();
@@ -274,11 +275,12 @@ namespace SampleUI::Screens::SampleParticles {
                 switch(preset.PosMode) {
                     using enum PositionMode;
                     case FollowMouse:
-                        emitter->Position = input.IsHovered ? input.MouseScreen
-                                                            : ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Pos.y + 50.f};
+                        emitter->Position = input.IsHovered 
+                            ? input.MouseScreen
+                            : ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Min.y + 50.f};
                         break;
                     case TopOfScreen:
-                        emitter->Position = ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Pos.y};
+                        emitter->Position = ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Min.y};
                         break;
                 }
             }

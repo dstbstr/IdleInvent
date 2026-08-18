@@ -9,44 +9,44 @@ namespace Ui::Details {
     template<typename T>
     struct LayoutNode {
         typename Tree<RenderNode<T>>::Node* TreeNode{nullptr};
-        Rect Bounds;
-        Rect SubtreeBounds;
+        UiRect Bounds;
+        UiRect SubtreeBounds;
 
         constexpr ImVec2 GetConnectPoint(ConnectPoint point) const {
-            auto [pos, size] = Bounds;
+            auto [min, max] = Bounds;
             switch(point) {
                 using enum ConnectPoint;
-                case North: return {pos.x + size.x * 0.5f, pos.y};
-                case East: return {pos.x + size.x, pos.y + size.y * 0.5f};
-                case South: return {pos.x + size.x * 0.5f, pos.y + size.y};
-                case West: return {pos.x, pos.y + size.y * 0.5f};
+                case North: return {Bounds.CenterX(), Bounds.Min.y};
+                case East: return {Bounds.Max.x, Bounds.CenterY()};
+                case South: return {Bounds.CenterX(), Bounds.Max.y};
+                case West: return {Bounds.Min.x, Bounds.CenterY()};
             }
 
             return {};
         }
     };
 
-    static void UpdateBounds(GrowthDir growth, const Rect& child, Rect& parent) {
+    static void UpdateBounds(GrowthDir growth, const UiRect& child, UiRect& parent) {
         switch(growth) {
             using enum GrowthDir;
         case TopDown:
         case BottomUp:
-            parent.Size.x += child.Size.x;
-            parent.Size.y = std::max(parent.Size.y, child.Size.y);
+            parent.Max.x += child.GetWidth();
+            parent.Max.y = std::max(parent.Max.y, child.GetHeight());
             break;
         case LeftRight:
-            parent.Size.y += child.Size.y;
-            parent.Size.x = std::max(parent.Size.x, child.Size.x);
+            parent.Max.y += child.GetHeight();
+            parent.Max.x = std::max(parent.Max.x, child.GetWidth());
             break;
         }
     }
 
     static void UpdateSubtreeBounds(
         GrowthDir growth,
-        const Rect& children,
+        const UiRect& children,
         size_t visibleChildren,
         const ImVec2& spacing,
-        Rect& subtree
+        UiRect& subtree
     ) {
         if(visibleChildren == 0) return;
 
@@ -55,18 +55,18 @@ namespace Ui::Details {
             using enum GrowthDir;
         case TopDown:
         case BottomUp:
-            subtree.Size.x = std::max(subtree.Size.x, children.Size.x + siblingGaps * spacing.x);
-            subtree.Size.y += spacing.y + children.Size.y;
+            subtree.Max.x = std::max(subtree.Max.x, children.GetWidth() + siblingGaps * spacing.x);
+            subtree.Max.y += spacing.y + children.GetHeight();
             break;
         case LeftRight:
-            subtree.Size.y = std::max(subtree.Size.y, children.Size.y + siblingGaps * spacing.y);
-            subtree.Size.x += spacing.x + children.Size.x;
+            subtree.Max.y = std::max(subtree.Max.y, children.GetHeight() + siblingGaps * spacing.y);
+            subtree.Max.x += spacing.x + children.GetWidth();
             break;
         }
     }
 
     template<typename T>
-    static Rect BuildLayers(
+    static UiRect BuildLayers(
         typename Tree<RenderNode<T>>::Node* node,
         size_t depth,
         GrowthDir growth,
@@ -78,7 +78,7 @@ namespace Ui::Details {
 
         const auto& baseSize = node->Value.BaseSize;
 
-        Rect childrenBounds{};
+        UiRect childrenBounds{};
         size_t visibleChildren = 0;
         for(const auto& child: node->Children) {
             if(!child || !child->Value.Visible) continue;
@@ -87,12 +87,12 @@ namespace Ui::Details {
             ++visibleChildren;
         }
 
-        Rect subtreeBounds{.Pos = {0.f, 0.f}, .Size = baseSize};
+        UiRect subtreeBounds{.Min = {0.f, 0.f}, .Max = baseSize};
         UpdateSubtreeBounds(growth, childrenBounds, visibleChildren, config.Spacing, subtreeBounds);
 
         outLayers.at(depth).push_back({
             .TreeNode = node,
-            .Bounds = {.Pos = {0.f, 0.f}, .Size = baseSize},
+            .Bounds = {.Min = {0.f, 0.f}, .Max = baseSize},
             .SubtreeBounds = subtreeBounds
         });
 
@@ -191,16 +191,14 @@ namespace Ui {
         // that wheel-zoom math needs to compensate around.
         SetContentOrigin(anchor);
 
+        auto TransformRect = [&](UiRect& rect) {
+            rect.Min = {rect.Min.x * zoom + pan.x + anchor.x, rect.Min.y * zoom + pan.y + anchor.y};
+            rect.Max = {rect.Max.x * zoom + pan.x + anchor.x, rect.Max.y * zoom + pan.y + anchor.y};
+        };
         for(auto& layer : m_Layers) {
             for(auto& node : layer) {
-                node.Bounds.Pos.x = node.Bounds.Pos.x * zoom + pan.x + anchor.x;
-                node.Bounds.Pos.y = node.Bounds.Pos.y * zoom + pan.y + anchor.y;
-                node.Bounds.Size.x *= zoom;
-                node.Bounds.Size.y *= zoom;
-                node.SubtreeBounds.Pos.x = node.SubtreeBounds.Pos.x * zoom + pan.x + anchor.x;
-                node.SubtreeBounds.Pos.y = node.SubtreeBounds.Pos.y * zoom + pan.y + anchor.y;
-                node.SubtreeBounds.Size.x *= zoom;
-                node.SubtreeBounds.Size.y *= zoom;
+                TransformRect(node.Bounds);
+                TransformRect(node.SubtreeBounds);
             }
         }
     }
@@ -217,10 +215,10 @@ namespace Ui {
         for(const auto& layer: m_Layers) {
             for(const auto& node: layer) {
                 if(!node.TreeNode || !node.TreeNode->Value.Visible) continue;
-                ImGui::SetCursorPos(node.Bounds.Pos);
+                ImGui::SetCursorPos(node.Bounds.Min);
                 ImGui::BeginChild(
                     ImGui::GetID(static_cast<const void*>(node.TreeNode)),
-                    node.Bounds.Size,
+                    node.Bounds.GetSize(),
                     0,
                     ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
                 );

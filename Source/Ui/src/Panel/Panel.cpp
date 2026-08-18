@@ -14,11 +14,23 @@ namespace Ui {
         return {origin.x + localPos.x, origin.y + localPos.y};
     }
 
-    Rect ToScreenSpace(const Rect& localRect) {
-        const auto screenCursor = ImGui::GetCursorScreenPos();
-        const auto localCursor = ImGui::GetCursorPos();
-        const ImVec2 origin{screenCursor.x - localCursor.x, screenCursor.y - localCursor.y};
-        return {ImVec2{origin.x + localRect.Pos.x, origin.y + localRect.Pos.y}, localRect.Size};
+    UiRect ToScreenSpace(const UiRect& localRect) {
+        auto screenCursor = ImGui::GetCursorScreenPos();
+        auto localCursor = ImGui::GetCursorPos();
+        auto origin = ImVec2{
+            screenCursor.x - localCursor.x, 
+            screenCursor.y - localCursor.y
+        };
+
+        return {
+            ImVec2{
+                origin.x + localRect.Min.x, 
+                origin.y + localRect.Min.y}, 
+            ImVec2 {
+                origin.x + localRect.Max.x,
+                origin.y + localRect.Max.y
+                }
+            };
     }
 
     void DrawLine(const Connection& connection) {
@@ -50,10 +62,10 @@ namespace Ui {
         UpdateZoom();
         RenderBackground();
 
-        ImGui::SetCursorPos(Bounds.Pos);
+        ImGui::SetCursorPos(Bounds.Min);
         ImGui::BeginChild(
             ImGui::GetID(static_cast<const void*>(this)),
-            Bounds.Size,
+            Bounds.GetSize(),
             0,
             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
         );
@@ -63,10 +75,8 @@ namespace Ui {
 
     void Panel::UpdatePan() {
         auto bounds = ToScreenSpace(Bounds);
-        auto min = bounds.Pos;
-        auto max = bounds.GetBottomRight();
 
-        if(ImGui::IsMouseHoveringRect(min, max, false) && ImGui::IsMouseDragging(ImGuiMouseButton_Right, 0.f)) {
+        if(ImGui::IsMouseHoveringRect(bounds.Min, bounds.Max, false) && ImGui::IsMouseDragging(ImGuiMouseButton_Right, 0.f)) {
             const auto mouseDelta = ImGui::GetIO().MouseDelta;
             PanOffset.x += mouseDelta.x;
             PanOffset.y += mouseDelta.y;
@@ -96,26 +106,26 @@ namespace Ui {
     }
 
     void Panel::ZoomIn() {
-        ZoomAt(+1, {Bounds.Size.x * 0.5f, Bounds.Size.y * 0.5f});
+        ZoomAt(+1, {Bounds.GetWidth() * 0.5f, Bounds.GetHeight() * 0.5f});
     }
 
     void Panel::ZoomOut() {
-        ZoomAt(-1, {Bounds.Size.x * 0.5f, Bounds.Size.y * 0.5f});
+        ZoomAt(-1, {Bounds.GetWidth() * 0.5f, Bounds.GetHeight() * 0.5f});
     }
 
     void Panel::UpdateZoom() {
         if(!ZoomFn) return;
 
         const auto bounds = ToScreenSpace(Bounds);
-        if(!ImGui::IsMouseHoveringRect(bounds.Pos, bounds.GetBottomRight(), false)) return;
+        if(!ImGui::IsMouseHoveringRect(bounds.Min, bounds.Max, false)) return;
 
         const auto wheel = ImGui::GetIO().MouseWheel;
         if(wheel == 0.f) return;
 
         const auto mouseScreen = ImGui::GetIO().MousePos;
         const ImVec2 mousePanelLocal{
-            mouseScreen.x - bounds.Pos.x,
-            mouseScreen.y - bounds.Pos.y
+            mouseScreen.x - bounds.Min.x,
+            mouseScreen.y - bounds.Min.y
         };
 
         const s32 delta = wheel > 0.f ? +1 : -1;
@@ -124,8 +134,8 @@ namespace Ui {
 
     void Panel::RenderBackground() const {
         const auto bounds = ToScreenSpace(Bounds);
-        const auto panelMin = bounds.Pos;
-        const auto panelMax = bounds.GetBottomRight();
+        const auto panelMin = bounds.Min;
+        const auto panelMax = bounds.Max;
 
         if(BackgroundColor) {
             ImGui::GetWindowDrawList()->AddRectFilled(panelMin, panelMax, *BackgroundColor);

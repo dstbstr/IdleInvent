@@ -145,8 +145,8 @@ namespace SampleUI::Screens::SampleTreePanel {
         TreeConfig.Growth = Ui::GrowthDir::TopDown;
         TreeConfig.Connect = Ui::ConnectStyle::Line;
         TreeConfig.Spacing = NodeSpacing;
-        PanelConfig.Bounds.Pos = {0.f, PanelTopOffsetY};
-        PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - PanelTopOffsetY};
+        PanelConfig.Bounds.Min = {0.f, PanelTopOffsetY};
+        PanelConfig.Bounds.Max = {Graphics::ScreenWidth, Graphics::ScreenHeight};
         PanelConfig.BackgroundColor = IM_COL32(32, 32, 32, 255);
         ApplyZoomMode();
 
@@ -242,8 +242,8 @@ namespace SampleUI::Screens::SampleTreePanel {
 		ImGui::PopFont();
 
 		const auto panelTop = ImGui::GetCursorPosY() + 8.f;
-		PanelConfig.Bounds.Pos = {0.f, panelTop};
-		PanelConfig.Bounds.Size = {Graphics::ScreenWidth, Graphics::ScreenHeight - panelTop};
+		PanelConfig.Bounds.Min = {0.f, panelTop};
+		PanelConfig.Bounds.Max = {Graphics::ScreenWidth, Graphics::ScreenHeight};
 
 		if(s_Panel) {
             s_Panel->SetBounds(PanelConfig.Bounds);

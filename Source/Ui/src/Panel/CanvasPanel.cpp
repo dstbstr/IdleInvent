@@ -45,6 +45,10 @@ namespace Ui {
 		return ImVec2{screen.x - windowPos.x, screen.y - windowPos.y};
 	}
 
+	UiRect CanvasPanel::ScreenToLocal(UiRect screen) const {
+        return UiRect{ScreenToLocal(screen.Min), ScreenToLocal(screen.Max)};
+    }
+
 	ImVec2 CanvasPanel::LocalToContent(ImVec2 local) const {
 		// Inverse of the BuildLayout transform used in TreePanel:
 		//   local = content * zoom + contentOrigin + pan
@@ -58,8 +62,15 @@ namespace Ui {
 		return ImVec2{(local.x - pan.x) * invZoom, (local.y - pan.y) * invZoom};
 	}
 
+	UiRect CanvasPanel::LocalToContent(UiRect local) const {
+        return UiRect{LocalToContent(local.Min), LocalToContent(local.Max)};
+    }
+
 	ImVec2 CanvasPanel::ScreenToContent(ImVec2 screen) const {
 		return LocalToContent(ScreenToLocal(screen));
+	}
+	UiRect CanvasPanel::ScreenToContent(UiRect screen) const { 
+		return LocalToContent(ScreenToLocal(screen)); 
 	}
 
 	ImVec2 CanvasPanel::ContentToLocal(ImVec2 content) const {
@@ -68,12 +79,26 @@ namespace Ui {
 		return ImVec2{content.x * zoom + pan.x, content.y * zoom + pan.y};
 	}
 
+	UiRect CanvasPanel::ContentToLocal(UiRect content) const {
+        return UiRect{
+			ContentToLocal(content.Min), ContentToLocal(content.Max)
+        };
+    }
+
 	ImVec2 CanvasPanel::LocalToScreen(ImVec2 local) const {
 		const auto windowPos = ImGui::GetWindowPos();
 		return ImVec2{windowPos.x + local.x, windowPos.y + local.y};
 	}
 
+	UiRect CanvasPanel::LocalToScreen(UiRect local) const {
+        return UiRect{LocalToScreen(local.Min), LocalToScreen(local.Max)};
+    }
+
 	ImVec2 CanvasPanel::ContentToScreen(ImVec2 content) const {
 		return LocalToScreen(ContentToLocal(content));
+	}
+
+    UiRect CanvasPanel::ContentToScreen(UiRect content) const { 
+		return LocalToScreen(ContentToLocal(content)); 
 	}
 }

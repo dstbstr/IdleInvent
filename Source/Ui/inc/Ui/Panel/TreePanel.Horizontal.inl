@@ -13,15 +13,14 @@ namespace Ui::Details {
         if(it == layoutMap.end()) return;
         auto& ln = *it->second;
 
-        const auto subtreeHeight = ln.SubtreeBounds.Size.y;
-        const auto baseW = ln.Bounds.Size.x;
-        const auto baseH = ln.Bounds.Size.y;
+        const auto subtreeHeight = ln.SubtreeBounds.GetHeight();
+        const auto baseW = ln.Bounds.GetWidth();
+        const auto baseH = ln.Bounds.GetHeight();
 
-        ln.SubtreeBounds.Pos = {left, top};
-        ln.Bounds.Pos = {
-            left,
-            top + (subtreeHeight - baseH) / 2.f
-        };
+        auto subtreeWidth = ln.SubtreeBounds.GetWidth();
+        ln.SubtreeBounds = UiRect::FromPosSize({left, top}, {subtreeWidth, subtreeHeight});
+        auto boundsMin = ImVec2{left, top + (subtreeHeight - baseH) / 2.f};
+        ln.Bounds = UiRect::FromPosSize(boundsMin, {baseW, baseH});
 
         auto childrenHeight = 0.f;
         size_t visibleChildren = 0;
@@ -29,7 +28,7 @@ namespace Ui::Details {
             if(!child || !child->Value.Visible) continue;
             const auto cit = layoutMap.find(child.get());
             if(cit == layoutMap.end()) continue;
-            childrenHeight += cit->second->SubtreeBounds.Size.y;
+            childrenHeight += cit->second->SubtreeBounds.GetHeight();
             ++visibleChildren;
         }
         if(visibleChildren > 1) {
@@ -42,7 +41,7 @@ namespace Ui::Details {
             if(!child || !child->Value.Visible) continue;
             const auto cit = layoutMap.find(child.get());
             if(cit == layoutMap.end()) continue;
-            const auto ch = cit->second->SubtreeBounds.Size.y;
+            const auto ch = cit->second->SubtreeBounds.GetHeight();
             PlaceLayersLeftRight(child.get(), childLeft, childTop, config, layoutMap);
             childTop += ch + config.Spacing.y;
         }
@@ -65,7 +64,7 @@ namespace Ui::Details {
 
         const auto rootIt = layoutMap.find(root);
         if(rootIt == layoutMap.end()) return;
-        const auto rootHeight = rootIt->second->SubtreeBounds.Size.y;
+        const auto rootHeight = rootIt->second->SubtreeBounds.GetHeight();
         PlaceLayersLeftRight(root, 0.f, -rootHeight / 2.f, config, layoutMap);
     }
 }

@@ -46,7 +46,7 @@ namespace Ui {
 
     public:
         TreePanel(
-            Rect bounds,
+            UiRect bounds,
             std::optional<ImU32> backgroundColor,
             std::optional<ImTextureID> backgroundTexture,
             Tree<RenderNode<T>>& tree,

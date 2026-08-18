@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Ui/Panel/Panel.h"
+#include "Ui/UiGeometry.h"
 #include "Platform/NumTypes.h"
 
 #include <imgui.h>
@@ -42,11 +43,22 @@ namespace Ui {
 		// Coordinate-space conversions exposed so callers can map non-mouse points too
 		// (e.g. "where would this content-space rect appear on screen?").
 		[[nodiscard]] ImVec2 ScreenToLocal(ImVec2 screen) const;
+        [[nodiscard]] UiRect ScreenToLocal(UiRect screen) const;
+
 		[[nodiscard]] ImVec2 LocalToContent(ImVec2 local) const;
+        [[nodiscard]] UiRect LocalToContent(UiRect local) const;
+
 		[[nodiscard]] ImVec2 ScreenToContent(ImVec2 screen) const;
+        [[nodiscard]] UiRect ScreenToContent(UiRect screen) const;
+
 		[[nodiscard]] ImVec2 ContentToLocal(ImVec2 content) const;
+        [[nodiscard]] UiRect ContentToLocal(UiRect content) const;
+
 		[[nodiscard]] ImVec2 LocalToScreen(ImVec2 local) const;
+        [[nodiscard]] UiRect LocalToScreen(UiRect local) const;
+
 		[[nodiscard]] ImVec2 ContentToScreen(ImVec2 content) const;
+        [[nodiscard]] UiRect ContentToScreen(UiRect content) const;
 
 	protected:
 		void RenderImpl() override;

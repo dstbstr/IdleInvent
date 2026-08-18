@@ -11,9 +11,9 @@ namespace World {
     struct WorldSpace;
     struct ChunkSpace;
 
-    using ChunkCoord = Geometry::Pos2<s32, WorldSpace>;
-    using CellCoord = Geometry::Pos2<s32, ChunkSpace>;
-    using LocalPos = Geometry::Pos2<f32, ChunkSpace>;
+    using ChunkCoord = Geometry::Point2<s32, WorldSpace>;
+    using CellCoord = Geometry::Point2<s32, ChunkSpace>;
+    using LocalPos = Geometry::Point2<f32, ChunkSpace>;
     using Displacement = LocalPos;
 
     constexpr CellCoord ToCellCoord(const LocalPos& local) {

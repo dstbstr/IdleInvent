@@ -4,6 +4,7 @@
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
 #include <Platform/NumTypes.h>
+#include <Ui/UiGeometry.h>
 #include <Ui/Panel/CanvasPanel.h>
 #include <Ui/Panel/ZoomFunc.h>
 #include <Ui/UiUtil.h>
@@ -328,7 +329,7 @@ namespace {
         if(camera == CameraKind::Manual) return;
 
         auto pawnContent = pawn.Location.Local * CellSize;
-        auto pawnLocal = canvas.ContentToLocal(ImVec2{pawnContent.X, pawnContent.Y});
+        auto pawnLocal = canvas.ContentToLocal(Ui::ToUi(pawnContent));
         auto targetLocal = canvas.GetLocalCenter();
         auto delta = targetLocal - pawnLocal;
 
@@ -355,6 +356,7 @@ namespace SampleUI::Screens::SampleNav {
         PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
 
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
+            UpdateCamera(canvas, PlayerPawn);
             RenderMap(canvas, WorldMap);
             RenderPath(canvas);
             RenderPawn(canvas, PlayerPawn);
@@ -442,8 +444,9 @@ namespace SampleUI::Screens::SampleNav {
         // Place the canvas in the remaining content area below the controls. Sliders and
         // buttons live above canvasTop; the canvas owns everything from there to the bottom.
         const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        const Ui::Rect canvasBounds{
-            ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight - canvasTop}
+        auto canvasBounds = Ui::UiRect{
+            ImVec2{0.f, canvasTop}, 
+            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}
         };
 
         if(Panel) {
@@ -452,7 +455,6 @@ namespace SampleUI::Screens::SampleNav {
             PollMoveRequest();
             PollPathRequest(*Panel);
 
-            UpdateCamera(*Panel, PlayerPawn);
             Panel->Render();
         }
 
