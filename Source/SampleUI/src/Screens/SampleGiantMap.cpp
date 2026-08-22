@@ -5,6 +5,7 @@
 #include <Platform/Graphics.h>
 #include <Platform/NumTypes.h>
 #include <Ui/UiGeometry.h>
+#include <Ui/Overlay.h>
 #include <Ui/Panel/CanvasPanel.h>
 #include <Ui/Panel/ZoomFunc.h>
 #include <Ui/UiUtil.h>
@@ -45,6 +46,7 @@ namespace {
     f32 ForestLevel = 0.6f;
     f32 WaterLevel = 0.42f;
     f32 BaseFeatureSize = 28.f;
+    bool ShowDebug = false;
 
     static std::map<World::ChunkCoord, Chunk> LoadedChunks{};
     static Pawn PlayerPawn = {
@@ -209,6 +211,20 @@ namespace {
         ImGui::GetWindowDrawList()->AddCircleFilled(screenCenter, screenRadius, IM_COL32(0, 255, 0, 255));
     }
 
+    void RenderDebug() {
+        if(!ShowDebug) return;
+        Ui::Overlay::Draw("##GiantMapDebug", Ui::Overlay::Anchor::BottomLeft, []() {
+            auto* font = GetFont(FontSizes::H4);
+            if(font) ImGui::PushFont(font);
+
+            ImGui::Text("Player Chunk: (%d, %d)", PlayerPawn.Location.Chunk.X, PlayerPawn.Location.Chunk.Y);
+            ImGui::Text("Player Local: (%.2f, %.2f)", PlayerPawn.Location.Local.X, PlayerPawn.Location.Local.Y);
+            ImGui::Text("Loaded Chunks: %zu", LoadedChunks.size());
+
+            if(font) ImGui::PopFont();
+        });
+    }
+
     void UpdateCamera(Ui::CanvasPanel& canvas, const Pawn& pawn) {
         auto pawnContent = pawn.Location.Local * CellSize;
         auto pawnLocal = canvas.ContentToLocal(Ui::ToUi(pawnContent));
@@ -301,6 +317,8 @@ namespace SampleUI::Screens::SampleGiantMap {
             WorldSeed = (WorldSeed + 32) % 10'000;
             changed = true;
         }
+        
+        ImGui::Checkbox("Show Debug", &ShowDebug);
 
         if(changed) {
             LoadedChunks.clear();
@@ -319,10 +337,10 @@ namespace SampleUI::Screens::SampleGiantMap {
 
         if(Panel) {
             Panel->SetBounds(canvasBounds);
-
             Panel->Render();
         }
 
         ImGui::End();
+        RenderDebug();
     }
 } // namespace SampleUI::Screens::SampleGiantMap
