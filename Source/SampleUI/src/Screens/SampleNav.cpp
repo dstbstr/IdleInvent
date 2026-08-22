@@ -35,13 +35,6 @@ namespace {
         f32 Diameter = 1.0f;
     };
 
-    struct MovementRequest {
-        World::Displacement Delta{};
-
-        constexpr bool IsDefault() const { return Delta == World::Displacement{}; }
-        constexpr void Reset() { Delta = World::Displacement{}; }
-    };
-
     enum struct MovementKind : u8 {
         Discrete,
         Fluid
@@ -124,7 +117,6 @@ namespace {
         return (static_cast<u8>(value) & static_cast<u8>(flag)) != 0;
     }
 
-    static MoveDir MoveRequest = MoveDir::None;
     static BaseTime timeSinceMove{};
     static int moveIntervalMs = 100;
 
@@ -273,9 +265,14 @@ namespace {
 
             return result;
         });
-        if(PathCells.has_value()) {
+        if(PathCells.has_value() && !PathCells->empty()) {
             PathCells->erase(PathCells->begin());
+            if(PathCells->empty()) {
+                PathCells.reset();
+                TargetCell.reset();
+            }
         }
+
     }
 
     void PollPathRequest(const Ui::CanvasPanel& canvas) {
@@ -400,20 +397,20 @@ namespace {
         timeSinceMove += elapsed;
 
         auto movement = static_cast<MovementKind>(SelectedMovement);
+        auto moveRequest = GetManualMoveRequest();
+        if(moveRequest != MoveDir::None) {
+            AutoFollow = false;
+        }
+
         if(movement == MovementKind::Discrete && timeSinceMove < BaseTime(moveIntervalMs)) {
             return;
         }
 
-        std::optional<World::Displacement> delta;
-        if(AutoFollow) {
-            if(PathCells.has_value()) {
-                delta = GetAutoMoveDelta(pawn, elapsed);
-            }
+        auto delta = GetManualMoveDelta(moveRequest, elapsed);
+        if(!delta && AutoFollow && PathCells) {
+            delta = GetAutoMoveDelta(pawn, elapsed);
         }
-        if(!delta.has_value()) {
-            auto moveRequest = GetManualMoveRequest();
-            delta = GetManualMoveDelta(moveRequest, elapsed);
-        }
+
         if(!delta || *delta == World::Displacement{}) return;
 
         if(TryMove(pawn, *delta)) {
@@ -435,6 +432,7 @@ namespace SampleUI::Screens::SampleNav {
         PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
 
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
+            PollPathRequest(*Panel);
             UpdateCamera(canvas, PlayerPawn);
             RenderMap(canvas, WorldMap);
             RenderPath(canvas);
@@ -497,7 +495,6 @@ namespace SampleUI::Screens::SampleNav {
 
         auto movementOptions = "Discrete\0Fluid\0";
         if(ImGui::Combo("Movement Type", &SelectedMovement, movementOptions)) {
-            MoveRequest = MoveDir::None;
             if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
                 auto& local = PlayerPawn.Location.Local;
                 local.X = std::floor(local.X) + 0.5f;
@@ -532,8 +529,6 @@ namespace SampleUI::Screens::SampleNav {
 
         if(Panel) {
             Panel->SetBounds(canvasBounds);
-
-            PollPathRequest(*Panel);
 
             Panel->Render();
         }
