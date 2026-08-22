@@ -26,7 +26,7 @@ namespace {
 		{"Particles", SampleUI::Screen::SampleParticles},
 		{"Simple\nMap", SampleUI::Screen::SampleSimpleMap},
 		{"Navigation", SampleUI::Screen::SampleNav},
-		{"Unused", SampleUI::Screen::Landing},
+		{"Giant\nMap", SampleUI::Screen::SampleGiantMap},
 		{"Unused", SampleUI::Screen::Landing},
 		{"Unused", SampleUI::Screen::Landing},
 		{"Unused", SampleUI::Screen::Landing},
