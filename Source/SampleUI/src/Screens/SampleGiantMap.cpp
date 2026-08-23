@@ -17,6 +17,7 @@
 
 #include <imgui.h>
 
+#include <bitset>
 #include <cmath>
 #include <map>
 #include <memory>
@@ -27,8 +28,8 @@ namespace {
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
     constexpr auto CellPixelSize = 64.f;
-    constexpr f32 HudMapDiameter = 192.f;
-    constexpr f32 HudMapPadding = 12.f;
+    constexpr auto HudMapDiameter = 192.f;
+    constexpr auto HudMapPadding = 12.f;
 
     struct Pawn {
         World::WorldLocation Location;
@@ -38,6 +39,9 @@ namespace {
     enum struct SmoothingKind : u8 { Cubic, Quintic };
 
     using Chunk = World::Chunk<TerrainType, 32, 32>;
+    constexpr size_t CellsPerChunk = Chunk::Width * Chunk::Height;
+    using ExploredCells = std::bitset<CellsPerChunk>;
+    std::map<World::ChunkCoord, ExploredCells> ExploredChunks{};
 
     Ui::PanelConfig PanelConfig{};
     s32 WorldSeed = 42;
@@ -50,6 +54,8 @@ namespace {
     f32 BaseFeatureSize = 28.f;
     bool ShowHudMap = true;
     bool ShowDebug = false;
+    bool ShowFogOfWar = true;
+    int LightRadius = 6;
 
     static std::map<World::ChunkCoord, Chunk> LoadedChunks{};
     static Pawn PlayerPawn = {
@@ -127,6 +133,43 @@ namespace {
         });
     }
 
+    constexpr size_t ToCellIndex(World::CellCoord cell) {
+        return static_cast<size_t>(cell.Y) * Chunk::Width + static_cast<size_t>(cell.X);
+    }
+
+    bool IsExplored(World::ChunkCoord chunk, World::CellCoord cell) {
+        auto found = ExploredChunks.find(chunk);
+        if(found == ExploredChunks.end()) return false;
+
+        return found->second.test(ToCellIndex(cell));
+    }
+
+    void RevealAround(const Pawn& pawn) {
+        auto radiusSqared = LightRadius * LightRadius;
+
+        for(auto y = -LightRadius; y <= LightRadius; ++y) {
+            for(auto x = -LightRadius; x <= LightRadius; ++x) {
+                if(x * x + y * y > radiusSqared) continue;
+
+                auto location = World::Offset<Chunk::Width, Chunk::Height>(
+                    pawn.Location, {static_cast<f32>(x), static_cast<f32>(y)}
+                );
+                auto cell = location.ToCellCoord();
+                ExploredChunks[location.Chunk].set(ToCellIndex(cell));
+            }
+        }
+    }
+
+    bool IsVisible(const Pawn& pawn, World::ChunkCoord chunk, World::CellCoord cell) {
+        auto pawnCell = pawn.Location.ToCellCoord();
+        auto relativeChunk = chunk - pawn.Location.Chunk;
+
+        auto dx = static_cast<s64>(relativeChunk.X) * static_cast<s64>(Chunk::Width) + static_cast<s64>(cell.X - pawnCell.X);
+        auto dy = static_cast<s64>(relativeChunk.Y) * static_cast<s64>(Chunk::Height) + static_cast<s64>(cell.Y - pawnCell.Y);
+        auto radius = static_cast<s64>(LightRadius);
+        return dx * dx + dy * dy <= radius * radius;
+    }
+
     bool CanOccupy(World::WorldLocation loc) {
         auto& chunk = GetOrCreateChunk(loc.Chunk);
         auto t = chunk.At(loc.ToCellCoord());
@@ -174,10 +217,19 @@ namespace {
         chunk.VisitCells([&](World::CellCoord cell, const TerrainType& terrain) {
             auto chunkLocalBounds = Ui::ToUi(Ui::ToContentRect<CellPixelSize>(cell));
             auto contentBounds = chunkLocalBounds.Translate(chunkContentOrigin);
-            auto screenBounds = canvas.ContentToScreen(contentBounds);
-            drawList->AddRectFilled(screenBounds.Min, screenBounds.Max, TerrainToColor(terrain));
+            auto cellBounds = canvas.ContentToScreen(contentBounds);
+
+            drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, TerrainToColor(terrain));
+            if(ShowFogOfWar) {
+                if(!IsExplored(coord, cell)) {
+                    drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32_BLACK);
+                } else if(!IsVisible(PlayerPawn, coord, cell)) {
+                    drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32(0, 0, 0, 160));
+                }
+            }
+
             // border
-            drawList->AddRect(screenBounds.Min, screenBounds.Max, IM_COL32(0, 0, 0, 255), 0.f, ImDrawFlags_None, 1.f);
+            drawList->AddRect(cellBounds.Min, cellBounds.Max, IM_COL32(0, 0, 0, 255), 0.f, ImDrawFlags_None, 1.f);
         });
     }
 
@@ -231,6 +283,13 @@ namespace {
                 auto halfCellPixelSize = Ui::Half * hudCellPixelSize;
                 auto cellBounds = Ui::UiRect{screenCellCenter - halfCellPixelSize, screenCellCenter + halfCellPixelSize};
                 drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, TerrainToColor(terrain));
+                if(ShowFogOfWar) {
+                    if(!IsExplored(coord, cell)) {
+                        drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32_BLACK);
+                    } else if(!IsVisible(PlayerPawn, coord, cell)) {
+                        drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32(0, 0, 0, 160));
+                    }
+                }
             });
         }
 
@@ -268,6 +327,8 @@ namespace {
 
         auto originChunk = pawn.Location.Chunk;
         if(World::TryMove<Chunk::Width, Chunk::Height>(pawn.Location, move, CanOccupy)) {
+            RevealAround(pawn);
+
             if(pawn.Location.Chunk != originChunk) {
                 UpdateLoadedChunks(pawn.Location.Chunk);
             }
@@ -287,6 +348,7 @@ namespace SampleUI::Screens::SampleGiantMap {
             PlayerPawn.Location = *validLocation;
         }
         UpdateLoadedChunks(PlayerPawn.Location.Chunk);
+        RevealAround(PlayerPawn);
 
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
             UpdateCamera(canvas, PlayerPawn);
@@ -348,6 +410,9 @@ namespace SampleUI::Screens::SampleGiantMap {
             changed = true;
         }
         
+        ImGui::SliderInt("Light Radius", &LightRadius, 1, 16);
+        ImGui::Checkbox("Fog of War", &ShowFogOfWar);
+        ImGui::SameLine();
         ImGui::Checkbox("Show HUD", &ShowHudMap);
         ImGui::SameLine();
         ImGui::Checkbox("Show Debug", &ShowDebug);
