@@ -27,6 +27,8 @@ namespace {
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
     constexpr auto CellSize = 64.f;
+    constexpr f32 HudMapDiameter = 192.f;
+    constexpr f32 HudMapPadding = 12.f;
 
     struct Pawn {
         World::WorldLocation Location;
@@ -46,6 +48,7 @@ namespace {
     f32 ForestLevel = 0.6f;
     f32 WaterLevel = 0.42f;
     f32 BaseFeatureSize = 28.f;
+    bool ShowHudMap = true;
     bool ShowDebug = false;
 
     static std::map<World::ChunkCoord, Chunk> LoadedChunks{};
@@ -211,6 +214,56 @@ namespace {
         ImGui::GetWindowDrawList()->AddCircleFilled(screenCenter, screenRadius, IM_COL32(0, 255, 0, 255));
     }
 
+    void RenderHudMap(const Ui::CanvasPanel& canvas, const Pawn& pawn) { 
+        if(!ShowHudMap) return;
+
+        auto vpSize = canvas.GetViewportSize();
+        auto mapMaxLocal = ImVec2{vpSize.x - HudMapPadding, vpSize.y - HudMapPadding};
+        auto mapMinLocal = ImVec2{mapMaxLocal.x - HudMapDiameter, mapMaxLocal.y - HudMapDiameter};
+        auto mapCenterLocal = ImVec2{(mapMinLocal.x + mapMaxLocal.x) * 0.5f, (mapMinLocal.y + mapMaxLocal.y) * 0.5f};
+
+        auto mapCenter = canvas.LocalToScreen(mapCenterLocal);
+
+        auto* drawList = ImGui::GetWindowDrawList();
+
+        auto visibleRadiusCells =
+            static_cast<f32>(LoadRadius) * static_cast<f32>(std::min(Chunk::Width, Chunk::Height));
+        auto mapRadius = HudMapDiameter * 0.5f;
+        auto hudCellSize = mapRadius / visibleRadiusCells;
+
+        for(const auto& [coord, chunk] : LoadedChunks) {
+            auto relativeChunk = coord - pawn.Location.Chunk;
+
+            for(size_t row = 0; row < Chunk::Height; row++) {
+                for(size_t col = 0; col < Chunk::Width; col++) {
+                    auto relCellX = static_cast<f32>(relativeChunk.X) * static_cast<f32>(Chunk::Width) +
+                                    static_cast<f32>(col) - pawn.Location.Local.X + 0.5f;
+                    auto relCellY = static_cast<f32>(relativeChunk.Y) * static_cast<f32>(Chunk::Height) +
+                                    static_cast<f32>(row) - pawn.Location.Local.Y + 0.5f;
+
+                    auto cellCenter = ImVec2{mapCenter.x + relCellX * hudCellSize, mapCenter.y + relCellY * hudCellSize};
+                
+                    auto dx = cellCenter.x - mapCenter.x;
+                    auto dy = cellCenter.y - mapCenter.y;
+                    if(dx * dx + dy * dy > mapRadius * mapRadius) continue;
+
+                    auto halfCell = hudCellSize * 0.5f;
+                    auto cellMin = ImVec2{cellCenter.x - halfCell, cellCenter.y - halfCell};
+                    auto cellMax = ImVec2{cellCenter.x + halfCell, cellCenter.y + halfCell};
+
+                    auto terrain = chunk.Cells.at(row).at(col);
+                    drawList->AddRectFilled(cellMin, cellMax, TerrainToColor(terrain));
+                }
+            }
+        }
+
+        drawList->AddCircleFilled(mapCenter, hudCellSize, IM_COL32(0, 255, 0, 255));
+
+        // Draw border around minimap
+        drawList->AddCircle(mapCenter, mapRadius, IM_COL32_BLACK);
+    }
+
+
     void RenderDebug() {
         if(!ShowDebug) return;
         Ui::Overlay::Draw("##GiantMapDebug", Ui::Overlay::Anchor::BottomLeft, []() {
@@ -263,6 +316,7 @@ namespace SampleUI::Screens::SampleGiantMap {
             UpdateCamera(canvas, PlayerPawn);
             RenderMap(canvas);
             RenderPawn(canvas, PlayerPawn);
+            RenderHudMap(canvas, PlayerPawn);
         });
 
         TickManager::Get().Register(Handles, [](BaseTime elapsed) { UpdateMovement(PlayerPawn, elapsed); });
@@ -318,6 +372,8 @@ namespace SampleUI::Screens::SampleGiantMap {
             changed = true;
         }
         
+        ImGui::Checkbox("Show HUD", &ShowHudMap);
+        ImGui::SameLine();
         ImGui::Checkbox("Show Debug", &ShowDebug);
 
         if(changed) {
