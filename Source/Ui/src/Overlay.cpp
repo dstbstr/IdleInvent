@@ -11,7 +11,6 @@ namespace {
 		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_AlwaysAutoResize |
 		ImGuiWindowFlags_NoSavedSettings |
-		//ImGuiWindowFlags_NoFocusOnAppearing |
 		ImGuiWindowFlags_NoNav |
 		ImGuiWindowFlags_NoMove |
 		ImGuiWindowFlags_NoInputs;
