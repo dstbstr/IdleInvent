@@ -14,13 +14,19 @@ namespace World {
     using ChunkCoord = Geometry::Point2<s32, WorldSpace>;
     using CellCoord = Geometry::Point2<s32, ChunkSpace>;
     using LocalPos = Geometry::Point2<f32, ChunkSpace>;
+    using CellSize = Geometry::Size2<s32, ChunkSpace>;
+
     using Displacement = LocalPos;
 
-    constexpr CellCoord ToCellCoord(const LocalPos& local) {
+    [[nodiscard]] constexpr CellCoord ToCellCoord(const LocalPos& local) {
         return {
             static_cast<s32>(std::floor(local.X)), 
             static_cast<s32>(std::floor(local.Y))
         };
+    }
+
+    [[nodiscard]] constexpr LocalPos GetCellCenter(const CellCoord& cell) {
+        return {static_cast<f32>(cell.X) + 0.5f, static_cast<f32>(cell.Y) + 0.5f};
     }
 
     struct WorldLocation {
@@ -52,6 +58,11 @@ namespace World {
         static constexpr size_t Width{TWidth};
         static constexpr size_t Height{THeight};
 
+        [[nodiscard]] static constexpr CellCoord CenterCell() {
+            return {static_cast<s32>(Width / 2), static_cast<s32>(Height / 2)};
+        }
+        [[nodiscard]] static constexpr CellSize Size() { return {static_cast<s32>(Width), static_cast<s32>(Height)}; }
+
         std::array<std::array<TCell, TWidth>, THeight> Cells{};
 
         [[nodiscard]] static constexpr bool Contains(CellCoord pos) {
@@ -63,5 +74,23 @@ namespace World {
 
         [[nodiscard]] constexpr TCell& At(CellCoord pos) { return Cells.at(pos.Y).at(pos.X); }
         [[nodiscard]] constexpr const TCell& At(CellCoord pos) const { return Cells.at(pos.Y).at(pos.X); }
+
+        constexpr void VisitCells(const auto& visitor) {
+            for(size_t row = 0; row < Height; ++row) {
+                for(size_t col = 0; col < Width; ++col) {
+                    auto coord = CellCoord{static_cast<s32>(col), static_cast<s32>(row)};
+                    visitor(coord, Cells.at(row).at(col));
+                }
+            }
+        }
+
+        constexpr void VisitCells(const auto& visitor) const {
+            for(size_t row = 0; row < Height; ++row) {
+                for(size_t col = 0; col < Width; ++col) {
+                    auto coord = CellCoord{static_cast<s32>(col), static_cast<s32>(row)};
+                    visitor(coord, Cells.at(row).at(col));
+                }
+            }        
+        }
     };
 }

@@ -63,6 +63,13 @@ namespace Geometry {
             Y *= scalar;
             return *this;
         }
+
+        constexpr Size2 operator/(T scalar) const { return {X / scalar, Y / scalar}; }
+        constexpr Size2& operator/=(T scalar) {
+            X /= scalar;
+            Y /= scalar;
+            return *this;
+        }
     };
 
     template<typename T, typename TSpace>
@@ -86,9 +93,13 @@ namespace Geometry {
         constexpr Rect() = default;
         constexpr Rect(TPos pos, TSize size) : Pos(pos), Size(size) {}
         constexpr Rect(TPos tl, TPos br) : Pos(tl), Size({br.X - tl.X, br.Y - tl.Y}) {}
+        static constexpr Rect FromCenterSize(TPos center, TSize size) {
+            return {center - size / 2, size};
+        }
 
-        constexpr TPos Tl() const { return Pos; }
-        constexpr TPos Br() const { return Pos + Size; }
+        [[nodiscard]] constexpr TPos Tl() const { return Pos; }
+        [[nodiscard]] constexpr TPos Br() const { return Pos + Size; }
+        [[nodiscard]] constexpr TPos Center() const { return Pos + Size / 2; }
 
         constexpr Rect Expand(TSize delta = {1, 1}) const { 
             return {Pos - delta, Size + delta * 2};

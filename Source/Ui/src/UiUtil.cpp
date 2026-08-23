@@ -1,13 +1,11 @@
 #include "Ui/UiUtil.h"
+#include "Ui/UiGeometry.h"
 #include "Platform/Graphics.h"
 #include "imgui.h"
 
 namespace {
     bool fontsInitialized = false;
 }
-
-ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return {lhs.x - rhs.x, lhs.y - rhs.y}; }
-ImVec2 operator/(const ImVec2& lhs, float divisor) { return {lhs.x / divisor, lhs.y / divisor}; }
 
 void TextCenteredX(const char* text) {
     ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(text).x) / 2);

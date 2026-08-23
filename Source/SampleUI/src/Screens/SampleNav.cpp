@@ -17,18 +17,15 @@
 #include <imgui.h>
 
 #include <bit>
-#include <chrono>
 #include <cmath>
 #include <memory>
 #include <vector>
 
 namespace {
-    using clock = std::chrono::steady_clock;
-
     constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
-    constexpr auto CellSize = 64.f;
+    constexpr auto CellPixelSize = 64.f;
 
     struct Pawn {
         World::WorldLocation Location;
@@ -75,25 +72,25 @@ namespace {
         PathCells.reset();
         auto rand = SeededRandom(static_cast<u32>(WorldSeed));
         Map map = {};
-        for(size_t row = 0; row < Map::Height; ++row) {
-            for(size_t col = 0; col < Map::Width; ++col) {
-                if(row == 0 || col == 0 || row == Map::Height - 1 || col == Map::Width - 1) {
-                    map.Cells.at(row).at(col) = TerrainType::Wall;
-                } else if((row < 3 && col < 3) || (row > Map::Height - 4 && col > Map::Width - 4)) {
-                    map.Cells.at(row).at(col) = TerrainType::Floor;
-                } else {
-                    auto r = rand.GetNextFloat();
-                    auto type = TerrainType::Wall;
-                    if(r < FloorPercent) {
-                        type = TerrainType::Floor;
-                    } else if(r < FloorPercent + WaterPercent) {
-                        type = TerrainType::Water;
-                    }
+        auto mapSize = Map::Size();
+        auto lastCell = World::CellCoord{mapSize.X - 1, mapSize.Y - 1};
 
-                    map.Cells.at(row).at(col) = type;
+        map.VisitCells([&](World::CellCoord cell, TerrainType& terrain) {
+            if(cell.X == 0 || cell.Y == 0 || cell.X == lastCell.X || cell.Y == lastCell.Y) {
+                terrain = TerrainType::Wall;
+            } else if((cell.X < 3 && cell.Y < 3) || (cell.X > lastCell.X - 3 && cell.Y > lastCell.Y - 3)) {
+                terrain = TerrainType::Floor;
+            } else {
+                auto r = rand.GetNextFloat();
+                if(r < FloorPercent) {
+                    terrain = TerrainType::Floor;
+                } else if(r < FloorPercent + WaterPercent) {
+                    terrain = TerrainType::Water;
+                } else {
+                    terrain = TerrainType::Wall;
                 }
             }
-        }
+        });
 
         return map;
     }
@@ -102,7 +99,7 @@ namespace {
     static Pawn PlayerPawn = { 
         .Location = {
             .Chunk = { 0, 0 },
-            .Local = {1.5f, 1.5f}
+            .Local = World::GetCellCenter({1, 1,})
         },
         .Diameter = 0.7f
     };
@@ -122,9 +119,13 @@ namespace {
 
     World::CellCoord ContentPosToCell(ImVec2 pos) {
         return World::CellCoord{
-            static_cast<s32>(std::floor(pos.x / CellSize)), 
-            static_cast<s32>(std::floor(pos.y / CellSize))
+            static_cast<s32>(std::floor(pos.x / CellPixelSize)), 
+            static_cast<s32>(std::floor(pos.y / CellPixelSize))
         };
+    }
+
+    constexpr ImVec2 CellToContentCenter(World::CellCoord cell) {
+        return Ui::ToUi(World::GetCellCenter(cell)) * CellPixelSize;
     }
 
     bool IsWalkable(World::CellCoord cell) {
@@ -165,14 +166,12 @@ namespace {
             return pawn.Location.ToCellCoord() == waypoint;
         }
 
-        auto targetX = static_cast<f32>(waypoint.X) + 0.5f;
-        auto targetY = static_cast<f32>(waypoint.Y) + 0.5f;
-        auto dx = pawn.Location.Local.X - targetX;
-        auto dy = pawn.Location.Local.Y - targetY;
+        auto target = World::GetCellCenter(waypoint);
+        auto d = pawn.Location.Local - target;
 
         auto epsilon = 0.001f;
 
-        return dx * dx + dy * dy <= epsilon * epsilon;
+        return d.X * d.X + d.Y * d.Y <= epsilon * epsilon;
     }
 
     MoveDir GetManualMoveRequest() {
@@ -227,7 +226,7 @@ namespace {
         return delta;
     }
 
-    std::optional<World::Displacement> GetAutoMoveDelta(Pawn& pawn, BaseTime elapsed) {
+    std::optional<World::Displacement> GetAutoMoveDelta(const Pawn& pawn, BaseTime elapsed) {
         if(!AutoFollow || !PathCells || PathCells->empty()) return std::nullopt;
         auto movement = static_cast<MovementKind>(SelectedMovement);
         auto next = PathCells->front();
@@ -237,7 +236,7 @@ namespace {
             return World::Displacement{static_cast<f32>(next.X - current.X), static_cast<f32>(next.Y - current.Y)};
         } else {
             auto current = pawn.Location.Local;
-            auto target = World::LocalPos{static_cast<f32>(next.X) + 0.5f, static_cast<f32>(next.Y) + 0.5f};
+            auto target = World::GetCellCenter(next);
 
             auto difference = World::Displacement{target.X - current.X, target.Y - current.Y};
             auto distance = std::sqrt(difference.X * difference.X + difference.Y * difference.Y);
@@ -291,23 +290,24 @@ namespace {
     }
 
     void AdvancePath(const Pawn& pawn) {
-        if(TargetCell.has_value() && PathCells.has_value()) {
-            if(ReachedWaypoint(pawn, PathCells->at(0))) {
-                PathCells->erase(PathCells->begin());
-                if(PathCells->empty()) {
-                    PathCells.reset();
-                    TargetCell.reset();
-                }
-            } else {
-                if(!AutoFollow) {
-                    FindPath(pawn.Location.ToCellCoord(), TargetCell.value());
-                }
+        if(!TargetCell || !PathCells || PathCells->empty()) return;
+
+        if(ReachedWaypoint(pawn, PathCells->front())) {
+            PathCells->erase(PathCells->begin());
+            if(PathCells->empty()) {
+                PathCells.reset();
+                TargetCell.reset();
             }
+
+            return;
+        }
+
+        if(!AutoFollow) {
+            FindPath(pawn.Location.ToCellCoord(), *TargetCell);
         }
     }
 
     bool TryMove(Pawn& pawn, World::Displacement delta) {
-
         auto canOccupy = [&pawn](World::WorldLocation loc) { return CanOccupy(loc, pawn); };
 
         auto moved = false;
@@ -321,52 +321,44 @@ namespace {
         return moved;
     }
 
-    void RenderMap(const Ui::CanvasPanel& canvas, const Map& chunk) {
-        for(size_t row = 0; row < chunk.Height; row++) {
-            for(size_t col = 0; col < chunk.Width; col++) {
-                auto cellType = chunk.Cells.at(row).at(col);
-                auto color = TerrainToColor(cellType);
+    void RenderMap(const Ui::CanvasPanel& canvas, const Map& map) {
+        auto* drawList = ImGui::GetWindowDrawList();
 
-                auto contentTl = ImVec2{static_cast<f32>(col) * CellSize, static_cast<f32>(row) * CellSize};
-                auto contentBr = ImVec2{contentTl.x + CellSize, contentTl.y + CellSize};
-                auto screenTl = canvas.ContentToScreen(contentTl);
-                auto screenBr = canvas.ContentToScreen(contentBr);
-                ImGui::GetWindowDrawList()->AddRectFilled(screenTl, screenBr, color);
-                // border
-                ImGui::GetWindowDrawList()->AddRect(
-                    screenTl, screenBr, IM_COL32(0, 0, 0, 255), 0.f, ImDrawFlags_None, 1.f
-                );
-            }
+        map.VisitCells([&](World::CellCoord cell, const TerrainType& terrain) {
+            auto contentBounds = Ui::ToUi(Ui::ToContentRect<CellPixelSize>(cell));
+            auto screenBounds = canvas.ContentToScreen(contentBounds);
+
+            drawList->AddRectFilled(screenBounds.Min, screenBounds.Max, TerrainToColor(terrain));
+            drawList->AddRect(screenBounds.Min, screenBounds.Max, IM_COL32_BLACK);
+        });
+    }
+
+    void DrawCellMarker(const Ui::CanvasPanel& canvas, World::CellCoord cell, ImU32 color, bool filled) {
+        auto center = canvas.ContentToScreen(CellToContentCenter(cell));
+        auto radius = CellPixelSize * canvas.GetZoom() / 6.f;
+        auto* drawList = ImGui::GetWindowDrawList();
+        if(filled) {
+            drawList->AddCircleFilled(center, radius, color);
+        } else {
+            drawList->AddCircle(center, radius, color);
         }
     }
 
     void RenderPath(const Ui::CanvasPanel& canvas) {
         if(!TargetCell.has_value()) return;
         if(!PathCells.has_value()) {
-            auto contentCenter = ImVec2{
-                (static_cast<f32>(TargetCell->X) + 0.5f) * CellSize, 
-                (static_cast<f32>(TargetCell->Y) + 0.5f) * CellSize
-            };
-            auto screenCenter = canvas.ContentToScreen(contentCenter);
-            auto screenRadius = (CellSize * canvas.GetZoom()) / 6.f;
-            ImGui::GetWindowDrawList()->AddCircleFilled(screenCenter, screenRadius, IM_COL32(255, 0, 0, 255));
-            return;
-        }
-
-        for(const auto& cell : PathCells.value()) {
-            auto contentCenter = ImVec2{(static_cast<f32>(cell.X) + 0.5f) * CellSize, (static_cast<f32>(cell.Y) + 0.5f) * CellSize};
-            auto screenCenter = canvas.ContentToScreen(contentCenter);
-            auto screenRadius = (CellSize * canvas.GetZoom()) / 6.f;
-
-            ImGui::GetWindowDrawList()->AddCircle(screenCenter, screenRadius, IM_COL32(0, 255, 255, 255));
+            DrawCellMarker(canvas, *TargetCell, IM_COL32(255, 0, 0, 255), true);
+        } else {
+            for(const auto& cell : PathCells.value()) {
+                DrawCellMarker(canvas, cell, IM_COL32(0, 255, 255, 255), false);
+            }
         }
     }
 
     void RenderPawn(const Ui::CanvasPanel& canvas, const Pawn& pawn) {
-        auto scaledCenter = pawn.Location.Local * CellSize;
-        auto contentCenter = ImVec2{scaledCenter.X, scaledCenter.Y};
+        auto contentCenter = Ui::ToUi(pawn.Location.Local) * CellPixelSize;
         auto screenCenter = canvas.ContentToScreen(contentCenter);
-        auto screenRadius = (pawn.Diameter * CellSize * canvas.GetZoom()) / 2.f;
+        auto screenRadius = (pawn.Diameter * CellPixelSize * canvas.GetZoom()) / 2.f;
 
         ImGui::GetWindowDrawList()->AddCircleFilled(screenCenter, screenRadius, IM_COL32(0, 255, 0, 255));
     }
@@ -375,8 +367,8 @@ namespace {
         auto camera = static_cast<CameraKind>(SelectedCamera);
         if(camera == CameraKind::Manual) return;
 
-        auto pawnContent = pawn.Location.Local * CellSize;
-        auto pawnLocal = canvas.ContentToLocal(Ui::ToUi(pawnContent));
+        auto pawnContent = Ui::ToUi(pawn.Location.Local) * CellPixelSize;
+        auto pawnLocal = canvas.ContentToLocal(pawnContent);
         auto targetLocal = canvas.GetLocalCenter();
         auto delta = targetLocal - pawnLocal;
 
@@ -432,7 +424,7 @@ namespace SampleUI::Screens::SampleNav {
         PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
 
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
-            PollPathRequest(*Panel);
+            PollPathRequest(canvas);
             UpdateCamera(canvas, PlayerPawn);
             RenderMap(canvas, WorldMap);
             RenderPath(canvas);
@@ -496,9 +488,7 @@ namespace SampleUI::Screens::SampleNav {
         auto movementOptions = "Discrete\0Fluid\0";
         if(ImGui::Combo("Movement Type", &SelectedMovement, movementOptions)) {
             if(SelectedMovement == static_cast<int>(MovementKind::Discrete)) {
-                auto& local = PlayerPawn.Location.Local;
-                local.X = std::floor(local.X) + 0.5f;
-                local.Y = std::floor(local.Y) + 0.5f;
+                PlayerPawn.Location.Local = World::GetCellCenter(PlayerPawn.Location.ToCellCoord());
             }
         }
 

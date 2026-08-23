@@ -17,7 +17,7 @@ namespace {
     constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
-    constexpr auto CellSize = 24.f;
+    constexpr auto CellPixelSize = 24.f;
 
     Ui::PanelConfig PanelConfig{};
 
@@ -46,78 +46,93 @@ namespace {
 
     template<size_t TWidth, size_t THeight>
     constexpr World::Chunk<TerrainType, TWidth, THeight> GenerateChunk() { 
-        using namespace World;
+        using ChunkType = World::Chunk<TerrainType, TWidth, THeight>;
+
         using Rect = Geometry::Rect<s32, World::ChunkSpace>;
-        using CellSize = Geometry::Size2<s32, World::ChunkSpace>;
 
-        Chunk<TerrainType, TWidth, THeight> result = {};
+        ChunkType result = {};
 
-        auto fullArea = Rect{CellCoord{0, 0}, CellCoord{TWidth, THeight}};
+        auto fullArea = Rect{World::CellCoord{0, 0}, ChunkType::Size()};
         auto waterArea = fullArea.Contract();
 
-        auto Fill = [&](CellCoord topLeft, CellCoord bottomRight, TerrainType t) {
-            auto startX = std::max(fullArea.Tl().X, topLeft.X);
-            auto startY = std::max(fullArea.Tl().Y, topLeft.Y);
-            auto endX = std::min(fullArea.Br().X, bottomRight.X);
-            auto endY = std::min(fullArea.Br().Y, bottomRight.Y);
-            if(startX > endX || startY > endY) return;
+        auto Fill = [&](Rect area, TerrainType t) {
+            auto min = World::CellCoord{
+                std::max(fullArea.Tl().X, area.Tl().X), std::max(fullArea.Tl().Y, area.Tl().Y)
+            };
+            auto max = World::CellCoord{
+                std::min(fullArea.Br().X, area.Br().X), std::min(fullArea.Br().Y, area.Br().Y)
+            };
+            if(min.X >= max.X || min.Y >= max.Y) return;
 
-            for(size_t row = startY; row < endY; row++) {
-                for(size_t col = startX; col < endX; col++) {
+            for(size_t row = min.Y; row < max.Y; row++) {
+                for(size_t col = min.X; col < max.X; col++) {
                     result.Cells.at(row).at(col) = t;
                 }
             }
         };
 
-        auto FillRect = [&](Rect r, TerrainType t) { Fill(r.Tl(), r.Br(), t); };
+        auto roomSize = World::CellSize{
+            std::max(1, static_cast<s32>(TWidth * RoomWidth)),
+            std::max(1, static_cast<s32>(THeight * RoomHeight))
+        };
+        auto moatSize = World::CellSize{
+            static_cast<s32>(TWidth * MoatWidth), 
+            static_cast<s32>(THeight * MoatWidth)
+        };
+        auto roomInset = World::CellSize{
+            moatSize.X + roomSize.X / 2,
+            moatSize.Y + roomSize.Y / 2
+        };
+        auto roadThickness = World::CellSize{
+            std::max(1, static_cast<s32>(static_cast<f32>(roomSize.X) * RoadWidth)),
+            std::max(1, static_cast<s32>(static_cast<f32>(roomSize.Y) * RoadWidth))
+        };
 
-        auto roomWidth = std::max(1, static_cast<s32>(TWidth * RoomWidth));
-        auto roomHeight = std::max(1, static_cast<s32>(THeight * RoomHeight));
-        auto moatWidth = static_cast<s32>(TWidth * MoatWidth);
-
-        auto MakeRoom = [&](CellCoord center) {
-            auto topLeft = CellCoord{center.X - roomWidth / 2, center.Y - roomHeight / 2};
-            auto size = CellSize{roomWidth, roomHeight};
-            auto room = Rect{topLeft, size};
-            FillRect(room, TerrainType::Wall);
-            auto floor = room.Contract();
-            FillRect(floor, TerrainType::Floor);
+        auto MakeRoom = [&](World::CellCoord center) {
+            auto room = Rect::FromCenterSize(center, roomSize);
+            Fill(room, TerrainType::Wall);
+            Fill(room.Contract(), TerrainType::Floor);
             return room;
         };
 
-        auto MakeRoad = [&](Rect start, Rect end) {
+        auto MakeRoad = [&](Rect first, Rect second) {
             if(RoadWidth <= 0.f) return;
-            if(start.Tl().X > end.Br().X || start.Tl().Y > end.Br().Y) {
-                std::swap(start, end);
+
+            auto firstCenter = first.Center();
+            auto secondCenter = second.Center();
+
+            Rect road;
+            if(firstCenter.X == secondCenter.X) {
+                auto top = std::min(first.Br().Y, second.Br().Y);
+                auto bottom = std::max(first.Tl().Y, second.Tl().Y);
+
+                road = Rect{
+                    World::CellCoord{firstCenter.X - roadThickness.X / 2, top},
+                    World::CellSize{roadThickness.X, bottom - top}
+                };
+            } else {
+                auto left = std::min(first.Br().X, second.Br().X);
+                auto right = std::max(first.Tl().X, second.Tl().X);
+
+                road = Rect{
+                    World::CellCoord{left, firstCenter.Y - roadThickness.Y / 2},
+                    World::CellSize{right - left, roadThickness.Y}
+                };
             }
 
-            if(start.Tl().X == end.Tl().X) {
-                auto roadWidth = std::max(1, static_cast<s32>(static_cast<f32>(roomWidth) * RoadWidth));
-                auto mid = start.Tl().X + (start.Br().X - start.Tl().X) / 2;
-                auto startX = mid - roadWidth / 2;
-                Fill({ startX, start.Br().Y}, {startX + roadWidth, end.Tl().Y}, TerrainType::Road);
-            } else if(start.Tl().Y == end.Tl().Y) {
-                auto roadWidth = std::max(1, static_cast<s32>(static_cast<f32>(roomHeight) * RoadWidth));
-                auto mid = start.Tl().Y + (start.Br().Y - start.Tl().Y) / 2;
-                auto startY = mid - roadWidth / 2;
-                Fill({start.Br().X, startY}, {end.Tl().X, startY + roadWidth}, TerrainType::Road);
-            }
+            Fill(road, TerrainType::Road);
         };
 
-        FillRect(fullArea, TerrainType::Wall);
-        FillRect(waterArea, TerrainType::Water);
+        Fill(fullArea, TerrainType::Wall);
+        Fill(waterArea, TerrainType::Water);
 
-        auto halfWidth = static_cast<s32>(roomWidth / 2);
-        auto halfHeight = static_cast<s32>(roomHeight / 2);
-        auto leftCenterX = waterArea.Tl().X + moatWidth + halfWidth;
-        auto rightCenterX = waterArea.Br().X - moatWidth - halfWidth;
-        auto topCenterY = waterArea.Tl().Y + moatWidth + halfHeight;
-        auto bottomCenterY = waterArea.Br().Y - moatWidth - halfHeight;
+        auto nearCenter = waterArea.Tl() + roomInset;
+        auto farCenter = waterArea.Br() - roomInset;
 
-        auto TlRoom = MakeRoom({leftCenterX, topCenterY});
-        auto TrRoom = MakeRoom({rightCenterX, topCenterY});
-        auto BlRoom = MakeRoom({leftCenterX, bottomCenterY});
-        auto BrRoom = MakeRoom({rightCenterX, bottomCenterY});
+        auto TlRoom = MakeRoom({nearCenter.X, nearCenter.Y});
+        auto TrRoom = MakeRoom({farCenter.X, nearCenter.Y});
+        auto BlRoom = MakeRoom({nearCenter.X, farCenter.Y});
+        auto BrRoom = MakeRoom({farCenter.X, farCenter.Y});
 
         MakeRoad(TlRoom, TrRoom);
         MakeRoad(TlRoom, BlRoom);
@@ -141,19 +156,17 @@ namespace SampleUI::Screens::SampleSimpleMap {
 
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
             auto renderChunk = [&](const auto& chunk) {
-                for(size_t row = 0; row < chunk.Height; row++) {
-                    for(size_t col = 0; col < chunk.Width; col++) {
-                        auto cell = World::CellCoord{static_cast<s32>(col), static_cast<s32>(row)};
+                auto* drawList = ImGui::GetWindowDrawList();
 
-                        auto color = TerrainToColor(chunk.At(cell));
-                        auto contentBounds = Ui::ToUi(Ui::ToContentRect<CellSize>(cell));
-                        auto screen = canvas.ContentToScreen(contentBounds);
-                        auto* drawList = ImGui::GetWindowDrawList();
-                        drawList->AddRectFilled(screen.Min, screen.Max, color);
-                        drawList->AddRect(screen.Min, screen.Max, IM_COL32_BLACK, 0.f, ImDrawFlags_None, 1.f);
-                    }
-                }
+                chunk.VisitCells([&](World::CellCoord cell, TerrainType t) {
+                    auto contentBounds = Ui::ToUi(Ui::ToContentRect<CellPixelSize>(cell));
+                    auto screen = canvas.ContentToScreen(contentBounds);
+
+                    drawList->AddRectFilled(screen.Min, screen.Max, TerrainToColor(t));
+                    drawList->AddRect(screen.Min, screen.Max, IM_COL32_BLACK, 0.f, ImDrawFlags_None, 1.f);
+                });
             };
+
             switch(SelectedChunkSize) {
                 case 0: renderChunk(SmallChunk); break;
                 case 1: renderChunk(MediumChunk); break;

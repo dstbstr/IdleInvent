@@ -4,7 +4,19 @@
 
 #include <imgui.h>
 
+[[nodiscard]] constexpr ImVec2 operator+(ImVec2 lhs, ImVec2 rhs) { return {lhs.x + rhs.x, lhs.y + rhs.y}; }
+[[nodiscard]] constexpr ImVec2 operator-(ImVec2 lhs, ImVec2 rhs) { return {lhs.x - rhs.x, lhs.y - rhs.y}; }
+[[nodiscard]] constexpr ImVec2 operator*(ImVec2 lhs, ImVec2 rhs) { return {lhs.x * rhs.x, lhs.y * rhs.y}; }
+[[nodiscard]] constexpr ImVec2 operator/(ImVec2 lhs, ImVec2 rhs) { return {lhs.x / rhs.x, lhs.y / rhs.y}; }
+[[nodiscard]] constexpr ImVec2 operator*(ImVec2 value, f32 scalar) { return {value.x * scalar, value.y * scalar}; }
+[[nodiscard]] constexpr ImVec2 operator*(f32 scalar, ImVec2 value) { return value * scalar; }
+[[nodiscard]] constexpr ImVec2 operator/(ImVec2 value, f32 scalar) { return {value.x / scalar, value.y / scalar}; }
+
 namespace Ui {
+    [[nodiscard]] constexpr ImVec2 Midpoint(ImVec2 lhs, ImVec2 rhs) { return (lhs + rhs) * 0.5f; }
+    inline constexpr ImVec2 One{1.f, 1.f};
+    inline constexpr ImVec2 Half{0.5f, 0.5f};
+
     struct MapContentSpace;
     using ContentPoint = Geometry::Point2<f32, MapContentSpace>;
     using ContentSize = Geometry::Size2<f32, MapContentSpace>;
@@ -43,6 +55,8 @@ namespace Ui {
         [[nodiscard]] constexpr f32 CenterX() const { return Min.x + GetWidth() * 0.5f; }
         [[nodiscard]] constexpr f32 CenterY() const { return Min.y + GetHeight() * 0.5f; }
         [[nodiscard]] constexpr ImVec2 GetCenter() const { return {CenterX(), CenterY()}; }
+
+        [[nodiscard]] constexpr UiRect Translate(ImVec2 offset) const { return {Min + offset, Max + offset}; }
     };
 
     template<typename T, typename TSpace>

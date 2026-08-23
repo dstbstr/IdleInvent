@@ -40,6 +40,11 @@ namespace World {
     static_assert(Chunk<int, 3, 3>::Contains({-1, 0}) == false);
     static_assert(Chunk<int, 3, 3>::Contains({0, -1}) == false);
     
+    // Uses integer division to find center
+    static_assert(Chunk<int, 3, 3>::CenterCell() == CellCoord{1, 1});
+    static_assert(Chunk<int, 4, 4>::CenterCell() == CellCoord{2, 2});
+    static_assert(Chunk<int, 3, 4>::Size() == CellSize{3, 4});
+
     constexpr bool ChunkTests() { 
         Chunk<int, 3, 2> chunk{};
         auto& cell = chunk.At({1, 1});

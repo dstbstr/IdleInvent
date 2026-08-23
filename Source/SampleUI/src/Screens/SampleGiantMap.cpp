@@ -26,7 +26,7 @@ namespace {
     constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
-    constexpr auto CellSize = 64.f;
+    constexpr auto CellPixelSize = 64.f;
     constexpr f32 HudMapDiameter = 192.f;
     constexpr f32 HudMapPadding = 12.f;
 
@@ -55,11 +55,9 @@ namespace {
     static Pawn PlayerPawn = {
         .Location = {
             .Chunk = {0, 0}, 
-            .Local = {
-                static_cast<f32>(Chunk::Width) / 2.f + 0.5f, 
-                static_cast<f32>(Chunk::Height) / 2.f + 0.5f}
-            }
-        , .Diameter = 0.7f
+            .Local = World::GetCellCenter(Chunk::CenterCell())
+        }, 
+        .Diameter = 0.7f
     };
 
     constexpr ImU32 TerrainToColor(TerrainType type) {
@@ -89,27 +87,20 @@ namespace {
 
     Chunk GenerateChunk(World::ChunkCoord chunkCoord) {
         Chunk chunk = {};
-
-        for(size_t row = 0; row < Chunk::Height; ++row) {
-            for(size_t col = 0; col < Chunk::Width; ++col) {
-                auto globalX = static_cast<s64>(chunkCoord.X) * static_cast<s64>(Chunk::Width) + static_cast<s64>(col);
-                auto globalY = static_cast<s64>(chunkCoord.Y) * static_cast<s64>(Chunk::Height) + static_cast<s64>(row);
-                auto height = static_cast<f32>(GetHeight(static_cast<f64>(globalX), static_cast<f64>(globalY)));
-                auto type = TerrainType::Dirt;
-                if(height > SnowLevel) {
-                    type = TerrainType::Snow;
-                } else if(height > ForestLevel) {
-                    type = TerrainType::Forest;
-                } else if(height < WaterLevel) {
-                    type = TerrainType::Water;
-                } else {
-                    type = TerrainType::Dirt;
-                }
-
-                chunk.Cells.at(row).at(col) = type;
+        chunk.VisitCells([&](World::CellCoord cell, TerrainType& terrain) {
+            auto globalX = static_cast<s64>(chunkCoord.X) * static_cast<s64>(Chunk::Width) + cell.X;
+            auto globalY = static_cast<s64>(chunkCoord.Y) * static_cast<s64>(Chunk::Height) + cell.Y;
+            auto height = static_cast<f32>(GetHeight(static_cast<f64>(globalX), static_cast<f64>(globalY)));
+            if(height > SnowLevel) {
+                terrain = TerrainType::Snow;
+            } else if(height > ForestLevel) {
+                terrain = TerrainType::Forest;
+            } else if(height < WaterLevel) {
+                terrain = TerrainType::Water;
+            } else {
+                terrain = TerrainType::Dirt;
             }
-        }
-
+        });
 
         return chunk;
     }
@@ -176,27 +167,18 @@ namespace {
 
     void RenderChunk(const Ui::CanvasPanel& canvas, World::ChunkCoord coord, const Chunk& chunk) {
         auto relativeChunk = coord - PlayerPawn.Location.Chunk;
-        auto chunkWidth = static_cast<f32>(Chunk::Width) * CellSize;
-        auto chunkHeight = static_cast<f32>(Chunk::Height) * CellSize;
+        auto chunkCellOrigin = Ui::ToUi(relativeChunk) * Ui::ToUi(Chunk::Size());
+        auto chunkContentOrigin = chunkCellOrigin * CellPixelSize;
+        auto* drawList = ImGui::GetWindowDrawList();
 
-        auto pixelOrigin = ImVec2{static_cast<f32>(relativeChunk.X) * chunkWidth, static_cast<f32>(relativeChunk.Y) * chunkHeight};
-
-        for(size_t row = 0; row < chunk.Height; row++) {
-            for(size_t col = 0; col < chunk.Width; col++) {
-                auto cellType = chunk.Cells.at(row).at(col);
-                auto color = TerrainToColor(cellType);
-
-                auto contentTl = ImVec2{pixelOrigin.x + static_cast<f32>(col) * CellSize, pixelOrigin.y + static_cast<f32>(row) * CellSize};
-                auto contentBr = ImVec2{contentTl.x + CellSize, contentTl.y + CellSize};
-                auto screenTl = canvas.ContentToScreen(contentTl);
-                auto screenBr = canvas.ContentToScreen(contentBr);
-                ImGui::GetWindowDrawList()->AddRectFilled(screenTl, screenBr, color);
-                // border
-                ImGui::GetWindowDrawList()->AddRect(
-                    screenTl, screenBr, IM_COL32(0, 0, 0, 255), 0.f, ImDrawFlags_None, 1.f
-                );
-            }
-        }
+        chunk.VisitCells([&](World::CellCoord cell, const TerrainType& terrain) {
+            auto chunkLocalBounds = Ui::ToUi(Ui::ToContentRect<CellPixelSize>(cell));
+            auto contentBounds = chunkLocalBounds.Translate(chunkContentOrigin);
+            auto screenBounds = canvas.ContentToScreen(contentBounds);
+            drawList->AddRectFilled(screenBounds.Min, screenBounds.Max, TerrainToColor(terrain));
+            // border
+            drawList->AddRect(screenBounds.Min, screenBounds.Max, IM_COL32(0, 0, 0, 255), 0.f, ImDrawFlags_None, 1.f);
+        });
     }
 
     void RenderMap(const Ui::CanvasPanel& canvas) {
@@ -206,10 +188,9 @@ namespace {
     }
 
     void RenderPawn(const Ui::CanvasPanel& canvas, const Pawn& pawn) {
-        auto scaledCenter = pawn.Location.Local * CellSize;
-        auto contentCenter = ImVec2{scaledCenter.X, scaledCenter.Y};
+        auto contentCenter = Ui::ToUi(pawn.Location.Local) * CellPixelSize;
         auto screenCenter = canvas.ContentToScreen(contentCenter);
-        auto screenRadius = (pawn.Diameter * CellSize * canvas.GetZoom()) / 2.f;
+        auto screenRadius = (pawn.Diameter * CellPixelSize * canvas.GetZoom()) / 2.f;
 
         ImGui::GetWindowDrawList()->AddCircleFilled(screenCenter, screenRadius, IM_COL32(0, 255, 0, 255));
     }
@@ -218,10 +199,12 @@ namespace {
         if(!ShowHudMap) return;
 
         auto vpSize = canvas.GetViewportSize();
-        auto mapMaxLocal = ImVec2{vpSize.x - HudMapPadding, vpSize.y - HudMapPadding};
-        auto mapMinLocal = ImVec2{mapMaxLocal.x - HudMapDiameter, mapMaxLocal.y - HudMapDiameter};
-        auto mapCenterLocal = ImVec2{(mapMinLocal.x + mapMaxLocal.x) * 0.5f, (mapMinLocal.y + mapMaxLocal.y) * 0.5f};
-
+        auto diameter = ImVec2{HudMapDiameter, HudMapDiameter};
+        auto padding = ImVec2{HudMapPadding, HudMapPadding};
+    
+        auto mapMaxLocal = vpSize - padding;
+        auto mapMinLocal = mapMaxLocal - diameter;
+        auto mapCenterLocal = Ui::Midpoint(mapMinLocal, mapMaxLocal);
         auto mapCenter = canvas.LocalToScreen(mapCenterLocal);
 
         auto* drawList = ImGui::GetWindowDrawList();
@@ -229,40 +212,33 @@ namespace {
         auto visibleRadiusCells =
             static_cast<f32>(LoadRadius) * static_cast<f32>(std::min(Chunk::Width, Chunk::Height));
         auto mapRadius = HudMapDiameter * 0.5f;
-        auto hudCellSize = mapRadius / visibleRadiusCells;
+        auto hudCellPixelSize = mapRadius / visibleRadiusCells;
 
         for(const auto& [coord, chunk] : LoadedChunks) {
             auto relativeChunk = coord - pawn.Location.Chunk;
+            auto chunkSize = ImVec2{static_cast<f32>(Chunk::Width), static_cast<f32>(Chunk::Height)};
+            auto chunkOffset = ImVec2{static_cast<f32>(relativeChunk.X) * chunkSize.x, static_cast<f32>(relativeChunk.Y) * chunkSize.y};
+            auto pawnPos = Ui::ToUi(pawn.Location.Local);
 
-            for(size_t row = 0; row < Chunk::Height; row++) {
-                for(size_t col = 0; col < Chunk::Width; col++) {
-                    auto relCellX = static_cast<f32>(relativeChunk.X) * static_cast<f32>(Chunk::Width) +
-                                    static_cast<f32>(col) - pawn.Location.Local.X + 0.5f;
-                    auto relCellY = static_cast<f32>(relativeChunk.Y) * static_cast<f32>(Chunk::Height) +
-                                    static_cast<f32>(row) - pawn.Location.Local.Y + 0.5f;
-
-                    auto cellCenter = ImVec2{mapCenter.x + relCellX * hudCellSize, mapCenter.y + relCellY * hudCellSize};
+            chunk.VisitCells([&](World::CellCoord cell, const TerrainType& terrain) {
+                auto cellCenter = Ui::ToUi(cell) + Ui::Half;
+                auto relativeCell = chunkOffset + cellCenter - pawnPos;
+                auto screenCellCenter = mapCenter + relativeCell * hudCellPixelSize;
                 
-                    auto dx = cellCenter.x - mapCenter.x;
-                    auto dy = cellCenter.y - mapCenter.y;
-                    if(dx * dx + dy * dy > mapRadius * mapRadius) continue;
+                auto d = screenCellCenter - mapCenter;
+                if(d.x * d.x + d.y * d.y > mapRadius * mapRadius) return;
 
-                    auto halfCell = hudCellSize * 0.5f;
-                    auto cellMin = ImVec2{cellCenter.x - halfCell, cellCenter.y - halfCell};
-                    auto cellMax = ImVec2{cellCenter.x + halfCell, cellCenter.y + halfCell};
-
-                    auto terrain = chunk.Cells.at(row).at(col);
-                    drawList->AddRectFilled(cellMin, cellMax, TerrainToColor(terrain));
-                }
-            }
+                auto halfCellPixelSize = Ui::Half * hudCellPixelSize;
+                auto cellBounds = Ui::UiRect{screenCellCenter - halfCellPixelSize, screenCellCenter + halfCellPixelSize};
+                drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, TerrainToColor(terrain));
+            });
         }
 
-        drawList->AddCircleFilled(mapCenter, hudCellSize, IM_COL32(0, 255, 0, 255));
+        drawList->AddCircleFilled(mapCenter, hudCellPixelSize, IM_COL32(0, 255, 0, 255));
 
         // Draw border around minimap
         drawList->AddCircle(mapCenter, mapRadius, IM_COL32_BLACK);
     }
-
 
     void RenderDebug() {
         if(!ShowDebug) return;
@@ -279,7 +255,7 @@ namespace {
     }
 
     void UpdateCamera(Ui::CanvasPanel& canvas, const Pawn& pawn) {
-        auto pawnContent = pawn.Location.Local * CellSize;
+        auto pawnContent = pawn.Location.Local * CellPixelSize;
         auto pawnLocal = canvas.ContentToLocal(Ui::ToUi(pawnContent));
         auto targetLocal = canvas.GetLocalCenter();
         auto delta = targetLocal - pawnLocal;
