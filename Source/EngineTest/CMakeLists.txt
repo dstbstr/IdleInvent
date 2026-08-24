@@ -19,6 +19,9 @@ gtest_discover_tests(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
   src/Main.cpp
 
+  src/Combat/CombatSchedule.test.cpp
+  src/Combat/Encounter.test.cpp
+
   src/Constexpr/ConstexprMath.test.cpp
   src/Constexpr/ConstexprSaveUtils.test.cpp
   src/Constexpr/ConstexprStrUtils.test.cpp

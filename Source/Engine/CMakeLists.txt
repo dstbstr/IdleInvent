@@ -14,6 +14,11 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/Animation/Animation.cpp 
 
+	src/Combat/CombatTypes.cpp
+	src/Social/Faction.cpp
+	src/Social/Faction.test.cpp
+	src/Combat/RoundRobinScheduler.cpp
+
 	src/Constexpr/ConstexprStrUtils.cpp
 
 	src/DesignPatterns/PubSub.cpp
