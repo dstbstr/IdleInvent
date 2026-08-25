@@ -31,7 +31,11 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Screens/Landing.cpp
 	src/Screens/SampleTreePanel.cpp
 	src/Screens/SampleParticles.cpp
- "src/Screens/SampleSimpleMap.cpp" "src/Screens/SampleNav.cpp" "src/Screens/SampleGiantMap.cpp")
+    src/Screens/SampleSimpleMap.cpp
+	src/Screens/SampleNav.cpp
+	src/Screens/SampleGiantMap.cpp
+	src/Screens/SampleCombat.cpp
+)
 
 if(EXISTS ${SHARED_ASSET_DIR})
 	add_custom_target(SyncSampleUIAssets

@@ -27,7 +27,7 @@ namespace {
 		{"Simple\nMap", SampleUI::Screen::SampleSimpleMap},
 		{"Navigation", SampleUI::Screen::SampleNav},
 		{"Giant\nMap", SampleUI::Screen::SampleGiantMap},
-		{"Unused", SampleUI::Screen::Landing},
+		{"Combat", SampleUI::Screen::SampleCombat},
 		{"Unused", SampleUI::Screen::Landing},
 		{"Unused", SampleUI::Screen::Landing},
 		{"Unused", SampleUI::Screen::Landing},

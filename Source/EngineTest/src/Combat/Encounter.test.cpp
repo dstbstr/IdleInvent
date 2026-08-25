@@ -1,3 +1,4 @@
+#include "TestCombatTypes.h"
 #include "Combat/CombatSchedule.h"
 #include "Combat/Encounter.h"
 
@@ -6,89 +7,15 @@
 #include <expected>
 
 namespace Combat {
-    struct TestCombatant {
-        s32 Hp{};
-        s32 Attack{};
-    };
-
-    struct TestAction {
-        CombatantId Target{};
-    };
-
-    enum struct TestEventKind : u8 { Damaged, Defeated, CombatEnded, TurnEnded, TurnSkipped };
-    enum struct TestFaction : u8 { GoodGuys, BadGuys };
-
-    struct TestEvent {
-        TestEventKind Kind{};
-        CombatantId Actor{};
-        CombatantId Target{};
-        s32 Amount{};
-    };
-
-    struct TestRules {
-        bool CanAct(const Roster<TestCombatant>& roster, CombatantId actor) const {
-            return roster.Contains(actor) && roster.Get(actor).Hp > 0;
-        }
-
-        bool CanSubmit(const Roster<TestCombatant>& roster, CombatantId actor, const TestAction& action) {
-            return CanAct(roster, actor) && 
-                roster.Contains(action.Target) && 
-                roster.Get(action.Target).Hp > 0 &&
-                actor != action.Target;
-        }
-
-        ActionResolution<TestEvent> Update(Roster<TestCombatant>& roster, BaseTime elapsed) const {
-            return {};
-        }
-
-        ActionResolution<TestEvent> EndTurn(Roster<TestCombatant>& roster, CombatantId actor, TurnEnd endKind, const EncounterProgress& progress) const {
-            return {
-                .Events = {{
-                    .Kind = endKind == TurnEnd::Skipped ? TestEventKind::TurnSkipped : TestEventKind::TurnEnded,
-                    .Actor = actor
-                }}
-            };
-        }
-
-        ActionResolution<TestEvent> Resolve(Roster<TestCombatant>& roster, CombatantId actor, const TestAction& action) const {
-            auto& attacker = roster.Get(actor);
-            auto& defender = roster.Get(action.Target);
-            auto damage = attacker.Attack;
-
-            defender.Hp -= damage;
-
-            ActionResolution<TestEvent> result{
-                .Events = {{
-                    .Kind = TestEventKind::Damaged, 
-                    .Actor = actor, 
-                    .Target = action.Target, 
-                    .Amount = damage
-                }}
-            };
-
-            if(defender.Hp <= 0) {
-                result.Events.push_back({
-                    .Kind = TestEventKind::Defeated,
-                    .Actor = actor,
-                    .Target = action.Target
-                });
-                result.Events.push_back({.Kind = TestEventKind::CombatEnded});
-                result.EncounterFinished = true;
-            }
-
-            return result;
-        }
-    };
 
     struct EncounterTest : public ::testing::Test {
-        using TEncounter = Encounter<TestCombatant, TestAction, TestEvent, TestRules>;
         
         TestCombatant P1 = {.Hp = 10, .Attack = 3};
         TestCombatant P2 = {.Hp = 5, .Attack = 2};
         Social::FactionId GoodGuys = Social::ToFactionId(TestFaction::GoodGuys);
         Social::FactionId BadGuys = Social::ToFactionId(TestFaction::BadGuys);
 
-        TEncounter MakeEncounter() { return TEncounter(TestRules{}, std::make_unique<RoundRobinScheduler>()); }
+        TestEncounter MakeEncounter() { return TestEncounter(TestRules{}, std::make_unique<RoundRobinScheduler>()); }
     };
 
     TEST_F(EncounterTest, Roster_AfterAdd_ContainsCombatants) {
@@ -194,5 +121,35 @@ namespace Combat {
         auto events = encounter.SkipTurn(p1Id);
         ASSERT_EQ(1, events.size());
         ASSERT_EQ(events[0].Kind, TestEventKind::TurnSkipped);
+    }
+
+    TEST_F(EncounterTest, SkipTurn_WithPlayer_IncrementsProgress) {
+        auto encounter = MakeEncounter();
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+
+        auto progress = encounter.GetProgress();
+        encounter.SkipTurn(p1Id);
+        ASSERT_EQ(progress.CompletedTurns + 1, encounter.GetProgress().CompletedTurns);
+        auto ready = encounter.GetReadyCombatants();
+        ASSERT_EQ(p2Id, ready.front());
+    }
+
+    TEST_F(EncounterTest, SkipTurn_WithInvalid_DoesNothing) {
+        auto encounter = MakeEncounter();
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto progress = encounter.GetProgress();
+        auto events = encounter.SkipTurn(p2Id);
+        ASSERT_EQ(0, events.size());
+        ASSERT_EQ(progress.CompletedTurns, encounter.GetProgress().CompletedTurns);
+    }
+
+    TEST_F(EncounterTest, Update_WithElapsed_IncrementsProgress) {
+        auto encounter = MakeEncounter();
+        encounter.Update(OneSecond);
+
+        auto progress = encounter.GetProgress();
+        ASSERT_GE(progress.Elapsed, OneSecond);
     }
 } // namespace Combat

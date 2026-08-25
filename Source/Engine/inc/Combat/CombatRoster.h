@@ -27,7 +27,13 @@ namespace Combat {
         Social::FactionId GetFaction(CombatantId id) const { return m_Roster.at(id).Faction; }
 
         constexpr void Visit(const auto& visitor) {
-            for(const auto& [id, entry] : m_Roster) {
+            for(auto& [id, entry] : m_Roster) {
+                visitor(id, entry.Faction, entry.Combatant);
+            }
+        }
+
+        constexpr void Visit(const auto& visitor) const {
+            for(const auto& [id, entry]: m_Roster) {
                 visitor(id, entry.Faction, entry.Combatant);
             }
         }

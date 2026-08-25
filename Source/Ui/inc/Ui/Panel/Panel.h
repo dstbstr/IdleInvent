@@ -82,6 +82,9 @@ namespace Ui {
             Bounds = bounds;
         }
         
+        void SetBackgroundColor(std::optional<ImU32> color) { BackgroundColor = color; }
+        void SetBackgroundTexture(std::optional<ImTextureID> texture) {BackgroundTexture = texture; }
+
         ImVec2 GetLocalCenter() const { return {GetCenterX(), GetCenterY()}; }
         ImVec2 GetViewportSize() const { return Bounds.GetSize(); }
 
