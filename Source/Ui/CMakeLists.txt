@@ -19,6 +19,8 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Overlay.cpp
     src/Dialog.cpp
 
+    src/Combat/BattleFormation.cpp
+
     src/Panel/Panel.cpp
     src/Panel/CanvasPanel.cpp
 

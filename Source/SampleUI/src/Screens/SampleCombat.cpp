@@ -5,6 +5,7 @@
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
 #include <Platform/NumTypes.h>
+#include <Ui/Combat/BattleFormation.h>
 #include <Ui/UiGeometry.h>
 #include <Ui/Overlay.h>
 #include <Ui/Panel/CanvasPanel.h>
@@ -42,7 +43,7 @@ namespace {
         s32 Attack{};
     };
 
-    enum struct FormationFront : u8 { Left, Right, Top, Bottom };
+    enum struct BattleFormation : u8 { Square, Triangle, ThreeLines };
     
     auto BattlefieldPercent = 0.7f;
     auto StatsPercent = 2.f / 3.f;
@@ -56,6 +57,7 @@ namespace {
     auto CombatantPadding = 0.2f;
     auto GroupVertical = true;
     auto SelectedCombatant = 0;
+    auto SelectedFormation = static_cast<int>(BattleFormation::Square);
 
     Ui::PanelConfig BattlePanelConfig{};
     std::vector<CombatantVisual> PlayerVisuals{};
@@ -70,66 +72,6 @@ namespace {
         return id;
     }
 
-    void LayoutGrid(std::span<CombatantVisual> visuals, Ui::UiRect region, FormationFront front) {
-        if(visuals.empty()) return;
-
-        auto count = visuals.size();
-        auto lineCapacity = static_cast<size_t>(std::ceil(std::sqrt(static_cast<f32>(count))));
-        auto verticalFront = front == FormationFront::Left || front == FormationFront::Right;
-
-        size_t rows{}, cols{};
-        if(verticalFront) {
-            rows = lineCapacity;
-            cols = (count + rows - 1) / rows;
-        } else {
-            cols = lineCapacity;
-            rows = (count + cols - 1) / cols;
-        }
-        auto fRows = static_cast<f32>(rows);
-        auto fCols = static_cast<f32>(cols);
-
-        auto regionSize = region.GetSize();
-        auto slotSize = std::min(regionSize.x / fCols, regionSize.y / fRows);
-        auto formationSize = ImVec2{slotSize * fCols, slotSize * fRows};
-        auto origin = region.GetCenter() - (formationSize * 0.5f);
-
-        switch(front) {
-            using enum FormationFront;
-            case Left: origin.x = region.Min.x; break;
-            case Right: origin.x = region.Max.x - formationSize.x; break;
-            case Top: origin.y = region.Min.y; break;
-            case Bottom: origin.y = region.Max.y - formationSize.y; break;
-        }
-
-        for(size_t index = 0; index < count; index++) {
-            ImVec2 home{};
-            if(verticalFront) {
-                auto line = index / rows;
-                auto entry = index % rows;
-                auto entriesInLine = std::min(rows, count - line * rows);
-                auto col = front == FormationFront::Right ? line : cols - 1 - line;
-                auto vOff = static_cast<f32>(rows - entriesInLine) * slotSize * 0.5f;
-                home = {
-                    origin.x + (static_cast<f32>(col) + 0.5f) * slotSize, 
-                    origin.y + vOff + (static_cast<f32>(entry) + 0.5f) * slotSize
-                };
-            } else {
-                auto line = index / cols;
-                auto entry = index % cols;
-                auto entriesInLine = std::min(cols, count - line * cols);
-                auto row = front == FormationFront::Bottom ? line : rows - 1 - line;
-                auto hOff = static_cast<f32>(cols - entriesInLine) * slotSize * 0.5f;
-                home = {
-                    origin.x + hOff + (static_cast<f32>(entry) + 0.5f) * slotSize,
-                    origin.y + (static_cast<f32>(row) + 0.5f) * slotSize
-                };
-            }
-
-            auto& visual = visuals[index];
-            visual.CurrentLocal = home;
-            visual.Size = std::min(CombatantSize, slotSize * 0.8f);
-        }
-    }
 
     void DrawCombatant(const Ui::CanvasPanel& canvas, const CombatantVisual& visual, bool selected) {
         auto halfSize = Ui::Half * visual.Size;
@@ -152,6 +94,29 @@ namespace {
         );
     }
 
+    void ApplyFormation(std::span<CombatantVisual> visuals, Ui::UiRect region, Ui::Formation::Front front) {
+        std::vector<Ui::Formation::Slot> slots{};
+        switch(static_cast<BattleFormation>(SelectedFormation)) {
+            using enum BattleFormation;
+            case Square: slots = Ui::Formation::Square(visuals.size(), region, front); break;
+            case Triangle: slots = Ui::Formation::Triangle(visuals.size(), region, front); break;
+            case ThreeLines: {
+                auto avgCount = visuals.size() / 3;
+                auto middleCount = visuals.size() - (avgCount * 2);
+                auto lineCounts = std::array<size_t, 3>{avgCount, middleCount, avgCount};
+                slots = Ui::Formation::Lines(lineCounts, region, front);
+            }
+        }
+
+        for(size_t i = 0; i < visuals.size(); i++) {
+            auto& visual = visuals[i]; // NOLINT(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
+            const auto& slot = slots.at(i);
+
+            visual.CurrentLocal = slot.Center;
+            visual.Size = std::min(CombatantSize, slot.AvailableSize * 0.8f);
+        }
+    }
+
     void RenderBattlefield(Ui::CanvasPanel& canvas) { 
         auto size = canvas.GetViewportSize();
         if(GroupVertical) {
@@ -161,16 +126,16 @@ namespace {
 
             PlayerRegion = {{0.f, 0.f}, {leftFront, size.y}};
             EnemyRegion = {{rightFront, 0.f}, {size.x, size.y}};
-            LayoutGrid(PlayerVisuals, PlayerRegion, FormationFront::Right);
-            LayoutGrid(EnemyVisuals, EnemyRegion, FormationFront::Left);
+            ApplyFormation(PlayerVisuals, PlayerRegion, Ui::Formation::Front::Right);
+            ApplyFormation(EnemyVisuals, EnemyRegion, Ui::Formation::Front::Left);
         } else {
             auto gap = size.y * CombatantPadding;
             auto topFront = (size.y - gap) * 0.5f;
             auto bottomFront = (size.y + gap) * 0.5f;
             PlayerRegion = {{0.f, 0.f}, {size.x, topFront}};
             EnemyRegion = {{0.f, bottomFront}, {size.x, size.y}};
-            LayoutGrid(PlayerVisuals, PlayerRegion, FormationFront::Bottom);
-            LayoutGrid(EnemyVisuals, EnemyRegion, FormationFront::Top);
+            ApplyFormation(PlayerVisuals, PlayerRegion, Ui::Formation::Front::Bottom);
+            ApplyFormation(EnemyVisuals, EnemyRegion, Ui::Formation::Front::Top);
         }
 
         auto selected = Combat::CombatantId{static_cast<u32>(SelectedCombatant)};
@@ -237,10 +202,13 @@ namespace SampleUI::Screens::SampleCombat {
         ImGui::ColorEdit4("Control Border Color", &ControlBorderColor.x, ImGuiColorEditFlags_NoInputs);
 
         ImGui::SliderFloat("Combatant Padding", &CombatantPadding, 0.1f, 0.4f);
+
+        auto formationOptions = "Square\0Triangle\0ThreeLines\0";
+        ImGui::Combo("Battle Formation", &SelectedFormation, formationOptions);
         
         ImGui::Checkbox("Group Vertically", &GroupVertical);
         ImGui::SameLine();
-        ImGui::SliderInt("Selected Combatant", &SelectedCombatant, 0, NextVisualId - 1);
+        ImGui::SliderInt("Selected Combatant", &SelectedCombatant, 0, static_cast<s32>(NextVisualId) - 1);
 
         ImGui::TextUnformatted("Allys");
         ImGui::SameLine();
