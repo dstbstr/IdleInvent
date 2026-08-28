@@ -3,6 +3,10 @@
 #include "Platform/Graphics.h"
 
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
+#include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <Windows.h>
 #include <libloaderapi.h>
@@ -37,10 +41,60 @@ void CheckMemory() {
 }
 
 namespace {
-    //static constexpr size_t WindowWidth = 1080;
-    //static constexpr size_t WindowHeight = 2220;
-    static constexpr size_t WindowWidth = 540;
-    static constexpr size_t WindowHeight = 1110;
+    static constexpr size_t ReferenceWidth = 1080;
+    static constexpr size_t ReferenceHeight = 2220;
+    //static constexpr size_t WindowWidth = 540;
+    //static constexpr size_t WindowHeight = 1110;
+    static constexpr int WindowMargin = 32;
+
+    struct WindowPlacement {
+        int X{};
+        int Y{};
+        int Width{};
+        int Height{};
+    };
+
+    WindowPlacement GetInitialWindowPlacement(DWORD style, DWORD extendedStyle = 0) { 
+        POINT cursor{};
+        GetCursorPos(&cursor);
+        auto monitor = MonitorFromPoint(cursor, MONITOR_DEFAULTTONEAREST);
+        MONITORINFO monitorInfo{};
+        monitorInfo.cbSize = sizeof(monitorInfo);
+        GetMonitorInfoW(monitor, &monitorInfo);
+
+        auto workArea = monitorInfo.rcWork;
+        auto workWidth = workArea.right - workArea.left;
+        auto workHeight = workArea.bottom - workArea.top;
+
+        RECT frame{};
+        AdjustWindowRectEx(&frame, style, FALSE, extendedStyle);
+
+        auto frameWidth = frame.right - frame.left;
+        auto frameHeight = frame.bottom - frame.top;
+
+        auto availClientWidth = std::max(1L, workWidth - WindowMargin * 2 - frameWidth);
+        auto availClientHeight = std::max(1L, workHeight - WindowMargin * 2 - frameHeight);
+        auto widthScale = static_cast<double>(availClientWidth) / ReferenceWidth;
+        auto heightScale = static_cast<double>(availClientHeight) / ReferenceHeight;
+
+        auto scale = std::min({1.0, widthScale, heightScale});
+        auto clientWidth = static_cast<int>(std::lround(ReferenceWidth * scale));
+        auto clientHeight = static_cast<int>(std::lround(ReferenceHeight * scale));
+        
+        RECT windowRect{0, 0, clientWidth, clientHeight};
+        AdjustWindowRectEx(&windowRect, style, FALSE, extendedStyle);
+        
+        auto windowWidth = windowRect.right - windowRect.left;
+        auto windowHeight = windowRect.bottom - windowRect.top;
+
+        return {
+            .X = workArea.left + (workWidth - windowWidth) / 2,
+            .Y = workArea.top + (workHeight - windowHeight) / 2,
+            .Width = windowWidth,
+            .Height = windowHeight
+        };
+    }
+
     HWND hWnd;
     WNDCLASSEXW windowClass;
 
@@ -97,14 +151,18 @@ Platform::Platform(void*) {
         nullptr
     };
     ::RegisterClassExW(&windowClass);
+
+    auto style = WS_OVERLAPPEDWINDOW;
+    auto placement = GetInitialWindowPlacement(style);
+
     hWnd = ::CreateWindowW(
         windowClass.lpszClassName,
         L"DRandall Game DX12",
-        WS_OVERLAPPEDWINDOW,
-        100,
-        100,
-        WindowWidth,
-        WindowHeight,
+        style,
+        placement.X,
+        placement.Y,
+        placement.Width,
+        placement.Height,
         nullptr,
         nullptr,
         windowClass.hInstance,
