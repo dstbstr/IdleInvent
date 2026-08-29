@@ -39,8 +39,8 @@ namespace Ui {
         return m_Emitters.back();
     }
 
-    Emitter& ParticleSystem::AddEmitter(Emitter init) {
-        m_Emitters.push_back(init);
+    Emitter& ParticleSystem::AddEmitter(EmitterSettings settings) {
+        m_Emitters.push_back({ .Settings = std::move(settings)});
         return m_Emitters.back();
     }
 
@@ -65,7 +65,7 @@ namespace Ui {
             auto& e = m_Emitters.at(id);
             if(!e.Enabled) continue;
 
-            e.EmissionAccumulator += e.RatePerSecond * dtSec;
+            e.EmissionAccumulator += e.Settings.RatePerSecond * dtSec;
             while(e.EmissionAccumulator >= 1.f && m_ActiveCount < capacity) {
                 e.EmissionAccumulator -= 1.f;
                 SpawnParticle(e, static_cast<u8>(id));
@@ -82,8 +82,8 @@ namespace Ui {
         for(size_t i = 0; i < m_ActiveCount; /* manual increment */) {
             auto& p = m_Particles.at(i);
             const auto& e = m_Emitters.at(p.EmitterId);
-            p.Velocity.x += e.Gravity.x * dtSec;
-            p.Velocity.y += e.Gravity.y * dtSec;
+            p.Velocity.x += e.Settings.Gravity.x * dtSec;
+            p.Velocity.y += e.Settings.Gravity.y * dtSec;
             p.Position.x += p.Velocity.x * dtSec;
             p.Position.y += p.Velocity.y * dtSec;
 
@@ -104,20 +104,20 @@ namespace Ui {
             //const auto& e = m_Emitters.at(p.EmitterId);
             const auto& p = m_Particles[i];
             const auto& e = m_Emitters[p.EmitterId];
-            const u32 alpha = (p.LifeRemainingMs >= e.LifeMaxMs)
+            const u32 alpha = (p.LifeRemainingMs >= e.Settings.LifeMaxMs)
                 ? 255u
-                : (255u * p.LifeRemainingMs) / e.LifeMaxMs;
-            const u32 color = (e.Color & 0x00FFFFFFu) | (alpha << 24);
-            drawList->AddCircleFilled(p.Position, e.Size, color);
+                : (255u * p.LifeRemainingMs) / e.Settings.LifeMaxMs;
+            const u32 color = (e.Settings.Color & 0x00FFFFFFu) | (alpha << 24);
+            drawList->AddCircleFilled(p.Position, e.Settings.Size, color);
         }
     }
 
     void ParticleSystem::SpawnParticle(const Emitter& emitter, u8 emitterId) {
-        const f32 angle = RandFloat(emitter.AngleMin, emitter.AngleMax);
-        const f32 speed = RandFloat(emitter.SpeedMin, emitter.SpeedMax);
-        const u16 life  = RandU16(emitter.LifeMinMs, emitter.LifeMaxMs);
-        const f32 jx    = emitter.PositionJitter.x > 0.f ? RandFloat(-emitter.PositionJitter.x, emitter.PositionJitter.x) : 0.f;
-        const f32 jy    = emitter.PositionJitter.y > 0.f ? RandFloat(-emitter.PositionJitter.y, emitter.PositionJitter.y) : 0.f;
+        const f32 angle = RandFloat(emitter.Settings.AngleMin, emitter.Settings.AngleMax);
+        const f32 speed = RandFloat(emitter.Settings.SpeedMin, emitter.Settings.SpeedMax);
+        const u16 life  = RandU16(emitter.Settings.LifeMinMs, emitter.Settings.LifeMaxMs);
+        const f32 jx    = emitter.Settings.PositionJitter.x > 0.f ? RandFloat(-emitter.Settings.PositionJitter.x, emitter.Settings.PositionJitter.x) : 0.f;
+        const f32 jy    = emitter.Settings.PositionJitter.y > 0.f ? RandFloat(-emitter.Settings.PositionJitter.y, emitter.Settings.PositionJitter.y) : 0.f;
 
         auto& p = m_Particles.at(m_ActiveCount++);
         p.Position        = ImVec2{emitter.Position.x + jx, emitter.Position.y + jy};

@@ -11,3 +11,6 @@
 - For this project, the user prefers readable, simple coordinate arithmetic over defensive handling of impractically extreme INT_MIN/billion-cell cases unless real requirements later justify the added complexity.
 - The user prefers unqualified `size_t` and uses a `T` prefix for template parameters generally (including non-type parameters such as `TWidth`/`THeight`), interpreting `T` as 'Template' rather than strictly 'Type'.
 - The user generally does not use const for local variables because they find it harms readability and provides little protection; they prefer const for parameters and member functions to express const correctness.
+
+## Platform Considerations
+- IdleInvent is primarily focused on mobile applications, so desktop window-resize handling is generally not a priority unless a concrete requirement arises.

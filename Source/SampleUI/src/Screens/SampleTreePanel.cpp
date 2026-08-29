@@ -9,35 +9,43 @@
 
 #include <imgui.h>
 #include <functional>
+#include <memory>
 #include <queue>
 #include <string>
+#include <utility>
 
 namespace {
-	constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
-    constexpr auto PanelTopOffsetY = 300.f;
+    constexpr auto PanelTopMargin = 8.f;
+
+	struct SampleNode {std::string Name;};
+	using SampleRenderNode = Ui::RenderNode<SampleNode>;
+	using SampleTree = Tree<SampleRenderNode>;
+	using SampleRenderFn = std::function<void(const SampleNode&)>;
+    using SamplePanel = Ui::TreePanel<SampleNode, SampleRenderFn>;
+
+	enum struct ZoomMode : u8 { Fluid = 0, Discrete = 1 };
+    auto FluidZoom = Ui::Zoom::Exponential<f32, 1.1f>;
+    auto DiscreteZoom = Ui::Zoom::Discrete<f32, 0.25f, 0.5f, 1.0f, 2.f, 4.0f>;
 
 	s32 NodeCount = 40;
 	s32 FanOut = 3;
 	ImVec2 NodeSize{64.f, 64.f};
 	ImVec2 NodeSpacing{16.f, 16.f};
-
-	enum struct ZoomMode : u8 { Fluid = 0, Discrete = 1 };
 	ZoomMode CurrentZoomMode = ZoomMode::Fluid;
 
-	Ui::TreeConfig TreeConfig{};
-	Ui::PanelConfig PanelConfig{};
+	Ui::TreeConfig TreeConfig{
+        .Growth = Ui::GrowthDir::TopDown,
+        .Connect = Ui::ConnectStyle::Line,
+        .Spacing = NodeSpacing
+    };
+	Ui::PanelConfig PanelConfig{
+        .BackgroundColor = IM_COL32(32, 32, 32, 255),
+        .ZoomFn = FluidZoom
+    };
 
-	struct SampleNode {
-		std::string Name;
-	};
-
-	using SampleRenderNode = Ui::RenderNode<SampleNode>;
-	using SampleTree = Tree<SampleRenderNode>;
-	using SampleRenderFn = std::function<void(const SampleNode&)>;
-
-	SampleTree s_Tree{};
-    std::unique_ptr<Ui::TreePanel<SampleNode, SampleRenderFn>> s_Panel{};
+	SampleTree TreeData{};
+    std::unique_ptr<SamplePanel> Panel;
 
 	SampleRenderNode MakeNode(std::string name) {
 		return SampleRenderNode{
@@ -48,10 +56,10 @@ namespace {
 	}
 
 	void RebuildTree() {
-		s_Tree = SampleTree{};
+		TreeData = SampleTree{};
 		if(NodeCount <= 0) return;
-		auto& root = s_Tree.EmplaceRoot(MakeNode("0"));
-		size_t created = 1;
+		auto& root = TreeData.EmplaceRoot(MakeNode("0"));
+		auto created = 1;
 		std::queue<SampleTree::Node*> q;
 		q.push(&root);
 		while(created < NodeCount && !q.empty()) {
@@ -59,9 +67,9 @@ namespace {
 			q.pop();
 
 			const auto& parentName = parent->Value.Value.Name;
-			for(size_t i = 0; i < FanOut && created < NodeCount; ++i) {
+			for(auto i = 0; i < FanOut && created < NodeCount; ++i) {
 				auto childName = parentName + "." + std::to_string(i);
-				auto& child = s_Tree.EmplaceChild(*parent, MakeNode(childName));
+				auto& child = TreeData.EmplaceChild(*parent, MakeNode(childName));
 				q.push(&child);
 				++created;
 			}
@@ -69,7 +77,7 @@ namespace {
 	}
 
 	void ShowAllNodes() {
-		s_Tree.ForEach([](SampleRenderNode& node) {
+		TreeData.ForEach([](SampleRenderNode& node) {
 			node.Visible = true;
 		});
 	}
@@ -77,65 +85,27 @@ namespace {
 	void ApplyZoomMode() {
 		switch(CurrentZoomMode) {
 			using enum ZoomMode;
-		case Fluid:
-			PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
-			break;
-		case Discrete:
-			PanelConfig.ZoomFn = Ui::Zoom::Discrete<f32, 0.25f, 0.5f, 1.0f, 2.f, 4.0f>;
-			break;
+		    case Fluid: PanelConfig.ZoomFn = FluidZoom; break;
+		    case Discrete: PanelConfig.ZoomFn = DiscreteZoom; break;
 		}
 	}
 
-	const char* ToLabel(Ui::GrowthDir dir) {
-		switch(dir) {
-			using enum Ui::GrowthDir;
-			case TopDown: return "Top Down";
-			case BottomUp: return "Bottom Up";
-			case LeftRight: return "Left to Right";
-		}
-		return "Unknown";
-	}
+    void RenderNode(const SampleNode& node) {
+        auto pos = ImGui::GetWindowPos();
+        auto size = ImGui::GetWindowSize();
+        ImGui::PushFont(GetFont(FontSizes::H4));
 
-	const char* ToLabel(Ui::ConnectStyle style) {
-		switch(style) {
-			using enum Ui::ConnectStyle;
-			case None: return "None";
-			case Line: return "Line";
-			case Corner: return "Corner";
-		}
+        ImGui::GetWindowDrawList()->AddRect(pos, pos + size, IM_COL32_WHITE, 4.f);
+        ImGui::TextUnformatted(node.Name.c_str());
 
-		return "Unknown";
-	}
+        ImGui::PopFont();
+    }
 
-	const char* ToLabel(Ui::Anchor anchor) {
-		switch(anchor) {
-			using enum Ui::Anchor;
-			case TopLeft: return "Top Left";
-			case TopCenter: return "Top Center";
-			case TopRight: return "Top Right";
-			case LeftCenter: return "Left Center";
-			case Center: return "Center";
-			case RightCenter: return "Right Center";
-			case BottomLeft: return "Bottom Left";
-			case BottomCenter: return "Bottom Center";
-			case BottomRight: return "Bottom Right";
-		}
-		return "Unknown";
-	}
+    void OnNodeClick(Ui::RenderNode<SampleNode>& node) { node.Visible = false; }
 
-	void ResetPanel() {
-		s_Panel = std::make_unique<Ui::TreePanel<SampleNode, SampleRenderFn>>(
-			PanelConfig, s_Tree, TreeConfig, [](const SampleNode& node) {
-				const auto pos = ImGui::GetWindowPos();
-				const auto size = ImGui::GetWindowSize();
-				ImGui::PushFont(GetFont(FontSizes::H4));
-				ImGui::GetWindowDrawList()->AddRect(pos, {pos.x + size.x, pos.y + size.y}, IM_COL32(255, 255, 255, 255), 4.f);
-				ImGui::TextUnformatted(node.Name.c_str());
-				ImGui::PopFont();
-			},
-			[](Ui::RenderNode<SampleNode>& node) {
-				node.Visible = false;
-			}
+	void RebuildPanel() {
+		Panel = std::make_unique<Ui::TreePanel<SampleNode, SampleRenderFn>>(
+			PanelConfig, TreeData, TreeConfig, RenderNode, OnNodeClick
 		);
 	}
 
@@ -146,11 +116,12 @@ namespace {
         rebuild |= ImGui::SliderInt("Total Nodes", &NodeCount, 0, 1'000);
         rebuild |= ImGui::SliderInt("Fan Out", &FanOut, 1, 10);
         rebuild |= ImGui::SliderFloat2("Node Size", &NodeSize.x, 16.f, 256.f);
-        rebuild |= ImGui::SliderFloat2("Node Spacing", &NodeSpacing.x, 0.f, 64.f);
+
+        if(ImGui::SliderFloat2("Node Spacing", &NodeSpacing.x, 0.f, 64.f)) {
+            TreeConfig.Spacing = NodeSpacing;
+        }
 
         if(rebuild) {
-            NodeSize.y = NodeSize.x;
-            TreeConfig.Spacing = NodeSpacing;
             RebuildTree();
         }
 
@@ -184,24 +155,24 @@ namespace {
         if(ImGui::Combo("Zoom Mode", &zoomModeSelect, zoomModeLabels, 2)) {
             CurrentZoomMode = static_cast<ZoomMode>(zoomModeSelect);
             ApplyZoomMode();
-            ResetPanel();
+            RebuildPanel();
         }
 
         ImGui::TextUnformatted("Pan: drag with right mouse over panel area");
         if(ImGui::Button("Reset Pan")) {
-            if(s_Panel) s_Panel->ResetPan();
+            if(Panel) Panel->ResetPan();
         }
         ImGui::SameLine();
         if(ImGui::Button("Zoom In")) {
-            if(s_Panel) s_Panel->ZoomIn();
+            if(Panel) Panel->ZoomIn();
         }
         ImGui::SameLine();
         if(ImGui::Button("Zoom Out")) {
-            if(s_Panel) s_Panel->ZoomOut();
+            if(Panel) Panel->ZoomOut();
         }
         ImGui::SameLine();
         if(ImGui::Button("Reset Zoom")) {
-            if(s_Panel) s_Panel->ResetZoom();
+            if(Panel) Panel->ResetZoom();
         }
         ImGui::SameLine();
         if(ImGui::Button("Show All")) {
@@ -211,34 +182,29 @@ namespace {
 	}
 
 	void RenderContent() {
-        const auto panelTop = ImGui::GetCursorPosY() + 8.f;
-        PanelConfig.Bounds.Min = {0.f, panelTop};
-        PanelConfig.Bounds.Max = {Graphics::ScreenWidth, Graphics::ScreenHeight};
+        if(!Panel) return;
 
-        if(s_Panel) {
-            s_Panel->SetBounds(PanelConfig.Bounds);
-            s_Panel->Render();
+        auto panelTop = ImGui::GetCursorPosY() + PanelTopMargin;
+        auto bounds = Ui::UiRect{{0.f, panelTop}, {Graphics::ScreenWidth, Graphics::ScreenHeight}};
+
+        if(Panel) {
+            Panel->SetBounds(bounds);
+            Panel->Render();
         }
 	}
 }
 
 namespace SampleUI::Screens::SampleTreePanel {
 	bool Initialize() {
-        TreeConfig.Growth = Ui::GrowthDir::TopDown;
-        TreeConfig.Connect = Ui::ConnectStyle::Line;
-        TreeConfig.Spacing = NodeSpacing;
-        PanelConfig.Bounds.Min = {0.f, PanelTopOffsetY};
-        PanelConfig.Bounds.Max = {Graphics::ScreenWidth, Graphics::ScreenHeight};
-        PanelConfig.BackgroundColor = IM_COL32(32, 32, 32, 255);
-        ApplyZoomMode();
-
 		RebuildTree();
-        ResetPanel();
+        RebuildPanel();
 
 		return true;
 	}
 
-	void ShutDown() {}
+	void ShutDown() {
+        Panel.reset();
+    }
 
 	void Render() {
         RenderSampleScreen("Tree Panel", [] {
@@ -246,4 +212,4 @@ namespace SampleUI::Screens::SampleTreePanel {
             RenderContent();
         });
 	}
-} // namespace SampleUI::Ui::Screens::SampleTreePanel
+} // namespace SampleUI::Screens::SampleTreePanel

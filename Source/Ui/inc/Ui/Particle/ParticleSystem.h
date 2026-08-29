@@ -17,7 +17,7 @@ namespace Ui {
         // Emitters are owned by the system. References stay stable as long as you don't add
         // beyond the initial reserve (16) -- adjust the reserve in the .cpp if you need more.
         Emitter& AddEmitter();
-        Emitter& AddEmitter(Emitter init);
+        Emitter& AddEmitter(EmitterSettings settings);
         void     RemoveAllEmitters();
 
         void     Update(BaseTime elapsed);
