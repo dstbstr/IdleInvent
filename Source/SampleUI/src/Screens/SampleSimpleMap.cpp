@@ -1,5 +1,6 @@
 #include "SampleUI/Screens/SampleSimpleMap.h"
 #include "SampleUI/Screens/Screens.h"
+#include "SampleUI/Screens/SampleScreen.h"
 
 #include <World/World.h>
 #include <Ui/UiGeometry.h>
@@ -145,6 +146,38 @@ namespace {
     static auto SmallChunk = GenerateChunk<16, 16>();
     static auto MediumChunk = GenerateChunk<32, 32>();
     static auto LargeChunk = GenerateChunk<64, 64>();
+
+    void RenderControls() {
+        ImGui::PushFont(GetFont(FontSizes::H4));
+        ImGui::SetCursorPosY(ControlsOffsetY);
+
+        bool changed = false;
+
+        changed |= ImGui::SliderFloat("Room Width", &RoomWidth, 0.01f, 0.5f);
+        changed |= ImGui::SliderFloat("Room Height", &RoomHeight, 0.01f, 0.5f);
+        changed |= ImGui::SliderFloat("Road Width", &RoadWidth, 0.f, 1.f);
+        changed |= ImGui::SliderFloat("Moat Width", &MoatWidth, 0.f, 0.5f);
+
+        const char* sizeLabels = "Small\0Medium\0Large";
+        ImGui::Combo("Chunk Size", &SelectedChunkSize, sizeLabels, 3);
+
+        if(changed) {
+            SmallChunk = GenerateChunk<16, 16>();
+            MediumChunk = GenerateChunk<32, 32>();
+            LargeChunk = GenerateChunk<64, 64>();
+        }
+        ImGui::PopFont();
+    }
+
+    void RenderContent(Ui::CanvasPanel* panel) {
+        auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
+        Ui::UiRect canvasBounds{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
+
+        if(panel) {
+            panel->SetBounds(canvasBounds);
+            panel->Render();
+        }
+    }
 }
 
 namespace SampleUI::Screens::SampleSimpleMap {
@@ -183,55 +216,9 @@ namespace SampleUI::Screens::SampleSimpleMap {
     }
 
     void Render() {
-        ImGui::SetNextWindowPos({0.f, 0.f});
-        ImGui::SetNextWindowSize({Graphics::ScreenWidth, Graphics::ScreenHeight});
-        ImGui::Begin("Sample Simple Map", nullptr, BaseUiFlags);
-
-        if(ImGui::Button("Back")) {
-            Screens::SetActiveScreen(Screen::Landing);
-            ImGui::End();
-            return;
-        }
-
-        ImGui::SetCursorPosY(HeaderOffsetY);
-        ImGui::PushFont(GetFont(FontSizes::H1));
-        TextCenteredX("Sample Simple Map");
-        ImGui::PopFont();
-
-        ImGui::PushFont(GetFont(FontSizes::H4));
-        ImGui::SetCursorPosY(ControlsOffsetY);
-
-        bool changed = false;
-
-        changed |= ImGui::SliderFloat("Room Width", &RoomWidth, 0.01f, 0.5f);
-        changed |= ImGui::SliderFloat("Room Height", &RoomHeight, 0.01f, 0.5f);
-        changed |= ImGui::SliderFloat("Road Width", &RoadWidth, 0.f, 1.f);
-        changed |= ImGui::SliderFloat("Moat Width", &MoatWidth, 0.f, 0.5f);
-
-        const char* sizeLabels = "Small\0Medium\0Large";
-        ImGui::Combo("Chunk Size", &SelectedChunkSize, sizeLabels, 3);
-
-        if(changed) {
-            SmallChunk = GenerateChunk<16, 16>();
-            MediumChunk = GenerateChunk<32, 32>();
-            LargeChunk = GenerateChunk<64, 64>();
-        }
-        ImGui::PopFont();
-
-        // Place the canvas in the remaining content area below the controls. Sliders and
-        // buttons live above canvasTop; the canvas owns everything from there to the bottom.
-        auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        Ui::UiRect canvasBounds{
-            ImVec2{0.f, canvasTop}, 
-            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}
-        };
-
-        if(Panel) {
-            Panel->SetBounds(canvasBounds);
-            Panel->Render();
-        }
-
-        ImGui::End();
-
+        RenderSampleScreen("Simple Map", [] {
+            RenderControls();
+            RenderContent(Panel.get());
+        });
     }
 } // namespace SampleUI::Screens::SampleSimpleMap

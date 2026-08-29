@@ -1,5 +1,6 @@
 #include "SampleUI/Screens/SampleGiantMap.h"
 #include "SampleUI/Screens/Screens.h"
+#include "SampleUI/Screens/SampleScreen.h"
 
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
@@ -335,6 +336,64 @@ namespace {
         }
     }
 
+    void RenderControls() {
+        ImGui::PushFont(GetFont(FontSizes::H4));
+        ImGui::SetCursorPosY(ControlsOffsetY);
+
+        bool changed = false;
+
+        changed |= ImGui::SliderInt("World Seed", &WorldSeed, 0, 9'999);
+        changed |= ImGui::SliderFloat("Water Level", &WaterLevel, 0.f, 1.f);
+        changed |= ImGui::SliderFloat("Forest Level", &ForestLevel, 0.f, 1.f);
+        changed |= ImGui::SliderFloat("Snow Level", &SnowLevel, 0.f, 1.f);
+        changed |= ImGui::SliderInt("Octaves", &Octaves, 1, 8);
+        changed |= ImGui::SliderFloat(
+            "Feature Size", &BaseFeatureSize, 4.f, 512.f, "%.0f cells", ImGuiSliderFlags_Logarithmic
+        );
+
+        const char* smoothingOptions = "Cubic\0Quintic\0";
+        changed |= ImGui::Combo("Smoothing", &SelectedSmoothing, smoothingOptions);
+
+        if(WaterLevel >= ForestLevel) {
+            WaterLevel = ForestLevel - 0.1f;
+        }
+        if(ForestLevel >= SnowLevel) {
+            ForestLevel = SnowLevel - 0.1f;
+        }
+
+        if(ImGui::Button("Regenerate")) {
+            WorldSeed = (WorldSeed + 32) % 10'000;
+            changed = true;
+        }
+
+        ImGui::SliderInt("Light Radius", &LightRadius, 1, 16);
+        ImGui::Checkbox("Fog of War", &ShowFogOfWar);
+        ImGui::SameLine();
+        ImGui::Checkbox("Show HUD", &ShowHudMap);
+        ImGui::SameLine();
+        ImGui::Checkbox("Show Debug", &ShowDebug);
+
+        if(changed) {
+            LoadedChunks.clear();
+            if(auto validLocation = FindNearestValidLocation(PlayerPawn.Location)) {
+                PlayerPawn.Location = *validLocation;
+            }
+            UpdateLoadedChunks(PlayerPawn.Location.Chunk);
+        }
+
+        ImGui::PopFont();
+    }
+
+    void RenderMap(Ui::CanvasPanel* panel) {
+        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
+        auto canvasBounds = Ui::UiRect{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
+
+        if(panel) {
+            panel->SetBounds(canvasBounds);
+            panel->Render();
+        }
+
+    }
 } // namespace
 
 namespace SampleUI::Screens::SampleGiantMap {
@@ -368,76 +427,10 @@ namespace SampleUI::Screens::SampleGiantMap {
     }
 
     void Render() {
-        ImGui::SetNextWindowPos({0.f, 0.f});
-        ImGui::SetNextWindowSize({Graphics::ScreenWidth, Graphics::ScreenHeight});
-        ImGui::Begin("Sample Giant Map", nullptr, BaseUiFlags);
-
-        if(ImGui::Button("Back")) {
-            Screens::SetActiveScreen(Screen::Landing);
-            ImGui::End();
-            return;
-        }
-
-        ImGui::SetCursorPosY(HeaderOffsetY);
-        ImGui::PushFont(GetFont(FontSizes::H1));
-        TextCenteredX("Sample Giant Map");
-        ImGui::PopFont();
-
-        ImGui::PushFont(GetFont(FontSizes::H4));
-        ImGui::SetCursorPosY(ControlsOffsetY);
-
-        bool changed = false;
-
-        changed |= ImGui::SliderInt("World Seed", &WorldSeed, 0, 9'999);
-        changed |= ImGui::SliderFloat("Water Level", &WaterLevel, 0.f, 1.f);
-        changed |= ImGui::SliderFloat("Forest Level", &ForestLevel, 0.f, 1.f);
-        changed |= ImGui::SliderFloat("Snow Level", &SnowLevel, 0.f, 1.f);
-        changed |= ImGui::SliderInt("Octaves", &Octaves, 1, 8);
-        changed |= ImGui::SliderFloat("Feature Size", &BaseFeatureSize, 4.f, 512.f, "%.0f cells", ImGuiSliderFlags_Logarithmic);
-
-        const char* smoothingOptions = "Cubic\0Quintic\0";
-        changed |= ImGui::Combo("Smoothing", &SelectedSmoothing, smoothingOptions);
-        
-        if(WaterLevel >= ForestLevel) {
-            WaterLevel = ForestLevel - 0.1f;
-        }
-        if(ForestLevel >= SnowLevel) {
-            ForestLevel = SnowLevel - 0.1f;
-        }
-
-        if(ImGui::Button("Regenerate")) {
-            WorldSeed = (WorldSeed + 32) % 10'000;
-            changed = true;
-        }
-        
-        ImGui::SliderInt("Light Radius", &LightRadius, 1, 16);
-        ImGui::Checkbox("Fog of War", &ShowFogOfWar);
-        ImGui::SameLine();
-        ImGui::Checkbox("Show HUD", &ShowHudMap);
-        ImGui::SameLine();
-        ImGui::Checkbox("Show Debug", &ShowDebug);
-
-        if(changed) {
-            LoadedChunks.clear();
-            if(auto validLocation = FindNearestValidLocation(PlayerPawn.Location)) {
-                PlayerPawn.Location = *validLocation;
-            }
-            UpdateLoadedChunks(PlayerPawn.Location.Chunk);
-        }
-
-        ImGui::PopFont();
-
-        // Place the canvas in the remaining content area below the controls. Sliders and
-        // buttons live above canvasTop; the canvas owns everything from there to the bottom.
-        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        auto canvasBounds = Ui::UiRect{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
-
-        if(Panel) {
-            Panel->SetBounds(canvasBounds);
-            Panel->Render();
-        }
-
-        ImGui::End();
-        RenderDebug();
+        RenderSampleScreen("Sample Giant Map", [] { 
+            RenderControls();
+            RenderMap(Panel.get());
+            RenderDebug();
+        });
     }
 } // namespace SampleUI::Screens::SampleGiantMap

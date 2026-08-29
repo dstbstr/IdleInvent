@@ -12,53 +12,97 @@
 #include <Ui/Dialog.h>
 #include <Ui/Overlay.h>
 
+#include <array>
+
 namespace {
-	auto activeScreenName = SampleUI::Screen::Landing;
+	using namespace SampleUI;
+
+	constexpr std::array Definitions{
+        ScreenDefinition{
+            .Id = Screen::Landing, 
+            .Name = "Landing", 
+            .Render = Screens::Landing::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleTreePanel,
+            .Name = "SampleTreePanel",
+            .LandingLabel = "Tree\nPanel",
+            .Initialize = Screens::SampleTreePanel::Initialize,
+            .ShutDown = Screens::SampleTreePanel::ShutDown,
+            .Render = Screens::SampleTreePanel::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleParticles,
+            .Name = "SampleParticles",
+            .LandingLabel = "Particles",
+            .Initialize = Screens::SampleParticles::Initialize,
+            .ShutDown = Screens::SampleParticles::ShutDown,
+            .Render = Screens::SampleParticles::Render
+        },
+		ScreenDefinition{
+            .Id = Screen::SampleSimpleMap,
+            .Name = "SampleSimpleMap",
+            .LandingLabel = "Simple\nMap",
+            .Initialize = Screens::SampleSimpleMap::Initialize,
+            .ShutDown = Screens::SampleSimpleMap::ShutDown,
+            .Render = Screens::SampleSimpleMap::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleNav,
+            .Name = "SampleNav",
+            .LandingLabel = "Navigation",
+            .Initialize = Screens::SampleNav::Initialize,
+            .ShutDown = Screens::SampleNav::ShutDown,
+            .Render = Screens::SampleNav::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleGiantMap,
+            .Name = "SampleGiantMap",
+            .LandingLabel = "Giant\nMap",
+            .Initialize = Screens::SampleGiantMap::Initialize,
+            .ShutDown = Screens::SampleGiantMap::ShutDown,
+            .Render = Screens::SampleGiantMap::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleCombat,
+            .Name = "SampleCombat",
+            .LandingLabel = "Combat",
+            .Initialize = Screens::SampleCombat::Initialize,
+            .ShutDown = Screens::SampleCombat::ShutDown,
+            .Render = Screens::SampleCombat::Render
+        }
+    };
+
+    auto activeScreenName = SampleUI::Screen::Landing;
 	void (*activeScreenFn)() = SampleUI::Screens::Landing::Render;
 } // namespace
 
 namespace SampleUI {
-	std::string ToString(Screen screen) {
-		switch(screen) {
-			using enum Screen;
-			case Landing: return "Landing";
-			case SampleTreePanel: return "SampleTreePanel";
-            case SampleParticles: return "SampleParticles";
-            case SampleSimpleMap: return "SampleSimpleMap";
-            case SampleNav: return "SampleNav";
-            case SampleGiantMap: return "SampleGiantMap";
-            case SampleCombat: return "SampleCombat";
-		}
 
-		DR_ASSERT_MSG(false, "Invalid screen");
-		return "Unknown screen";
-	}
+    [[nodiscard]] std::span<const ScreenDefinition> GetScreenDefinitions() { return Definitions; }
+    [[nodiscard]] const ScreenDefinition& GetScreenDefinition(Screen screen) {
+        for(const auto& def: Definitions) {
+            if(def.Id == screen) return def;
+        }
+        DR_ASSERT_MSG(false, "Invalid screen");
+        return Definitions.front();
+    }
 
 	namespace Screens {
 		bool Initialize() {
-			activeScreenName = Screen::Landing;
-			activeScreenFn = Landing::Render;
-			return ::Ui::Dialog::Initialize()
-				&& Landing::Initialize()
-				&& SampleTreePanel::Initialize()
-				&& SampleParticles::Initialize()
-				&& SampleSimpleMap::Initialize()
-				&& SampleNav::Initialize()
-				&& SampleGiantMap::Initialize()
-				&& SampleCombat::Initialize();
+            SetActiveScreen(Screen::Landing);
+            bool success = ::Ui::Dialog::Initialize();
+            for(const auto& def : Definitions) {
+                success &= !def.Initialize || def.Initialize();
+            }
+            return success;
 		}
 
 		void ShutDown() {
-			Landing::ShutDown();
-			SampleTreePanel::ShutDown();
-			SampleParticles::ShutDown();
-			SampleSimpleMap::ShutDown();
-			SampleNav::ShutDown();
-            SampleGiantMap::ShutDown();
-            SampleCombat::ShutDown();
+            for(auto& def: Definitions) {
+                if(def.ShutDown) def.ShutDown();
+            }
 			::Ui::Dialog::ShutDown();
-			activeScreenName = Screen::Landing;
-			activeScreenFn = Landing::Render;
 		}
 
 		void Render() {
@@ -67,19 +111,10 @@ namespace SampleUI {
 			::Ui::Overlay::DrawFps();
 		}
 
-		void SetActiveScreen(Screen screen) {
-			activeScreenName = screen;
-			switch(screen) {
-				using enum Screen;
-				case Landing: activeScreenFn = Landing::Render; break;
-				case SampleTreePanel: activeScreenFn = SampleTreePanel::Render; break;
-                case SampleParticles: activeScreenFn = SampleParticles::Render; break;
-                case SampleSimpleMap: activeScreenFn = SampleSimpleMap::Render; break;
-                case SampleNav: activeScreenFn = SampleNav::Render; break;
-                case SampleGiantMap: activeScreenFn = SampleGiantMap::Render; break;
-                case SampleCombat: activeScreenFn = SampleCombat::Render; break;
-                default: DR_ASSERT_MSG(false, "Invalid screen"); break;
-			}
+		void SetActiveScreen(Screen id) {
+            auto& screen = GetScreenDefinition(id);
+            activeScreenName = id;
+            activeScreenFn = screen.Render;
 		}
 
 		Screen GetActiveScreen() {

@@ -1,5 +1,6 @@
 #include <SampleUI/Screens/SampleTreePanel.h>
 #include <SampleUI/Screens/Screens.h>
+#include <SampleUI/Screens/SampleScreen.h>
 
 #include <Platform/Graphics.h>
 #include <Ui/UiUtil.h>
@@ -11,7 +12,6 @@
 #include <queue>
 #include <string>
 
-// TODO:
 namespace {
 	constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
@@ -138,6 +138,88 @@ namespace {
 			}
 		);
 	}
+
+	void RenderControls() {
+        ImGui::PushFont(GetFont(FontSizes::H4));
+        ImGui::SetCursorPosY(ControlsOffsetY);
+        bool rebuild = false;
+        rebuild |= ImGui::SliderInt("Total Nodes", &NodeCount, 0, 1'000);
+        rebuild |= ImGui::SliderInt("Fan Out", &FanOut, 1, 10);
+        rebuild |= ImGui::SliderFloat2("Node Size", &NodeSize.x, 16.f, 256.f);
+        rebuild |= ImGui::SliderFloat2("Node Spacing", &NodeSpacing.x, 0.f, 64.f);
+
+        if(rebuild) {
+            NodeSize.y = NodeSize.x;
+            TreeConfig.Spacing = NodeSpacing;
+            RebuildTree();
+        }
+
+        int growthSelect = static_cast<int>(TreeConfig.Growth);
+        const char* growthLabels = "Top Down\0Bottom Up\0Left to Right";
+        if(ImGui::Combo("Growth Direction", &growthSelect, growthLabels, 3)) {
+            TreeConfig.Growth = static_cast<::Ui::GrowthDir>(growthSelect);
+        }
+
+        int connectSelect = static_cast<int>(TreeConfig.Connect);
+        const char* connectLabels = "None\0Line\0Corner";
+        if(ImGui::Combo("Connect Style", &connectSelect, connectLabels, 3)) {
+            TreeConfig.Connect = static_cast<::Ui::ConnectStyle>(connectSelect);
+        }
+
+        ImVec4 connectorColor = ImGui::ColorConvertU32ToFloat4(TreeConfig.ConnectorColor);
+        if(ImGui::ColorEdit4("Connector Color", &connectorColor.x)) {
+            TreeConfig.ConnectorColor = ImGui::ColorConvertFloat4ToU32(connectorColor);
+        }
+        ImGui::SliderFloat("Connector Thickness", &TreeConfig.ConnectorThickness, 1.f, 10.f);
+
+        int anchorSelect = static_cast<int>(TreeConfig.Anchor);
+        const char* anchorLabels = "Top Left\0Top Center\0Top Right\0Left Center\0Center\0Right Center\0Bottom "
+                                   "Left\0Bottom Center\0Bottom Right";
+        if(ImGui::Combo("Anchor", &anchorSelect, anchorLabels, 9)) {
+            TreeConfig.Anchor = static_cast<::Ui::Anchor>(anchorSelect);
+        }
+
+        int zoomModeSelect = static_cast<int>(CurrentZoomMode);
+        const char* zoomModeLabels = "Fluid\0Discrete";
+        if(ImGui::Combo("Zoom Mode", &zoomModeSelect, zoomModeLabels, 2)) {
+            CurrentZoomMode = static_cast<ZoomMode>(zoomModeSelect);
+            ApplyZoomMode();
+            ResetPanel();
+        }
+
+        ImGui::TextUnformatted("Pan: drag with right mouse over panel area");
+        if(ImGui::Button("Reset Pan")) {
+            if(s_Panel) s_Panel->ResetPan();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Zoom In")) {
+            if(s_Panel) s_Panel->ZoomIn();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Zoom Out")) {
+            if(s_Panel) s_Panel->ZoomOut();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Reset Zoom")) {
+            if(s_Panel) s_Panel->ResetZoom();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Show All")) {
+            ShowAllNodes();
+        }
+        ImGui::PopFont();
+	}
+
+	void RenderContent() {
+        const auto panelTop = ImGui::GetCursorPosY() + 8.f;
+        PanelConfig.Bounds.Min = {0.f, panelTop};
+        PanelConfig.Bounds.Max = {Graphics::ScreenWidth, Graphics::ScreenHeight};
+
+        if(s_Panel) {
+            s_Panel->SetBounds(PanelConfig.Bounds);
+            s_Panel->Render();
+        }
+	}
 }
 
 namespace SampleUI::Screens::SampleTreePanel {
@@ -159,97 +241,9 @@ namespace SampleUI::Screens::SampleTreePanel {
 	void ShutDown() {}
 
 	void Render() {
-		ImGui::SetNextWindowPos({0.f, 0.f});
-		ImGui::SetNextWindowSize({Graphics::ScreenWidth, Graphics::ScreenHeight});
-
-		ImGui::Begin("Sample TreePanel", nullptr, BaseUiFlags);
-
-		if(ImGui::Button("Back")) {
-			Screens::SetActiveScreen(Screen::Landing);
-		}
-
-		ImGui::SetCursorPosY(HeaderOffsetY);
-        ImGui::PushFont(GetFont(FontSizes::H1));
-		TextCenteredX("TreePanel Sample");
-		ImGui::PopFont();
-
-        ImGui::PushFont(GetFont(FontSizes::H4));
-		ImGui::SetCursorPosY(ControlsOffsetY);
-		bool rebuild = false;
-		rebuild |= ImGui::SliderInt("Total Nodes", &NodeCount, 0, 1'000);
-		rebuild |= ImGui::SliderInt("Fan Out", &FanOut, 1, 10);
-		rebuild |= ImGui::SliderFloat2("Node Size", &NodeSize.x, 16.f, 256.f);
-		rebuild |= ImGui::SliderFloat2("Node Spacing", &NodeSpacing.x, 0.f, 64.f);
-
-		if(rebuild) {
-			NodeSize.y = NodeSize.x;
-			TreeConfig.Spacing = NodeSpacing;
-			RebuildTree();
-		}
-
-		int growthSelect = static_cast<int>(TreeConfig.Growth);
-		const char* growthLabels = "Top Down\0Bottom Up\0Left to Right";
-		if(ImGui::Combo("Growth Direction", &growthSelect, growthLabels, 3)) {
-			TreeConfig.Growth = static_cast<::Ui::GrowthDir>(growthSelect);
-		}
-
-		int connectSelect = static_cast<int>(TreeConfig.Connect);
-		const char* connectLabels = "None\0Line\0Corner";
-		if(ImGui::Combo("Connect Style", &connectSelect, connectLabels, 3)) {
-			TreeConfig.Connect = static_cast<::Ui::ConnectStyle>(connectSelect);
-		}
-
-		ImVec4 connectorColor = ImGui::ColorConvertU32ToFloat4(TreeConfig.ConnectorColor);
-		if(ImGui::ColorEdit4("Connector Color", &connectorColor.x)) {
-			TreeConfig.ConnectorColor = ImGui::ColorConvertFloat4ToU32(connectorColor);
-		}
-		ImGui::SliderFloat("Connector Thickness", &TreeConfig.ConnectorThickness, 1.f, 10.f);
-
-		int anchorSelect = static_cast<int>(TreeConfig.Anchor);
-		const char* anchorLabels = "Top Left\0Top Center\0Top Right\0Left Center\0Center\0Right Center\0Bottom Left\0Bottom Center\0Bottom Right";
-		if(ImGui::Combo("Anchor", &anchorSelect, anchorLabels, 9)) {
-			TreeConfig.Anchor = static_cast<::Ui::Anchor>(anchorSelect);
-		}
-
-		int zoomModeSelect = static_cast<int>(CurrentZoomMode);
-		const char* zoomModeLabels = "Fluid\0Discrete";
-		if(ImGui::Combo("Zoom Mode", &zoomModeSelect, zoomModeLabels, 2)) {
-			CurrentZoomMode = static_cast<ZoomMode>(zoomModeSelect);
-			ApplyZoomMode();
-			ResetPanel();
-		}
-
-		ImGui::TextUnformatted("Pan: drag with right mouse over panel area");
-		if(ImGui::Button("Reset Pan")) {
-			if(s_Panel) s_Panel->ResetPan();
-		}
-        ImGui::SameLine();
-		if(ImGui::Button("Zoom In")) {
-            if(s_Panel) s_Panel->ZoomIn();
-		}
-        ImGui::SameLine();
-        if(ImGui::Button("Zoom Out")) {
-            if(s_Panel) s_Panel->ZoomOut();
-		}
-		ImGui::SameLine();
-		if(ImGui::Button("Reset Zoom")) {
-			if(s_Panel) s_Panel->ResetZoom();
-		}
-		ImGui::SameLine();
-		if(ImGui::Button("Show All")) {
-			ShowAllNodes();
-		}
-		ImGui::PopFont();
-
-		const auto panelTop = ImGui::GetCursorPosY() + 8.f;
-		PanelConfig.Bounds.Min = {0.f, panelTop};
-		PanelConfig.Bounds.Max = {Graphics::ScreenWidth, Graphics::ScreenHeight};
-
-		if(s_Panel) {
-            s_Panel->SetBounds(PanelConfig.Bounds);
-            s_Panel->Render();
-		}
-
-		ImGui::End();
+        RenderSampleScreen("Tree Panel", [] {
+            RenderControls();
+            RenderContent();
+        });
 	}
 } // namespace SampleUI::Ui::Screens::SampleTreePanel

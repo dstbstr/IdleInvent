@@ -1,6 +1,6 @@
 #include <SampleUI/Screens/SampleParticles.h>
-
 #include <SampleUI/Screens/Screens.h>
+#include <SampleUI/Screens/SampleScreen.h>
 
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
@@ -155,6 +155,100 @@ namespace {
             s_PresetEmitters.at(i) = &emitter;
         }
     }
+
+    void RenderControls() {
+        ImGui::PushFont(GetFont(FontSizes::H4));
+        ImGui::SetCursorPosY(ControlsOffsetY);
+
+        ImGui::SliderFloat("Rate (per sec)", &s_RatePerSecond, 0.f, 4000.f, "%.0f");
+        ImGui::SliderFloat2("Speed (px/s)", s_SpeedRange.data(), 0.f, 800.f, "%.0f");
+        if(s_SpeedRange.at(1) < s_SpeedRange.at(0)) s_SpeedRange.at(1) = s_SpeedRange.at(0);
+        ImGui::SliderFloat("Angle Center (deg)", &s_AngleCenterDeg, 0.f, 360.f, "%.0f");
+        ImGui::SliderFloat("Angle Spread (deg)", &s_AngleSpreadDeg, 0.f, 360.f, "%.0f");
+        ImGui::SliderInt2("Life (ms)", s_LifeRangeMs.data(), 50, 5'000);
+        if(s_LifeRangeMs.at(1) < s_LifeRangeMs.at(0)) s_LifeRangeMs.at(1) = s_LifeRangeMs.at(0);
+        ImGui::SliderFloat("Size (px)", &s_Size, 1.f, 24.f, "%.1f");
+        ImGui::ColorEdit4("Color", &s_Color.x);
+        ImGui::SliderFloat2("Gravity (px/s\xc2\xb2)", &s_Gravity.x, -1000.f, 1000.f, "%.0f");
+
+        if(ImGui::Button("Clear")) {
+            if(s_System) s_System->Clear();
+        }
+        ImGui::SameLine();
+        ImGui::Text(
+            "Active: %zu / %zu", s_System ? s_System->ParticleCount() : 0u, s_System ? s_System->ParticleCapacity() : 0u
+        );
+        ImGui::SameLine();
+        // TODO: remove once a dedicated SampleDialog screen exists.
+        if(ImGui::Button("Show Dialog") && !::Ui::Dialog::IsActive()) {
+            ::Ui::Dialog::Show({
+                .Text = "This is a test dialog. Click once to fast-forward the reveal, "
+                        "then click again to dismiss. Try holding the mouse on the "
+                        "canvas after closing -- particles should still respond.",
+                .CharsPerSecond = 45.f,
+            });
+        }
+
+        ImGui::SliderInt("Capacity", &s_PendingCapacity, MinCapacity, MaxCapacity, "%d", ImGuiSliderFlags_Logarithmic);
+        ImGui::SameLine();
+        if(ImGui::Button("Recreate")) {
+            s_Capacity = s_PendingCapacity;
+            RebuildSystem();
+        }
+
+        // Preset legend. Keys 1..N spawn the matching preset at the mouse (or top-of-screen).
+        ImGui::TextUnformatted("Hold:");
+        ImGui::SameLine();
+        ImGui::TextUnformatted("[LMB] User Emitter");
+        for(size_t i = 0; i < s_Presets.size(); ++i) {
+            ImGui::SameLine();
+            ImGui::Text("  [%zu] %s", i + 1, s_Presets.at(i).Name);
+        }
+
+        ImGui::PopFont();
+
+        SyncEmitterFromUi();
+    }
+
+    void RenderContent() {
+        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
+        auto canvasBounds = Ui::UiRect{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
+
+        if(s_Canvas) {
+            s_Canvas->SetBounds(canvasBounds);
+            s_Canvas->Render();
+            const auto& input = s_Canvas->GetInput();
+            if(s_UserEmitter) {
+                s_UserEmitter->Enabled = input.IsActivate;
+                s_UserEmitter->Position = input.MouseScreen;
+            }
+
+            // Preset emitters: keyboard polling stays raw (global) since holding a number
+            // key to spawn from anywhere is the intended UX. Dialog or other modals can
+            // currently still spawn presets in the background -- accepted limitation.
+            for(size_t i = 0; i < s_Presets.size(); ++i) {
+                auto* emitter = s_PresetEmitters.at(i);
+                if(!emitter) continue;
+                const auto& preset = s_Presets.at(i);
+                const bool held = ImGui::IsKeyDown(preset.Key);
+                emitter->Enabled = held;
+                if(!held) continue;
+                switch(preset.PosMode) {
+                    using enum PositionMode;
+                case FollowMouse:
+                    emitter->Position = input.IsHovered
+                                            ? input.MouseScreen
+                                            : ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Min.y + 50.f};
+                    break;
+                case TopOfScreen: emitter->Position = ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Min.y}; break;
+                }
+            }
+        }
+
+        if(s_System) {
+            s_System->Render();
+        }
+    }
 }
 
 namespace SampleUI::Screens::SampleParticles {
@@ -176,120 +270,9 @@ namespace SampleUI::Screens::SampleParticles {
     }
 
     void Render() {
-        ImGui::SetNextWindowPos({0.f, 0.f});
-        ImGui::SetNextWindowSize({Graphics::ScreenWidth, Graphics::ScreenHeight});
-        ImGui::Begin("Sample Particles", nullptr, BaseUiFlags);
-
-        if(ImGui::Button("Back")) {
-            Screens::SetActiveScreen(Screen::Landing);
-            ImGui::End();
-            return;
-        }
-
-        ImGui::SetCursorPosY(HeaderOffsetY);
-        ImGui::PushFont(GetFont(FontSizes::H1));
-        TextCenteredX("Particles Sample");
-        ImGui::PopFont();
-
-        ImGui::PushFont(GetFont(FontSizes::H4));
-        ImGui::SetCursorPosY(ControlsOffsetY);
-
-        ImGui::SliderFloat("Rate (per sec)", &s_RatePerSecond, 0.f, 4000.f, "%.0f");
-        ImGui::SliderFloat2("Speed (px/s)", s_SpeedRange.data(), 0.f, 800.f, "%.0f");
-        if(s_SpeedRange.at(1) < s_SpeedRange.at(0)) s_SpeedRange.at(1) = s_SpeedRange.at(0);
-        ImGui::SliderFloat("Angle Center (deg)", &s_AngleCenterDeg, 0.f, 360.f, "%.0f");
-        ImGui::SliderFloat("Angle Spread (deg)", &s_AngleSpreadDeg, 0.f, 360.f, "%.0f");
-        ImGui::SliderInt2("Life (ms)", s_LifeRangeMs.data(), 50, 5000);
-        if(s_LifeRangeMs.at(1) < s_LifeRangeMs.at(0)) s_LifeRangeMs.at(1) = s_LifeRangeMs.at(0);
-        ImGui::SliderFloat("Size (px)", &s_Size, 1.f, 24.f, "%.1f");
-        ImGui::ColorEdit4("Color", &s_Color.x);
-        ImGui::SliderFloat2("Gravity (px/s\xc2\xb2)", &s_Gravity.x, -1000.f, 1000.f, "%.0f");
-
-        if(ImGui::Button("Clear")) {
-            if(s_System) s_System->Clear();
-        }
-        ImGui::SameLine();
-        ImGui::Text("Active: %zu / %zu", s_System ? s_System->ParticleCount() : 0u,
-                                          s_System ? s_System->ParticleCapacity() : 0u);
-        ImGui::SameLine();
-        // TODO: remove once a dedicated SampleDialog screen exists.
-        if(ImGui::Button("Show Dialog") && !::Ui::Dialog::IsActive()) {
-            ::Ui::Dialog::Show({
-                .Text = "This is a test dialog. Click once to fast-forward the reveal, "
-                        "then click again to dismiss. Try holding the mouse on the "
-                        "canvas after closing -- particles should still respond.",
-                .CharsPerSecond = 45.f,
-            });
-        }
-
-        ImGui::SliderInt("Capacity", &s_PendingCapacity, MinCapacity, MaxCapacity, "%d",
-                         ImGuiSliderFlags_Logarithmic);
-        ImGui::SameLine();
-        if(ImGui::Button("Recreate")) {
-            s_Capacity = s_PendingCapacity;
-            RebuildSystem();
-        }
-
-        // Preset legend. Keys 1..N spawn the matching preset at the mouse (or top-of-screen).
-        ImGui::TextUnformatted("Hold:");
-        ImGui::SameLine();
-        ImGui::TextUnformatted("[LMB] User Emitter");
-        for(size_t i = 0; i < s_Presets.size(); ++i) {
-            ImGui::SameLine();
-            ImGui::Text("  [%zu] %s", i + 1, s_Presets.at(i).Name);
-        }
-
-        ImGui::PopFont();
-
-        SyncEmitterFromUi();
-
-        // Place the canvas in the remaining content area below the controls. Sliders and
-        // buttons live above canvasTop; the canvas owns everything from there to the bottom.
-        // CanvasPanel::Render places an InvisibleButton over its bounds, so ImGui's widget
-        // routing naturally blocks input when a higher window (e.g. the dialog) is on top.
-        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        auto canvasBounds = Ui::UiRect {
-            ImVec2{0.f, canvasTop}, 
-            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}
-        };
-
-        if(s_Canvas) {
-            s_Canvas->SetBounds(canvasBounds);
-            s_Canvas->Render();
-            const auto& input = s_Canvas->GetInput();
-            if(s_UserEmitter) {
-                s_UserEmitter->Enabled  = input.IsActivate;
-                s_UserEmitter->Position = input.MouseScreen;
-            }
-
-            // Preset emitters: keyboard polling stays raw (global) since holding a number
-            // key to spawn from anywhere is the intended UX. Dialog or other modals can
-            // currently still spawn presets in the background -- accepted limitation.
-            for(size_t i = 0; i < s_Presets.size(); ++i) {
-                auto* emitter = s_PresetEmitters.at(i);
-                if(!emitter) continue;
-                const auto& preset = s_Presets.at(i);
-                const bool held = ImGui::IsKeyDown(preset.Key);
-                emitter->Enabled = held;
-                if(!held) continue;
-                switch(preset.PosMode) {
-                    using enum PositionMode;
-                    case FollowMouse:
-                        emitter->Position = input.IsHovered 
-                            ? input.MouseScreen
-                            : ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Min.y + 50.f};
-                        break;
-                    case TopOfScreen:
-                        emitter->Position = ImVec2{Graphics::ScreenWidth * 0.5f, canvasBounds.Min.y};
-                        break;
-                }
-            }
-        }
-
-        if(s_System) {
-            s_System->Render();
-        }
-
-        ImGui::End();
+        RenderSampleScreen("Sample Particles", [] {
+            RenderControls();
+            RenderContent();
+        });
     }
 } // namespace SampleUI::Ui::Screens::SampleParticles

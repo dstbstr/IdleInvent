@@ -1,5 +1,6 @@
 #include "SampleUI/Screens/SampleNav.h"
 #include "SampleUI/Screens/Screens.h"
+#include "SampleUI/Screens/SampleScreen.h"
 
 #include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
@@ -414,51 +415,7 @@ namespace {
         }
     }
 
-} // namespace
-
-namespace SampleUI::Screens::SampleNav {
-    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
-    std::vector<ScopedHandle> Handles{};
-    bool Initialize() {
-        PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
-        PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
-
-        Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
-            PollPathRequest(canvas);
-            UpdateCamera(canvas, PlayerPawn);
-            RenderMap(canvas, WorldMap);
-            RenderPath(canvas);
-            RenderPawn(canvas, PlayerPawn);
-        });
-
-        TickManager::Get().Register(Handles, [](BaseTime elapsed) {
-            UpdateMovement(PlayerPawn, elapsed);
-        });
-
-        return true;
-    }
-
-    void ShutDown() { 
-        Panel.reset(); 
-        Handles.clear();
-    }
-
-    void Render() {
-        ImGui::SetNextWindowPos({0.f, 0.f});
-        ImGui::SetNextWindowSize({Graphics::ScreenWidth, Graphics::ScreenHeight});
-        ImGui::Begin("Sample Navigation", nullptr, BaseUiFlags);
-
-        if(ImGui::Button("Back")) {
-            Screens::SetActiveScreen(Screen::Landing);
-            ImGui::End();
-            return;
-        }
-
-        ImGui::SetCursorPosY(HeaderOffsetY);
-        ImGui::PushFont(GetFont(FontSizes::H1));
-        TextCenteredX("Sample Navigation");
-        ImGui::PopFont();
-
+    void RenderControls() {
         ImGui::PushFont(GetFont(FontSizes::H4));
         ImGui::SetCursorPosY(ControlsOffsetY);
 
@@ -467,7 +424,7 @@ namespace SampleUI::Screens::SampleNav {
         auto originalFloor = FloorPercent;
         auto originalWater = WaterPercent;
 
-        changed |= ImGui::SliderInt("World Seed", &WorldSeed, 0, 9999);
+        changed |= ImGui::SliderInt("World Seed", &WorldSeed, 0, 9'999);
         changed |= ImGui::SliderFloat("Floors", &FloorPercent, 0.f, 1.f);
         changed |= ImGui::SliderFloat("Water", &WaterPercent, 0.f, 1.f);
 
@@ -507,22 +464,50 @@ namespace SampleUI::Screens::SampleNav {
 
         ImGui::Checkbox("Auto Follow", &AutoFollow);
         ImGui::PopFont();
+    }
 
-
-        // Place the canvas in the remaining content area below the controls. Sliders and
-        // buttons live above canvasTop; the canvas owns everything from there to the bottom.
+    void RenderMap(Ui::CanvasPanel* panel) {
         const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        auto canvasBounds = Ui::UiRect{
-            ImVec2{0.f, canvasTop}, 
-            ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}
-        };
+        auto canvasBounds = Ui::UiRect{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
 
-        if(Panel) {
-            Panel->SetBounds(canvasBounds);
-
-            Panel->Render();
+        if(panel) {
+            panel->SetBounds(canvasBounds);
+            panel->Render();
         }
+    }
+} // namespace
 
-        ImGui::End();
+namespace SampleUI::Screens::SampleNav {
+    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
+    std::vector<ScopedHandle> Handles{};
+    bool Initialize() {
+        PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
+        PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
+
+        Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
+            PollPathRequest(canvas);
+            UpdateCamera(canvas, PlayerPawn);
+            RenderMap(canvas, WorldMap);
+            RenderPath(canvas);
+            RenderPawn(canvas, PlayerPawn);
+        });
+
+        TickManager::Get().Register(Handles, [](BaseTime elapsed) {
+            UpdateMovement(PlayerPawn, elapsed);
+        });
+
+        return true;
+    }
+
+    void ShutDown() { 
+        Panel.reset(); 
+        Handles.clear();
+    }
+
+    void Render() {
+        RenderSampleScreen("Sample Navigation", [] {
+            RenderControls();
+            RenderMap(Panel.get());
+        });
     }
 } // namespace SampleUI::Screens::SampleNav

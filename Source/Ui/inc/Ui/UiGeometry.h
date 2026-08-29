@@ -14,6 +14,7 @@
 
 namespace Ui {
     [[nodiscard]] constexpr ImVec2 Midpoint(ImVec2 lhs, ImVec2 rhs) { return (lhs + rhs) * 0.5f; }
+    inline constexpr ImVec2 Zero{0.f, 0.f};
     inline constexpr ImVec2 One{1.f, 1.f};
     inline constexpr ImVec2 Half{0.5f, 0.5f};
 

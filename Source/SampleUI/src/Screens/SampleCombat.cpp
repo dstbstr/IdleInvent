@@ -1,5 +1,6 @@
 #include "SampleUI/Screens/SampleCombat.h"
 #include "SampleUI/Screens/Screens.h"
+#include "SampleUI/Screens/SampleScreen.h"
 
 #include <Combat/CombatTypes.h>
 #include <Manage/TickManager.h>
@@ -146,52 +147,19 @@ namespace {
             DrawCombatant(canvas, visual, visual.Id == selected); 
         }
     }
-}
 
-namespace SampleUI::Screens::SampleCombat {
-    std::unique_ptr<Ui::CanvasPanel> BattlePanel{nullptr};
-    std::vector<ScopedHandle> Handles{};
-
-    bool Initialize() { 
-        BattlePanelConfig.BackgroundColor = ImGui::ColorConvertFloat4ToU32(SelectedBattleColor);
-        BattlePanel = std::make_unique<Ui::CanvasPanel>(BattlePanelConfig, [](Ui::CanvasPanel& canvas) {
-            RenderBattlefield(canvas);
-        });
-
-        return true; 
-    }
-    void ShutDown() {
-        BattlePanel.reset();
-        Handles.clear();
-    }
-
-    void Render() {
-        ImGui::SetNextWindowPos({0.f, 0.f});
-        ImGui::SetNextWindowSize({Graphics::ScreenWidth, Graphics::ScreenHeight});
-        ImGui::Begin("Sample Combat", nullptr, BaseUiFlags | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-        if(ImGui::Button("Back")) {
-            Screens::SetActiveScreen(Screen::Landing);
-            ImGui::End();
-            return;
-        }
-
-        ImGui::SetCursorPosY(HeaderOffsetY);
-        ImGui::PushFont(GetFont(FontSizes::H1));
-        TextCenteredX("Sample Combat");
-        ImGui::PopFont();
-
+    void RenderControls(Ui::CanvasPanel* BattlePanel) {
         ImGui::PushFont(GetFont(FontSizes::H4));
         ImGui::SetCursorPosY(ControlsOffsetY);
 
         ImGui::SliderFloat("Battlefield Height", &BattlefieldPercent, 0.1f, 0.9f);
         ImGui::SliderFloat("Stats Width", &StatsPercent, 0.1f, 0.9f);
-        
+
         ImGui::SliderFloat("Control Border Thickness", &ControlBorderThickness, 0.f, 8.f);
         ImGui::SliderFloat("Control Border Rounding", &ControlBorderRounding, 0.f, 30.f);
         ImGui::SliderFloat("Control Panel Gap", &ControlPanelGap, 0.f, 16.f);
 
-        if(ImGui::ColorEdit4("Background Color",&SelectedBattleColor.x, ImGuiColorEditFlags_NoInputs)) {
+        if(ImGui::ColorEdit4("Background Color", &SelectedBattleColor.x, ImGuiColorEditFlags_NoInputs)) {
             if(BattlePanel) {
                 BattlePanel->SetBackgroundColor(ImGui::ColorConvertFloat4ToU32(SelectedBattleColor));
             }
@@ -205,7 +173,7 @@ namespace SampleUI::Screens::SampleCombat {
 
         auto formationOptions = "Square\0Triangle\0ThreeLines\0";
         ImGui::Combo("Battle Formation", &SelectedFormation, formationOptions);
-        
+
         ImGui::Checkbox("Group Vertically", &GroupVertical);
         ImGui::SameLine();
         ImGui::SliderInt("Selected Combatant", &SelectedCombatant, 0, static_cast<s32>(NextVisualId) - 1);
@@ -243,7 +211,9 @@ namespace SampleUI::Screens::SampleCombat {
         ImGui::PopID();
 
         ImGui::PopFont();
+    }
 
+    void RenderBattlefield(Ui::CanvasPanel* BattlePanel) {
         auto width = Graphics::ScreenWidth;
         auto height = Graphics::ScreenHeight;
 
@@ -293,7 +263,31 @@ namespace SampleUI::Screens::SampleCombat {
             ImGui::Button("Attack");
             ImGui::Button("Pass");
         });
+    }
+}
 
-        ImGui::End();
+namespace SampleUI::Screens::SampleCombat {
+    std::unique_ptr<Ui::CanvasPanel> BattlePanel{nullptr};
+    std::vector<ScopedHandle> Handles{};
+
+    bool Initialize() { 
+        BattlePanelConfig.BackgroundColor = ImGui::ColorConvertFloat4ToU32(SelectedBattleColor);
+        BattlePanel = std::make_unique<Ui::CanvasPanel>(BattlePanelConfig, [](Ui::CanvasPanel& canvas) {
+            RenderBattlefield(canvas);
+        });
+
+        return true; 
+    }
+    void ShutDown() {
+        BattlePanel.reset();
+        Handles.clear();
+    }
+
+    void Render() {
+        RenderSampleScreen("Sample Combat", [] {
+            RenderControls(BattlePanel.get());
+            RenderBattlefield(BattlePanel.get());
+        });
+
     }
 } // namespace SampleUI::Screens::SampleCombat
