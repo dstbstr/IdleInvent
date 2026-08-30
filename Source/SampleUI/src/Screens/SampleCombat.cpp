@@ -3,29 +3,22 @@
 #include "SampleUI/Screens/SampleScreen.h"
 
 #include <Combat/CombatTypes.h>
-#include <Manage/TickManager.h>
 #include <Platform/Graphics.h>
 #include <Platform/NumTypes.h>
 #include <Ui/Combat/BattleFormation.h>
 #include <Ui/UiGeometry.h>
-#include <Ui/Overlay.h>
 #include <Ui/Panel/CanvasPanel.h>
 #include <Ui/UiUtil.h>
-#include <Utilities/Handle.h>
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <array>
-#include <cmath>
-#include <map>
 #include <memory>
 #include <span>
-#include <string>
-#include <utility>
 #include <vector>
 
 namespace {
-    constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
     constexpr auto CombatantSize = 56.f;
@@ -35,13 +28,6 @@ namespace {
         ImVec2 CurrentLocal{};
         ImU32 Color{};
         f32 Size{CombatantSize};
-    };
-
-    struct SampleCombatant {
-        std::string Name;
-        s32 Hp{};
-        s32 MaxHp{};
-        s32 Attack{};
     };
 
     enum struct BattleFormation : u8 { Square, Triangle, ThreeLines };
@@ -56,16 +42,15 @@ namespace {
     auto ControlBorderRounding = 12.f;
     auto ControlPanelGap = 2.f;
 
-    auto CombatantPadding = 0.2f;
+    auto FormationGap = 0.2f;
     auto GroupVertical = true;
     auto SelectedCombatant = 0;
     auto SelectedFormation = static_cast<int>(BattleFormation::Square);
-
-    Ui::PanelConfig BattlePanelConfig{};
+    Ui::PanelConfig BattlePanelConfig{
+        .BackgroundColor = ImGui::ColorConvertFloat4ToU32(SelectedBattleColor),
+    };
     std::vector<CombatantVisual> PlayerVisuals{};
     std::vector<CombatantVisual> EnemyVisuals{};
-    Ui::UiRect PlayerRegion;
-    Ui::UiRect EnemyRegion;
     u32 NextVisualId{};
 
     Combat::CombatantId AddVisual(std::vector<CombatantVisual>& visuals, ImU32 color) {
@@ -110,19 +95,22 @@ namespace {
             }
         }
 
-        for(size_t i = 0; i < visuals.size(); i++) {
-            auto& visual = visuals[i]; // NOLINT(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access)
-            const auto& slot = slots.at(i);
-
-            visual.CurrentLocal = slot.Center;
-            visual.Size = std::min(CombatantSize, slot.AvailableSize * 0.8f);
+        auto visual = visuals.begin();
+        for(const auto& slot : slots) {
+            if(visual == visuals.end()) break;
+            visual->CurrentLocal = slot.Center;
+            visual->Size = std::min(CombatantSize, slot.AvailableSize * 0.8f);
+            ++visual;
         }
     }
 
     void RenderBattlefield(Ui::CanvasPanel& canvas) { 
         auto size = canvas.GetViewportSize();
+        Ui::UiRect PlayerRegion;
+        Ui::UiRect EnemyRegion;
+
         if(GroupVertical) {
-            auto gap = size.x * CombatantPadding;
+            auto gap = size.x * FormationGap;
             auto leftFront = (size.x - gap) * 0.5f;
             auto rightFront = (size.x + gap) * 0.5f;
 
@@ -131,7 +119,7 @@ namespace {
             ApplyFormation(PlayerVisuals, PlayerRegion, Ui::Formation::Front::Right);
             ApplyFormation(EnemyVisuals, EnemyRegion, Ui::Formation::Front::Left);
         } else {
-            auto gap = size.y * CombatantPadding;
+            auto gap = size.y * FormationGap;
             auto topFront = (size.y - gap) * 0.5f;
             auto bottomFront = (size.y + gap) * 0.5f;
             PlayerRegion = {{0.f, 0.f}, {size.x, topFront}};
@@ -170,16 +158,25 @@ namespace {
         ImGui::SameLine();
         ImGui::ColorEdit4("Control Border Color", &ControlBorderColor.x, ImGuiColorEditFlags_NoInputs);
 
-        ImGui::SliderFloat("Combatant Padding", &CombatantPadding, 0.1f, 0.4f);
+        ImGui::SliderFloat("Combatant Padding", &FormationGap, 0.1f, 0.4f);
 
         auto formationOptions = "Square\0Triangle\0ThreeLines\0";
         ImGui::Combo("Battle Formation", &SelectedFormation, formationOptions);
 
         ImGui::Checkbox("Group Vertically", &GroupVertical);
         ImGui::SameLine();
-        ImGui::SliderInt("Selected Combatant", &SelectedCombatant, 0, static_cast<s32>(NextVisualId) - 1);
 
-        ImGui::TextUnformatted("Allys");
+        auto visualCount = PlayerVisuals.size() + EnemyVisuals.size();
+        if(visualCount == 0) {
+            SelectedCombatant = 0;
+            ImGui::BeginDisabled();
+        }
+        ImGui::SliderInt("Selected Combatant", &SelectedCombatant, 0, static_cast<int>(visualCount == 0 ? 0 : visualCount - 1));
+        if(visualCount == 0) {
+            ImGui::EndDisabled();
+        }
+
+        ImGui::TextUnformatted("Allies");
         ImGui::SameLine();
         ImGui::PushID("AllyControls");
         if(ImGui::SmallButton("+")) {
@@ -250,10 +247,9 @@ namespace {
             ImGui::PopStyleColor(2);
         };
 
-        if(BattlePanel) {
-            BattlePanel->SetBounds(battlefieldBounds);
-            BattlePanel->Render();
-        }
+        BattlePanel->SetBounds(battlefieldBounds);
+        BattlePanel->Render();
+
         RenderChild("##CombatStats", statsBounds, [] {
             ImGui::TextUnformatted("Party Stats");
             ImGui::Separator();
@@ -272,11 +268,7 @@ namespace {
 namespace SampleUI::Screens::SampleCombat {
 
     bool Initialize() { 
-        BattlePanelConfig.BackgroundColor = ImGui::ColorConvertFloat4ToU32(SelectedBattleColor);
-        BattlePanel = std::make_unique<Ui::CanvasPanel>(BattlePanelConfig, [](Ui::CanvasPanel& canvas) {
-            RenderBattlefield(canvas);
-        });
-
+        BattlePanel = std::make_unique<Ui::CanvasPanel>(BattlePanelConfig, RenderBattlefield);
         return true; 
     }
 
