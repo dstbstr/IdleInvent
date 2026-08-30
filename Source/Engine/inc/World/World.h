@@ -15,7 +15,6 @@ namespace World {
     using CellCoord = Geometry::Point2<s32, ChunkSpace>;
     using LocalPos = Geometry::Point2<f32, ChunkSpace>;
     using CellSize = Geometry::Size2<s32, ChunkSpace>;
-
     using Displacement = LocalPos;
 
     [[nodiscard]] constexpr CellCoord ToCellCoord(const LocalPos& local) {

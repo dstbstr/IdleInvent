@@ -62,7 +62,7 @@ namespace SampleUI::Screens::Landing {
 		}
 
 		auto buttonCount = static_cast<size_t>(std::ranges::count_if(GetScreenDefinitions(), [](const auto& def) {
-            return !def.LandingLabel.empty();
+            return def.LandingLabel != nullptr;
 		}));
         auto buttonRows = (buttonCount + ButtonCols - 1) / ButtonCols;
 
@@ -70,7 +70,7 @@ namespace SampleUI::Screens::Landing {
         size_t buttonIndex = 0;
 
 		for(const auto& screen : GetScreenDefinitions()) {
-            if(screen.LandingLabel.empty()) continue;
+            if(!screen.LandingLabel) continue;
 
 			auto row = buttonIndex / ButtonCols;
             auto col = buttonIndex % ButtonCols;
@@ -78,7 +78,7 @@ namespace SampleUI::Screens::Landing {
 
 			ImGui::SetCursorPos(cell.Min);
             ImGui::PushID(static_cast<int>(buttonIndex));
-			if(ImGui::Button(screen.LandingLabel.data(), cell.GetSize())) {
+			if(ImGui::Button(screen.LandingLabel, cell.GetSize())) {
                 Screens::SetActiveScreen(screen.Id);
 			}
             ImGui::PopID();

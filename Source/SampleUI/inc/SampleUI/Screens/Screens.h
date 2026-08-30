@@ -18,7 +18,7 @@ namespace SampleUI {
     struct ScreenDefinition {
         Screen Id{};
         std::string_view Name{};
-        std::string_view LandingLabel{};
+        const char* LandingLabel{nullptr};
         bool (*Initialize)() = nullptr;
         void (*ShutDown)() = nullptr;
         void (*Render)() = nullptr;

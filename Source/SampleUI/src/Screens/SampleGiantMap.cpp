@@ -11,55 +11,67 @@
 #include <Ui/Panel/ZoomFunc.h>
 #include <Ui/UiUtil.h>
 #include <Utilities/Handle.h>
-#include <Utilities/IRandom.h>
 #include <World/Movement.h>
 #include <World/Noise.h>
 #include <World/World.h>
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <bitset>
 #include <cmath>
 #include <map>
+#include <optional>
 #include <memory>
 #include <vector>
 
 namespace {
-    constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
     constexpr auto CellPixelSize = 64.f;
     constexpr auto HudMapDiameter = 192.f;
     constexpr auto HudMapPadding = 12.f;
 
+    enum struct TerrainType : u8 { Dirt, Forest, Water, Snow };
+    enum struct SmoothingKind : u8 { Cubic, Quintic };
+
     struct Pawn {
         World::WorldLocation Location;
         f32 Diameter = 1.0f;
     };
-    enum struct TerrainType : u8 { Dirt, Forest, Water, Snow };
-    enum struct SmoothingKind : u8 { Cubic, Quintic };
+    struct TerrainSettings {
+        s32 WorldSeed{42};
+        s32 Octaves{4};
+        int SelectedSmoothing{static_cast<int>(SmoothingKind::Cubic)};
+        f32 SnowLevel{0.8f};
+        f32 ForestLevel{0.6f};
+        f32 WaterLevel{0.42f};
+        f32 BaseFeatureSize{28.f};
+    };
 
     using Chunk = World::Chunk<TerrainType, 32, 32>;
     constexpr size_t CellsPerChunk = Chunk::Width * Chunk::Height;
     using ExploredCells = std::bitset<CellsPerChunk>;
     std::map<World::ChunkCoord, ExploredCells> ExploredChunks{};
 
-    Ui::PanelConfig PanelConfig{};
-    s32 WorldSeed = 42;
+    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
+    std::vector<ScopedHandle> TickHandles{};
+
+    TerrainSettings TerrainConfig{};
+
+    Ui::PanelConfig PanelConfig{
+        .BackgroundColor = IM_COL32_WHITE,
+        .ZoomFn = Ui::Zoom::Exponential<f32, 1.2f, -20, 5>
+    };
+
     s32 LoadRadius = 1;
-    s32 Octaves = 4;
-    int SelectedSmoothing = static_cast<int>(SmoothingKind::Cubic);
-    f32 SnowLevel = 0.8f;
-    f32 ForestLevel = 0.6f;
-    f32 WaterLevel = 0.42f;
-    f32 BaseFeatureSize = 28.f;
     bool ShowHudMap = true;
     bool ShowDebug = false;
     bool ShowFogOfWar = true;
     int LightRadius = 6;
 
-    static std::map<World::ChunkCoord, Chunk> LoadedChunks{};
-    static Pawn PlayerPawn = {
+    std::map<World::ChunkCoord, Chunk> LoadedChunks{};
+    Pawn PlayerPawn = {
         .Location = {
             .Chunk = {0, 0}, 
             .Local = World::GetCellCenter(Chunk::CenterCell())
@@ -78,12 +90,19 @@ namespace {
         return IM_COL32(0, 0, 0, 255);
     }
 
-    f64 GetHeight(f64 x, f64 y) {
-        auto seed = static_cast<u32>(WorldSeed);
-        auto octaves = static_cast<size_t>(Octaves);
-        auto baseFrequency = 1.0 / static_cast<f64>(BaseFeatureSize);
+    constexpr TerrainType HeightToTerrain(const TerrainSettings& settings, f32 height) {
+        if(height > settings.SnowLevel) return TerrainType::Snow;
+        if(height > settings.ForestLevel) return TerrainType::Forest;
+        if(height < settings.WaterLevel) return TerrainType::Water;
+        return TerrainType::Dirt;
+    }
 
-        switch(static_cast<SmoothingKind>(SelectedSmoothing)) {
+    f64 GetHeight(f64 x, f64 y) {
+        auto seed = static_cast<u32>(TerrainConfig.WorldSeed);
+        auto octaves = static_cast<size_t>(TerrainConfig.Octaves);
+        auto baseFrequency = 1.0 / static_cast<f64>(TerrainConfig.BaseFeatureSize);
+
+        switch(static_cast<SmoothingKind>(TerrainConfig.SelectedSmoothing)) {
             using enum SmoothingKind;
             case Cubic: return Noise::Fractal2D(seed, x, y, octaves, baseFrequency, Smoothstep::Cubic);
             case Quintic: return Noise::Fractal2D(seed, x, y, octaves, baseFrequency, Smoothstep::Quintic);
@@ -98,15 +117,7 @@ namespace {
             auto globalX = static_cast<s64>(chunkCoord.X) * static_cast<s64>(Chunk::Width) + cell.X;
             auto globalY = static_cast<s64>(chunkCoord.Y) * static_cast<s64>(Chunk::Height) + cell.Y;
             auto height = static_cast<f32>(GetHeight(static_cast<f64>(globalX), static_cast<f64>(globalY)));
-            if(height > SnowLevel) {
-                terrain = TerrainType::Snow;
-            } else if(height > ForestLevel) {
-                terrain = TerrainType::Forest;
-            } else if(height < WaterLevel) {
-                terrain = TerrainType::Water;
-            } else {
-                terrain = TerrainType::Dirt;
-            }
+            terrain = HeightToTerrain(TerrainConfig, height);
         });
 
         return chunk;
@@ -146,11 +157,11 @@ namespace {
     }
 
     void RevealAround(const Pawn& pawn) {
-        auto radiusSqared = LightRadius * LightRadius;
+        auto r2 = LightRadius * LightRadius;
 
         for(auto y = -LightRadius; y <= LightRadius; ++y) {
             for(auto x = -LightRadius; x <= LightRadius; ++x) {
-                if(x * x + y * y > radiusSqared) continue;
+                if(x * x + y * y > r2) continue;
 
                 auto location = World::Offset<Chunk::Width, Chunk::Height>(
                     pawn.Location, {static_cast<f32>(x), static_cast<f32>(y)}
@@ -189,7 +200,7 @@ namespace {
 
     std::optional<World::WorldLocation> FindNearestValidLocation(World::WorldLocation origin, s32 maxDistance = 64) {
         auto cell = origin.ToCellCoord();
-        origin.Local = {static_cast<f32>(cell.X) + 0.5f, static_cast<f32>(cell.Y) + 0.5f};
+        origin.Local = World::GetCellCenter(cell);
         if(CanOccupy(origin)) return origin;
 
         for(auto distance = 1; distance <= maxDistance; ++distance) {
@@ -209,6 +220,13 @@ namespace {
         return std::nullopt;
     }
 
+    std::optional<ImU32> GetFogOverlay(World::ChunkCoord chunk, World::CellCoord cell) {
+        if(!ShowFogOfWar) return std::nullopt;
+        if(!IsExplored(chunk, cell)) return IM_COL32_BLACK;
+        if(!IsVisible(PlayerPawn, chunk, cell)) return IM_COL32(0, 0, 0, 160);
+        return std::nullopt;
+    }
+
     void RenderChunk(const Ui::CanvasPanel& canvas, World::ChunkCoord coord, const Chunk& chunk) {
         auto relativeChunk = coord - PlayerPawn.Location.Chunk;
         auto chunkCellOrigin = Ui::ToUi(relativeChunk) * Ui::ToUi(Chunk::Size());
@@ -221,12 +239,8 @@ namespace {
             auto cellBounds = canvas.ContentToScreen(contentBounds);
 
             drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, TerrainToColor(terrain));
-            if(ShowFogOfWar) {
-                if(!IsExplored(coord, cell)) {
-                    drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32_BLACK);
-                } else if(!IsVisible(PlayerPawn, coord, cell)) {
-                    drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32(0, 0, 0, 160));
-                }
+            if(auto fog = GetFogOverlay(coord, cell)) {
+                drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, *fog);
             }
 
             // border
@@ -252,8 +266,8 @@ namespace {
         if(!ShowHudMap) return;
 
         auto vpSize = canvas.GetViewportSize();
-        auto diameter = ImVec2{HudMapDiameter, HudMapDiameter};
-        auto padding = ImVec2{HudMapPadding, HudMapPadding};
+        auto diameter = Ui::One * HudMapDiameter;
+        auto padding = Ui::One * HudMapPadding;
     
         auto mapMaxLocal = vpSize - padding;
         auto mapMinLocal = mapMaxLocal - diameter;
@@ -269,8 +283,7 @@ namespace {
 
         for(const auto& [coord, chunk] : LoadedChunks) {
             auto relativeChunk = coord - pawn.Location.Chunk;
-            auto chunkSize = ImVec2{static_cast<f32>(Chunk::Width), static_cast<f32>(Chunk::Height)};
-            auto chunkOffset = ImVec2{static_cast<f32>(relativeChunk.X) * chunkSize.x, static_cast<f32>(relativeChunk.Y) * chunkSize.y};
+            auto chunkOffset = Ui::ToUi(relativeChunk) * Ui::ToUi(Chunk::Size());
             auto pawnPos = Ui::ToUi(pawn.Location.Local);
 
             chunk.VisitCells([&](World::CellCoord cell, const TerrainType& terrain) {
@@ -284,12 +297,8 @@ namespace {
                 auto halfCellPixelSize = Ui::Half * hudCellPixelSize;
                 auto cellBounds = Ui::UiRect{screenCellCenter - halfCellPixelSize, screenCellCenter + halfCellPixelSize};
                 drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, TerrainToColor(terrain));
-                if(ShowFogOfWar) {
-                    if(!IsExplored(coord, cell)) {
-                        drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32_BLACK);
-                    } else if(!IsVisible(PlayerPawn, coord, cell)) {
-                        drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, IM_COL32(0, 0, 0, 160));
-                    }
+                if(auto fog = GetFogOverlay(coord, cell)) {
+                    drawList->AddRectFilled(cellBounds.Min, cellBounds.Max, *fog);
                 }
             });
         }
@@ -322,7 +331,7 @@ namespace {
         canvas.PanBy(delta);
     }
 
-    void UpdateMovement(Pawn& pawn, BaseTime elapsed) {
+    void UpdateMovement(Pawn& pawn) {
         auto move = GetMove();
         if(move == World::Displacement{}) return;
 
@@ -342,31 +351,27 @@ namespace {
 
         bool changed = false;
 
-        changed |= ImGui::SliderInt("World Seed", &WorldSeed, 0, 9'999);
-        changed |= ImGui::SliderFloat("Water Level", &WaterLevel, 0.f, 1.f);
-        changed |= ImGui::SliderFloat("Forest Level", &ForestLevel, 0.f, 1.f);
-        changed |= ImGui::SliderFloat("Snow Level", &SnowLevel, 0.f, 1.f);
-        changed |= ImGui::SliderInt("Octaves", &Octaves, 1, 8);
+        constexpr f32 TGap = 0.01f;
+        changed |= ImGui::SliderInt("World Seed", &TerrainConfig.WorldSeed, 0, 9'999);
+        changed |= ImGui::SliderFloat("Water Level", &TerrainConfig.WaterLevel, 0.f, TerrainConfig.ForestLevel - TGap);
+        changed |= ImGui::SliderFloat("Forest Level", &TerrainConfig.ForestLevel, TerrainConfig.WaterLevel + TGap, TerrainConfig.SnowLevel - TGap);
+        changed |= ImGui::SliderFloat("Snow Level", &TerrainConfig.SnowLevel, TerrainConfig.ForestLevel + TGap, 1.f);
+        changed |= ImGui::SliderInt("Octaves", &TerrainConfig.Octaves, 1, 8);
         changed |= ImGui::SliderFloat(
-            "Feature Size", &BaseFeatureSize, 4.f, 512.f, "%.0f cells", ImGuiSliderFlags_Logarithmic
+            "Feature Size", &TerrainConfig.BaseFeatureSize, 4.f, 512.f, "%.0f cells", ImGuiSliderFlags_Logarithmic
         );
 
         const char* smoothingOptions = "Cubic\0Quintic\0";
-        changed |= ImGui::Combo("Smoothing", &SelectedSmoothing, smoothingOptions);
-
-        if(WaterLevel >= ForestLevel) {
-            WaterLevel = ForestLevel - 0.1f;
-        }
-        if(ForestLevel >= SnowLevel) {
-            ForestLevel = SnowLevel - 0.1f;
-        }
+        changed |= ImGui::Combo("Smoothing", &TerrainConfig.SelectedSmoothing, smoothingOptions);
 
         if(ImGui::Button("Regenerate")) {
-            WorldSeed = (WorldSeed + 32) % 10'000;
+            TerrainConfig.WorldSeed = (TerrainConfig.WorldSeed + 32) % 10'000;
             changed = true;
         }
 
-        ImGui::SliderInt("Light Radius", &LightRadius, 1, 16);
+        if(ImGui::SliderInt("Light Radius", &LightRadius, 1, 16)) {
+            RevealAround(PlayerPawn);
+        }
         ImGui::Checkbox("Fog of War", &ShowFogOfWar);
         ImGui::SameLine();
         ImGui::Checkbox("Show HUD", &ShowHudMap);
@@ -375,34 +380,29 @@ namespace {
 
         if(changed) {
             LoadedChunks.clear();
+            ExploredChunks.clear();
             if(auto validLocation = FindNearestValidLocation(PlayerPawn.Location)) {
                 PlayerPawn.Location = *validLocation;
             }
+
             UpdateLoadedChunks(PlayerPawn.Location.Chunk);
+            RevealAround(PlayerPawn);
         }
 
         ImGui::PopFont();
     }
 
-    void RenderMap(Ui::CanvasPanel* panel) {
-        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        auto canvasBounds = Ui::UiRect{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
-
-        if(panel) {
-            panel->SetBounds(canvasBounds);
-            panel->Render();
-        }
-
+    void RenderContent() {
+        if(!Panel) return;
+        SampleUI::RenderRemainingPanel(*Panel, CanvasTopMargin);
     }
 } // namespace
 
 namespace SampleUI::Screens::SampleGiantMap {
-    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
-    std::vector<ScopedHandle> Handles{};
     bool Initialize() {
-        PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.2f, -20, 5>;
-        PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
         LoadedChunks.clear();
+        ExploredChunks.clear();
+
         if(auto validLocation = FindNearestValidLocation(PlayerPawn.Location)) {
             PlayerPawn.Location = *validLocation;
         }
@@ -416,21 +416,22 @@ namespace SampleUI::Screens::SampleGiantMap {
             RenderHudMap(canvas, PlayerPawn);
         });
 
-        TickManager::Get().Register(Handles, [](BaseTime elapsed) { UpdateMovement(PlayerPawn, elapsed); });
+        TickManager::Get().Register(TickHandles, [](BaseTime) { UpdateMovement(PlayerPawn); });
 
         return true;
     }
 
     void ShutDown() {
+        TickHandles.clear();
         Panel.reset();
-        Handles.clear();
     }
 
     void Render() {
         RenderSampleScreen("Sample Giant Map", [] { 
             RenderControls();
-            RenderMap(Panel.get());
-            RenderDebug();
+            RenderContent();
         });
+
+        RenderDebug();
     }
 } // namespace SampleUI::Screens::SampleGiantMap

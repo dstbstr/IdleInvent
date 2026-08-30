@@ -3,6 +3,7 @@
 #include "SampleUI/Screens/Screens.h"
 
 #include <Platform/Graphics.h>
+#include <Ui/Panel/Panel.h>
 #include <Ui/UiUtil.h>
 #include <Ui/UiGeometry.h>
 
@@ -37,4 +38,11 @@ namespace SampleUI {
 
         ImGui::End();
 	}
+
+    inline void RenderRemainingPanel(Ui::Panel& panel, f32 topMargin) {
+        auto panelTop = ImGui::GetCursorPosY() + topMargin;
+        auto bounds = Ui::UiRect{{0.f, panelTop}, {Graphics::ScreenWidth, Graphics::ScreenHeight}};
+        panel.SetBounds(bounds);
+        panel.Render();
+    }
 }

@@ -43,7 +43,14 @@ namespace {
         Snap
     };
 
-    Ui::PanelConfig PanelConfig{};
+    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
+    std::vector<ScopedHandle> TickHandles{};
+
+    Ui::PanelConfig PanelConfig{
+        .BackgroundColor = IM_COL32_WHITE, 
+        .ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>
+    };
+
     s32 WorldSeed = 42;
     f32 FloorPercent = 0.7f;
     f32 WaterPercent = 0.2f;
@@ -466,33 +473,25 @@ namespace {
         ImGui::PopFont();
     }
 
-    void RenderMap(Ui::CanvasPanel* panel) {
-        const auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        auto canvasBounds = Ui::UiRect{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
+    void RenderCanvas(Ui::CanvasPanel& canvas) {
+        PollPathRequest(canvas);
+        UpdateCamera(canvas, PlayerPawn);
+        RenderMap(canvas, WorldMap);
+        RenderPath(canvas);
+        RenderPawn(canvas, PlayerPawn);
+    }
 
-        if(panel) {
-            panel->SetBounds(canvasBounds);
-            panel->Render();
-        }
+    void RenderContent() {
+        if(!Panel) return;
+        SampleUI::RenderRemainingPanel(*Panel, CanvasTopMargin);
     }
 } // namespace
 
 namespace SampleUI::Screens::SampleNav {
-    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
-    std::vector<ScopedHandle> Handles{};
     bool Initialize() {
-        PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
-        PanelConfig.BackgroundColor = IM_COL32(255, 255, 255, 255);
+        Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, RenderCanvas);
 
-        Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
-            PollPathRequest(canvas);
-            UpdateCamera(canvas, PlayerPawn);
-            RenderMap(canvas, WorldMap);
-            RenderPath(canvas);
-            RenderPawn(canvas, PlayerPawn);
-        });
-
-        TickManager::Get().Register(Handles, [](BaseTime elapsed) {
+        TickManager::Get().Register(TickHandles, [](BaseTime elapsed) {
             UpdateMovement(PlayerPawn, elapsed);
         });
 
@@ -501,13 +500,13 @@ namespace SampleUI::Screens::SampleNav {
 
     void ShutDown() { 
         Panel.reset(); 
-        Handles.clear();
+        TickHandles.clear();
     }
 
     void Render() {
         RenderSampleScreen("Sample Navigation", [] {
             RenderControls();
-            RenderMap(Panel.get());
+            RenderContent();
         });
     }
 } // namespace SampleUI::Screens::SampleNav

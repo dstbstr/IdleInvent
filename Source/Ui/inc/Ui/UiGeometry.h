@@ -12,6 +12,7 @@
 [[nodiscard]] constexpr ImVec2 operator*(f32 scalar, ImVec2 value) { return value * scalar; }
 [[nodiscard]] constexpr ImVec2 operator/(ImVec2 value, f32 scalar) { return {value.x / scalar, value.y / scalar}; }
 
+
 namespace Ui {
     [[nodiscard]] constexpr ImVec2 Midpoint(ImVec2 lhs, ImVec2 rhs) { return (lhs + rhs) * 0.5f; }
     inline constexpr ImVec2 Zero{0.f, 0.f};
@@ -83,4 +84,6 @@ namespace Ui {
             ToUi(rect.Br())
         }; 
     }
+
+    bool SliderScale2(const char* label, Geometry::Scale2& value, f32 min, f32 max);
 }

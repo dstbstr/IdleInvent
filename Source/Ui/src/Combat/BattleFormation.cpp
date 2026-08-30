@@ -38,8 +38,8 @@ namespace {
         std::vector<Slot> slots{};
         slots.reserve(totalSlots);
 
-        for(size_t line = 0; line < lineCounts.size(); line++) {
-            auto entriesInLine = lineCounts[line];
+        size_t line = 0;
+        for(auto entriesInLine : lineCounts) {
             for(size_t entry = 0; entry < entriesInLine; entry++) {
                 ImVec2 center{};
 
@@ -61,6 +61,8 @@ namespace {
 
                 slots.push_back({.Center = center, .AvailableSize = slotSize});
             }
+
+            line++;
         }
 
         return slots;

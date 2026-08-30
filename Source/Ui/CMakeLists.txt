@@ -15,9 +15,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
 
 target_sources(${PROJECT_NAME} PRIVATE
-    src/UiUtil.cpp
-    src/Overlay.cpp
     src/Dialog.cpp
+    src/Overlay.cpp
+    src/UiGeometry.cpp
+    src/UiUtil.cpp
 
     src/Combat/BattleFormation.cpp
 

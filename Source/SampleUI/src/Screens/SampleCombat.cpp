@@ -45,6 +45,7 @@ namespace {
     };
 
     enum struct BattleFormation : u8 { Square, Triangle, ThreeLines };
+    std::unique_ptr<Ui::CanvasPanel> BattlePanel{nullptr};
     
     auto BattlefieldPercent = 0.7f;
     auto StatsPercent = 2.f / 3.f;
@@ -148,7 +149,7 @@ namespace {
         }
     }
 
-    void RenderControls(Ui::CanvasPanel* BattlePanel) {
+    void RenderControls() {
         ImGui::PushFont(GetFont(FontSizes::H4));
         ImGui::SetCursorPosY(ControlsOffsetY);
 
@@ -213,7 +214,9 @@ namespace {
         ImGui::PopFont();
     }
 
-    void RenderBattlefield(Ui::CanvasPanel* BattlePanel) {
+    void RenderContent() {
+        if(!BattlePanel) return;
+
         auto width = Graphics::ScreenWidth;
         auto height = Graphics::ScreenHeight;
 
@@ -267,8 +270,6 @@ namespace {
 }
 
 namespace SampleUI::Screens::SampleCombat {
-    std::unique_ptr<Ui::CanvasPanel> BattlePanel{nullptr};
-    std::vector<ScopedHandle> Handles{};
 
     bool Initialize() { 
         BattlePanelConfig.BackgroundColor = ImGui::ColorConvertFloat4ToU32(SelectedBattleColor);
@@ -278,15 +279,15 @@ namespace SampleUI::Screens::SampleCombat {
 
         return true; 
     }
+
     void ShutDown() {
         BattlePanel.reset();
-        Handles.clear();
     }
 
     void Render() {
         RenderSampleScreen("Sample Combat", [] {
-            RenderControls(BattlePanel.get());
-            RenderBattlefield(BattlePanel.get());
+            RenderControls();
+            RenderContent();
         });
 
     }

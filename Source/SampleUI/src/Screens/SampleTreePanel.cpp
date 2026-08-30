@@ -183,14 +183,7 @@ namespace {
 
 	void RenderContent() {
         if(!Panel) return;
-
-        auto panelTop = ImGui::GetCursorPosY() + PanelTopMargin;
-        auto bounds = Ui::UiRect{{0.f, panelTop}, {Graphics::ScreenWidth, Graphics::ScreenHeight}};
-
-        if(Panel) {
-            Panel->SetBounds(bounds);
-            Panel->Render();
-        }
+        SampleUI::RenderRemainingPanel(*Panel, PanelTopMargin);
 	}
 }
 

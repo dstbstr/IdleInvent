@@ -1,10 +1,23 @@
 #pragma once
 
+#include "Platform/NumTypes.h"
 #include "Constexpr/ConstexprMath.h"
 
+#include <algorithm>
 #include <compare>
+#include <type_traits>
 
 namespace Geometry {
+    struct Scale2 {
+        f32 X{1.f};
+        f32 Y{1.f};
+
+        constexpr auto operator<=>(const Scale2&) const = default;
+
+        [[nodiscard]] static constexpr Scale2 Uniform(f32 value) { return {value, value}; }
+        [[nodiscard]] static constexpr Scale2 Half() { return {0.5f, 0.5f}; }
+    };
+
 	template<typename T, typename TSpace>
 	struct Point2 {
         T X{};
@@ -41,6 +54,9 @@ namespace Geometry {
     struct Size2 {
         T X{};
         T Y{};
+
+        [[nodiscard]] static constexpr Size2 One() { return {T{1}, T{1}}; }
+        [[nodiscard]] static constexpr Size2 Zero() { return {T{0}, T{0}}; }
 
         constexpr auto operator<=>(const Size2&) const = default;
         constexpr Size2 operator+(const Size2& rhs) const { return {X + rhs.X, Y + rhs.Y}; }
@@ -108,4 +124,44 @@ namespace Geometry {
             return {Pos + delta, Size - delta * 2};
         }
 	};
+
+    template<typename TValue, typename TSpace>
+    [[nodiscard]] constexpr auto operator*(Size2<TValue, TSpace> size, Scale2 scale) {
+        using TResult = std::common_type_t<TValue, f32>;
+
+        return Size2<TResult, TSpace>{
+            static_cast<TResult>(size.X) * static_cast<TResult>(scale.X),
+            static_cast<TResult>(size.Y) * static_cast<TResult>(scale.Y)
+        };
+    }
+
+    template<typename TValue, typename TSpace>
+    [[nodiscard]] constexpr auto operator*(Point2<TValue, TSpace> point, Scale2 scale) {
+        using TResult = std::common_type_t<TValue, f32>;
+        return Point2<TResult, TSpace>{
+            static_cast<TResult>(point.X) * static_cast<TResult>(scale.X),
+            static_cast<TResult>(point.Y) * static_cast<TResult>(scale.Y)
+        };
+    }
+
+    template<typename TValue, typename TSpace>
+    [[nodiscard]] constexpr auto operator*(Rect<TValue, TSpace> rect, Scale2 scale) {
+        using TResult = std::common_type_t<TValue, f32>;
+        return Rect<TResult, TSpace>{rect.Pos * scale, rect.Size * scale};
+    }
+
+    template<typename TResult, typename TValue, typename TSpace>
+    [[nodiscard]] constexpr Size2<TResult, TSpace> SizeCast(Size2<TValue, TSpace> size) {
+        return {static_cast<TResult>(size.X), static_cast<TResult>(size.Y)};
+    }
+
+    template<typename T, typename TSpace>
+    [[nodiscard]] constexpr Size2<T, TSpace> Min(Size2<T, TSpace> lhs, Size2<T, TSpace> rhs) {
+        return {std::min(lhs.X, rhs.X), std::min(lhs.Y, rhs.Y)};
+    }
+    template<typename T, typename TSpace>
+    [[nodiscard]] constexpr Size2<T, TSpace> Max(Size2<T, TSpace> lhs, Size2<T, TSpace> rhs) {
+        return {std::max(lhs.X, rhs.X), std::max(lhs.Y, rhs.Y)};
+    }
+
 }

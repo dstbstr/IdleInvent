@@ -11,36 +11,35 @@
 #include <Platform/NumTypes.h>
 
 #include <imgui.h>
-#include <vector>
 #include <memory>
 
 namespace {
-    constexpr auto HeaderOffsetY = 32.f;
     constexpr auto ControlsOffsetY = 92.f;
     constexpr auto CanvasTopMargin = 8.f;
     constexpr auto CellPixelSize = 24.f;
+    using Scale = Geometry::Scale2;
 
-    Ui::PanelConfig PanelConfig{};
+    enum struct TerrainType : u8 { Floor, Wall, Water, Road };
+    enum struct ChunkSize : u8 { Small, Medium, Large };
 
-    enum struct TerrainType : u8 {
-        Floor, Wall, Water, Road
+    Ui::PanelConfig PanelConfig{
+        .BackgroundColor = IM_COL32_WHITE,
+        .ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>
     };
-    enum struct ChunkSize : u8 {
-        Small, Medium, Large
-    };
+    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
+
     int SelectedChunkSize = static_cast<int>(ChunkSize::Small);
-    f32 RoomWidth = 0.3;
-    f32 RoomHeight = 0.3;
-    f32 MoatWidth = 0.1;
-    f32 RoadWidth = 0.25;
+    auto RoomScale = Scale{0.3f, 0.3f};
+    auto MoatScale = Scale{0.1f, 0.1f};
+    auto RoadScale = Scale{0.25f, 0.25f};
 
     constexpr ImU32 TerrainToColor(TerrainType type) {
         switch(type) {
             using enum TerrainType;
-        case Floor: return IM_COL32(200, 150, 150, 255);
-        case Wall: return IM_COL32(20, 15, 15, 255);
-        case Water: return IM_COL32(0, 0, 200, 255);
-        case Road: return IM_COL32(150, 75, 0, 255);
+            case Floor: return IM_COL32(200, 150, 150, 255);
+            case Wall: return IM_COL32(20, 15, 15, 255);
+            case Water: return IM_COL32(0, 0, 200, 255);
+            case Road: return IM_COL32(150, 75, 0, 255);
         }
         return IM_COL32(0, 0, 0, 255);
     }
@@ -48,7 +47,6 @@ namespace {
     template<size_t TWidth, size_t THeight>
     constexpr World::Chunk<TerrainType, TWidth, THeight> GenerateChunk() { 
         using ChunkType = World::Chunk<TerrainType, TWidth, THeight>;
-
         using Rect = Geometry::Rect<s32, World::ChunkSpace>;
 
         ChunkType result = {};
@@ -65,29 +63,28 @@ namespace {
             };
             if(min.X >= max.X || min.Y >= max.Y) return;
 
-            for(size_t row = min.Y; row < max.Y; row++) {
-                for(size_t col = min.X; col < max.X; col++) {
-                    result.Cells.at(row).at(col) = t;
+            for(auto y = min.Y; y < max.Y; ++y) {
+                for(auto x = min.X; x < max.X; x++) {
+                    result.At({x, y}) = t;
                 }
             }
         };
 
-        auto roomSize = World::CellSize{
-            std::max(1, static_cast<s32>(TWidth * RoomWidth)),
-            std::max(1, static_cast<s32>(THeight * RoomHeight))
+        auto chunkSize = ChunkType::Size();
+        auto roomSize = Geometry::Max(World::CellSize::One(), Geometry::SizeCast<s32>(chunkSize * RoomScale));
+        auto moatSize = Geometry::SizeCast<s32>(chunkSize * MoatScale);
+
+        auto ToRoadThickness = [](s32 roomExtent, f32 scale) {
+            if(scale <= 0.f) return s32{0};
+            return std::max(1, static_cast<s32>(static_cast<f32>(roomExtent) * scale));
         };
-        auto moatSize = World::CellSize{
-            static_cast<s32>(TWidth * MoatWidth), 
-            static_cast<s32>(THeight * MoatWidth)
-        };
-        auto roomInset = World::CellSize{
-            moatSize.X + roomSize.X / 2,
-            moatSize.Y + roomSize.Y / 2
-        };
+
         auto roadThickness = World::CellSize{
-            std::max(1, static_cast<s32>(static_cast<f32>(roomSize.X) * RoadWidth)),
-            std::max(1, static_cast<s32>(static_cast<f32>(roomSize.Y) * RoadWidth))
+            ToRoadThickness(roomSize.X, RoadScale.X), 
+            ToRoadThickness(roomSize.Y, RoadScale.Y)
         };
+
+        auto roomInset = moatSize + roomSize / 2;
 
         auto MakeRoom = [&](World::CellCoord center) {
             auto room = Rect::FromCenterSize(center, roomSize);
@@ -97,13 +94,13 @@ namespace {
         };
 
         auto MakeRoad = [&](Rect first, Rect second) {
-            if(RoadWidth <= 0.f) return;
-
             auto firstCenter = first.Center();
             auto secondCenter = second.Center();
 
             Rect road;
             if(firstCenter.X == secondCenter.X) {
+                if(roadThickness.X == 0) return;
+
                 auto top = std::min(first.Br().Y, second.Br().Y);
                 auto bottom = std::max(first.Tl().Y, second.Tl().Y);
 
@@ -111,7 +108,8 @@ namespace {
                     World::CellCoord{firstCenter.X - roadThickness.X / 2, top},
                     World::CellSize{roadThickness.X, bottom - top}
                 };
-            } else {
+            } else if(firstCenter.Y == secondCenter.Y) {
+                if(roadThickness.Y == 0) return;
                 auto left = std::min(first.Br().X, second.Br().X);
                 auto right = std::max(first.Tl().X, second.Tl().X);
 
@@ -130,22 +128,22 @@ namespace {
         auto nearCenter = waterArea.Tl() + roomInset;
         auto farCenter = waterArea.Br() - roomInset;
 
-        auto TlRoom = MakeRoom({nearCenter.X, nearCenter.Y});
-        auto TrRoom = MakeRoom({farCenter.X, nearCenter.Y});
-        auto BlRoom = MakeRoom({nearCenter.X, farCenter.Y});
-        auto BrRoom = MakeRoom({farCenter.X, farCenter.Y});
+        auto tlRoom = MakeRoom({nearCenter.X, nearCenter.Y});
+        auto trRoom = MakeRoom({farCenter.X, nearCenter.Y});
+        auto blRoom = MakeRoom({nearCenter.X, farCenter.Y});
+        auto brRoom = MakeRoom({farCenter.X, farCenter.Y});
 
-        MakeRoad(TlRoom, TrRoom);
-        MakeRoad(TlRoom, BlRoom);
-        MakeRoad(TrRoom, BrRoom);
-        MakeRoad(BlRoom, BrRoom);
+        MakeRoad(tlRoom, trRoom);
+        MakeRoad(tlRoom, blRoom);
+        MakeRoad(trRoom, brRoom);
+        MakeRoad(blRoom, brRoom);
 
         return result;
     }
 
-    static auto SmallChunk = GenerateChunk<16, 16>();
-    static auto MediumChunk = GenerateChunk<32, 32>();
-    static auto LargeChunk = GenerateChunk<64, 64>();
+    auto SmallChunk = GenerateChunk<16, 16>();
+    auto MediumChunk = GenerateChunk<32, 32>();
+    auto LargeChunk = GenerateChunk<64, 64>();
 
     void RenderControls() {
         ImGui::PushFont(GetFont(FontSizes::H4));
@@ -153,10 +151,9 @@ namespace {
 
         bool changed = false;
 
-        changed |= ImGui::SliderFloat("Room Width", &RoomWidth, 0.01f, 0.5f);
-        changed |= ImGui::SliderFloat("Room Height", &RoomHeight, 0.01f, 0.5f);
-        changed |= ImGui::SliderFloat("Road Width", &RoadWidth, 0.f, 1.f);
-        changed |= ImGui::SliderFloat("Moat Width", &MoatWidth, 0.f, 0.5f);
+        changed |= Ui::SliderScale2("Room Scale", RoomScale, 0.01f, 0.5f);
+        changed |= Ui::SliderScale2("Road Scale", RoadScale, 0.f, 1.f);
+        changed |= Ui::SliderScale2("Moat Scale", MoatScale, 0.f, 0.5f);
 
         const char* sizeLabels = "Small\0Medium\0Large";
         ImGui::Combo("Chunk Size", &SelectedChunkSize, sizeLabels, 3);
@@ -169,41 +166,32 @@ namespace {
         ImGui::PopFont();
     }
 
-    void RenderContent(Ui::CanvasPanel* panel) {
-        auto canvasTop = ImGui::GetCursorPosY() + CanvasTopMargin;
-        Ui::UiRect canvasBounds{ImVec2{0.f, canvasTop}, ImVec2{Graphics::ScreenWidth, Graphics::ScreenHeight}};
+    void RenderChunk(Ui::CanvasPanel& canvas, const auto& chunk) {
+        auto* drawList = ImGui::GetWindowDrawList();
 
-        if(panel) {
-            panel->SetBounds(canvasBounds);
-            panel->Render();
-        }
+        chunk.VisitCells([&](World::CellCoord cell, TerrainType t) {
+            auto contentBounds = Ui::ToUi(Ui::ToContentRect<CellPixelSize>(cell));
+            auto screen = canvas.ContentToScreen(contentBounds);
+
+            drawList->AddRectFilled(screen.Min, screen.Max, TerrainToColor(t));
+            drawList->AddRect(screen.Min, screen.Max, IM_COL32_BLACK, 0.f, ImDrawFlags_None, 1.f);
+        });
+    }
+
+    void RenderContent() {
+        if(!Panel) return;
+        SampleUI::RenderRemainingPanel(*Panel, CanvasTopMargin);
     }
 }
 
 namespace SampleUI::Screens::SampleSimpleMap {
-    std::unique_ptr<Ui::CanvasPanel> Panel{nullptr};
 
     bool Initialize() { 
-        PanelConfig.ZoomFn = Ui::Zoom::Exponential<f32, 1.1f>;
-        PanelConfig.BackgroundColor = IM_COL32_WHITE;
-
         Panel = std::make_unique<Ui::CanvasPanel>(PanelConfig, [](Ui::CanvasPanel& canvas) {
-            auto renderChunk = [&](const auto& chunk) {
-                auto* drawList = ImGui::GetWindowDrawList();
-
-                chunk.VisitCells([&](World::CellCoord cell, TerrainType t) {
-                    auto contentBounds = Ui::ToUi(Ui::ToContentRect<CellPixelSize>(cell));
-                    auto screen = canvas.ContentToScreen(contentBounds);
-
-                    drawList->AddRectFilled(screen.Min, screen.Max, TerrainToColor(t));
-                    drawList->AddRect(screen.Min, screen.Max, IM_COL32_BLACK, 0.f, ImDrawFlags_None, 1.f);
-                });
-            };
-
             switch(SelectedChunkSize) {
-                case 0: renderChunk(SmallChunk); break;
-                case 1: renderChunk(MediumChunk); break;
-                case 2: renderChunk(LargeChunk); break;
+                case 0: RenderChunk(canvas, SmallChunk); break;
+                case 1: RenderChunk(canvas, MediumChunk); break;
+                case 2: RenderChunk(canvas, LargeChunk); break;
                 default: break;
             }
         });
@@ -218,7 +206,7 @@ namespace SampleUI::Screens::SampleSimpleMap {
     void Render() {
         RenderSampleScreen("Simple Map", [] {
             RenderControls();
-            RenderContent(Panel.get());
+            RenderContent();
         });
     }
 } // namespace SampleUI::Screens::SampleSimpleMap
