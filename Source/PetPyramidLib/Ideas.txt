@@ -1,0 +1,76 @@
+Combat is non-lethal, but party must defeat the enemy before they flee
+
+PreyDefinition {
+	SpeciesId
+	Element
+	MaxHp
+	Armor
+	Dodge
+	Speed
+	FleeTime
+
+	CaptureHpLevel
+	CaptureChance
+
+	Xp
+	Money
+}
+
+HunterStats {
+	PhysicalDamage
+	ElementDamges[]
+	Piercing
+	AtkSpeed
+}
+
+HuntState {
+	PreyDefinition
+	CurrentHp
+	RemainingTime
+	CaptureBonus
+}
+
+HuntOutcome {
+	InProgress
+	Fled
+	Killed
+	Captured
+}
+
+HuntActions {
+	Attack
+	LightAttack
+	Capture
+	Item
+}
+
+EnemyActions {
+	Defend
+	Hide
+	Stun
+	Wait
+	Flee
+}
+
+CombatMode {
+	Manual,
+	Auto
+}
+
+Purchasables {
+	Hint
+	Bait
+	PetRepellent
+	Traps
+	Distraction (extend FleeTimer)
+	Potion
+		Atk
+		Speed
+		Pierce
+}
+
+Consider adding Delay to ActionResolution and Delay to scheduler (for stun)
+Stun stacking belongs in Rules (additive vs refresh)
+
+Elements should not be factions (factions should just be good vs evil)
+PetPyramid can answer GetEffectiveness(Element atk, Element def)
