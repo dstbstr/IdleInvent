@@ -128,12 +128,14 @@ namespace {
             ApplyFormation(EnemyVisuals, EnemyRegion, Ui::Formation::Front::Top);
         }
 
-        auto selected = Combat::CombatantId{static_cast<u32>(SelectedCombatant)};
+        auto combatantIndex = 0;
         for(const auto& visual : PlayerVisuals) {
-            DrawCombatant(canvas, visual, visual.Id == selected);
+            DrawCombatant(canvas, visual, combatantIndex == SelectedCombatant);
+            ++combatantIndex;
         }
         for(const auto& visual : EnemyVisuals) { 
-            DrawCombatant(canvas, visual, visual.Id == selected); 
+            DrawCombatant(canvas, visual, combatantIndex == SelectedCombatant); 
+            ++combatantIndex;
         }
     }
 
