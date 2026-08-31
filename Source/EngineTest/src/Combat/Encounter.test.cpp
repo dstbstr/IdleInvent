@@ -76,7 +76,7 @@ namespace Combat {
         ASSERT_EQ(result.error(), SubmitError::ActorNotReady);
     }
 
-    TEST_F(EncounterTest, Submit_WhenCannotAct_Errors) { 
+    TEST_F(EncounterTest, Submit_WhenDisabled_Errors) { 
         P1.Hp = 0;
         auto encounter = MakeEncounter();
         auto p1Id = encounter.AddCombatant(GoodGuys, P1);
@@ -106,12 +106,12 @@ namespace Combat {
         ASSERT_EQ(progress.CompletedTurns, 1);
     }
 
-    TEST_F(EncounterTest, CanAct_WhenDead_ReturnsFalse) {
+    TEST_F(EncounterTest, IsDisabled_WhenDead_ReturnsTrue) {
         P1.Hp = 0;
         auto encounter = MakeEncounter();
         auto p1Id = encounter.AddCombatant(GoodGuys, P1);
 
-        ASSERT_FALSE(encounter.CanAct(p1Id));
+        ASSERT_TRUE(encounter.IsDisabled(p1Id));
     }
 
     TEST_F(EncounterTest, SkipTurn_WithPlayer_ReturnsSkipped) {

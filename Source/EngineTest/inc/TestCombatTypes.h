@@ -28,13 +28,15 @@ namespace Combat {
     };
 
     struct TestRules {
-        bool CanAct(const Roster<TestCombatant>& roster, CombatantId actor) const {
-            return roster.Contains(actor) && roster.Get(actor).Hp > 0;
+        bool IsDisabled(const Roster<TestCombatant>& roster, CombatantId actor) const {
+            return !roster.Contains(actor) || roster.Get(actor).Hp <= 0;
         }
 
         bool CanSubmit(const Roster<TestCombatant>& roster, CombatantId actor, const TestAction& action) const {
-            return CanAct(roster, actor) && roster.Contains(action.Target) && roster.Get(action.Target).Hp > 0 &&
-                   actor != action.Target;
+            return !IsDisabled(roster, actor) && 
+                roster.Contains(action.Target) && 
+                roster.Get(action.Target).Hp > 0 &&
+                actor != action.Target;
         }
 
         ActionResolution<TestEvent> Update(Roster<TestCombatant>& roster, BaseTime elapsed) const { return {}; }

@@ -65,7 +65,7 @@ namespace Combat {
             if(ready.empty()) return {RunnerState::NotReady};
 
 			auto actor = ready.front();
-			if(!m_Encounter.CanAct(actor)) {
+			if(m_Encounter.IsDisabled(actor)) {
                 auto events = m_Encounter.SkipTurn(actor);
                 Publish(events);
                 return {RunnerState::Progressed, actor};

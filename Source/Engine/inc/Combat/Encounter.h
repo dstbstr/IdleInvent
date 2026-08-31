@@ -69,7 +69,7 @@ namespace Combat {
 		[[nodiscard]] const Roster<TCombatant>& GetRoster() const { return m_Roster; }
         [[nodiscard]] const EncounterProgress& GetProgress() const { return m_Progress; }
         [[nodiscard]] bool IsFinished() const { return m_Finished; }
-		[[nodiscard]] bool CanAct(CombatantId actor) const { return m_Rules.CanAct(m_Roster, actor); }
+		[[nodiscard]] bool IsDisabled(CombatantId actor) const { return m_Rules.IsDisabled(m_Roster, actor); }
 		[[nodiscard]] bool CanSubmit(CombatantId actor, const TAction& action) const {
             return m_Rules.CanSubmit(m_Roster, actor, action);
 		}
