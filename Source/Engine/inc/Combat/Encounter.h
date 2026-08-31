@@ -3,6 +3,7 @@
 #include "Combat/CombatRoster.h"
 #include "Combat/CombatSchedule.h"
 #include "Social/Faction.h"
+#include "Mechanics/Modifier.h"
 
 #include <expected>
 #include <memory>
@@ -17,10 +18,17 @@ namespace Combat {
         u64 CompletedTurns{};
 	};
 
+    struct SchedulerChange {
+        CombatantId Combatant{};
+        // may need to support timeout on these
+        Modifier SpeedModifier{};
+    };
+
 	template<typename TEvent>
 	struct ActionResolution {
         std::vector<TEvent> Events{};
         std::vector<CombatantId> RemovedCombatants{};
+        std::vector<SchedulerChange> ScheduleChanges{};
         bool EncounterFinished{false};
 	};
 
@@ -100,6 +108,9 @@ namespace Combat {
         void ApplyResolution(const ActionResolution<TEvent>& resolution) {
             for(auto combatant: resolution.RemovedCombatants) {
                 m_Schedule->RemoveCombatant(combatant);
+            }
+            for(auto change: resolution.ScheduleChanges) {
+                m_Schedule->ApplySpeedModifier(change.Combatant, change.SpeedModifier);
             }
             m_Finished |= resolution.EncounterFinished;
         }

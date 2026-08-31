@@ -50,6 +50,7 @@ namespace {
         if(!attackerStats || !defenderStats) return {};
     
         ActionResolution<ActionResult> result{};
+        // TODO: calculate capture chance
         result.Events.push_back(MakeEvent(ActionResultKind::Captured, context));
         result.EncounterFinished = true;
         return result;
@@ -68,7 +69,7 @@ namespace {
         DR_ASSERT_MSG(preyStats, "Defender must have PreyStats");
         if(!preyStats) return {};
 
-        auto amount = 10;
+        auto amount = 10; // TODO: Calculate
         preyStats->Armor += amount;
 
         ActionResolution<ActionResult> result{};
@@ -90,14 +91,67 @@ namespace {
         return result;
     }
 
-    ActionResolution<ActionResult> ResolveItem(const ResolutionContext& context) {
-        // TODO: switch on item type
+    ActionResolution<ActionResult> ResolveItem(const ResolutionContext& context, Inventory& inventory) {
+        ActionResolution<ActionResult> result{};
+
         auto* item = std::get_if<ItemContext>(&context.Context);
         DR_ASSERT_MSG(item, "Item context must be present for item action");
-        if(!item) return {};
+        if(!item) return result;
 
-        ActionResolution<ActionResult> result{};
-        result.Events.push_back(MakeEvent(ActionResultKind::ItemUsed, context, *item));
+        auto* preyStats = std::get_if<PreyStats>(&context.Target.Stats);
+        auto* partyStats = std::get_if<PartyStats>(&context.Actor.Stats);
+
+        if (!inventory.Contains(item->ItemId)) {
+            DR_ASSERT_MSG(false, "Actor does not have item in inventory");
+            return result;
+        }
+
+        switch (item->ItemId) {
+            using enum CombatItemKind;
+            case Distraction: {
+                DR_ASSERT_MSG(preyStats, "Target must have PreyStats for Distraction item");
+                if(!preyStats) return result;
+                preyStats->FleeTime += OneMinute;
+                break;
+            }
+            case Net: {
+                DR_ASSERT_MSG(preyStats, "Target must have PreyStats for Net item");
+                if(!preyStats) return result;
+                preyStats->CaptureChance *= 1.2f;
+                break;
+            }
+            case AtkPotion: {
+                DR_ASSERT_MSG(partyStats, "Actor must have PartyStats for AtkPotion item");
+                if(!partyStats) return result;
+                partyStats->Attack += 10;
+                break;
+            }
+            case SpdPotion: {
+                DR_ASSERT_MSG(partyStats, "Actor must have PartyStats for SpdPotion item");
+                if(!partyStats) return result;
+                result.ScheduleChanges.push_back({ 
+                    .Combatant = context.ActorId, 
+                    .SpeedModifier = {.Mul = 1.5f}
+                });
+                break;
+            }
+            case PiercePotion: {
+                DR_ASSERT_MSG(partyStats, "Actor must have PartyStats for PiercePotion item");
+                if(!partyStats) return result;
+                partyStats->Piercing += 10;
+                break;
+            }
+            case Poison: {
+                DR_ASSERT_MSG(preyStats, "Target must have PreyStats for Poison item");
+                if(!preyStats) return result;
+                // something to apply poison effect
+                break;
+            }
+        }
+
+        inventory.Consume(item->ItemId);
+
+        result.Events.push_back(MakeEvent(ActionResultKind::ItemUsed, context, item->ItemId));
         return result;
     }
 }
@@ -167,9 +221,9 @@ namespace Pets {
             .ActorId = actor,
             .TargetId = action.Target,
             .Actor = roster.Get(actor),
-            .Target = roster.Get(action.Target)
+            .Target = roster.Get(action.Target),
+            .Context = action.Context
         };
-
 
         switch (action.Kind) {
             using enum ActionRequestKind;
@@ -178,7 +232,7 @@ namespace Pets {
             case Flee: return ResolveFlee(context);
             case Defend: return ResolveDefend(context);
             case Hide: return ResolveHide(context);
-            case Item: return ResolveItem(context);
+            case Item: return ResolveItem(context, m_Inventory);
             default: break;   
         }
 

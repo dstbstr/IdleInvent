@@ -2,6 +2,7 @@
 
 #include "Combat/CombatTypes.h"
 #include "GameState/GameTime.h"
+#include "Mechanics/Modifier.h"
 
 #include <span>
 #include <vector>
@@ -17,7 +18,10 @@ namespace Combat {
         virtual bool SkipTurn(CombatantId actor) = 0;
 		virtual bool CompleteAction(CombatantId actor) = 0;
         virtual void AddCombatant(CombatantId combatant) = 0;
+        virtual void AddCombatant(CombatantId combatant, BaseTime interval) = 0;
         virtual void RemoveCombatant(CombatantId combatant) = 0;
+
+        virtual void ApplySpeedModifier(CombatantId combatant, Modifier modifier) = 0;
 	};
 
     class RoundRobinScheduler final : public IScheduler {
@@ -29,8 +33,10 @@ namespace Combat {
         bool SkipTurn(CombatantId actor) override;
         bool CompleteAction(CombatantId actor) override;
         void AddCombatant(CombatantId combatant) override;
+        void AddCombatant(CombatantId combatant, BaseTime interval) override;
         void RemoveCombatant(CombatantId combatant) override;
 
+        void ApplySpeedModifier(CombatantId combatant, Modifier modifier) override;
     private:
         std::vector<CombatantId> m_Order{};
         size_t m_Current{0};

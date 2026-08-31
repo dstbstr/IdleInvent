@@ -19,7 +19,7 @@ namespace Pets {
     };
 
     struct ItemContext {
-        Items ItemId{};
+        CombatItemKind ItemId{};
     };
 
     using ActionRequestContext = std::variant<std::monostate, ItemContext>;
@@ -42,7 +42,7 @@ namespace Pets {
         TurnSkipped 
     };
 
-    using ActionResultContext = std::variant<std::monostate, s32, ItemContext>;
+    using ActionResultContext = std::variant<std::monostate, s32, CombatItemKind>;
     struct ActionResult {
         ActionResultKind Kind{};
         Combat::CombatantId Actor{};

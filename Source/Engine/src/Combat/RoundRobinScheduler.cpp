@@ -41,6 +41,12 @@ namespace Combat {
         m_Current++;
     }
 
+    void RoundRobinScheduler::AddCombatant(CombatantId combatant, BaseTime) { AddCombatant(combatant); }
+
+    void RoundRobinScheduler::ApplySpeedModifier(CombatantId combatant, Modifier modifier) {
+        // RoundRobinScheduler does not currently support speed modifiers
+    }
+
     void RoundRobinScheduler::RemoveCombatant(CombatantId combatant) {
         auto it = std::ranges::find(m_Order, combatant);
         if(it == m_Order.end()) return;
