@@ -12,7 +12,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     inc 
 )
 
-set_Target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "clang-tidy")
+enable_project_clang_tidy(${PROJECT_NAME})
+
+# Enable precompiled headers for build performance
+target_precompile_headers(${PROJECT_NAME} PRIVATE inc/pch.h)
 
 target_sources(${PROJECT_NAME} PRIVATE
     src/Dialog.cpp

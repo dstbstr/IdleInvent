@@ -10,6 +10,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   gmock
 )
 
+# Enable precompiled headers for build performance
+target_precompile_headers(${PROJECT_NAME} PRIVATE inc/pch.h)
+
 include(GoogleTest)
 #gtest_discover_tests(${PROJECT_NAME})
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})

@@ -14,6 +14,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	inc
 )
 
+# Enable precompiled headers for build performance
+target_precompile_headers(${PROJECT_NAME} PRIVATE inc/pch.h)
+
 include(GoogleTest)
 #gtest_discover_tests(${PROJECT_NAME})
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})

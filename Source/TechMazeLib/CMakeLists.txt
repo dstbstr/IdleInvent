@@ -10,6 +10,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC inc)
+
+# Enable precompiled headers for build performance
+target_precompile_headers(${PROJECT_NAME} PRIVATE inc/pch.h)
+
 target_sources(${PROJECT_NAME} PRIVATE
     src/Technology.cpp
     src/Finder.cpp

@@ -4,6 +4,21 @@ project(IdleGame)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# The project does not currently use C++ modules. Disable Ninja's automatic
+# module dependency scanning until module sources are enabled.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
+option(ENABLE_CLANG_TIDY "Run clang-tidy during compilation" OFF)
+if(ENABLE_CLANG_TIDY)
+    find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy REQUIRED)
+endif()
+
+function(enable_project_clang_tidy target)
+    if(ENABLE_CLANG_TIDY)
+        set_property(TARGET ${target} PROPERTY CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE}")
+    endif()
+endfunction()
+
 add_subdirectory(external)
 
 include(FetchContent)
