@@ -7,7 +7,7 @@
 namespace Pets {
     std::optional<ActionRequest> PartyAutoController::GetNextAction(Combat::CombatantId actor, const HuntEncounter& encounter) {
         auto preyId = Social::ToFactionId(HuntFaction::Prey);
-        auto target = encounter.Find([preyId](auto id, auto faction, const auto& combatant) {
+        auto target = encounter.Find([preyId, &encounter](auto id, auto faction, const auto& combatant) {
             return faction == preyId && !encounter.IsDisabled(id);
         });
         if(!target.has_value()) return std::nullopt;

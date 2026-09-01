@@ -1,5 +1,6 @@
 #include "Pets/PetPyramidGame.h"
 #include "Pets/Ui/Ui.h"
+#include "Pets/Inventory/Inventory.h"
 
 #include "DesignPatterns/ServiceLocator.h"
 #include "Manage/TickManager.h"
@@ -11,6 +12,7 @@ namespace Pets {
         auto& services = ServiceLocator::Get();
         services.CreateIfMissing<TickManager>();
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
+        services.CreateIfMissing<Inventory>();
 
 		return Ui::Initialize();
 	}

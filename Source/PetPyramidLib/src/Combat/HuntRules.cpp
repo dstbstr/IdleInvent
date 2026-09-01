@@ -50,6 +50,11 @@ namespace {
         if(!attackerStats || !defenderStats) return {};
     
         ActionResolution<ActionResult> result{};
+        if(defenderStats->CurrentHp > static_cast<s32>(defenderStats->MaxHp * defenderStats->CaptureHpLevel)) {
+            result.Events.push_back(MakeEvent(ActionResultKind::CaptureFailed, context));
+            return result;
+        }
+
         // TODO: calculate capture chance
         result.Events.push_back(MakeEvent(ActionResultKind::Captured, context));
         result.EncounterFinished = true;
