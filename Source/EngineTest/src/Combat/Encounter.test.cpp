@@ -152,4 +152,24 @@ namespace Combat {
         auto progress = encounter.GetProgress();
         ASSERT_GE(progress.Elapsed, OneSecond);
     }
+
+    TEST_F(EncounterTest, Find_WithExistingEntry_ReturnsMatch) {
+        auto encounter = MakeEncounter();
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
+        auto result = encounter.Find([&](CombatantId id, Social::FactionId faction, const TestCombatant& combatant) {
+            return faction == GoodGuys;
+        });
+        ASSERT_TRUE(result.has_value());
+        ASSERT_EQ(*result, p1Id);
+    }
+
+    TEST_F(EncounterTest, Find_WithNoMatch_ReturnsNullopt) {
+        auto encounter = MakeEncounter();
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto result = encounter.Find([&](CombatantId id, Social::FactionId faction, const TestCombatant& combatant) {
+            return faction == BadGuys;
+        });
+        ASSERT_FALSE(result.has_value());
+    }
 } // namespace Combat

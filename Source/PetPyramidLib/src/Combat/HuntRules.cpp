@@ -229,10 +229,11 @@ namespace Pets {
             using enum ActionRequestKind;
             case Attack: return ResolveAttack(context);
             case Capture: return ResolveCapture(context);
+            case Item: return ResolveItem(context, m_Inventory);
             case Flee: return ResolveFlee(context);
             case Defend: return ResolveDefend(context);
             case Hide: return ResolveHide(context);
-            case Item: return ResolveItem(context, m_Inventory);
+            case LookPretty: return {};
             default: break;   
         }
 

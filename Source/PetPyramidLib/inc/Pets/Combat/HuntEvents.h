@@ -10,12 +10,16 @@
 
 namespace Pets {
     enum struct ActionRequestKind : u8 {
+        // Party actions
         Attack,
         Capture,
+        Item,
+        
+        // Prey actions
         Defend,
         Flee,
         Hide,
-        Item
+        LookPretty
     };
 
     struct ItemContext {

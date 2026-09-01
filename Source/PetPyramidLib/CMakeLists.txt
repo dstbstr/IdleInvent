@@ -26,4 +26,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/CombatScreen.cpp
 	src/Ui/Screens/BestiaryScreen.cpp
 	src/Ui/Screens/RebirthScreen.cpp
-  "inc/Pets/Character/Party.h" "inc/Pets/Combat/HuntRules.h" "inc/Pets/Combat/HuntEvents.h" "inc/Pets/Combat/HuntTypes.h" "src/Combat/HuntRules.cpp" "inc/Pets/Inventory/Inventory.h" "src/Inventory/Inventory.cpp")
+  "inc/Pets/Character/Party.h" "inc/Pets/Combat/HuntRules.h" "inc/Pets/Combat/HuntEvents.h" "inc/Pets/Combat/HuntTypes.h" "src/Combat/HuntRules.cpp" "inc/Pets/Inventory/Inventory.h" "src/Inventory/Inventory.cpp" "inc/Pets/Combat/HuntControllers.h" "inc/Pets/Combat/HuntEncounter.h" "src/Combat/HuntControllers.cpp")

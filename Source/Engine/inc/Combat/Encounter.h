@@ -55,6 +55,17 @@ namespace Combat {
             return id;
         }
 
+        std::optional<CombatantId> Find(const auto& predicate) const {
+            std::optional<CombatantId> result;
+            m_Roster.Visit([&](CombatantId id, Social::FactionId faction, const TCombatant& combatant) {
+                if(predicate(id, faction, combatant)) {
+                    result = id;
+                }
+            });
+
+            return result;
+        }
+
 		[[nodiscard]] std::span<const CombatantId> GetReadyCombatants() const {
             if(m_Finished) return {};
             return m_Schedule->GetReadyCombatants();
@@ -107,7 +118,7 @@ namespace Combat {
 	private:
         void ApplyResolution(const ActionResolution<TEvent>& resolution) {
             // apply changes before removing, just in case
-            for(auto change: resolution.ScheduleChanges) {
+            for(const auto& change: resolution.ScheduleChanges) {
                 m_Schedule->ApplySpeedModifier(change.Combatant, change.SpeedModifier);
             }
             for(auto combatant: resolution.RemovedCombatants) {
