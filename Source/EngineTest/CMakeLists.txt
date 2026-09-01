@@ -23,7 +23,7 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Main.cpp
 
   src/Combat/CombatRunner.test.cpp
-  src/Combat/CombatSchedule.test.cpp
+  "src/Combat/RoundRobinScheduler.test.cpp"
   src/Combat/Encounter.test.cpp
 
   src/Constexpr/ConstexprMath.test.cpp
@@ -56,4 +56,4 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Utilities/TypeUtils.test.cpp
  
   src/World/AStar.test.cpp
-)
+ "src/Combat/RealTimeScheduler.test.cpp")

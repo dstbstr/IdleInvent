@@ -20,8 +20,8 @@ namespace Combat {
 
         void CreateRunner(TestCombatant player = {.Hp = 10, .Attack = 3}, TestCombatant enemy = {.Hp = 5, .Attack = 2}) {
             auto encounter = TestEncounter{TestRules{}, std::make_unique<RoundRobinScheduler>()};
-            Player = encounter.AddCombatant(GoodGuys, player);
-            Enemy = encounter.AddCombatant(BadGuys, enemy);
+            Player = encounter.AddCombatant(GoodGuys, player, ZeroTime);
+            Enemy = encounter.AddCombatant(BadGuys, enemy, ZeroTime);
             Runner = std::make_unique<TestRunner>(std::move(encounter));
 
             Subs.push_back(Runner->SubscribeEvents([this](const TestEvent& e) { Events.push_back(e); }));

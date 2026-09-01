@@ -49,9 +49,9 @@ namespace Combat {
 			return std::move(resolution.Events);
 		}
 
-		CombatantId AddCombatant(Social::FactionId faction, TCombatant combatant) {
+		CombatantId AddCombatant(Social::FactionId faction, TCombatant combatant, BaseTime interval) {
             auto id = m_Roster.Add(faction, std::move(combatant));
-            m_Schedule->AddCombatant(id);
+            m_Schedule->AddCombatant(id, interval);
             return id;
         }
 
@@ -106,11 +106,12 @@ namespace Combat {
 
 	private:
         void ApplyResolution(const ActionResolution<TEvent>& resolution) {
-            for(auto combatant: resolution.RemovedCombatants) {
-                m_Schedule->RemoveCombatant(combatant);
-            }
+            // apply changes before removing, just in case
             for(auto change: resolution.ScheduleChanges) {
                 m_Schedule->ApplySpeedModifier(change.Combatant, change.SpeedModifier);
+            }
+            for(auto combatant: resolution.RemovedCombatants) {
+                m_Schedule->RemoveCombatant(combatant);
             }
             m_Finished |= resolution.EncounterFinished;
         }

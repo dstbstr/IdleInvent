@@ -4,11 +4,6 @@
 #include <span>
 
 namespace Combat {
-    void RoundRobinScheduler::Start(std::span<const CombatantId> combatants) {
-        m_Order.assign(combatants.begin(), combatants.end());
-        m_Current = 0;
-    }
-
     void RoundRobinScheduler::Update(BaseTime) {}
     std::span<const CombatantId> RoundRobinScheduler::GetReadyCombatants() const { 
         if(m_Order.empty()) return {};
@@ -30,7 +25,7 @@ namespace Combat {
         return Advance(actor);
     }
 
-    void RoundRobinScheduler::AddCombatant(CombatantId combatant) {
+    void RoundRobinScheduler::AddCombatant(CombatantId combatant, BaseTime) {
         if(m_Order.empty()) {
             m_Order.push_back(combatant);
             m_Current = 0;
@@ -40,8 +35,6 @@ namespace Combat {
         m_Order.insert(m_Order.begin() + m_Current, combatant); 
         m_Current++;
     }
-
-    void RoundRobinScheduler::AddCombatant(CombatantId combatant, BaseTime) { AddCombatant(combatant); }
 
     void RoundRobinScheduler::ApplySpeedModifier(CombatantId combatant, Modifier modifier) {
         // RoundRobinScheduler does not currently support speed modifiers

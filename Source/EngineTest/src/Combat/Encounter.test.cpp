@@ -20,8 +20,8 @@ namespace Combat {
 
     TEST_F(EncounterTest, Roster_AfterAdd_ContainsCombatants) {
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
 
         ASSERT_TRUE(p1Id.IsValid());
         ASSERT_TRUE(p2Id.IsValid());
@@ -39,8 +39,8 @@ namespace Combat {
 
     TEST_F(EncounterTest, Ready_AfterAdd_ContainsFirstCombatant) {
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
 
         auto ready = encounter.GetReadyCombatants();
         ASSERT_EQ(1, ready.size());
@@ -50,8 +50,8 @@ namespace Combat {
     TEST_F(EncounterTest, Submit_WhenFinished_Errors) {
         auto encounter = MakeEncounter();
         P1.Attack = P2.Hp;
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
 
         auto result = encounter.Submit(p1Id, {.Target = p2Id});
         ASSERT_TRUE(result.has_value());
@@ -68,8 +68,8 @@ namespace Combat {
 
     TEST_F(EncounterTest, Submit_WhenInactive_Errors) {
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
 
         auto result = encounter.Submit(p2Id, {.Target = p1Id});
         ASSERT_FALSE(result.has_value());
@@ -79,8 +79,8 @@ namespace Combat {
     TEST_F(EncounterTest, Submit_WhenDisabled_Errors) { 
         P1.Hp = 0;
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
 
         auto result = encounter.Submit(p1Id, {.Target = p2Id});
         ASSERT_FALSE(result.has_value());
@@ -89,8 +89,8 @@ namespace Combat {
 
     TEST_F(EncounterTest, Submit_WhenValid_AppliesRule) {
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
 
         auto result = encounter.Submit(p1Id, {.Target = p2Id});
         ASSERT_TRUE(result.has_value());
@@ -109,14 +109,14 @@ namespace Combat {
     TEST_F(EncounterTest, IsDisabled_WhenDead_ReturnsTrue) {
         P1.Hp = 0;
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
 
         ASSERT_TRUE(encounter.IsDisabled(p1Id));
     }
 
     TEST_F(EncounterTest, SkipTurn_WithPlayer_ReturnsSkipped) {
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
 
         auto events = encounter.SkipTurn(p1Id);
         ASSERT_EQ(1, events.size());
@@ -125,8 +125,8 @@ namespace Combat {
 
     TEST_F(EncounterTest, SkipTurn_WithPlayer_IncrementsProgress) {
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
 
         auto progress = encounter.GetProgress();
         encounter.SkipTurn(p1Id);
@@ -137,8 +137,8 @@ namespace Combat {
 
     TEST_F(EncounterTest, SkipTurn_WithInvalid_DoesNothing) {
         auto encounter = MakeEncounter();
-        auto p1Id = encounter.AddCombatant(GoodGuys, P1);
-        auto p2Id = encounter.AddCombatant(BadGuys, P2);
+        auto p1Id = encounter.AddCombatant(GoodGuys, P1, ZeroTime);
+        auto p2Id = encounter.AddCombatant(BadGuys, P2, ZeroTime);
         auto progress = encounter.GetProgress();
         auto events = encounter.SkipTurn(p2Id);
         ASSERT_EQ(0, events.size());

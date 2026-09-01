@@ -6,6 +6,7 @@
 
 using BaseTime = std::chrono::milliseconds;
 
+static inline constexpr BaseTime ZeroTime = BaseTime(0);
 static inline constexpr BaseTime OneInstant = BaseTime(1);
 static inline constexpr BaseTime OneSecond = BaseTime(1000);
 static inline constexpr BaseTime OneMinute = OneSecond * 60;
