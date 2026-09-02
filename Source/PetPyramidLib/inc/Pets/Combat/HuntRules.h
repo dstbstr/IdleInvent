@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pets/Combat/HuntTypes.h"
+#include "Pets/Combat/HuntCombatant.h"
 #include "Pets/Combat/HuntEvents.h"
 #include "Pets/Inventory/Inventory.h"
 

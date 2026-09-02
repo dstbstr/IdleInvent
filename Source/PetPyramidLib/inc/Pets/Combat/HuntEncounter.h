@@ -7,5 +7,4 @@
 #include <Combat/Encounter.h>
 
 namespace Pets {
-    using HuntEncounter = Combat::Encounter<HuntCombatant, ActionRequest, ActionResult, HuntRules>;
 }

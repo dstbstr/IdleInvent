@@ -33,4 +33,4 @@ target_sources(${PROJECT_NAME} PRIVATE
     inc/Ui/Direction.h
     inc/Ui/Overlay.h
     inc/Ui/Dialog.h
-)
+ "inc/Ui/ToastManager.h" "src/ToastManager.cpp")

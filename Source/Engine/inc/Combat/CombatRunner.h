@@ -64,27 +64,34 @@ namespace Combat {
             auto ready = m_Encounter.GetReadyCombatants();
             if(ready.empty()) return {RunnerState::NotReady};
 
-			auto actor = ready.front();
-			if(m_Encounter.IsDisabled(actor)) {
-                auto events = m_Encounter.SkipTurn(actor);
-                Publish(events);
+			CombatantId waitingActor{};
+			for(auto actor : ready) {				
+				if(m_Encounter.IsDisabled(actor)) {
+					auto events = m_Encounter.SkipTurn(actor);
+					Publish(events);
+					return {RunnerState::Progressed, actor};
+				}
+
+				auto found = m_Controllers.find(actor);
+				if(found == m_Controllers.end()) return {RunnerState::MissingController, actor};
+				auto* controller = found->second.get();
+
+				auto action = controller->GetNextAction(actor, m_Encounter);
+				if(!action) {
+                    if(!waitingActor.IsValid()) waitingActor = actor;
+					continue;
+				}
+
+				auto result = m_Encounter.Submit(actor, *action);
+				if(!result) {
+					return {RunnerState::Error, actor, result.error()};
+				}
+
+				Publish(*result);
                 return {RunnerState::Progressed, actor};
-			}
+            }
 
-			auto found = m_Controllers.find(actor);
-            if(found == m_Controllers.end()) return {RunnerState::MissingController, actor};
-            auto* controller = found->second.get();
-
-            auto action = controller->GetNextAction(actor, m_Encounter);
-            if(!action) return {RunnerState::WaitingForInput, actor};
-
-			auto result = m_Encounter.Submit(actor, *action);
-			if(!result) {
-                return {RunnerState::Error, actor, result.error()};
-			}
-
-			Publish(*result);
-            return {RunnerState::Progressed, actor};
+			return {RunnerState::WaitingForInput, waitingActor };
 		}
 
 		void Publish(const std::vector<TEvent>& events) {

@@ -5,6 +5,11 @@
 #include <imgui.h>
 
 [[nodiscard]] constexpr ImVec2 operator+(ImVec2 lhs, ImVec2 rhs) { return {lhs.x + rhs.x, lhs.y + rhs.y}; }
+constexpr ImVec2& operator+=(ImVec2& lhs, ImVec2 rhs) {
+    lhs.x += rhs.x;
+    lhs.y += rhs.y;
+    return lhs;
+}
 [[nodiscard]] constexpr ImVec2 operator-(ImVec2 lhs, ImVec2 rhs) { return {lhs.x - rhs.x, lhs.y - rhs.y}; }
 [[nodiscard]] constexpr ImVec2 operator*(ImVec2 lhs, ImVec2 rhs) { return {lhs.x * rhs.x, lhs.y * rhs.y}; }
 [[nodiscard]] constexpr ImVec2 operator/(ImVec2 lhs, ImVec2 rhs) { return {lhs.x / rhs.x, lhs.y / rhs.y}; }

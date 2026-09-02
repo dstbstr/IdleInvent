@@ -2,6 +2,7 @@
 #include "Pets/Ui/Ui.h"
 #include "Pets/Inventory/Inventory.h"
 
+#include <DesignPatterns/PubSub.h>
 #include "DesignPatterns/ServiceLocator.h"
 #include "Manage/TickManager.h"
 #include "Platform/Graphics.h"

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Pets/Combat/HuntTypes.h"
 #include "Pets/Inventory/Items.h"
 
 #include <Combat/CombatTypes.h>
@@ -14,7 +13,7 @@ namespace Pets {
         Attack,
         Capture,
         Item,
-        
+
         // Prey actions
         Defend,
         Flee,
@@ -33,17 +32,17 @@ namespace Pets {
         ActionRequestContext Context{};
     };
 
-    enum struct ActionResultKind : u8 { 
-        Damaged, 
-        Captured, 
-        CaptureFailed, 
-        Defended, 
-        Hidden, 
-        ItemUsed, 
-        PreyFled, 
-        PreyKilled, 
-        TurnEnded, 
-        TurnSkipped 
+    enum struct ActionResultKind : u8 {
+        Damaged,
+        Captured,
+        CaptureFailed,
+        Defended,
+        Hidden,
+        ItemUsed,
+        PreyFled,
+        PreyKilled,
+        TurnEnded,
+        TurnSkipped
     };
 
     using ActionResultContext = std::variant<std::monostate, s32, CombatItemKind>;
@@ -53,4 +52,5 @@ namespace Pets {
         Combat::CombatantId Target{};
         ActionResultContext Context{};
     };
+
 }
