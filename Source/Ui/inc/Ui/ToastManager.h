@@ -29,12 +29,16 @@ namespace Ui {
 		std::variant<std::string, ToastImage> Content;
 		ImVec2 Position{};
 		BaseTime Lifetime{};
+		BaseTime Duration{};
+        ImU32 Color{IM_COL32_WHITE};
+		bool Fade{false};
 	};
 
 	class ToastManager {
     public:
 		ToastManager(ToastManagerConfig config);
 
+		void AddToast(Toast toast);
 		void AddToast(const std::string& toast, BaseTime duration);
         void AddToast(ToastImage image, BaseTime duration);
 

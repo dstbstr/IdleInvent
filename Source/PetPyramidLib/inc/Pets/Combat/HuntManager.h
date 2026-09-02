@@ -44,7 +44,7 @@ namespace Pets {
         Combat::CombatantId m_PartyId{};
         Combat::CombatantId m_PreyId{};
         
-        bool m_PartyManualControl{false};
+        bool m_PartyManualControl{true};
         PartyManualController* m_PartyController{nullptr};
 
         void CreateHunt();

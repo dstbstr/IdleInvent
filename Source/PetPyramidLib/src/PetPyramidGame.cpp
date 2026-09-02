@@ -1,4 +1,5 @@
 #include "Pets/PetPyramidGame.h"
+#include "Pets/Combat/HuntManager.h"
 #include "Pets/Ui/Ui.h"
 #include "Pets/Inventory/Inventory.h"
 
@@ -8,18 +9,26 @@
 #include "Platform/Graphics.h"
 #include "Animation/Animation.h"
 
+namespace {
+	std::vector<ScopedHandle> GlobalSubs{};
+}
+
 namespace Pets {
 	bool PetPyramidGame::Initialize() {
         auto& services = ServiceLocator::Get();
         services.CreateIfMissing<TickManager>();
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
-        services.CreateIfMissing<Inventory>();
+        auto& inv = services.GetOrCreate<Inventory>();
+		auto searchTime = OneSecond * 3;
+		auto& hunt = services.GetOrCreate<HuntManager>(inv, searchTime);
+		TickManager::Get().Register(GlobalSubs, hunt);
 
 		return Ui::Initialize();
 	}
 
 	void PetPyramidGame::ShutDown() {
 		Ui::ShutDown();
+		GlobalSubs.clear();
 	}
 
 	void PetPyramidGame::LoadGame() {

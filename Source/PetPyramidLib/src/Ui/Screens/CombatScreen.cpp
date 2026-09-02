@@ -17,7 +17,7 @@
 #include <memory>
 
 namespace {
-    std::unique_ptr<Pets::HuntManager> Manager{nullptr};
+    Pets::HuntManager* Manager{nullptr};
     std::unique_ptr<Ui::ToastManager> Toasts{nullptr};
     std::vector<ScopedHandle> Subs{};
     ImVec4 SelectedBattleColor = {0.f, .06f, 0.7f, 1.f};
@@ -49,25 +49,24 @@ namespace {
         StatsBounds = ::Ui::UiRect{{contentMin.x + halfBorder, battlefieldBottom}, {statsRight - halfGap, contentMax.y}};
         ControlsBounds = ::Ui::UiRect{{statsRight + halfGap, battlefieldBottom}, {contentMax.x - halfBorder, contentMax.y}};
 
-        if(!Toasts) {
-            auto* vp = ImGui::GetMainViewport();
-            auto lPos = vp->WorkSize * 0.1f;
-            auto mPos = vp->WorkSize * 0.5f;
-            auto rPos = vp->WorkSize * 0.8f;
+    }
 
-            lPos.y = mPos.y;
-            rPos.y = mPos.y;
+    void InitializeToasts() {
+        auto* vp = ImGui::GetMainViewport();
+        auto lPos = vp->WorkSize * 0.1f;
+        auto mPos = vp->WorkSize * 0.5f;
+        auto rPos = vp->WorkSize * 0.8f;
 
-            auto speed = contentSize.y * 0.5f;
+        lPos.y = mPos.y;
+        rPos.y = mPos.y;
 
-            Toasts = std::make_unique<Ui::ToastManager>(
-                Ui::ToastManagerConfig{
-                    .ToastPositions = {{lPos, mPos, rPos}},
-                    .ToastVelocity = {0.f, -speed},
-                    .ToastFont = GetFont(FontSizes::H2)
-                }
-            );
-        }
+        auto speed = vp->WorkSize.y * 0.15f;
+
+        Toasts = std::make_unique<Ui::ToastManager>(Ui::ToastManagerConfig{
+            .ToastPositions = {{lPos, mPos, rPos}},
+            .ToastVelocity = {0.f, -speed},
+            .ToastFont = GetFont(FontSizes::H3)
+        });
     }
 
 	void RenderControls() {
@@ -132,20 +131,23 @@ namespace {
         auto* item = std::get_if<Pets::CombatItemKind>(&result.Context);
 
         std::string msg;
+        bool partyAction = false;
         switch(result.Kind) {
             using enum Pets::ActionResultKind;
             case Damaged:
+                partyAction = true;
                 DR_ASSERT_MSG(damage, "Damaged result must have damage amount in context");
                 if(damage) {
                     msg = std::format("{}", *damage);
                 }
                 break;
-            case Captured: msg = std::format("Captured {}!", preyName); break;
-            case CaptureFailed: msg = std::format("Failed to capture {}!", preyName); break;
+            case Captured: partyAction = true; msg = std::format("Captured {}!", preyName); break;
+            case CaptureFailed: partyAction = true; msg = std::format("Failed to capture {}!", preyName); break;
             case Defended: msg = std::format("{} defended!", preyName); break;
             case Hidden: msg = std::format("{} hid!", preyName); break;
-            case PreyKilled: msg = std::format("{} was killed!", preyName); break;
+            case PreyKilled: partyAction = true; msg = std::format("{} was killed!", preyName); break;
             case ItemUsed: {
+                partyAction = true;
                 DR_ASSERT_MSG(item, "ItemUsed result must have item kind in context");
                 auto itemName = "";
                 if(!item) {
@@ -167,7 +169,12 @@ namespace {
             }
         }
         if(!msg.empty()) {
-            Toasts->AddToast(msg, OneSecond / 3);
+            Toasts->AddToast({
+                .Content = msg,
+                .Duration = OneSecond,
+                .Color = partyAction ? IM_COL32(50, 255, 50, 255) : IM_COL32(255, 50, 50, 255),
+                .Fade = true
+            });
         }
     }
 
@@ -205,10 +212,8 @@ namespace {
 namespace Pets::Ui::Screens::Combat {
 	bool Initialize() { 
 		auto& services = ServiceLocator::Get();
-		auto& Inv = services.GetRequired<Pets::Inventory>();
-        Manager = std::make_unique<HuntManager>(Inv, OneSecond * 3);
+        Manager = &services.GetRequired<HuntManager>();
 		TickManager::Get().Register(Subs, [](BaseTime elapsed) {
-            if(Manager) Manager->Tick(elapsed);
             if(Toasts) Toasts->Tick(elapsed);
 		});
 
@@ -217,15 +222,16 @@ namespace Pets::Ui::Screens::Combat {
 	}
 
 	void ShutDown() {
+        Toasts.reset();
         Subs.clear();
-        Manager.reset();
+
+        Manager = nullptr;
 	}
 
 	void Render() {
         if(!Manager) return;
-        if (BattlefieldBounds.GetWidth() == 0) {
-            InitializeBounds();
-        }
+        if (BattlefieldBounds.GetWidth() == 0) InitializeBounds();
+        if(!Toasts) InitializeToasts();
 
         RenderContent();
         if(Toasts) Toasts->Render();
