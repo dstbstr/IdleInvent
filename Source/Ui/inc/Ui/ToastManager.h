@@ -8,6 +8,8 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <queue>
+#include <optional>
 
 namespace Ui {
 	struct ToastManagerConfig {
@@ -31,13 +33,7 @@ namespace Ui {
 
 	class ToastManager {
     public:
-		ToastManager(ToastManagerConfig config) 
-            : m_Config(config) {
-			DR_ASSERT_MSG(!config.ToastPositions.empty(), "Must have at least 1 toast position");
-			if(config.ToastPositions.empty()) {
-				config.ToastPositions.push_back({0, 0});
-			}
-		}
+		ToastManager(ToastManagerConfig config);
 
 		void AddToast(const std::string& toast, BaseTime duration);
         void AddToast(ToastImage image, BaseTime duration);
@@ -46,10 +42,15 @@ namespace Ui {
 		void Render() const;
 
 	private:
-        ToastManagerConfig m_Config{};
-        std::vector<Toast> m_Toasts{};
-		size_t m_PositionIndex{0};
+		struct ToastSlot {
+			ImVec2 Position{};
+			std::optional<Toast> Active{};
+		};
 
-		ImVec2 GetNextPosition();
+        ToastManagerConfig m_Config{};
+		std::queue<Toast> m_PendingToasts{};
+		std::vector<ToastSlot> m_Slots{};
+
+		void StartPendingToasts();
 	};
 }

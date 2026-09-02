@@ -4,43 +4,53 @@
 
 namespace Ui {
 
+	ToastManager::ToastManager(ToastManagerConfig config) : m_Config(config) {
+        DR_ASSERT_MSG(!m_Config.ToastPositions.empty(), "Must have at least 1 toast position");
+        if(m_Config.ToastPositions.empty()) {
+            m_Config.ToastPositions.push_back({0, 0});
+        }
+
+		for(auto position : m_Config.ToastPositions) {
+			m_Slots.push_back(ToastSlot{position});
+		}
+    }
+
 	void ToastManager::AddToast(const std::string& toast, BaseTime duration) {
-		auto pos = GetNextPosition();
-        m_Toasts.push_back(Toast{toast, pos, duration});
+        m_PendingToasts.push(Toast{toast, {}, duration});
 	}
 
 	void ToastManager::AddToast(ToastImage toast, BaseTime duration) {
-        auto pos = GetNextPosition();
-        m_Toasts.push_back(Toast{toast, pos, duration});
+        m_PendingToasts.push(Toast{toast, {}, duration});
 	}
 
 	void ToastManager::Tick(BaseTime elapsed) {
         auto seconds = static_cast<f32>(elapsed.count()) / 1000.f;
-        for(auto& toast: m_Toasts) {
-            toast.Lifetime -= elapsed;
-			toast.Position += m_Config.ToastVelocity * seconds;
+        for(auto& slot: m_Slots) {
+            if(slot.Active) {
+                slot.Active->Lifetime -= elapsed;
+                slot.Active->Position += m_Config.ToastVelocity * seconds;
+				if(slot.Active->Lifetime <= ZeroTime) {
+					slot.Active.reset();
+				}
+            }
         }
-
-		auto removed = std::ranges::remove_if(m_Toasts, [](const Toast& toast) { 
-			return toast.Lifetime <= ZeroTime; 
-		});
-		m_Toasts.erase(removed.begin(), removed.end());
+		StartPendingToasts();
 	}
 
 	void ToastManager::Render() const {
-        if(m_Toasts.empty()) return;
 		auto* drawList = ImGui::GetForegroundDrawList();
 
-		for(const auto& toast : m_Toasts) {
-			auto pos = toast.Position;
-            if(auto* image = std::get_if<ToastImage>(&toast.Content)) {
+		for(const auto& slot: m_Slots) {
+			if(!slot.Active) continue;
+			auto pos = slot.Active->Position;
+            if(auto* image = std::get_if<ToastImage>(&slot.Active->Content)) {
                 drawList->AddImage(
 					image->Texture, 
 					pos, 
 					pos + image->Size, 
 					image->UvMin, 
 					image->UvMax);
-			} else if(auto* str = std::get_if<std::string>(&toast.Content)) {
+			} else if(auto* str = std::get_if<std::string>(&slot.Active->Content)) {
                 drawList->AddText(
 					m_Config.ToastFont,
 					m_Config.ToastFont->FontSize,
@@ -51,27 +61,14 @@ namespace Ui {
 		}
 	}
 	
-	ImVec2 ToastManager::GetNextPosition() {
-        auto pos = m_Config.ToastPositions.at(m_PositionIndex);
-        m_PositionIndex = (m_PositionIndex + 1) % m_Config.ToastPositions.size();
-        return pos;
+	void ToastManager::StartPendingToasts() {
+        for(auto& slot: m_Slots) {
+            if(m_PendingToasts.empty()) return;
+            if(slot.Active.has_value()) continue;
+            slot.Active = std::move(m_PendingToasts.front());
+            m_PendingToasts.pop();
+
+			slot.Active->Position = slot.Position;
+		}
 	}
-	/*
-		class ToastManager {
-    public:
-		ToastManager(ToastManagerConfig config) 
-            : m_Config(config) {}
-
-		void AddToast(const std::string& toast, BaseTime duration);
-        void AddToast(ImTextureID image, BaseTime duration);
-
-		void Tick(BaseTime elapsed);
-		void Render() const;
-
-	private:
-        ToastManagerConfig m_Config{};
-        std::vector<Toast> m_Toasts{};
-		size_t m_PositionIndex{0};
-	};
-*/
 }

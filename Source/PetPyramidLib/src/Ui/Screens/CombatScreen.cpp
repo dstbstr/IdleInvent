@@ -51,12 +51,18 @@ namespace {
 
         if(!Toasts) {
             auto* vp = ImGui::GetMainViewport();
-            auto pos = vp->WorkSize * 0.5f;
+            auto lPos = vp->WorkSize * 0.1f;
+            auto mPos = vp->WorkSize * 0.5f;
+            auto rPos = vp->WorkSize * 0.8f;
+
+            lPos.y = mPos.y;
+            rPos.y = mPos.y;
+
             auto speed = contentSize.y * 0.5f;
 
             Toasts = std::make_unique<Ui::ToastManager>(
                 Ui::ToastManagerConfig{
-                    .ToastPositions = {{pos}},
+                    .ToastPositions = {{lPos, mPos, rPos}},
                     .ToastVelocity = {0.f, -speed},
                     .ToastFont = GetFont(FontSizes::H2)
                 }
@@ -161,7 +167,7 @@ namespace {
             }
         }
         if(!msg.empty()) {
-            Toasts->AddToast(msg, OneSecond / 2);
+            Toasts->AddToast(msg, OneSecond / 3);
         }
     }
 
