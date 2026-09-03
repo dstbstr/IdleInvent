@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Pets/Character/Party.h"
 #include "Pets/Combat/HuntCombatant.h"
 #include "Pets/Combat/HuntControllers.h"
 #include "Pets/Combat/HuntTypes.h"
@@ -15,11 +16,13 @@ namespace Pets {
 
     class HuntManager {
     public:
-        HuntManager(Inventory& inventory, BaseTime searchTime = OneSecond * 30)
+        HuntManager(Inventory& inventory, Party& party, PetRoster& roster, BaseTime searchTime = OneSecond * 30)
             : m_SearchTime(searchTime)
             , m_RemainingSearchTime(searchTime)
             , m_Runner(nullptr)
-            , m_Inventory(inventory) {}
+            , m_Inventory(inventory)
+            , m_Party(party)
+            , m_Roster(roster) {}
 
         void Tick(BaseTime elapsed);
         bool IsHunting() const { return m_Runner != nullptr; }
@@ -41,6 +44,8 @@ namespace Pets {
         std::optional<ScopedHandle> m_EventHandle{};
 
         Inventory& m_Inventory;
+        Party& m_Party;
+        PetRoster& m_Roster;
         Combat::CombatantId m_PartyId{};
         Combat::CombatantId m_PreyId{};
         

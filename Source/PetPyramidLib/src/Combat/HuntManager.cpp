@@ -34,7 +34,7 @@ namespace Pets {
         auto schedule = std::make_unique<::Combat::RealTimeScheduler>();
         auto encounter = HuntEncounter{rules, std::move(schedule)};
 
-        auto party = PartyProvider::GetParty();
+        auto party = PartyProvider::GetParty(m_Party, m_Roster);
         m_PartyId = encounter.AddCombatant(
             Social::ToFactionId(HuntFaction::Party),
             party,

@@ -31,4 +31,7 @@ namespace Pets {
 		AbilityEffect Effect{};
 		f32 Value{};
 	};
+
+	struct PetDetails;
+	void ApplyAbility(const Ability& ability, PetDetails& target, f32& actionRate);
 }

@@ -3,9 +3,9 @@
 
 namespace Pets::PreyProvider {
 	HuntCombatant GetPrey() {
-        static size_t kindIndex = static_cast<size_t>(PetKind::COUNT);
-        auto kind = static_cast<PetKind>(kindIndex--);
-        if(kindIndex <= static_cast<size_t>(PetKind::Hero)) kindIndex = static_cast<size_t>(PetKind::COUNT);
+        static size_t kindIndex = 0;
+        auto kind = static_cast<PetKind>(kindIndex + 2); // skip Unset and Hero
+        kindIndex = (kindIndex + 1) % 3; // just first 3 kinds for now
         return HuntCombatant{
             .ActionInterval = OneSecond,
             .Stats = PreyStats{

@@ -130,12 +130,14 @@ namespace Pets {
         PetSlots Pets{};
 
         std::optional<OwnedPet>& operator[](PetKind kind) {
-            DR_ASSERT_MSG(kind > PetKind::Unset && kind < PetKind::COUNT, "Invalid PetKind");
-            return Pets[static_cast<size_t>(kind)];
+            auto index = static_cast<size_t>(kind);
+            DR_ASSERT_MSG(index > 0 && index < static_cast<size_t>(PetKind::COUNT), "Invalid PetKind");
+            return Pets[index];
         }
         const std::optional<OwnedPet>& operator[](PetKind kind) const {
-            DR_ASSERT_MSG(kind > PetKind::Unset && kind < PetKind::COUNT, "Invalid PetKind");
-            return Pets[static_cast<size_t>(kind)];
+            auto index = static_cast<size_t>(kind);
+            DR_ASSERT_MSG(index > 0 && index < static_cast<size_t>(PetKind::COUNT), "Invalid PetKind");
+            return Pets[index];
         }
     };
 
