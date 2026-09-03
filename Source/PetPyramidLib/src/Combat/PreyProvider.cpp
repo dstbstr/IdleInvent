@@ -5,7 +5,7 @@ namespace Pets::PreyProvider {
 	HuntCombatant GetPrey() {
         static size_t kindIndex = static_cast<size_t>(PetKind::COUNT);
         auto kind = static_cast<PetKind>(kindIndex--);
-        if(kindIndex < 1) kindIndex = static_cast<size_t>(PetKind::COUNT);
+        if(kindIndex <= static_cast<size_t>(PetKind::Hero)) kindIndex = static_cast<size_t>(PetKind::COUNT);
         return HuntCombatant{
             .ActionInterval = OneSecond,
             .Stats = PreyStats{

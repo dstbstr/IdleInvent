@@ -1,13 +1,20 @@
 #pragma once
 
+#include "Pets/Pets/Pets.h"
 #include <GameState/GameTime.h>
 #include <Platform/NumTypes.h>
 
 namespace Pets {
-    struct Party {
-        u32 Attack{0};
-        u32 Piercing{0};
-        BaseTime AttackInterval{};
+    struct PartyNode {
+        PetKind Kind{};
+        std::vector<PartyNode> Pets{};
     };
 
+    struct Party {
+        PartyNode Hero{{PetKind::Hero}};
+        u32 MaxDepth{5};
+
+        u32 GetPetCapacity(const PartyNode& node) const;
+        bool CanAddPet(const PartyNode& parent, u32 parentDepth) const;
+    };
 }
