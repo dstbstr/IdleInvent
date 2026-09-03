@@ -49,7 +49,5 @@ namespace Pets {
 
         void CreateHunt();
         void EndHunt();
-        HuntCombatant GetParty();
-        HuntCombatant GetPrey();
     };
 }

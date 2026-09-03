@@ -32,6 +32,10 @@ namespace {
         if(!attackerStats || !defenderStats) return {};
 
         auto amount = attackerStats->Attack;
+        auto reduced = defenderStats->Armor - static_cast<s32>(attackerStats->Piercing);
+        reduced = std::clamp(reduced, 0, static_cast<s32>(amount));
+        amount -= reduced;
+
         defenderStats->CurrentHp -= amount;
         ActionResolution<ActionResult> result{};
         result.Events.push_back(MakeEvent(ActionResultKind::Damaged, context, static_cast<s32>(amount)));

@@ -1,5 +1,6 @@
 #include "Pets/Ui/Screens/CombatScreen.h"
 #include "Pets/Ui/Ui.h"
+#include "Pets/Ui/PetVisual.h"
 #include "Pets/Combat/HuntTypes.h"
 #include "Pets/Combat/HuntEncounter.h"
 #include "Pets/Combat/HuntManager.h"
@@ -70,7 +71,7 @@ namespace {
     }
 
 	void RenderControls() {
-        static bool isManual = false;
+        static bool isManual = true;
 
         ImGui::PushFont(GetFont(FontSizes::H3));
         ImGui::BeginTable("ManualControlTable", 2);
@@ -113,7 +114,56 @@ namespace {
         if(!stats) return;
         auto remainingTime = static_cast<f32>(stats->FleeTime.count()) / static_cast<f32>(stats->MaxFleeTime.count());
         ImGui::ProgressBar(remainingTime);
+        auto petName = ToString(stats->Kind);
+        ImGui::TextUnformatted(petName.data(), petName.data() + petName.size());
 		// render Hunt
+
+        auto visual = Pets::GetVisual(stats->Kind);
+        auto* drawList = ImGui::GetWindowDrawList();
+
+        auto battlefieldMin = ImGui::GetWindowPos();
+        auto battlefieldSize = ImGui::GetWindowSize();
+        auto center = battlefieldMin + battlefieldSize * 0.5f;
+
+        auto size = 64.f; // maybe determine this by the minimum dimension?
+        auto halfSize = size * 0.5f;
+        auto min = center - ImVec2{halfSize, halfSize};
+        auto max = center + ImVec2{halfSize, halfSize};
+        auto color = ImGui::ColorConvertFloat4ToU32(visual.BaseColor);
+
+        switch(visual.PetShape) {
+            using enum Pets::Shape;
+            case Circle: {
+                switch(visual.Fill) {
+                using enum Pets::ShapeFill;
+                    case Solid: drawList->AddCircleFilled(center, halfSize, color); break;
+                    case Outline: drawList->AddCircleFilled(center, halfSize, color); drawList->AddCircle(center, halfSize, IM_COL32_BLACK); break;
+                    case Hollow: drawList->AddCircle(center, halfSize, color); break;
+                }
+                break;
+            }
+            case Square: {
+                switch(visual.Fill) {
+                    using enum Pets::ShapeFill;
+                    case Solid: drawList->AddRectFilled(min, max, color); break;
+                    case Outline: drawList->AddRectFilled(min, max, color); drawList->AddRect(min, max, IM_COL32_BLACK); break;
+                    case Hollow: drawList->AddRect(min, max, color); break;
+                }
+                break;
+            }
+            case Triangle: {
+                auto top = ImVec2{center.x, min.y};
+                auto left = ImVec2{min.x, max.y};
+                auto right = ImVec2{max.x, max.y};
+                switch(visual.Fill) {
+                    using enum Pets::ShapeFill;
+                    case Solid: drawList->AddTriangleFilled(top, left, right, color); break;
+                    case Outline: drawList->AddTriangleFilled(top, left, right, color); drawList->AddTriangle(top, left, right, IM_COL32_BLACK); break;
+                    case Hollow: drawList->AddTriangle(top, left, right, color); break;
+                }
+                break;
+            }
+        }
 	}
 
 	void RenderSearching() {
@@ -126,7 +176,7 @@ namespace {
         if(!Manager || !Toasts) return;
 
         auto prey = Manager->GetPreyStats();
-        auto preyName = prey ? prey->Name : "Unknown";
+        auto preyName = prey ? ToString(prey->Kind) : "Unknown";
         auto* damage = std::get_if<s32>(&result.Context);
         auto* item = std::get_if<Pets::CombatItemKind>(&result.Context);
 

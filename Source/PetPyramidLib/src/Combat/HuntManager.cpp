@@ -1,5 +1,8 @@
 #include "Pets/Combat/HuntManager.h"
 #include "Pets/Combat/HuntControllers.h"
+#include "Pets/Combat/PartyProvider.h"
+#include "Pets/Combat/PreyProvider.h"
+#include "Pets/Pets/Pets.h"
 
 namespace Pets {
     void HuntManager::Tick(BaseTime elapsed) {
@@ -31,14 +34,14 @@ namespace Pets {
         auto schedule = std::make_unique<::Combat::RealTimeScheduler>();
         auto encounter = HuntEncounter{rules, std::move(schedule)};
 
-        auto party = GetParty();
+        auto party = PartyProvider::GetParty();
         m_PartyId = encounter.AddCombatant(
             Social::ToFactionId(HuntFaction::Party),
             party,
             party.ActionInterval
         );
 
-        auto prey = GetPrey();
+        auto prey = PreyProvider::GetPrey();
         m_PreyId = encounter.AddCombatant(
             Social::ToFactionId(HuntFaction::Prey), 
             prey, prey.ActionInterval);
@@ -96,34 +99,5 @@ namespace Pets {
     }
     void HuntManager::SubscribeActionResults(std::vector<ScopedHandle>& outHandles, const std::function<void(const ActionResult&)>& subscriber) {
         m_ActionResults.Subscribe(outHandles, subscriber);
-    }
-
-    HuntCombatant HuntManager::GetParty() {
-        return HuntCombatant{
-            .ActionInterval = OneSecond, 
-            .Stats = PartyStats{
-                .Attack = 10, 
-                .Piercing = 5
-            }
-        };
-    }
-
-    HuntCombatant HuntManager::GetPrey() {
-        return HuntCombatant{
-            .ActionInterval = OneSecond,
-            .Stats = PreyStats{
-                .Name = "Bat",
-                .CurrentHp = 25,
-                .MaxHp = 25,
-                .Armor = 5,
-                .Dodge = 0.1f,
-                .CaptureHpLevel = 0.2f,
-                .CaptureChance = 0.5f,
-                .Gold = 100,
-                .Xp = 50,
-                .FleeTime = OneMinute,
-                .MaxFleeTime = OneMinute
-            }
-        };
     }
 }

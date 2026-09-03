@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Pets/Pets/Pets.h"
+
 #include <GameState/GameTime.h>
 #include <Platform/NumTypes.h>
 #include <variant>
@@ -11,7 +13,7 @@ namespace Pets {
     };
 
     struct PreyStats {
-        std::string Name{};
+        PetKind Kind{};
         s32 CurrentHp{0};
         s32 MaxHp{0};
         s32 Armor{0};

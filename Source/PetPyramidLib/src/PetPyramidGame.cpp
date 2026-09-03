@@ -19,7 +19,7 @@ namespace Pets {
         services.CreateIfMissing<TickManager>();
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
         auto& inv = services.GetOrCreate<Inventory>();
-		auto searchTime = OneSecond * 3;
+		auto searchTime = OneSecond;
 		auto& hunt = services.GetOrCreate<HuntManager>(inv, searchTime);
 		TickManager::Get().Register(GlobalSubs, hunt);
 
