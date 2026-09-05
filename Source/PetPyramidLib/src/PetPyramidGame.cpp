@@ -25,6 +25,25 @@ namespace Pets {
 		auto& hunt = services.GetOrCreate<HuntManager>(inv, party, petRoster, searchTime);
 		TickManager::Get().Register(GlobalSubs, hunt);
 
+		petRoster[PetKind::Hero] = OwnedPet {
+			.Kind = PetKind::Hero,
+			.Level = 1,
+			.Experience = 10
+		};
+
+		petRoster[PetKind::Poodle] = OwnedPet {
+			.Kind = PetKind::Poodle,
+			.Level = 1,
+			.Experience = 100
+		};
+		petRoster[PetKind::Bloodhound] = OwnedPet {
+			.Kind = PetKind::Bloodhound,
+			.Level = 10,
+			.Experience = 1'000'000
+		};
+
+		party.Hero.Pets.push_back({.Kind = PetKind::Poodle});
+		party.Hero.Pets[0].Pets.push_back({.Kind = PetKind::Bloodhound});
 		return Ui::Initialize();
 	}
 

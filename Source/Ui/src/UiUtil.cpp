@@ -44,3 +44,7 @@ ImFont* GetFont(FontSizes fontSize) {
         default: return nullptr;
     }
 }
+
+void DrawSprite(const Sprite& sprite, ImVec2 imageSize) {
+    ImGui::Image(sprite.Texture, imageSize, sprite.UvMin, sprite.UvMax);
+}

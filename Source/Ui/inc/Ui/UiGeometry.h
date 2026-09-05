@@ -54,6 +54,10 @@ namespace Ui {
         static constexpr UiRect FromPosSize(const ImVec2& point, const ImVec2& size) {
             return UiRect{.Min = point, .Max = {point.x + size.x, point.y + size.y}};
         }
+        static constexpr UiRect FromCenterSize(const ImVec2& center, const ImVec2& size) {
+            auto halfSize = size * 0.5f;
+            return UiRect { .Min = center - halfSize, .Max = center + halfSize };
+        }
 
         [[nodiscard]] constexpr f32 GetWidth() const { return Max.x - Min.x; }
         [[nodiscard]] constexpr f32 GetHeight() const { return Max.y - Min.y; }

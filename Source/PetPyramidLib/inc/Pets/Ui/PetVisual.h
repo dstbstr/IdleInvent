@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pets/Pets/Pets.h"
+#include <Ui/UiGeometry.h>
 
 #include <imgui.h>
 
@@ -19,4 +20,5 @@ namespace Pets {
 	};
 
 	PetVisual GetVisual(PetKind pet);
+	void RenderVisualStill(const PetVisual& visual, const ::Ui::UiRect& bounds, ImDrawList* drawList = nullptr);
 }

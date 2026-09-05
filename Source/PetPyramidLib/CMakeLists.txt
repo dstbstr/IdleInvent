@@ -16,14 +16,28 @@ enable_project_clang_tidy(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
 	src/PetPyramidGame.cpp
 
-	src/Ui/Ui.cpp
-	src/Ui/TopContent.cpp
-	src/Ui/MainContent.cpp
-	src/Ui/BottomContent.cpp
+	src/Character/Ability.cpp
 
-	src/Ui/Screens/Screens.cpp
-	src/Ui/Screens/PetsScreen.cpp
-	src/Ui/Screens/CombatScreen.cpp
+	src/Combat/HuntControllers.cpp
+	src/Combat/HuntManager.cpp
+    src/Combat/HuntRules.cpp
+	src/Combat/PartyProvider.cpp
+	src/Combat/PreyProvider.cpp
+
+	src/Inventory/Inventory.cpp
+
+	src/Pets/PetDetails.cpp
+	src/Pets/Pets.cpp
+
+	src/Ui/BottomContent.cpp
+	src/Ui/MainContent.cpp
+	src/Ui/PetVisual.cpp
+	src/Ui/TopContent.cpp
+	src/Ui/Ui.cpp
+
 	src/Ui/Screens/BestiaryScreen.cpp
+	src/Ui/Screens/CombatScreen.cpp
+	src/Ui/Screens/PetsScreen.cpp
 	src/Ui/Screens/RebirthScreen.cpp
-  "inc/Pets/Character/Party.h" "inc/Pets/Combat/HuntRules.h" "inc/Pets/Combat/HuntEvents.h" "inc/Pets/Combat/HuntTypes.h" "src/Combat/HuntRules.cpp" "inc/Pets/Inventory/Inventory.h" "src/Inventory/Inventory.cpp" "inc/Pets/Combat/HuntControllers.h" "inc/Pets/Combat/HuntEncounter.h" "src/Combat/HuntControllers.cpp" "inc/Pets/Combat/HuntManager.h" "src/Combat/HuntManager.cpp" "inc/Pets/Combat/HuntCombatant.h" "inc/Pets/Ui/PetVisual.h" "src/Ui/PetVisual.cpp" "inc/Pets/Combat/PreyProvider.h" "src/Combat/PreyProvider.cpp" "inc/Pets/Combat/PartyProvider.h" "src/Combat/PartyProvider.cpp" "src/Pets/Pets.cpp" "inc/Pets/Character/Ability.h" "inc/Pets/Pets/PetDetails.h" "src/Pets/PetDetails.cpp" "src/Character/Ability.cpp")
+	src/Ui/Screens/Screens.cpp
+)

@@ -13,8 +13,5 @@ namespace Pets {
     struct Party {
         PartyNode Hero{{PetKind::Hero}};
         u32 MaxDepth{5};
-
-        u32 GetPetCapacity(const PartyNode& node) const;
-        bool CanAddPet(const PartyNode& parent, u32 parentDepth) const;
     };
 }

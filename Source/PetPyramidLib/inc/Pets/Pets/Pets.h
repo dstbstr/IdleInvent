@@ -132,12 +132,12 @@ namespace Pets {
         std::optional<OwnedPet>& operator[](PetKind kind) {
             auto index = static_cast<size_t>(kind);
             DR_ASSERT_MSG(index > 0 && index < static_cast<size_t>(PetKind::COUNT), "Invalid PetKind");
-            return Pets[index];
+            return Pets.at(index);
         }
         const std::optional<OwnedPet>& operator[](PetKind kind) const {
             auto index = static_cast<size_t>(kind);
             DR_ASSERT_MSG(index > 0 && index < static_cast<size_t>(PetKind::COUNT), "Invalid PetKind");
-            return Pets[index];
+            return Pets.at(index);
         }
     };
 

@@ -130,19 +130,6 @@ namespace {
 
 namespace Pets::PartyProvider {
 	HuntCombatant GetParty(const Party& party, const PetRoster& roster) {
-		PartyResolution resolution{
-            .Hero =
-                ResolvedPet{
-                    .Kind = party.Hero.Kind, 
-					.Capacity = 1.f, 
-					.Attack = 0.f, 
-					.Piercing = 0.f, 
-					.ActionRate = 1.f
-                },
-			.Pets = {},
-			.PartyActionRate = 1.f
-        };
-
 		f32 actionRate = 0.5;
 
 		auto entries = FlattenTree(party, roster);

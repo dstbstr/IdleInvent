@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Platform/NumTypes.h"
+#include <Platform/NumTypes.h>
+#include <Platform/Graphics.h>
+
 #include <imgui.h>
 #include <string>
 
@@ -15,3 +17,5 @@ ImFont* GetFont(FontSizes font);
 void TextCenteredX(const char* text);
 void TextCenterdY(const char* text);
 void TextCentered(const char* text);
+
+void DrawSprite(const Sprite& sprite, ImVec2 imageSize);

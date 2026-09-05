@@ -27,4 +27,62 @@ namespace Pets {
 			PetColors[colorIndex]
 		};
 	}
+
+	void RenderVisualStill(const PetVisual& visual, const ::Ui::UiRect& bounds, ImDrawList* drawList) {
+        if(!drawList) {
+            drawList = ImGui::GetWindowDrawList();
+        }
+
+        auto center = bounds.GetCenter();
+        auto halfSize = bounds.GetSize() * 0.5f;
+        auto radius = std::min(halfSize.x, halfSize.y);
+        auto r2 = ImVec2(radius, radius);
+
+        auto min = center - r2;
+        auto max = center + r2;
+        auto color = ImGui::ColorConvertFloat4ToU32(visual.BaseColor);
+
+        switch(visual.PetShape) {
+            using enum Pets::Shape;
+            case Circle: {
+                switch(visual.Fill) {
+                    using enum Pets::ShapeFill;
+                case Solid: drawList->AddCircleFilled(center, radius, color); break;
+                case Outline:
+                    drawList->AddCircleFilled(center, radius, color);
+                    drawList->AddCircle(center, radius, IM_COL32_BLACK);
+                    break;
+                case Hollow: drawList->AddCircle(center, radius, color); break;
+                }
+                break;
+            }
+            case Square: {
+                switch(visual.Fill) {
+                    using enum Pets::ShapeFill;
+                case Solid: drawList->AddRectFilled(min, max, color); break;
+                case Outline:
+                    drawList->AddRectFilled(min, max, color);
+                    drawList->AddRect(min, max, IM_COL32_BLACK);
+                    break;
+                case Hollow: drawList->AddRect(min, max, color); break;
+                }
+                break;
+            }
+            case Triangle: {
+                auto top = ImVec2{center.x, min.y};
+                auto left = ImVec2{min.x, max.y};
+                auto right = ImVec2{max.x, max.y};
+                switch(visual.Fill) {
+                    using enum Pets::ShapeFill;
+                case Solid: drawList->AddTriangleFilled(top, left, right, color); break;
+                case Outline:
+                    drawList->AddTriangleFilled(top, left, right, color);
+                    drawList->AddTriangle(top, left, right, IM_COL32_BLACK);
+                    break;
+                case Hollow: drawList->AddTriangle(top, left, right, color); break;
+                }
+                break;
+            }
+	    }
+    }
 }

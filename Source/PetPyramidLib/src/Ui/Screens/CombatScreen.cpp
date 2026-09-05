@@ -119,51 +119,9 @@ namespace {
 		// render Hunt
 
         auto visual = Pets::GetVisual(stats->Kind);
-        auto* drawList = ImGui::GetWindowDrawList();
-
-        auto battlefieldMin = ImGui::GetWindowPos();
-        auto battlefieldSize = ImGui::GetWindowSize();
-        auto center = battlefieldMin + battlefieldSize * 0.5f;
-
-        auto size = 64.f; // maybe determine this by the minimum dimension?
-        auto halfSize = size * 0.5f;
-        auto min = center - ImVec2{halfSize, halfSize};
-        auto max = center + ImVec2{halfSize, halfSize};
-        auto color = ImGui::ColorConvertFloat4ToU32(visual.BaseColor);
-
-        switch(visual.PetShape) {
-            using enum Pets::Shape;
-            case Circle: {
-                switch(visual.Fill) {
-                using enum Pets::ShapeFill;
-                    case Solid: drawList->AddCircleFilled(center, halfSize, color); break;
-                    case Outline: drawList->AddCircleFilled(center, halfSize, color); drawList->AddCircle(center, halfSize, IM_COL32_BLACK); break;
-                    case Hollow: drawList->AddCircle(center, halfSize, color); break;
-                }
-                break;
-            }
-            case Square: {
-                switch(visual.Fill) {
-                    using enum Pets::ShapeFill;
-                    case Solid: drawList->AddRectFilled(min, max, color); break;
-                    case Outline: drawList->AddRectFilled(min, max, color); drawList->AddRect(min, max, IM_COL32_BLACK); break;
-                    case Hollow: drawList->AddRect(min, max, color); break;
-                }
-                break;
-            }
-            case Triangle: {
-                auto top = ImVec2{center.x, min.y};
-                auto left = ImVec2{min.x, max.y};
-                auto right = ImVec2{max.x, max.y};
-                switch(visual.Fill) {
-                    using enum Pets::ShapeFill;
-                    case Solid: drawList->AddTriangleFilled(top, left, right, color); break;
-                    case Outline: drawList->AddTriangleFilled(top, left, right, color); drawList->AddTriangle(top, left, right, IM_COL32_BLACK); break;
-                    case Hollow: drawList->AddTriangle(top, left, right, color); break;
-                }
-                break;
-            }
-        }
+        auto parentBounds = Ui::UiRect::FromPosSize(ImGui::GetWindowPos(), ImGui::GetWindowSize());
+        auto bounds = Ui::UiRect::FromCenterSize(parentBounds.GetCenter(), {64.f, 64.f});
+        RenderVisualStill(visual, bounds);
 	}
 
 	void RenderSearching() {
