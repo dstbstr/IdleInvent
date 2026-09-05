@@ -1,8 +1,30 @@
 #include "Pets/Combat/HuntManager.h"
+#include "Pets/Character/PartyResolver.h"
+#include "Pets/Combat/HuntCombatant.h"
 #include "Pets/Combat/HuntControllers.h"
-#include "Pets/Combat/PartyProvider.h"
 #include "Pets/Combat/PreyProvider.h"
 #include "Pets/Pets/Pets.h"
+
+namespace {
+    Pets::HuntCombatant ToCombatant(const Pets::PartyResolution& party) {
+        auto atk = 0u;
+        auto piercing = 0u;
+        for(const auto& pet: party.Pets) {
+            atk += pet.Attack;
+            piercing += pet.Piercing;
+        }
+
+        auto interval = BaseTime(static_cast<u64>(OneSecond.count() / party.ActionRate));
+
+        return Pets::HuntCombatant {
+            .ActionInterval = interval,
+            .Stats = Pets::PartyStats {
+                .Attack = atk,
+                .Piercing = piercing,
+            }
+        };
+    }
+}
 
 namespace Pets {
     void HuntManager::Tick(BaseTime elapsed) {
@@ -34,7 +56,8 @@ namespace Pets {
         auto schedule = std::make_unique<::Combat::RealTimeScheduler>();
         auto encounter = HuntEncounter{rules, std::move(schedule)};
 
-        auto party = PartyProvider::GetParty(m_Party, m_Roster);
+        auto resolution = PartyResolver::Resolve(m_Party, m_Roster);
+        auto party = ToCombatant(resolution);
         m_PartyId = encounter.AddCombatant(
             Social::ToFactionId(HuntFaction::Party),
             party,

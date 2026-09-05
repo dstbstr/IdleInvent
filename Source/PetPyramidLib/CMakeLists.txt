@@ -17,11 +17,11 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/PetPyramidGame.cpp
 
 	src/Character/Ability.cpp
+	src/Character/PartyResolver.cpp
 
 	src/Combat/HuntControllers.cpp
 	src/Combat/HuntManager.cpp
     src/Combat/HuntRules.cpp
-	src/Combat/PartyProvider.cpp
 	src/Combat/PreyProvider.cpp
 
 	src/Inventory/Inventory.cpp
@@ -40,4 +40,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/PetsScreen.cpp
 	src/Ui/Screens/RebirthScreen.cpp
 	src/Ui/Screens/Screens.cpp
-)
+ "inc/Pets/Character/PartyEditor.h" "src/Character/PartyEditor.cpp")

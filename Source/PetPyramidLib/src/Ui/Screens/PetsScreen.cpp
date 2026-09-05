@@ -1,5 +1,6 @@
 #include "Pets/Ui/Screens/PetsScreen.h"
 #include "Pets/Character/Party.h"
+#include "Pets/Character/PartyEditor.h"
 #include "Pets/Pets/PetDetails.h"
 #include "Pets/Ui/PetVisual.h"
 #include "Pets/Ui/Ui.h"
@@ -17,10 +18,25 @@
 #include <algorithm>
 
 namespace {
-	using PetRenderNode = Ui::RenderNode<Pets::PetKind>;
+	struct PetTreeValue {
+		Pets::PartyNode* Node{};
+		Pets::PartyNode* Parent{};
+		size_t Index{};
+		Pets::PetKind Kind{Pets::PetKind::Unset};
+	};
+
+	enum struct PartyEditAction : u8 { Add, Remove };
+	struct PendingEdit {
+		PartyEditAction Action{};
+		Pets::PartyNode* Parent{};
+		size_t Index{};
+		Pets::PetKind Kind{Pets::PetKind::Unset};
+	};
+
+	using PetRenderNode = Ui::RenderNode<PetTreeValue>;
 	using PetTree = Tree<PetRenderNode>;
-	using RenderFn = std::function<void(const Pets::PetKind&)>;
-	using TreePanel = Ui::TreePanel<Pets::PetKind, RenderFn>;
+	using RenderFn = std::function<void(const PetTreeValue&)>;
+	using TreePanel = Ui::TreePanel<PetTreeValue, RenderFn>;
 
 	Ui::TreeConfig TreeConfig{
         .Growth = Ui::GrowthDir::TopDown, 
@@ -30,70 +46,117 @@ namespace {
 
     Ui::PanelConfig PanelConfig{
 		.BackgroundColor = IM_COL32(32, 32, 32, 255), 
-		.ZoomFn = Ui::Zoom::Discrete<f32, 0.25f, 1.0f, 4.0f>
+		.ZoomFn = Ui::Zoom::Discrete<f32, 0.5f, 1.0f, 2.0f>
     };
 
 	std::vector<ScopedHandle> TickHandles;
 	std::unique_ptr<TreePanel> PetTreePanel;
+	std::unique_ptr<Pets::PartyEditor> PetPartyEditor;
 	PetTree PetTreeData;
 
 	Pets::PetRoster* Roster{nullptr};
 	Pets::Party* PetParty{nullptr};
 	std::optional<Pets::PetKind> SelectedPet;
+	std::optional<PetTreeValue> SelectedNode;
+	std::optional<PendingEdit> PendingChange;
 
 	constexpr ImVec2 ImageSize{64, 64};
 	constexpr auto RosterHeightPercent = 0.15f;
 	constexpr auto DetailsHeightPercent = 0.18f;
 
-	PetRenderNode MakeNode(Pets::PetKind kind) {
-        return PetRenderNode{.Value = kind, .Visible = true, .BaseSize = {32.f, 32.f}};
-    }
+	void AddPartyChildren(Pets::PartyNode& partyNode, PetTree::Node& treeNode) {
+        auto* resolved = PetPartyEditor->GetResolvedPet(partyNode);
+		if(!resolved) return;
 
-	void AddPartyChildren(const Pets::PartyNode& partyNode, PetTree::Node& treeNode) {
-		//auto capacity = PetParty->GetPetCapacity(partyNode);
-		auto capacity = 2;
+		auto capacity = resolved->PetCapacity;
 
 		for(size_t index = 0; index < capacity; ++index) {
 			if(index < partyNode.Pets.size()) {
-				const auto& partyPet = partyNode.Pets.at(index);
-				auto& child = PetTreeData.EmplaceChild(treeNode, MakeNode(partyPet.Kind));
+				auto& partyPet = partyNode.Pets.at(index);
+				auto& child = PetTreeData.EmplaceChild(treeNode, PetTreeValue {
+					.Node = &partyPet,
+					.Parent = &partyNode,
+					.Index = index,
+					.Kind = partyPet.Kind
+				});
+
 				AddPartyChildren(partyPet, child);
 			} else {
-				PetTreeData.EmplaceChild(treeNode, MakeNode(Pets::PetKind::Unset));
+				PetTreeData.EmplaceChild(treeNode, PetTreeValue {
+					.Parent = &partyNode,
+					.Index = index
+				});
 			}
 		}
 	}
 
-	void RebuildTree(const Pets::Party& party) {
+	void RebuildTree(Pets::Party& party) {
         PetTreeData = PetTree{};
-		auto& root = PetTreeData.EmplaceRoot(MakeNode(party.Hero.Kind));
+		auto& root = PetTreeData.EmplaceRoot(PetTreeValue {
+			.Node = &party.Hero,
+			.Parent = nullptr,
+			.Index = 0,
+			.Kind = party.Hero.Kind
+		});
 		AddPartyChildren(party.Hero, root);
     }
 
-	void RenderPetNode(const Pets::PetKind& kind) {
+	void RenderPetNode(const PetTreeValue& node) {
 		auto bounds = Ui::UiRect::FromPosSize(ImGui::GetWindowPos(), ImGui::GetWindowSize());
 
-		if(kind == Pets::PetKind::Unset) {
+		if(node.Kind == Pets::PetKind::Unset) {
 			ImGui::GetWindowDrawList()->AddRect(bounds.Min, bounds.Max, IM_COL32_WHITE);
 			return;
 		}
 
-		Pets::RenderVisualStill(Pets::GetVisual(kind), bounds);
+		Pets::RenderVisualStill(Pets::GetVisual(node.Kind), bounds);
 	}
 
 	void OnPetNodeActivate(PetRenderNode& node) {
-		SelectedPet = node.Value; 
+		auto& value = node.Value;
+        if(SelectedPet && value.Parent && value.Kind == Pets::PetKind::Unset) {
+            PendingChange = PendingEdit{
+                .Action = PartyEditAction::Add, 
+				.Parent = value.Parent, 
+				.Index = value.Index, 
+				.Kind = *SelectedPet
+            };
+        }
+		else {
+            SelectedNode = node.Value;
+			SelectedPet.reset();
+		}
+	}
+
+	void UpdateTree() {
+		if(!PendingChange) return;
+		auto edit = *PendingChange;
+		PendingChange.reset();
+
+		auto changed = false;
+		if(edit.Action == PartyEditAction::Add) {
+            changed = PetPartyEditor->AddPet(*edit.Parent, edit.Kind);
+		} else {
+            changed = PetPartyEditor->RemovePet(*edit.Parent, edit.Index);
+		}
+
+		if(changed) {
+			SelectedPet.reset();
+			SelectedNode.reset();
+			RebuildTree(*PetParty);
+		}
 	}
 
 	void RenderSelectedPet() {
-		if(!SelectedPet || !Roster) return;
-        auto pet = SelectedPet.value();
-		if(pet == Pets::PetKind::Unset) return;
+		if(!Roster) return;
 
-        auto& ownedPet = (*Roster)[pet];
+		auto kind = SelectedPet.value_or(SelectedNode.value_or({}).Kind);
+		if(kind == Pets::PetKind::Unset) return;
+
+        auto& ownedPet = (*Roster)[kind];
 		if(!ownedPet.has_value()) return;
-        auto name = Pets::ToString(pet);
-        const auto& details = Pets::Details::Get(pet);
+        auto name = Pets::ToString(kind);
+        const auto& details = Pets::Details::Get(kind);
 
 		ImGui::PushFont(GetFont(FontSizes::H4));
 
@@ -133,6 +196,15 @@ namespace {
 
 			ImGui::EndTable();
 		}
+
+		if(!SelectedPet && SelectedNode && SelectedNode->Node && SelectedNode->Parent && ImGui::Button("Remove")) {
+			PendingChange = PendingEdit {
+				.Action = PartyEditAction::Remove,
+				.Parent = SelectedNode->Parent,
+				.Index = SelectedNode->Index
+			};
+		}
+
 		ImGui::PopFont();
 	}
 
@@ -158,6 +230,7 @@ namespace {
 			auto bounds = ::Ui::UiRect::FromPosSize(ImGui::GetCursorScreenPos(), {visualSize, visualSize});
 			if(ImGui::InvisibleButton(name.c_str(), {visualSize, visualSize})) {
 				SelectedPet = pet->Kind;
+				SelectedNode.reset();
 			}
 
 			Pets::RenderVisualStill(Pets::GetVisual(pet->Kind), bounds);
@@ -174,17 +247,9 @@ namespace Pets::Ui::Screens::Pets {
 		Roster = &services.GetRequired<PetRoster>();
 		PetParty = &services.GetRequired<Party>();
 
-		RebuildTree(*PetParty);
-		/*
-		        TreePanel(
-            const PanelConfig& panelConfig,
-            Tree<RenderNode<T>>& tree,
-            const TreeConfig& treeConfig,
-            RenderFn&& renderFn,
-            std::function<void(RenderNode<T>&)> onActivate = nullptr
-        )
+		PetPartyEditor = std::make_unique<PartyEditor>(*PetParty, *Roster);
 
-		*/
+		RebuildTree(*PetParty);
         PetTreePanel = std::make_unique<TreePanel>(
 			PanelConfig, 
 			PetTreeData, 
@@ -219,6 +284,8 @@ namespace Pets::Ui::Screens::Pets {
         auto treeBounds = ::Ui::UiRect::FromPosSize(origin, {available.x, treeHeight});
 		PetTreePanel->SetBounds(treeBounds);
 		PetTreePanel->Render();
+
+		UpdateTree();
 
 		ImGui::SetCursorPos({origin.x, origin.y + treeHeight + gap});
         ImGui::BeginChild("##PetDetails", {available.x, detailsHeight}, detailFlags);

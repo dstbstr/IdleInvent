@@ -6,6 +6,7 @@ namespace Pets {
     std::string_view ToString(PetKind kind) {
         switch(kind) {
             using enum PetKind;
+            case Hero: return "The Hero!";
         case Bloodhound: return "Bloodhound";
         case Labrador: return "Labrador";
         case Poodle: return "Poodle";

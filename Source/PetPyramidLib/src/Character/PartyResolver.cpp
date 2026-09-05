@@ -1,9 +1,10 @@
-#include "Pets/Combat/PartyProvider.h"
+#include "Pets/Character/PartyResolver.h"
 #include "Pets/Pets/PetDetails.h"
 
 #include <cmath>
 #include <queue>
 #include <vector>
+#include <ranges>
 
 namespace {
 	using namespace Pets;
@@ -20,20 +21,6 @@ namespace {
 
 		PetDetails Details{};
     };
-
-	struct ResolvedPet {
-		PetKind Kind{};
-		f32 Capacity{};
-		f32 Attack{};
-		f32 Piercing{};
-		f32 ActionRate{1.f};
-	};
-
-	struct PartyResolution {
-		ResolvedPet Hero{};
-		std::vector<ResolvedPet> Pets{};
-		f32 PartyActionRate{1.f};
-	};
 
 	void ApplyDownward(EntryIndex index, std::vector<ResolutionEntry>& entries, f32& actionRate) {
 		auto& entry = entries[index];
@@ -128,8 +115,8 @@ namespace {
 	}
 }
 
-namespace Pets::PartyProvider {
-	HuntCombatant GetParty(const Party& party, const PetRoster& roster) {
+namespace Pets::PartyResolver {
+	PartyResolution Resolve(const Party& party, const PetRoster& roster) {
 		f32 actionRate = 0.5;
 
 		auto entries = FlattenTree(party, roster);
@@ -141,23 +128,22 @@ namespace Pets::PartyProvider {
 			ApplyUpward(i, entries, actionRate);
 		}
 
-		u32 atk = 0;
-		u32 piercing = 0;
-		for(EntryIndex i = 0; i < entries.size(); i++) {
-			atk += entries[i].Details.Attack;
-			piercing += entries[i].Details.Piercing;
-		}
+		
+		std::vector<ResolvedPet> pets = std::views::transform(entries, [](const ResolutionEntry& entry) {
+            return ResolvedPet{
+				.Node = entry.Current,
+				.ParentIndex = entry.ParentIndex,
+				.Depth = entry.Depth,
+                .Kind = entry.Current->Kind,
+                .Attack = entry.Details.Attack,
+                .Piercing = entry.Details.Piercing,
+                .PetCapacity = entry.Details.PetCapacity
+            };
+        }) | std::ranges::to<std::vector>();
 
-		auto interval = actionRate <= 0 
-			? BaseTime::max()
-			: BaseTime{static_cast<s64>(static_cast<f64>(OneSecond.count()) / actionRate)};
-
-        return HuntCombatant{
-			.ActionInterval = interval,
-			.Stats = PartyStats{
-				.Attack = atk, 
-				.Piercing = piercing
-			}
+		return PartyResolution {
+            .Pets = pets,
+			.ActionRate = actionRate
 		};
 	}
 }
