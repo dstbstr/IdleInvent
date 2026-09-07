@@ -23,5 +23,6 @@ namespace Pets {
 
 	namespace Details {
         [[nodiscard]] const PetDetails& Get(PetKind kind);
+        [[nodiscard]] bool Contains(PetKind kind);
     }
 }

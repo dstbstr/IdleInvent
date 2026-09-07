@@ -90,11 +90,16 @@ namespace {
         ImGui::BeginDisabled(!Manager->IsPartyManual() || !Manager->IsAwaitingPartyInput());
         
         if (ImGui::Button("Attack")) {
-            auto request = Pets::ActionRequest{
-                .Kind = Pets::ActionRequestKind::Attack,
+            Manager->SetPartyAction({
+                .Kind = Pets::ActionRequestKind::Attack, 
                 .Target = Manager->GetPreyId()
-            };
-            Manager->SetPartyAction(request);
+            });
+        }
+        if(ImGui::Button("Capture")) {
+            Manager->SetPartyAction({
+                .Kind = Pets::ActionRequestKind::Capture, 
+                .Target = Manager->GetPreyId()
+            });
         }
         ImGui::EndDisabled();
         ImGui::PopFont();

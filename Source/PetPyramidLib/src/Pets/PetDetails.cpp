@@ -37,18 +37,127 @@ namespace {
 			} \
 		});
 
-	PET(Hero, Atk, 5, Pierce, 0, Cap, 1) {}
-	PET(Bloodhound, Atk, 5, Pierce, 2, Cap, 1) {
+	PET(Hero, Atk, 8, Pierce, 3, Cap, 2) {}
+    // Dogs
+	PET(Bloodhound, Atk, 5, Pierce, 2, Cap, 2) {
 		LEVEL(3, Self, Attack, Add, 5);
 		LEVEL(5, Pets, Capacity, Multiply, 0.f);
 	}
 	PET(Labrador, Atk, 2, Pierce, 0, Cap, 2) {
 		LEVEL(3, Siblings, Capacity, Add, 1.f);
 	}
-	PET(Poodle, Atk, 3, Pierce, 5, Cap, 1) {
+	PET(Poodle, Atk, 3, Pierce, 5, Cap, 2) {
 		LEVEL(2, Self, Attack, Multiply, 2.f);
 	}
+    PET(Chihuahua, Atk, 1, Pierce, 0, Cap, 2) {
+        LEVEL(2, Owner, Attack, Add, 2.f);
+        LEVEL(5, Self, Piercing, Add, 5.f);
+    }
 
+    // Cats
+    PET(HouseCat, Atk, 2, Pierce, 3, Cap, 0) {
+        LEVEL(2, Self, Attack, Add, 3.f);
+        LEVEL(5, Pets, Piercing, Multiply, 2.f);
+    }
+
+	/*
+        Sabertooth,
+        Lion,
+        Tiger,
+        Leapord,
+
+        // Birds 
+        Robin,
+        Parrot,
+        Stork,
+        Pelacin,
+        Ostrich,
+        Penguin,
+        
+        // Rodents 
+        Raccoon,
+        Rat,
+        Squirel,
+        Hamster,
+        Ferret,
+
+        // Plants 
+        Cactus,
+        Petunias,
+        VenusFlytrap,
+        MonkeyPuzzleTree,
+        Bonzai,
+        SanboxTree,
+        Seaweed,
+
+        // Food Animals 
+        Pig,
+        Cow,
+        Chicken,
+        Sheep,
+        Goat,
+        Rabbit,
+        
+        // Fish 
+        RedHerring,
+        GoldFish,
+        
+        // Sea Creatures 
+        Octopus,
+        StarFish,
+        SeaHorse,
+        Anenome,
+        Shrimp,
+        Crab,
+        Clam,
+        Whale,
+        Shark,
+        
+        //Bugs 
+        LadyBug,
+        Centipede,
+        Spider,
+        Scorpion,
+        Mantis,
+        DragonFly,
+        
+        // Mythological 
+        Dragon,
+        WorldTree,
+        Fairy,
+        Goblin,
+        Ghost,
+        Phoenix,
+        
+        //Inanament Objects 
+        GarbageCan,
+        Lightbulb,
+        Plate,
+        Book,
+        Robot,
+        Teapot,
+        MoneyBag,
+        
+        // Vehicles 
+        Car,
+        Motorcycle,
+        Truck,
+        Bus,
+        Plane,
+        Train,
+        Bike,
+        Skateboard,
+        Ship,
+        Boat,
+        
+        // Reptile / Amphibian 
+        Turtle,
+        Snake,
+        Lizard,
+        Salamander,
+        Toad,
+
+	*/
 #undef PET
 #undef LEVEL
 }
@@ -58,4 +167,6 @@ namespace Pets::Details {
 	[[nodiscard]] const PetDetails& Get(PetKind kind) {
 		return GetDetailMap().at(kind);
 	}
+
+	[[nodiscard]] bool Contains(PetKind kind) { return GetDetailMap().contains(kind); }
 }

@@ -54,5 +54,7 @@ namespace Pets {
 
         void CreateHunt();
         void EndHunt();
+        void HandleActionResult(const ActionResult& result);
+        void CapturePrey();
     };
 }

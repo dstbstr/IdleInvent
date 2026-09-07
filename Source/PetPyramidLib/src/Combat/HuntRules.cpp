@@ -3,7 +3,9 @@
 #include "Pets/Combat/HuntEvents.h"
 #include "Pets/Inventory/Items.h"
 
+#include <DesignPatterns/ServiceLocator.h>
 #include <Instrumentation/Logging.h>
+#include <Utilities/IRandom.h>
 
 #include <format>
 #include <vector>
@@ -59,9 +61,16 @@ namespace {
             return result;
         }
 
-        // TODO: calculate capture chance
-        result.Events.push_back(MakeEvent(ActionResultKind::Captured, context));
-        result.EncounterFinished = true;
+        auto& rand = ServiceLocator::Get().GetRequired<IRandom>();
+        auto roll = rand.GetNextFloat();
+        auto chance = std::clamp(defenderStats->CaptureChance, 0.f, 1.f);
+        if(roll < chance) {
+            result.Events.push_back(MakeEvent(ActionResultKind::Captured, context));
+            result.EncounterFinished = true;        
+        } else {
+            result.Events.push_back(MakeEvent(ActionResultKind::CaptureFailed, context));
+        }
+
         return result;
     }
 

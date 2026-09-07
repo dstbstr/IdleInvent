@@ -1,11 +1,17 @@
 #include "Pets/Combat/PreyProvider.h"
 #include "Pets/Pets/Pets.h"
 
+#include <array>
+
 namespace Pets::PreyProvider {
 	HuntCombatant GetPrey() {
+        constexpr std::array Valid{
+            PetKind::Bloodhound, PetKind::Labrador, PetKind::Poodle, PetKind::Chihuahua, PetKind::HouseCat
+        };
+
         static size_t kindIndex = 0;
-        auto kind = static_cast<PetKind>(kindIndex + 2); // skip Unset and Hero
-        kindIndex = (kindIndex + 1) % 3; // just first 3 kinds for now
+        auto kind = Valid[kindIndex];
+        kindIndex = (kindIndex + 1) % Valid.size();
         return HuntCombatant{
             .ActionInterval = OneSecond,
             .Stats = PreyStats{

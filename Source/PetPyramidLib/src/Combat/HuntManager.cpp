@@ -64,8 +64,8 @@ namespace Pets {
         
         m_Runner = std::make_unique<HuntCombatRunner>(std::move(encounter));
         m_Runner->SetController(m_PreyId, std::make_unique<PreyController>());
-        m_EventHandle = m_Runner->SubscribeEvents([this](const ActionResult& result) { 
-            m_ActionResults.Publish(result); 
+        m_EventHandle = m_Runner->SubscribeEvents([this](const ActionResult& result) {
+            HandleActionResult(result);
         });
         SetPartyController(m_PartyManualControl);
     }
@@ -115,5 +115,29 @@ namespace Pets {
     }
     void HuntManager::SubscribeActionResults(std::vector<ScopedHandle>& outHandles, const std::function<void(const ActionResult&)>& subscriber) {
         m_ActionResults.Subscribe(outHandles, subscriber);
+    }
+
+    void HuntManager::HandleActionResult(const ActionResult& result) {
+        switch(result.Kind) {
+            using enum ActionResultKind;
+            case Captured: CapturePrey(); break;
+            default: break;
+        }
+
+        m_ActionResults.Publish(result);
+    }
+
+    void HuntManager::CapturePrey() {
+        auto prey = GetPreyStats();
+        if(!prey) return;
+
+        auto& owned = m_Roster[prey->Kind];
+        if(owned) return;
+
+        owned = OwnedPet {
+            .Kind = prey->Kind,
+            .Level = 1,
+            .Experience = 0
+        };
     }
 }

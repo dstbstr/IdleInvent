@@ -1,6 +1,22 @@
 #include "Pets/Combat/HuntRules.h"
 #include "Pets/Combat/HuntTypes.h"
 
+#include <DesignPatterns/ServiceLocator.h>
+#include <Utilities/IRandom.h>
+
+namespace {
+    struct TestRandom : IRandom {
+        f32 Next = 0.f;
+
+	    u64 GetNextU() override {return static_cast<u64>(Next);}
+        u64 GetNextU(u64 max) override {return static_cast<u64>(Next);}
+        u64 GetNextU(u64 min, u64 max) override {return static_cast<u64>(Next);}
+        s64 GetNext() override {return static_cast<s64>(Next);}
+        s64 GetNext(s64 max) override {return static_cast<s64>(Next);}
+        s64 GetNext(s64 min, s64 max) override {return static_cast<s64>(Next);}
+        f32 GetNextFloat() override {return Next;}
+    };
+}
 namespace Pets {
     using namespace Combat;
 
@@ -8,6 +24,7 @@ namespace Pets {
         Inventory inventory;
         Roster<HuntCombatant> roster;
         std::unique_ptr<HuntRules> rules{};
+        TestRandom* random{};
 
         CombatantId preyId{};
         PreyStats preyStats{
@@ -39,8 +56,16 @@ namespace Pets {
             partyId = roster.Add(Social::ToFactionId(HuntFaction::Party), party);
             preyId = roster.Add(Social::ToFactionId(HuntFaction::Prey), prey);
             deadId = roster.Add(Social::ToFactionId(HuntFaction::Prey), deadPrey);
+
+            auto& services = ServiceLocator::Get();
+            services.SetThisAsThat<TestRandom, IRandom>();
+            random = static_cast<TestRandom*>(services.Get<IRandom>());
         }
-        void TearDown() override { rules.reset(); }
+
+        void TearDown() override { 
+            rules.reset(); 
+            ServiceLocator::Get().Reset<IRandom>();
+        }
     };
 
     TEST_F(HuntRulesTest, IsDisabled_WithParty_ReturnsFalse) { ASSERT_FALSE(rules->IsDisabled(roster, partyId)); }
@@ -91,11 +116,21 @@ namespace Pets {
     }
 
     TEST_F(HuntRulesTest, Resolve_WithCapture_EndsEncounter) {
+        random->Next = 0.001f;
         auto capture = ActionRequest{.Kind = ActionRequestKind::Capture, .Target = preyId};
         auto result = rules->Resolve(roster, partyId, capture);
         ASSERT_TRUE(result.EncounterFinished);
         ASSERT_FALSE(result.Events.empty());
         ASSERT_EQ(result.Events[0].Kind, ActionResultKind::Captured);
+    }
+
+    TEST_F(HuntRulesTest, Resolve_WithCaptureFailed_DoesNotEndEncounter) {
+        random->Next = 0.999f;
+        auto capture = ActionRequest{.Kind = ActionRequestKind::Capture, .Target = preyId};
+        auto result = rules->Resolve(roster, partyId, capture);
+        ASSERT_FALSE(result.EncounterFinished);
+        ASSERT_FALSE(result.Events.empty());
+        ASSERT_EQ(result.Events[0].Kind, ActionResultKind::CaptureFailed);
     }
 
     TEST_F(HuntRulesTest, Resolve_WithFlee_EndsEncounter) {

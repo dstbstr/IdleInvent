@@ -8,6 +8,7 @@
 #include "Manage/TickManager.h"
 #include "Platform/Graphics.h"
 #include "Animation/Animation.h"
+#include <Utilities/IRandom.h>
 
 namespace {
 	std::vector<ScopedHandle> GlobalSubs{};
@@ -17,6 +18,7 @@ namespace Pets {
 	bool PetPyramidGame::Initialize() {
         auto& services = ServiceLocator::Get();
         services.CreateIfMissing<TickManager>();
+        services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
         auto& inv = services.GetOrCreate<Inventory>();
         auto& party = services.GetOrCreate<Party>();
@@ -30,7 +32,7 @@ namespace Pets {
 			.Level = 1,
 			.Experience = 10
 		};
-
+		/*
 		petRoster[PetKind::Poodle] = OwnedPet {
 			.Kind = PetKind::Poodle,
 			.Level = 1,
@@ -44,6 +46,7 @@ namespace Pets {
 
 		party.Hero.Pets.push_back({.Kind = PetKind::Poodle});
 		party.Hero.Pets[0].Pets.push_back({.Kind = PetKind::Bloodhound});
+		*/
 		return Ui::Initialize();
 	}
 
