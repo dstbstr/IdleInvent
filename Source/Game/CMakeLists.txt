@@ -1,68 +1,45 @@
 project(IdleGame LANGUAGES CXX)
 
-set(GAME "PetPyramid" CACHE STRING "Which game to build")
-set_property(CACHE GAME PROPERTY STRINGS GhostHunter TechMaze Invent PetPyramid) # for GUI dropdowns
+function(add_game_exe target game_lib game_header game_type)
+    if(WIN32)
+        add_executable(${target})
+        set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/assets")
+    elseif(ANDROID)
+        APK_ADD_EXECUTABLE(${target})
+        set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/${target}_apk/src/main/assets")
+    endif()
 
-if(GAME STREQUAL "GhostHunter")
-    set(GAME_LIB GhostHunterLib)
-    set(GAME_HEADER "GhostHunter/GhostHunterGame.h")
-    set(GAME_TYPE GhostHunter::GhostHunterGame)
-elseif(GAME STREQUAL "TechMaze")
-    set(GAME_LIB TechMazeLib)
-    set(GAME_HEADER "TechMaze/TechMazeGame.h")
-    set(GAME_TYPE TechMaze::TechMazeGame)
-elseif(GAME STREQUAL "Invent")
-    set(GAME_LIB InventLib)
-    set(GAME_HEADER "Invent/InventGame.h")
-    set(GAME_TYPE Invent::InventGame)
-elseif(GAME STREQUAL "PetPyramid")
-    set(GAME_LIB PetPyramidLib)
-    set(GAME_HEADER "Pets/PetPyramidGame.h")
-    set(GAME_TYPE Pets::PetPyramidGame)
-else()
-    message(FATAL_ERROR "Invalid game selected: ${GAME}")
-endif()
+    target_sources(${target} PRIVATE src/Main.cpp)
+    target_link_libraries(${target} PRIVATE
+        Engine
+        ${game_lib}
+        IdlePlatform
+    )
 
-set(GAME_ASSET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../Resources/${GAME})
-set(SHARED_ASSET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../Resources/Shared)
-if(NOT EXISTS ${GAME_ASSET_DIR})
-    message(FATAL_ERROR "Game asset directory does not exist: ${GAME_ASSET_DIR}")
-endif()
-message(STATUS "Building game: ${GAME} (lib=${GAME_LIB})")
+    target_compile_definitions(${target} PRIVATE
+        ${compiler_definitions}
+        GAME_HEADER="${game_header}"
+        GAME_TYPE=${game_type}
+    )
 
-if(WIN32)
-    add_executable(${PROJECT_NAME})
-elseif(ANDROID)
-    APK_ADD_EXECUTABLE(${PROJECT_NAME})
-endif()
+    set(game_asset_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../Resources/${target}")
+    set(shared_asset_dir "${CMAKE_CURRENT_SOURCE_DIR}/../../Resources/Shared")
+    set(sync_target "${target}SyncAssets")
+    if(NOT EXISTS "${game_asset_dir}")
+        message(FATAL_ERROR "Game asset directory does not exist: ${game_asset_dir}")
+    endif()
 
-target_link_libraries(${PROJECT_NAME} 
-    Engine
-    ${GAME_LIB}
-    IdlePlatform
-)
+    add_custom_target(${sync_target}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${shared_asset_dir} ${asset_dest}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${game_asset_dir} ${asset_dest}
+        VERBATIM
+    )
 
-target_sources(${PROJECT_NAME} PRIVATE
-    src/Main.cpp
-)
+    add_dependencies(${target} ${sync_target})
+    set_property(TARGET ${target} APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${asset_dest})
+endfunction()
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
-    GAME_HEADER="${GAME_HEADER}" # quoted for #include
-    GAME_TYPE=${GAME_TYPE} # bare token for using alias
-)
-
-if(WIN32)
-    set(ASSET_DEST ${CMAKE_CURRENT_BINARY_DIR}/assets)
-elseif(ANDROID)
-    set(ASSET_DEST ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_apk/src/main/assets)
-endif()
-
-add_custom_target(SyncAssets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${SHARED_ASSET_DIR} ${ASSET_DEST}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${GAME_ASSET_DIR} ${ASSET_DEST}
-    VERBATIM
-)
-
-add_dependencies(${PROJECT_NAME} SyncAssets)
-# Clear out assets on a Clean to avoid stale assets
-set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY ADDITIONAL_CLEAN_FILES ${ASSET_DEST})
+add_game_exe(GhostHunter GhostHunterLib "GhostHunter/GhostHunterGame.h" GhostHunter::GhostHunterGame)
+add_game_exe(TechMaze TechMazeLib "TechMaze/TechMazeGame.h" TechMaze::TechMazeGame)
+add_game_exe(Invent InventLib "Invent/InventGame.h" Invent::InventGame)
+add_game_exe(PetPyramid PetPyramidLib "Pets/PetPyramidGame.h" Pets::PetPyramidGame)

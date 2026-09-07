@@ -108,7 +108,7 @@ endif()
 
 
 # Apply compiler definitions to all targets
-foreach(target IN ITEMS IdlePlatform Engine InventLib IdleGame PetPyramidLib SampleUI)
+foreach(target IN ITEMS IdlePlatform Engine InventLib PetPyramidLib SampleUI)
     target_compile_definitions(${target} PRIVATE ${compiler_definitions})
 endforeach()
 if(IncludeTests)
