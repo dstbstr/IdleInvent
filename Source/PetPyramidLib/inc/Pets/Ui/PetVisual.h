@@ -21,4 +21,5 @@ namespace Pets {
 
 	PetVisual GetVisual(PetKind pet);
 	void RenderVisualStill(const PetVisual& visual, const ::Ui::UiRect& bounds, ImDrawList* drawList = nullptr);
+	void RenderVisualAnim(const PetVisual& visual, const ::Ui::UiRect& bounds, f32 elapsedSeconds, ImDrawList* drawList = nullptr);
 }

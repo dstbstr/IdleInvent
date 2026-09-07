@@ -7,20 +7,13 @@
 
 namespace {
     Pets::HuntCombatant ToCombatant(const Pets::PartyResolution& party) {
-        auto atk = 0u;
-        auto piercing = 0u;
-        for(const auto& pet: party.Pets) {
-            atk += pet.Attack;
-            piercing += pet.Piercing;
-        }
-
         auto interval = BaseTime(static_cast<u64>(OneSecond.count() / party.ActionRate));
 
         return Pets::HuntCombatant {
             .ActionInterval = interval,
             .Stats = Pets::PartyStats {
-                .Attack = atk,
-                .Piercing = piercing,
+                .Attack = party.Attack,
+                .Piercing = party.Piercing,
             }
         };
     }

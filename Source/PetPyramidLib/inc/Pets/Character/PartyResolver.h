@@ -20,6 +20,9 @@ namespace Pets {
 
 	struct PartyResolution {
 		std::vector<ResolvedPet> Pets{};
+
+		u32 Attack{};
+        u32 Piercing{};
 		f32 ActionRate{1.f};
 	};
 

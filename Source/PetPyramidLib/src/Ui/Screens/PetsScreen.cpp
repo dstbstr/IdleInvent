@@ -41,6 +41,7 @@ namespace {
 	Ui::TreeConfig TreeConfig{
         .Growth = Ui::GrowthDir::TopDown, 
 		.Connect = Ui::ConnectStyle::Corner, 
+		.Anchor = Ui::Anchor::TopCenter,
 		.Spacing = {16.f, 16.f}
     };
 
@@ -109,7 +110,12 @@ namespace {
 			return;
 		}
 
-		Pets::RenderVisualStill(Pets::GetVisual(node.Kind), bounds);
+		auto visual = Pets::GetVisual(node.Kind);
+		if(SelectedNode.has_value() && SelectedNode->Kind == node.Kind) {
+            Pets::RenderVisualAnim(visual, bounds, ImGui::GetTime());
+        } else {
+            Pets::RenderVisualStill(visual, bounds);
+        }
 	}
 
 	void OnPetNodeActivate(PetRenderNode& node) {
@@ -208,6 +214,24 @@ namespace {
 		ImGui::PopFont();
 	}
 
+	void RenderPartyStats(const Ui::UiRect& bounds) {
+		auto& resolution = PetPartyEditor->GetResolution();
+
+		ImGui::SetCursorPos(bounds.Min);
+		ImGui::PushFont(GetFont(FontSizes::H2));
+
+		if(ImGui::BeginTable("##PartyStats", 3, ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings, bounds.GetSize())) {
+			ImGui::TableNextColumn();
+            ImGui::Text("Attack: %u", resolution.Attack);
+            ImGui::TableNextColumn();
+            ImGui::Text("Pierce: %u", resolution.Piercing);
+            ImGui::TableNextColumn();
+            ImGui::Text("Action Rate: %.2f", resolution.ActionRate);
+			ImGui::EndTable();
+		}
+        ImGui::PopFont();
+	}
+
 	void RenderRoster() {
 		if(!Roster) return;
 		auto available = ImGui::GetContentRegionAvail();
@@ -233,7 +257,12 @@ namespace {
 				SelectedNode.reset();
 			}
 
-			Pets::RenderVisualStill(Pets::GetVisual(pet->Kind), bounds);
+			auto visual = Pets::GetVisual(pet->Kind);
+			if(SelectedPet.has_value() && SelectedPet.value() == pet->Kind) {
+				Pets::RenderVisualAnim(visual, bounds, ImGui::GetTime());
+			} else {
+				Pets::RenderVisualStill(visual, bounds);
+			}
 
 			ImGui::EndGroup();
 		}
@@ -281,7 +310,15 @@ namespace Pets::Ui::Screens::Pets {
 			? ImGuiChildFlags_Borders 
 			: ImGuiChildFlags_None;
 
-        auto treeBounds = ::Ui::UiRect::FromPosSize(origin, {available.x, treeHeight});
+		auto* statsFont = GetFont(FontSizes::H2);
+        auto statsHeight = statsFont->FontSize + ImGui::GetStyle().CellPadding.y;
+        auto statsBounds = ::Ui::UiRect::FromPosSize(origin, {available.x, statsHeight});
+
+        auto treeBounds = ::Ui::UiRect::FromPosSize(
+			{origin.x, origin.y + statsHeight},
+			{available.x, treeHeight});
+        
+		RenderPartyStats(statsBounds);
 		PetTreePanel->SetBounds(treeBounds);
 		PetTreePanel->Render();
 

@@ -141,8 +141,17 @@ namespace Pets::PartyResolver {
             };
         }) | std::ranges::to<std::vector>();
 
+		u32 atk = 0u;
+        u32 pierce = 0u;
+        for(const auto& pet: pets) {
+            atk += pet.Attack;
+            pierce += pet.Piercing;
+        }
+
 		return PartyResolution {
             .Pets = pets,
+            .Attack = atk,
+            .Piercing = pierce,
 			.ActionRate = actionRate
 		};
 	}

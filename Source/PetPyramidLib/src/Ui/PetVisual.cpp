@@ -1,5 +1,8 @@
 #include "Pets/Ui/PetVisual.h"
+
 #include <array>
+#include <cmath>
+#include <numbers>
 
 namespace {
 	constexpr std::array<ImVec4, 9> PetColors {
@@ -84,5 +87,13 @@ namespace Pets {
                 break;
             }
 	    }
+    }
+
+    void RenderVisualAnim(const PetVisual& visual, const ::Ui::UiRect& bounds, f32 elapsedSeconds, ImDrawList* drawList) {
+        auto phase = elapsedSeconds * std::numbers::pi_v<f32> * 2;
+        auto scale = 0.95f + std::sin(phase) * 0.05f;
+        auto scaledBounds = ::Ui::UiRect::FromCenterSize(bounds.GetCenter(), bounds.GetSize() * scale);
+
+        RenderVisualStill(visual, scaledBounds, drawList);
     }
 }
