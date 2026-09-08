@@ -1,4 +1,4 @@
-	#include "Pets/Pets/PetDetails.h"
+#include "Pets/Pets/PetDetails.h"
 
 #include <map>
 
@@ -164,9 +164,9 @@ namespace {
 
 namespace Pets::Details {
 
-	[[nodiscard]] const PetDetails& Get(PetKind kind) {
+	[[nodiscard]] const PetDetails& GetPet(PetKind kind) {
 		return GetDetailMap().at(kind);
 	}
 
-	[[nodiscard]] bool Contains(PetKind kind) { return GetDetailMap().contains(kind); }
+	[[nodiscard]] bool ContainsPet(PetKind kind) { return GetDetailMap().contains(kind); }
 }

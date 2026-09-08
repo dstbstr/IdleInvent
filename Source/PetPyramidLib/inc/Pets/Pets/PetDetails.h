@@ -22,7 +22,7 @@ namespace Pets {
 	};
 
 	namespace Details {
-        [[nodiscard]] const PetDetails& Get(PetKind kind);
-        [[nodiscard]] bool Contains(PetKind kind);
+        [[nodiscard]] const PetDetails& GetPet(PetKind kind);
+        [[nodiscard]] bool ContainsPet(PetKind kind);
     }
 }

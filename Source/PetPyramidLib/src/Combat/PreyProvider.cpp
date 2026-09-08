@@ -1,5 +1,6 @@
 #include "Pets/Combat/PreyProvider.h"
 #include "Pets/Pets/Pets.h"
+#include "Pets/Pets/PreyDetails.h"
 
 #include <array>
 
@@ -12,20 +13,21 @@ namespace Pets::PreyProvider {
         static size_t kindIndex = 0;
         auto kind = Valid[kindIndex];
         kindIndex = (kindIndex + 1) % Valid.size();
+        auto details = Details::GetPrey(kind);
         return HuntCombatant{
             .ActionInterval = OneSecond,
             .Stats = PreyStats{
                 .Kind = kind,
-                .CurrentHp = 25,
-                .MaxHp = 25,
-                .Armor = 5,
-                .Dodge = 0.1f,
-                .CaptureHpLevel = 0.2f,
-                .CaptureChance = 0.5f,
-                .Gold = 100,
-                .Xp = 50,
-                .FleeTime = OneSecond * 20,
-                .MaxFleeTime = OneSecond * 20
+                .CurrentHp = details.MaxHp,
+                .MaxHp = details.MaxHp,
+                .Armor = details.Armor,
+                .Dodge = details.Dodge,
+                .CaptureHpLevel = details.CaptureHpLevel,
+                .CaptureChance = details.CaptureChance,
+                .Gold = details.Gold,
+                .Xp = details.Xp,
+                .FleeTime = details.FleeTime,
+                .MaxFleeTime = details.FleeTime
             }
         };
 	}

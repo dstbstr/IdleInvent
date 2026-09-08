@@ -76,7 +76,7 @@ namespace {
 			.ChildCount = 0,
 			.Depth = 0,
 			.Owned = &*hero,
-			.Details = Pets::Details::Get(PetKind::Hero)
+			.Details = Pets::Details::GetPet(PetKind::Hero)
 		});
 		pending.push(0);
 
@@ -101,7 +101,7 @@ namespace {
 					.ParentIndex = index, 
 					.Depth = parentDepth + 1,
                     .Owned = &*owned,
-                    .Details = Pets::Details::Get(child.Kind)
+                    .Details = Pets::Details::GetPet(child.Kind)
 				});
 
 				pending.push(childIndex);
