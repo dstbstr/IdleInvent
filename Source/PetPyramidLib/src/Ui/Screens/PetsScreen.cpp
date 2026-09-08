@@ -62,6 +62,7 @@ namespace {
 	std::optional<Pets::PetKind> SelectedPet;
 	std::optional<PetTreeValue> SelectedNode;
 	std::optional<PendingEdit> PendingChange;
+    bool NodeActivatedThisFrame{};
 
 	constexpr ImVec2 ImageSize{64, 64};
 	constexpr auto RosterHeightPercent = 0.15f;
@@ -121,6 +122,7 @@ namespace {
 	}
 
 	void OnPetNodeActivate(PetRenderNode& node) {
+        NodeActivatedThisFrame = true;
 		auto& value = node.Value;
         if(SelectedPet && value.Parent && value.Kind == Pets::PetKind::Unset) {
             PendingChange = PendingEdit{
@@ -184,7 +186,6 @@ namespace {
             ImGui::Text("%u", ownedPet->Level);
             ImGui::TableNextColumn();
             ImGui::Text("%u", ownedPet->Experience);
-            ImGui::TableNextColumn();
 
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
@@ -303,21 +304,22 @@ namespace Pets::Ui::Screens::Pets {
 
 	void Render() {
 		if(!PetTreePanel) return;
+        NodeActivatedThisFrame = false;
 
 		auto origin = ImGui::GetCursorPos();
 		auto available = ImGui::GetContentRegionAvail();
         auto gap = ImGui::GetStyle().ItemSpacing.y;
+        auto hasDetails = SelectedPet.has_value() || (SelectedNode && SelectedNode->Kind != PetKind::Unset);
 
 		auto rosterHeight = available.y * RosterHeightPercent;
-        auto detailsHeight = available.y * DetailsHeightPercent;
-		auto treeHeight = available.y - rosterHeight - detailsHeight - gap * 2.f;
-
-		auto detailFlags = SelectedPet
-			? ImGuiChildFlags_Borders 
-			: ImGuiChildFlags_None;
-
-		auto* statsFont = GetFont(FontSizes::H2);
+        auto detailsHeight = hasDetails 
+			? available.y * DetailsHeightPercent
+			: 0.f;
+        auto gapCount = 1 + hasDetails;
+        auto* statsFont = GetFont(FontSizes::H2);
         auto statsHeight = statsFont->FontSize + ImGui::GetStyle().CellPadding.y;
+
+		auto treeHeight = available.y - statsHeight - rosterHeight - detailsHeight - gap * gapCount;
         auto statsBounds = ::Ui::UiRect::FromPosSize(origin, {available.x, statsHeight});
 
         auto treeBounds = ::Ui::UiRect::FromPosSize(
@@ -330,16 +332,30 @@ namespace Pets::Ui::Screens::Pets {
 
 		UpdateTree();
 
-		ImGui::SetCursorPos({origin.x, origin.y + treeHeight + gap});
-        ImGui::BeginChild("##PetDetails", {available.x, detailsHeight}, detailFlags);
-		RenderSelectedPet();
-		ImGui::EndChild();
+		auto screenTreeBounds = ::Ui::ToScreenSpace(treeBounds);
+		if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && ImGui::IsMouseHoveringRect(screenTreeBounds.Min, screenTreeBounds.Max, false)) {
+            if(!NodeActivatedThisFrame) {
+                SelectedPet.reset();
+                SelectedNode.reset();
+            }
+		}
 
-		ImGui::SetCursorPos({origin.x, origin.y + treeHeight + detailsHeight + gap * 2.f});
-		ImGui::BeginChild("##PetRoster", {available.x, rosterHeight}, ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
-		RenderRoster();
-		ImGui::EndChild();
+		auto nextY = treeBounds.Max.y + gap;
 
+		if(hasDetails) {
+			ImGui::SetCursorPos({origin.x, nextY});
+			ImGui::BeginChild("##PetDetails", {available.x, detailsHeight}, ImGuiChildFlags_Borders);
+			RenderSelectedPet();
+			ImGui::EndChild();
 
+			nextY += detailsHeight + gap;
+		}
+
+		ImGui::SetCursorPos({origin.x, nextY});
+        ImGui::BeginChild(
+            "##PetRoster", {available.x, rosterHeight}, ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar
+        );
+        RenderRoster();
+        ImGui::EndChild();
 	}
 } // namespace Pets::Ui::Screens::Pets
