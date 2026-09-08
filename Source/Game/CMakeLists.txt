@@ -43,3 +43,4 @@ add_game_exe(GhostHunter GhostHunterLib "GhostHunter/GhostHunterGame.h" GhostHun
 add_game_exe(TechMaze TechMazeLib "TechMaze/TechMazeGame.h" TechMaze::TechMazeGame)
 add_game_exe(Invent InventLib "Invent/InventGame.h" Invent::InventGame)
 add_game_exe(PetPyramid PetPyramidLib "Pets/PetPyramidGame.h" Pets::PetPyramidGame)
+add_game_exe(Toe TempleOfElementalsLib "TOE/ToeGame.h" TOE::ToeGame)

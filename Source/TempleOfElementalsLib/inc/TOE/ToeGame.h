@@ -1,8 +1,19 @@
-//
-// Created by tbounderdog on 8/7/26.
-//
+#pragma once
 
-#ifndef IDLEGAME_TOEGAME_H
-#define IDLEGAME_TOEGAME_H
+#include <Game.h>
+#include <Platform/Platform.h>
 
-#endif //IDLEGAME_TOEGAME_H
+namespace TOE {
+    struct ToeGame : public ::Game {
+        ToeGame(::Platform& platform) : Game(platform) {}
+
+        bool Initialize() override;
+        void ShutDown() override;
+
+        void LoadGame() override;
+        void SaveGame() override;
+        void DeleteGame() override;
+
+        void Tick(BaseTime elapsed) override;
+    };
+} // namespace toe
