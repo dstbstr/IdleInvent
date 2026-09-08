@@ -1,6 +1,8 @@
 #include "Pets/Ui/Screens/PetsScreen.h"
 #include "Pets/Character/Party.h"
 #include "Pets/Character/PartyEditor.h"
+#include "Pets/Combat/HuntManager.h"
+#include "Pets/Pets/Leveling.h"
 #include "Pets/Pets/PetDetails.h"
 #include "Pets/Ui/PetVisual.h"
 #include "Pets/Ui/Ui.h"
@@ -162,7 +164,7 @@ namespace {
         auto& ownedPet = (*Roster)[kind];
 		if(!ownedPet.has_value()) return;
         auto name = Pets::ToString(kind);
-        const auto& details = Pets::Details::Get(kind);
+        const auto& details = Pets::Details::GetPet(kind);
 
 		ImGui::PushFont(GetFont(FontSizes::H4));
 
@@ -277,6 +279,10 @@ namespace Pets::Ui::Screens::Pets {
 		PetParty = &services.GetRequired<Party>();
 
 		PetPartyEditor = std::make_unique<PartyEditor>(*PetParty, *Roster);
+
+		services.GetRequired<HuntManager>().SubscribeLevelingEvents(TickHandles, [](const Leveling::Event& event) {
+            PetPartyEditor->RefreshResolution();
+        });
 
 		RebuildTree(*PetParty);
         PetTreePanel = std::make_unique<TreePanel>(

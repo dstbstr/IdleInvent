@@ -15,6 +15,8 @@ namespace Pets {
 		bool AddPet(PartyNode& parent, PetKind kind);
         bool RemovePet(PartyNode& parent, size_t index);
 
+		void RefreshResolution();
+
 	private:
 		Party& m_Party;
 		const PetRoster& m_Roster;

@@ -21,4 +21,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/main.cpp
 	src/Smoke.Test.cpp
 	src/Combat/HuntRules.test.cpp
-)
+ "src/Pets/Leveling.test.cpp")

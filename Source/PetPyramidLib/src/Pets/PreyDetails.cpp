@@ -178,5 +178,5 @@ namespace Pets::Details {
 
     [[nodiscard]] const PreyDetails& GetPrey(PetKind kind) { return *DetailMap.at(static_cast<size_t>(kind)); }
 
-    [[nodiscard]] bool ContainsPet(PetKind kind) { return DetailMap.at(static_cast<size_t>(kind)).has_value(); }
+    [[nodiscard]] bool ContainsPrey(PetKind kind) { return DetailMap.at(static_cast<size_t>(kind)).has_value(); }
 } // namespace Pets::Details

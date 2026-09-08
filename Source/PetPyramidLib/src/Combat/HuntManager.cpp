@@ -4,6 +4,7 @@
 #include "Pets/Combat/HuntControllers.h"
 #include "Pets/Combat/PreyProvider.h"
 #include "Pets/Pets/Pets.h"
+#include "Pets/Pets/Leveling.h"
 
 namespace {
     Pets::HuntCombatant ToCombatant(const Pets::PartyResolution& party) {
@@ -38,6 +39,7 @@ namespace Pets {
 
     void HuntManager::EndHunt() {
         m_PartyController = nullptr;
+        m_CurrentResolution.reset();
         m_EventHandle.reset();
         m_Runner.reset();
         m_PartyId = {};
@@ -49,8 +51,8 @@ namespace Pets {
         auto schedule = std::make_unique<::Combat::RealTimeScheduler>();
         auto encounter = HuntEncounter{rules, std::move(schedule)};
 
-        auto resolution = PartyResolver::Resolve(m_Party, m_Roster);
-        auto party = ToCombatant(resolution);
+        m_CurrentResolution = PartyResolver::Resolve(m_Party, m_Roster);
+        auto party = ToCombatant(*m_CurrentResolution);
         m_PartyId = encounter.AddCombatant(
             Social::ToFactionId(HuntFaction::Party),
             party,
@@ -116,18 +118,26 @@ namespace Pets {
     void HuntManager::SubscribeActionResults(std::vector<ScopedHandle>& outHandles, const std::function<void(const ActionResult&)>& subscriber) {
         m_ActionResults.Subscribe(outHandles, subscriber);
     }
+    ScopedHandle HuntManager::SubscribeLevelingEvents(const std::function<void(const Leveling::Event&)>& subscriber) {
+        return m_LevelingEvents.Subscribe(subscriber);
+    }
+    void HuntManager::SubscribeLevelingEvents(std::vector<ScopedHandle>& outHandles, const std::function<void(const Leveling::Event&)>& subscriber) {
+        m_LevelingEvents.Subscribe(outHandles, subscriber);
+    }
 
     void HuntManager::HandleActionResult(const ActionResult& result) {
         switch(result.Kind) {
             using enum ActionResultKind;
-            case Captured: CapturePrey(); break;
+            case Captured: OnPreyCaptured(); break;
+            case PreyKilled: OnPreyKilled(); break;
+            case PreyFled: OnPreyFled(); break;
             default: break;
         }
 
         m_ActionResults.Publish(result);
     }
 
-    void HuntManager::CapturePrey() {
+    void HuntManager::OnPreyCaptured() {
         auto prey = GetPreyStats();
         if(!prey) return;
 
@@ -139,5 +149,29 @@ namespace Pets {
             .Level = 1,
             .Experience = 0
         };
+    }
+
+    void HuntManager::OnPreyKilled() { 
+        auto prey = GetPreyStats();
+        if(!prey || !m_CurrentResolution) return;
+
+        for(const auto& pet : m_CurrentResolution->Pets) {
+            auto& owned = m_Roster[pet.Kind];
+            if(!owned) continue;
+
+            auto xp = Leveling::XpForDepth(prey->Xp, pet.Depth);
+            auto result = Leveling::GrantXp(*owned, xp);
+            if(result.LeveledUp()) {
+                m_LevelingEvents.Publish({
+                    .Kind = pet.Kind, 
+                    .PreviousLevel = result.PreviousLevel, 
+                    .CurrentLevel = result.CurrentLevel
+                });
+            }
+        }
+    }
+
+    void HuntManager::OnPreyFled() {
+        
     }
 }

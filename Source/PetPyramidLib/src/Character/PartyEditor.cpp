@@ -23,6 +23,10 @@ namespace Pets {
     {
     }
 
+    void PartyEditor::RefreshResolution() { 
+        m_Resolution = PartyResolver::Resolve(m_Party, m_Roster); 
+    }
+
     const PartyResolution& PartyEditor::GetResolution() const {
         return m_Resolution;    
     }

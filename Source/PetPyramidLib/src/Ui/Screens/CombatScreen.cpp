@@ -135,6 +135,16 @@ namespace {
 		// render Search
 	}
 
+    void OnLevelingEvent(const Pets::Leveling::Event& event) {
+        auto name = ToString(event.Kind);
+        Toasts->AddToast(
+            {.Content = std::format("{} leveled up to level {}!", name, event.CurrentLevel),
+             .Duration = OneSecond * 2,
+             .Color = IM_COL32(50, 255, 50, 255),
+             .Fade = true}
+        );
+    }
+
     void OnActionResult(const Pets::ActionResult& result) {
         if(!Manager || !Toasts) return;
 
@@ -230,7 +240,8 @@ namespace Pets::Ui::Screens::Combat {
             if(Toasts) Toasts->Tick(elapsed);
 		});
 
-        Manager->SubscribeActionResults(Subs, OnActionResult);		
+        Manager->SubscribeActionResults(Subs, OnActionResult);
+        Manager->SubscribeLevelingEvents(Subs, OnLevelingEvent);
 		return true; 
 	}
 
