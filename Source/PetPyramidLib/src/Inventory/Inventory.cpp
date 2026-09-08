@@ -43,4 +43,21 @@ namespace Pets {
         }
         return 0z;
     }
+
+    u64 Inventory::GetGold() const {
+        return m_Gold;
+    }
+
+    void Inventory::AddGold(u64 amount) {
+        m_Gold += amount;
+    }
+
+    bool Inventory::TrySpendGold(u64 amount) {
+        if(amount < m_Gold) {
+            m_Gold -= amount;
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -155,6 +155,8 @@ namespace Pets {
         auto prey = GetPreyStats();
         if(!prey || !m_CurrentResolution) return;
 
+        m_Inventory.AddGold(prey->Gold);
+
         for(const auto& pet : m_CurrentResolution->Pets) {
             auto& owned = m_Roster[pet.Kind];
             if(!owned) continue;

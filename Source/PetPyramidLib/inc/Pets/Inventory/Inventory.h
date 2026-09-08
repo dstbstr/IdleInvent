@@ -16,9 +16,14 @@ namespace Pets {
         void Add(FieldItemKind item, size_t qty = 1);
         size_t Count(FieldItemKind item) const;
 
+        u64 GetGold() const;
+        void AddGold(u64 amount);
+        bool TrySpendGold(u64 amount);
     private:
         std::map<CombatItemKind, size_t> m_CombatItems{};
         std::map<FieldItemKind, size_t> m_FieldItems{};
+
+        u64 m_Gold{};
     };
 
 }
