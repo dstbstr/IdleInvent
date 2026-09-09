@@ -10,6 +10,7 @@
 
 namespace {
     constexpr auto ButtonSprites = "Icons/Buttons.png";
+    constexpr auto ItemSprites = "Icons/Items.png";
 } // namespace
 
 namespace Pets::Ui {
@@ -17,6 +18,7 @@ namespace Pets::Ui {
 		InitializeFonts("DroidSans.ttf");
 		
         DR_ASSERT(Graphics::TryLoadSpriteSheet(ButtonSprites));
+        DR_ASSERT(Graphics::TryLoadSpriteSheet(ItemSprites));
         DR_ASSERT(Screens::BottomContent::Initialize());
         DR_ASSERT(Screens::MainContent::Initialize());
         DR_ASSERT(Screens::TopContent::Initialize());

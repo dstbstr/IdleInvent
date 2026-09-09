@@ -26,6 +26,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Combat/PreyProvider.cpp
 
 	src/Inventory/Inventory.cpp
+	src/Inventory/ItemDetails.cpp
 
 	src/Pets/Leveling.cpp
 	src/Pets/PetDetails.cpp
