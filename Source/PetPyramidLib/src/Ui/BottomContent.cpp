@@ -5,40 +5,60 @@
 #include <Platform/Graphics.h>
 #include <Ui/UiUtil.h>
 
+#include <array>
+
 namespace {
-    constexpr auto PetIcon = "Pets";
-    constexpr auto CombatIcon = "Combat";
-    constexpr auto BestiaryIcon = "Bestiary";
-    constexpr auto RebirthIcon = "Rebirth";
+    using namespace Pets::Ui;
+    constexpr std::array<std::pair<const char*, Screen>, 4> Icons{{
+         {"Pets", Screen::Pets},
+         {"Combat", Screen::Combat},
+         {"Bestiary", Screen::Bestiary},
+         {"Rebirth", Screen::Rebirth}
+    }};
+
+    f32 GetNavButtonSize(f32 availableWidth) { 
+        auto& style = ImGui::GetStyle();
+        auto contentWidth = availableWidth - style.WindowPadding.x * 2.f;
+        auto columnWidth = contentWidth / static_cast<f32>(Icons.size());
+
+        return columnWidth - style.CellPadding.x * 2.f - style.FramePadding.x * 2.f;
+    }
+
 } // namespace
 
 namespace Pets::Ui::Screens::BottomContent {
     bool Initialize() {
-        return Graphics::IsSpriteValid(PetIcon) && Graphics::IsSpriteValid(CombatIcon) &&
-               Graphics::IsSpriteValid(BestiaryIcon) && Graphics::IsSpriteValid(RebirthIcon);
+        bool valid = true;
+        for(const auto& [icon, screen] : Icons) {
+            valid &= Graphics::IsSpriteValid(icon);
+        }
+
+        return valid;
     }
 
     void ShutDown() {}
 
-    void Render() {
-        auto available = ImGui::GetContentRegionAvail();
-        auto columnWidth = available.x / 4.f;
-        auto framePadding = ImGui::GetStyle().FramePadding;
-        auto minDim = std::min(available.y - framePadding.y * 2.f, columnWidth - framePadding.x * 2.f);
-        auto iconSize = ImVec2(minDim, minDim);
+    f32 GetRequestedHeight(f32 availableWidth) { 
+        auto& style = ImGui::GetStyle();
+        auto buttonSize = GetNavButtonSize(availableWidth);
 
-        if(ImGui::BeginTable("##Navigation", 4, ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings)) {
-            auto AddButton = [&](const char* icon, Screen screen) {
+        return buttonSize + 
+            style.FramePadding.y * 2.f + 
+            style.CellPadding.y * 2.f +
+            style.WindowPadding.y * 2.f;
+    }
+
+    void Render() {
+        auto iconDim = GetNavButtonSize(ImGui::GetContentRegionAvail().x);
+        auto iconSize = ImVec2(iconDim, iconDim);
+
+        if(ImGui::BeginTable("##Navigation", Icons.size(), ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings)) {
+            for(const auto& [icon, screen] : Icons) {
                 ImGui::TableNextColumn();
                 if(SpriteButton(icon, Graphics::GetSprite(icon), iconSize)) {
                     Screens::SetActiveScreen(screen);
                 }
-            };
-
-            AddButton(PetIcon, Screen::Pets);
-            AddButton(CombatIcon, Screen::Combat);
-            AddButton(BestiaryIcon, Screen::Bestiary);
-            AddButton(RebirthIcon, Screen::Rebirth);
+            }
 
             ImGui::EndTable();
         }

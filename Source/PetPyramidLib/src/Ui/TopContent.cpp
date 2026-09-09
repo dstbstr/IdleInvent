@@ -11,7 +11,16 @@
 namespace {
     void RenderFps() {
         const auto& frameRate = ImGui::GetIO().Framerate;
+        ImGui::PushFont(GetFont(FontSizes::H3));
         TextCentered(std::format("{:.1f} FPS", frameRate).c_str());
+        ImGui::PopFont();
+    }
+
+    f32 GetIconSize() {
+        ImGui::PushFont(GetFont(FontSizes::H3));
+        auto size = ImGui::GetFontSize();
+        ImGui::PopFont();
+        return size;
     }
 }
 
@@ -22,8 +31,15 @@ namespace Pets::Ui::Screens::TopContent {
 
         return Graphics::TryLoadImageFile(SettingsIcon);
     }
+
+    f32 GetRequestedHeight(f32) {
+        auto& style = ImGui::GetStyle();
+        return GetIconSize() + style.FramePadding.y * 2.f + style.WindowPadding.y * 2.f;
+    }
+
     void Render() {
-        if(ImGui::ImageButton("Settings", Graphics::GetImageHandle(SettingsIcon), {32, 32})) {
+        auto iconSize = GetIconSize();
+        if(ImGui::ImageButton("Settings", Graphics::GetImageHandle(SettingsIcon), {iconSize, iconSize})) {
             if(Ui::Screens::GetActiveScreen() == Ui::Screen::Settings) {
                 Ui::Screens::SetActiveScreen(Ui::Screen::Pets);
             } else {
