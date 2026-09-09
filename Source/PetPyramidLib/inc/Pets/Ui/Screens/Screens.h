@@ -3,7 +3,7 @@
 #include "Platform/NumTypes.h"
 
 namespace Pets::Ui {
-	enum struct Screen : u8 { Pets, Combat, Bestiary, Rebirth, Settings };
+	enum struct Screen : u8 { Pets, Combat, Bestiary, Rebirth, Settings, Store };
 
 	std::string ToString(Screen screen);
 

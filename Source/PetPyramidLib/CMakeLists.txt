@@ -17,6 +17,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/PetPyramidGame.cpp
 
 	src/Character/Ability.cpp
+	src/Character/PartyEditor.cpp 
 	src/Character/PartyResolver.cpp
 
 	src/Combat/HuntControllers.cpp
@@ -26,8 +27,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/Inventory/Inventory.cpp
 
+	src/Pets/Leveling.cpp
 	src/Pets/PetDetails.cpp
 	src/Pets/Pets.cpp
+	src/Pets/PreyDetails.cpp
 
 	src/Ui/BottomContent.cpp
 	src/Ui/MainContent.cpp
@@ -40,4 +43,5 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/PetsScreen.cpp
 	src/Ui/Screens/RebirthScreen.cpp
 	src/Ui/Screens/Screens.cpp
- "inc/Pets/Character/PartyEditor.h" "src/Character/PartyEditor.cpp" "inc/Pets/Pets/PreyDetails.h" "src/Pets/PreyDetails.cpp" "inc/Pets/Pets/Leveling.h" "src/Pets/Leveling.cpp")
+	src/Ui/Screens/StoreScreen.cpp
+)

@@ -53,11 +53,9 @@ namespace Pets {
     }
 
     bool Inventory::TrySpendGold(u64 amount) {
-        if(amount < m_Gold) {
-            m_Gold -= amount;
-            return true;
-        }
+        if(m_Gold < amount) return false;
 
-        return false;
+        m_Gold -= amount;
+        return true;
     }
 }

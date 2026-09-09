@@ -9,36 +9,29 @@
 #include <format>
 
 namespace {
+    ImFont* TopFont{nullptr};
+
     void RenderFps() {
         const auto& frameRate = ImGui::GetIO().Framerate;
-        ImGui::PushFont(GetFont(FontSizes::H3));
         TextCentered(std::format("{:.1f} FPS", frameRate).c_str());
-        ImGui::PopFont();
-    }
-
-    f32 GetIconSize() {
-        ImGui::PushFont(GetFont(FontSizes::H3));
-        auto size = ImGui::GetFontSize();
-        ImGui::PopFont();
-        return size;
     }
 }
 
 namespace Pets::Ui::Screens::TopContent {
     constexpr auto SettingsIcon = "Icons/Settings.png";
     bool Initialize() {
-        auto& services = ServiceLocator::Get();
-
-        return Graphics::TryLoadImageFile(SettingsIcon);
+        TopFont = GetFont(FontSizes::H3);
+        return TopFont && Graphics::TryLoadImageFile(SettingsIcon);
     }
 
     f32 GetRequestedHeight(f32) {
         auto& style = ImGui::GetStyle();
-        return GetIconSize() + style.FramePadding.y * 2.f + style.WindowPadding.y * 2.f;
+        return TopFont->FontSize + style.FramePadding.y * 2.f + style.WindowPadding.y * 2.f;
     }
 
     void Render() {
-        auto iconSize = GetIconSize();
+        ImGui::PushFont(TopFont);
+        auto iconSize = TopFont->FontSize;
         if(ImGui::ImageButton("Settings", Graphics::GetImageHandle(SettingsIcon), {iconSize, iconSize})) {
             if(Ui::Screens::GetActiveScreen() == Ui::Screen::Settings) {
                 Ui::Screens::SetActiveScreen(Ui::Screen::Pets);
@@ -46,9 +39,11 @@ namespace Pets::Ui::Screens::TopContent {
                 Ui::Screens::SetActiveScreen(Ui::Screen::Settings);
             }
         }
-        ImGui::SameLine();
         RenderFps();
+        ImGui::PopFont();
     }
 
-	void ShutDown() {}
+	void ShutDown() {
+        TopFont = nullptr;
+    }
 } // namespace Pets::Ui::Screens::TopContent

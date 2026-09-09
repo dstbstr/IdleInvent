@@ -9,9 +9,10 @@
 
 namespace {
     using namespace Pets::Ui;
-    constexpr std::array<std::pair<const char*, Screen>, 4> Icons{{
+    constexpr std::array<std::pair<const char*, Screen>, 5> Icons{{
          {"Pets", Screen::Pets},
          {"Combat", Screen::Combat},
+         {"Store", Screen::Store},
          {"Bestiary", Screen::Bestiary},
          {"Rebirth", Screen::Rebirth}
     }};
