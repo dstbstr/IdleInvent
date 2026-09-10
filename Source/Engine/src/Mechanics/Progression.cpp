@@ -2,6 +2,7 @@
 #include "Mechanics/Modifier.h"
 #include "Instrumentation/Logging.h"
 
+#include <cmath>
 #include <vector>
 #include <format>
 
@@ -19,10 +20,10 @@ Progression& Progression::operator=(const Progression& other) {
 }
 
 Progression::Progression(Progression&& other) noexcept
-    : m_Permanent(other.m_Permanent)
+    : m_Remainder(other.m_Remainder)
+    , m_Permanent(other.m_Permanent)
     , m_Modifiers(other.m_Modifiers)
-    , m_Progress(other.m_Progress)
-    , m_Remainder(other.m_Remainder) {
+    , m_Progress(other.m_Progress) {
     other.m_Progress = 0.0f;
     other.m_Remainder = 0.0f;
 }

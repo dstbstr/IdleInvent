@@ -28,7 +28,7 @@ namespace {
         for(auto id: ExpeditionItems) {
             if(auto item = Invent::FindItemById(id)) {
                 for(auto effect: item->Effects) {
-                    mod += effect.Modifier;
+                    mod += effect.Mod;
                 }
             }
         }
@@ -161,7 +161,7 @@ namespace {
         auto timeProgress = static_cast<float>(SelectedExpedition->TimeProgress.count()) /
                             static_cast<float>(SelectedExpedition->TimeCost.count());
         auto remainingTime = static_cast<u64>(SelectedExpedition->TimeCost.count() - SelectedExpedition->TimeProgress.count()) /
-                             std::max(1ull, SelectedExpedition->CurrentWorkers);
+                             std::max(u64{1}, SelectedExpedition->CurrentWorkers);
         auto label = std::format("{}", Constexpr::TimeString(remainingTime));
         ImGui::ProgressBar(timeProgress, ImVec2(-1, 0), label.c_str());
         if(ImGui::Button("Cancel")) {

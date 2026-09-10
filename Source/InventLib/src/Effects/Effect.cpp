@@ -44,18 +44,18 @@ std::string ToString(EffectTarget target) {
 
 std::string Describe(const Effect& effect) {
     std::stringstream stream;
-	auto add = effect.Modifier.Add;
-	auto mul = effect.Modifier.Mul;
+	auto add = effect.Mod.Add;
+	auto mul = effect.Mod.Mul;
 
 	if (add != 0) {
         auto dir = add > 0 ? "Increases" : "Decreases";
-        stream << dir << " your " << ToString(effect.Target) << " by " << effect.Modifier.Add;
+        stream << dir << " your " << ToString(effect.Target) << " by " << effect.Mod.Add;
 	}
     if(mul != 1.0f) {
         if(add != 0) stream << " and ";
 		auto dir = mul > 1.0f ? "Increases" : "Decreases";
         stream << dir << " your " << ToString(effect.Target) << " by "
-                << Constexpr::FloatToPercent(effect.Modifier.Mul) << "%";
+                << Constexpr::FloatToPercent(effect.Mod.Mul) << "%";
 	}
     return stream.str();
 }

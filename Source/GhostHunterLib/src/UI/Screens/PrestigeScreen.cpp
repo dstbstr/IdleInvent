@@ -1,5 +1,5 @@
-#include "GhostHunter/Ui/Screens/PrestigeScreen.h"
-#include "GhostHunter/Ui/Ui.h"
+#include "GhostHunter/UI/Screens/PrestigeScreen.h"
+#include "GhostHunter/UI/Ui.h"
 
 namespace GhostHunter::Ui::Screens::Prestige {
     bool Initialize() { return true; }

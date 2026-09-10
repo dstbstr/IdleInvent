@@ -1,12 +1,12 @@
 project(IdleGame LANGUAGES CXX)
 
 function(add_game_exe target game_lib game_header game_type)
-    if(WIN32)
-        add_executable(${target})
-        set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/assets")
-    elseif(ANDROID)
+    if(ANDROID)
         APK_ADD_EXECUTABLE(${target})
         set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/${target}_apk/src/main/assets")
+    else()
+        add_executable(${target})
+        set(asset_dest "${CMAKE_CURRENT_BINARY_DIR}/assets")
     endif()
 
     target_sources(${target} PRIVATE src/Main.cpp)
@@ -43,3 +43,4 @@ add_game_exe(GhostHunter GhostHunterLib "GhostHunter/GhostHunterGame.h" GhostHun
 add_game_exe(TechMaze TechMazeLib "TechMaze/TechMazeGame.h" TechMaze::TechMazeGame)
 add_game_exe(Invent InventLib "Invent/InventGame.h" Invent::InventGame)
 add_game_exe(PetPyramid PetPyramidLib "Pets/PetPyramidGame.h" Pets::PetPyramidGame)
+add_game_exe(Toe TempleOfElementalsLib "TOE/ToeGame.h" TOE::ToeGame)

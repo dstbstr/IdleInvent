@@ -19,10 +19,10 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Purchase.cpp
     src/Upgrades.cpp
 
-    src/Ui/Ui.cpp 
-    src/Ui/MainContent.cpp 
-    src/Ui/BottomContent.cpp 
-    src/Ui/TopContent.cpp
+    src/UI/Ui.cpp 
+    src/UI/MainContent.cpp 
+    src/UI/BottomContent.cpp 
+    src/UI/TopContent.cpp
   
     src/UI/Screens/Screens.cpp
     src/UI/Screens/EditingScreen.cpp

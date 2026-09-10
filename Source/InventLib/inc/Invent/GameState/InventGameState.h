@@ -10,7 +10,8 @@
 namespace Invent {
 	struct InventGameStateSave : public GameStateSave {
         GameCharacterSave CharacterSave;
-        StorageSave StorageSave;
+
+        StorageSave Storage;
 	};
 	struct InventGameState : public GameState {
         InventGameState();

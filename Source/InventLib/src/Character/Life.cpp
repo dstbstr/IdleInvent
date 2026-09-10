@@ -297,7 +297,7 @@ namespace Invent {
         };
 
         auto& primary = Resources.at(ResourceName::Primary);
-        auto mod = effect.Modifier;
+        auto mod = effect.Mod;
 
         Log::Info(std::format("Applying effect: {} with modifier: {}", ToString(effect.Target), ToString(mod)));
 

@@ -40,7 +40,8 @@ std::string ToString(EffectTarget target);
 
 struct Effect {
     EffectTarget Target{};
-    Modifier Modifier{};
+
+    Modifier Mod{};
 };
 
 std::string Describe(const Effect& effect);

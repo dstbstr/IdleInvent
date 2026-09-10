@@ -26,7 +26,16 @@ namespace Constexpr {
     static_assert(Join(' ', {1, 2, 3}) == "1 2 3");
     static_assert(Join(" ", {"A", "B", "C"}) == "A B C");
     static_assert(Join(" ", {"A"sv, "B"sv, "C"sv}) == "A B C");
-    static_assert(Join(" ", {"A"s, "B"s, "C"s}) == "A B C");
+    // An initializer_list of std::string cannot be constant-evaluated by libstdc++, so the
+    // std::string element type is covered through a vector built element by element instead.
+    constexpr std::vector<std::string> AbcStrings() {
+        std::vector<std::string> parts;
+        parts.emplace_back("A");
+        parts.emplace_back("B");
+        parts.emplace_back("C");
+        return parts;
+    }
+    static_assert(Join(" ", AbcStrings()) == "A B C");
 
     static_assert(HumanReadable(0) == "0");
     static_assert(HumanReadable(999) == "999");

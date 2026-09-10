@@ -18,7 +18,8 @@ struct IEvent {
     BaseTime Duration{0};
 	BaseTime Ttl{0};
     BaseTime Elapsed{0};
-    Handle Handle{};
+
+    Handle EventHandle{};
 
     f32 GetProgress() const;
 	void Update(BaseTime elapsed);

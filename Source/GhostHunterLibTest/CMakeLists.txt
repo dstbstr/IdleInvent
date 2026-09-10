@@ -22,6 +22,6 @@ include(GoogleTest)
 add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE
-  src/main.cpp
+  src/Main.cpp
   src/Media/Market.Test.cpp
 )

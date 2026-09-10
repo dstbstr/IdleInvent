@@ -185,7 +185,7 @@ namespace Ui {
         }
 
         const auto pan = GetPanOffset();
-        const auto anchor = GetAnchor(m_TreeConfig->Anchor);
+        const auto anchor = GetAnchor(m_TreeConfig->AnchorPoint);
         const auto zoom = GetZoom();
         // Anchor stays in unscaled panel-local coords, so it's also the layout origin
         // that wheel-zoom math needs to compensate around.

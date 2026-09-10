@@ -143,11 +143,11 @@ namespace {
         }
         ImGui::SliderFloat("Connector Thickness", &TreeConfig.ConnectorThickness, 1.f, 10.f);
 
-        int anchorSelect = static_cast<int>(TreeConfig.Anchor);
+        int anchorSelect = static_cast<int>(TreeConfig.AnchorPoint);
         const char* anchorLabels = "Top Left\0Top Center\0Top Right\0Left Center\0Center\0Right Center\0Bottom "
                                    "Left\0Bottom Center\0Bottom Right";
         if(ImGui::Combo("Anchor", &anchorSelect, anchorLabels, 9)) {
-            TreeConfig.Anchor = static_cast<::Ui::Anchor>(anchorSelect);
+            TreeConfig.AnchorPoint = static_cast<::Ui::Anchor>(anchorSelect);
         }
 
         int zoomModeSelect = static_cast<int>(CurrentZoomMode);

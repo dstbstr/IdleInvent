@@ -27,6 +27,12 @@ elseif(ANDROID)
 		${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 	)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_IMPL_OPENGL_ES3)
+elseif(UNIX)
+	target_sources(${PROJECT_NAME} PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+	)
+	target_link_libraries(${PROJECT_NAME} PUBLIC glfw OpenGL::GL)
 endif()
 
 # Suppress warnings when compiling imgui sources (third-party code).

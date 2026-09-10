@@ -1,6 +1,8 @@
 #include "TechMaze/Finder.h"
 #include "TechMaze/Decoder.h"
 
+#include <algorithm>
+
 namespace {
     TechMaze::FindResult GetFullResult(const TechMaze::Target& current, const TechMaze::Target& expected) {
         using namespace TechMaze;

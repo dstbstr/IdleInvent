@@ -6,7 +6,7 @@
 #include <Utilities/Handle.h>
 
 struct Game {
-    Game(Platform& platform) : Platform(platform) {}
+    Game(Platform& platform) : GamePlatform(platform) {}
     virtual ~Game() = default;
     Game(const Game& other) = delete;
     Game& operator=(const Game& other) = delete;
@@ -22,7 +22,8 @@ struct Game {
 
     virtual void Tick(BaseTime elapsed) = 0;
 
-    Platform& Platform;
+
+    Platform& GamePlatform;
 
 protected:
     std::vector<ScopedHandle> m_Handles;
