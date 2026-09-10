@@ -43,7 +43,7 @@ namespace {
 	Ui::TreeConfig TreeConfig{
         .Growth = Ui::GrowthDir::TopDown, 
 		.Connect = Ui::ConnectStyle::Corner, 
-		.Anchor = Ui::Anchor::TopCenter,
+		.AnchorPoint = Ui::Anchor::TopCenter,
 		.Spacing = {16.f, 16.f}
     };
 

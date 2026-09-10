@@ -25,6 +25,36 @@ namespace {
     }};
 
     Pets::Inventory* Inv{nullptr};
+
+    template<typename TItems>
+    void RenderItems(const char* tableId, const TItems& items, int columns) {
+        auto& style = ImGui::GetStyle();
+        auto availableWidth = ImGui::GetContentRegionAvail().x;
+        auto columnWidth = availableWidth / static_cast<f32>(columns);
+        auto imageWidth = columnWidth - style.CellPadding.x * 2.f - style.FramePadding.x * 2.f;
+        auto imageSize = ImVec2{imageWidth, imageWidth};
+        if(ImGui::BeginTable(tableId, columns, ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings)) {
+            for(const auto& [item, spriteName] : items) {
+                ImGui::TableNextColumn();
+
+                auto& details = Pets::Details::GetItem(item);
+                auto canAfford = Inv->GetGold() >= details.Cost;
+                ImGui::BeginDisabled(!canAfford);
+                if(SpriteButton(spriteName, Graphics::GetSprite(spriteName), imageSize)) {
+                    if(Inv->TrySpendGold(details.Cost)) {
+                        Inv->Add(item);
+                    }
+                }
+                ImGui::EndDisabled();
+
+                ImGui::TextUnformatted(details.Name.data(), details.Name.data() + details.Name.size());
+                ImGui::Text("Cost: %llu", details.Cost);
+                ImGui::Text("Owned: %zu", Inv->Count(item));
+            }
+
+            ImGui::EndTable();
+        }
+    }
 }
 
 namespace Pets::Ui::Screens::Store {
@@ -45,22 +75,18 @@ namespace Pets::Ui::Screens::Store {
     }
 
     void Render() { 
-        ImVec2 itemSize = {64.f, 64.f}; // TODO: replace this with adaptive numbers
+        
+        ImGui::TextUnformatted("Gold");
+        ImGui::SameLine();
+        ImGui::Text("%llu", Inv->GetGold());
 
-        for(const auto& [item, name] : CombatItems) {
-            auto sprite = Graphics::GetSprite(name);
-            auto details = Details::GetItem(item);
-            if(SpriteButton(name, sprite, itemSize) && Inv->TrySpendGold(details.Cost)) {
-                Inv->Add(item);
-            }
-        }
-        for(const auto& [item, name]: FieldItems) {
-            auto sprite = Graphics::GetSprite(name);
-            auto details = Details::GetItem(item);
-            if(SpriteButton(name, sprite, itemSize) && Inv->TrySpendGold(details.Cost)) {
-                Inv->Add(item);
-            }
-        }
+        ImGui::SeparatorText("Combat Items");
+        RenderItems("##CombatStore", CombatItems, 3);
+
+        ImGui::SeparatorText("Field Items");
+        RenderItems("##FieldStore", FieldItems, 3);        
     }
-    void ShutDown() {}
+    void ShutDown() {
+        Inv = nullptr;
+    }
 } // namespace Pets::Ui::Screens::Store
