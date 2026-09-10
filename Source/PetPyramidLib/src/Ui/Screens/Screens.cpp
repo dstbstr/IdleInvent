@@ -4,6 +4,8 @@
 #include "Pets/Ui/Screens/CombatScreen.h"
 #include "Pets/Ui/Screens/BestiaryScreen.h"
 #include "Pets/Ui/Screens/RebirthScreen.h"
+//#include "Pets/Ui/Screens/SettingsScreen.h"
+#include "Pets/Ui/Screens/StoreScreen.h"
 
 #include <Instrumentation/Logging.h>
 
@@ -21,6 +23,7 @@ namespace Pets::Ui {
 			case Bestiary: return "Bestiary";
 			case Rebirth: return "Rebirth";
             case Settings: return "Settings";
+            case Store: return "Store";
 		}
 
 		DR_ASSERT_MSG(false, "Invalid screen");
@@ -34,7 +37,8 @@ namespace Pets::Ui {
 				Pets::Initialize() &&
 				Combat::Initialize() &&
 				Bestiary::Initialize() &&
-				Rebirth::Initialize();
+				Rebirth::Initialize() &&
+				Store::Initialize();
 		}
 
 		void ShutDown() {
@@ -42,6 +46,7 @@ namespace Pets::Ui {
 			Combat::ShutDown();
 			Bestiary::ShutDown();
 			Rebirth::ShutDown();
+            Store::ShutDown();
 			activeScreenName = Screen::Pets;
 			activeScreenFn = {};
 		}
@@ -56,6 +61,7 @@ namespace Pets::Ui {
 				case Combat: activeScreenFn = Combat::Render; break;
 				case Bestiary: activeScreenFn = Bestiary::Render; break;
 				case Rebirth: activeScreenFn = Rebirth::Render; break;
+                case Store: activeScreenFn = Store::Render; break;
                 default: break;
 			}
 		}

@@ -1,0 +1,9 @@
+AtkPotion 2 2 128 128
+Bait 132 2 128 128
+Distraction 262 2 128 128
+Hint 392 2 128 128
+Net 522 2 128 128
+PetRepelent 652 2 128 128
+PiercePotion 782 2 128 128
+Poison 912 2 128 128
+SpdPotion 1042 2 128 128

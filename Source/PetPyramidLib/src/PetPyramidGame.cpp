@@ -32,7 +32,7 @@ namespace Pets {
 			.Level = 1,
 			.Experience = 10
 		};
-		/*
+		
 		petRoster[PetKind::Poodle] = OwnedPet {
 			.Kind = PetKind::Poodle,
 			.Level = 1,
@@ -46,7 +46,7 @@ namespace Pets {
 
 		party.Hero.Pets.push_back({.Kind = PetKind::Poodle});
 		party.Hero.Pets[0].Pets.push_back({.Kind = PetKind::Bloodhound});
-		*/
+		
 		return Ui::Initialize();
 	}
 

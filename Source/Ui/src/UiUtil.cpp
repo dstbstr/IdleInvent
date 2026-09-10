@@ -48,3 +48,7 @@ ImFont* GetFont(FontSizes fontSize) {
 void DrawSprite(const Sprite& sprite, ImVec2 imageSize) {
     ImGui::Image(sprite.Texture, imageSize, sprite.UvMin, sprite.UvMax);
 }
+
+bool SpriteButton(const char* label, const Sprite& sprite, ImVec2 imageSize) {
+    return ImGui::ImageButton(label, sprite.Texture, imageSize, sprite.UvMin, sprite.UvMax);
+}

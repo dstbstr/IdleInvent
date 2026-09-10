@@ -19,3 +19,4 @@ void TextCenterdY(const char* text);
 void TextCentered(const char* text);
 
 void DrawSprite(const Sprite& sprite, ImVec2 imageSize);
+bool SpriteButton(const char* label, const Sprite& sprite, ImVec2 imageSize);

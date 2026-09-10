@@ -10,6 +10,7 @@
 
 namespace {
     constexpr auto ButtonSprites = "Icons/Buttons.png";
+    constexpr auto ItemSprites = "Icons/Items.png";
 } // namespace
 
 namespace Pets::Ui {
@@ -17,6 +18,7 @@ namespace Pets::Ui {
 		InitializeFonts("DroidSans.ttf");
 		
         DR_ASSERT(Graphics::TryLoadSpriteSheet(ButtonSprites));
+        DR_ASSERT(Graphics::TryLoadSpriteSheet(ItemSprites));
         DR_ASSERT(Screens::BottomContent::Initialize());
         DR_ASSERT(Screens::MainContent::Initialize());
         DR_ASSERT(Screens::TopContent::Initialize());
@@ -25,11 +27,14 @@ namespace Pets::Ui {
     }
 
 	void Render() {
-		auto screenHeight = Graphics::ScreenHeight;
+        auto width = Graphics::ScreenWidth;
+        auto topHeight = Screens::TopContent::GetRequestedHeight(width);
+        auto bottomHeight = Screens::BottomContent::GetRequestedHeight(width);
+        auto mainHeight = std::max(0.f, Graphics::ScreenHeight - topHeight - bottomHeight);
 		UiBuilder()
-			.AddPart(screenHeight * 0.15f, Screens::TopContent::Render)
-			.AddPart(screenHeight * 0.65f, Screens::MainContent::Render)
-			.AddPart(screenHeight * 0.2f, Screens::BottomContent::Render)
+			.AddPart(topHeight, Screens::TopContent::Render)
+			.AddPart(mainHeight, Screens::MainContent::Render)
+			.AddPart(bottomHeight, Screens::BottomContent::Render)
 			.Build();
 	}
 
