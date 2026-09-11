@@ -46,6 +46,7 @@ namespace Pets {
 
 		party.Hero.Pets.push_back({.Kind = PetKind::Poodle});
 		party.Hero.Pets[0].Pets.push_back({.Kind = PetKind::Bloodhound});
+        inv.AddGold(1'000);
 		
 		return Ui::Initialize();
 	}

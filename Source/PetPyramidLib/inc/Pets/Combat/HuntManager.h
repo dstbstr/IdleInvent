@@ -36,6 +36,7 @@ namespace Pets {
         const Combat::RunnerStatus* GetStatus() const;
         Combat::CombatantId GetPreyId() const { return m_PreyId; }
         std::optional<PreyStats> GetPreyStats() const;
+        const Inventory& GetInventory() const { return m_Inventory; }
 
         ScopedHandle SubscribeActionResults(const std::function<void(const ActionResult&)>& subscriber);
         void SubscribeActionResults(std::vector<ScopedHandle>& outHandles, const std::function<void(const ActionResult&)>& subscriber);

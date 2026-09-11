@@ -4,6 +4,7 @@
 #include "Pets/Combat/HuntTypes.h"
 #include "Pets/Combat/HuntEncounter.h"
 #include "Pets/Combat/HuntManager.h"
+#include "Pets/Inventory/ItemDetails.h"
 
 #include <Combat/CombatSchedule.h>
 #include <DesignPatterns/PubSub.h>
@@ -21,6 +22,7 @@ namespace {
     Pets::HuntManager* Manager{nullptr};
     std::unique_ptr<Ui::ToastManager> Toasts{nullptr};
     std::vector<ScopedHandle> Subs{};
+    bool ShowItems{false};
     ImVec4 SelectedBattleColor = {0.f, .06f, 0.7f, 1.f};
     ImVec4 SelectedControlColor = {0.f, .06f, 0.28f, 1.f};
     ImVec4 ControlBorderColor = {1.f, 1.f, 1.f, 1.f};
@@ -28,7 +30,7 @@ namespace {
     auto ControlBorderRounding = 12.f;
     auto ControlPanelGap = 2.f;
     Ui::UiRect BattlefieldBounds{};
-    Ui::UiRect StatsBounds{};
+    Ui::UiRect DetailsBounds{};
     Ui::UiRect ControlsBounds{};
     std::vector<Pets::ActionResult> ActionResults{};
 
@@ -47,9 +49,8 @@ namespace {
         auto halfGap = ControlPanelGap * 0.5f;
         auto halfBorder = ControlBorderThickness * 0.5f;
 
-        StatsBounds = ::Ui::UiRect{{contentMin.x + halfBorder, battlefieldBottom}, {statsRight - halfGap, contentMax.y}};
+        DetailsBounds = ::Ui::UiRect{{contentMin.x + halfBorder, battlefieldBottom}, {statsRight - halfGap, contentMax.y}};
         ControlsBounds = ::Ui::UiRect{{statsRight + halfGap, battlefieldBottom}, {contentMax.x - halfBorder, contentMax.y}};
-
     }
 
     void InitializeToasts() {
@@ -101,6 +102,10 @@ namespace {
                 .Target = Manager->GetPreyId()
             });
         }
+        if(ImGui::Button("Use Item")) {
+            ShowItems = !ShowItems;
+        }
+
         ImGui::EndDisabled();
         ImGui::PopFont();
 	}
@@ -113,6 +118,67 @@ namespace {
         ImGui::Text("Dodge: %.2f", stats->Dodge);
 		// render prey (and maybe party) stats
 	}
+
+    void RenderItems() { 
+        if(ImGui::Button("Close")) {
+            ShowItems = false;
+        }
+
+        ImGui::PushFont(GetFont(FontSizes::H2));
+        auto available = ImGui::GetContentRegionAvail();
+        auto columns = 4;
+        auto& style = ImGui::GetStyle();
+        auto imageWidth = (available.x + style.ItemSpacing.x + style.FramePadding.x) / static_cast<f32>(columns);
+        auto imageSize = ImVec2{imageWidth, imageWidth};
+
+        const auto& inventory = Manager->GetInventory();
+
+        if(ImGui::BeginTable("##CombatInventory", columns, ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings)) {
+            for(const auto& details : Pets::Details::GetCombatItems()) {
+                auto qty = inventory.Count(details.Kind);
+                if(qty == 0) continue;
+
+                ImGui::TableNextColumn();
+                auto padding = ImGui::GetStyle().FramePadding;
+                auto imageWidth = ImGui::GetContentRegionAvail().x - padding.x * 2.f;
+                auto imageSize = ImVec2{imageWidth, imageWidth};
+
+                auto name = std::string(details.SpriteName);
+                auto sprite = Graphics::GetSprite(name);
+                if(SpriteButton(name.c_str(), sprite, imageSize)) {
+                    Manager->SetPartyAction(
+                        {.Kind = Pets::ActionRequestKind::Item,
+                         .Target = Manager->GetPreyId(),
+                         .Context = Pets::ItemContext{.ItemId = details.Kind}}
+                    );
+
+                    ShowItems = false;
+                }
+
+                auto text = std::format("{}", qty);
+                auto textSize = ImGui::CalcTextSize(text.c_str());
+                auto* drawList = ImGui::GetWindowDrawList();
+                auto badgeMax = ImGui::GetItemRectMax();
+                auto badgeMin = ImVec2{
+                    badgeMax.x - textSize.x - padding.x * 2.f, 
+                    badgeMax.y - textSize.y - padding.y * 2.f
+                };
+                drawList->AddRectFilled(badgeMin, badgeMax, IM_COL32_BLACK);
+                drawList->AddText(badgeMin + padding, IM_COL32_WHITE, text.c_str());
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::PopFont();
+    }
+
+    void RenderDetails() {
+        if(ShowItems) {
+            RenderItems();
+        } else {
+            RenderStats();
+        }
+    }
 
 	void RenderHunting() {
         auto stats = Manager->GetPreyStats();
@@ -227,7 +293,7 @@ namespace {
             }
         });
 
-        RenderChild("##Stats", StatsBounds, [] { RenderStats(); });
+        RenderChild("##Details", DetailsBounds, [] { RenderDetails(); });
         RenderChild("##Controls", ControlsBounds, [] { RenderControls(); });
 	}
 }

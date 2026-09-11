@@ -13,6 +13,7 @@ namespace Pets {
 	struct ItemDetails {
         TKind Kind{};
         std::string_view Name{};
+        std::string_view SpriteName{};
         u64 Cost{};
 	};
 
