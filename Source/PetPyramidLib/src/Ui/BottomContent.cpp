@@ -9,6 +9,13 @@
 
 namespace {
     using namespace Pets::Ui;
+
+    ButtonColors NavButtonColors{
+        .BackgroundColor = IM_COL32(0, 0, 0, 255),
+        .HoveredColor = IM_COL32(20, 20, 20, 255),
+        .ActiveColor = IM_COL32(50, 50, 50, 255)
+    };
+
     constexpr std::array<std::pair<const char*, Screen>, 5> Icons{{
          {"Pets", Screen::Pets},
          {"Combat", Screen::Combat},
@@ -56,7 +63,7 @@ namespace Pets::Ui::Screens::BottomContent {
         if(ImGui::BeginTable("##Navigation", Icons.size(), ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings)) {
             for(const auto& [icon, screen] : Icons) {
                 ImGui::TableNextColumn();
-                if(SpriteButton(icon, Graphics::GetSprite(icon), iconSize)) {
+                if(SpriteButton(icon, Graphics::GetSprite(icon), iconSize, NavButtonColors)) {
                     Screens::SetActiveScreen(screen);
                 }
             }

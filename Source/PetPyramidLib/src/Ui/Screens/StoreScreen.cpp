@@ -10,6 +10,11 @@
 
 namespace {
     Pets::Inventory* Inv{nullptr};
+    ButtonColors StoreButtonColors{
+        .BackgroundColor = IM_COL32(0, 0, 0, 255),
+        .HoveredColor = IM_COL32(20, 20, 20, 255),
+        .ActiveColor = IM_COL32(50, 50, 50, 255)
+    };
 
     template<typename TItems>
     void RenderItems(const char* tableId, const TItems& items, int columns) {
@@ -25,7 +30,7 @@ namespace {
                 auto canAfford = Inv->GetGold() >= details.Cost;
                 auto spriteName = std::string(details.SpriteName);
                 ImGui::BeginDisabled(!canAfford);
-                if(SpriteButton(spriteName.c_str(), Graphics::GetSprite(spriteName), imageSize)) {
+                if(SpriteButton(spriteName.c_str(), Graphics::GetSprite(spriteName), imageSize, StoreButtonColors)) {
                     if(Inv->TrySpendGold(details.Cost)) {
                         Inv->Add(details.Kind);
                     }

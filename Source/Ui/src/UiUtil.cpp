@@ -49,6 +49,14 @@ void DrawSprite(const Sprite& sprite, ImVec2 imageSize) {
     ImGui::Image(sprite.Texture, imageSize, sprite.UvMin, sprite.UvMax);
 }
 
-bool SpriteButton(const char* label, const Sprite& sprite, ImVec2 imageSize) {
-    return ImGui::ImageButton(label, sprite.Texture, imageSize, sprite.UvMin, sprite.UvMax);
+bool SpriteButton(const char* label, const Sprite& sprite, ImVec2 imageSize, std::optional<ButtonColors> buttonColors) {
+    if(buttonColors) {
+        ImGui::PushStyleColor(ImGuiCol_Button, buttonColors->BackgroundColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonColors->HoveredColor);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonColors->ActiveColor);
+    }
+    auto clicked = ImGui::ImageButton(label, sprite.Texture, imageSize, sprite.UvMin, sprite.UvMax);
+    if(buttonColors) ImGui::PopStyleColor(3);
+
+    return clicked;
 }
