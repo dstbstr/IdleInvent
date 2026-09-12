@@ -1,5 +1,7 @@
 #include "Pets/Pets/PreyDetails.h"
 
+#include "Pets/Character/PartyResolver.h"
+
 #include <GameState/GameTime.h>
 #include <optional>
 
@@ -23,7 +25,8 @@ namespace {
                 .FleeTime = OneSecond * 30
             },
             .Encounter {
-                .Rarity = 1
+                .Rarity = 1,
+                .PrereqDesc = "None"
             }
         };
         
@@ -40,7 +43,11 @@ namespace {
                 .FleeTime = OneSecond * 25
             },
             .Encounter {
-                .Rarity = 2
+                .Rarity = 2,
+                .IsEligible = [](const EncounterContext& context) { 
+                    return context.Party.Pets.size() >= 3;
+                },
+                .PrereqDesc = "Requires 2 or more pets in party"
             }
         };
 
@@ -57,7 +64,8 @@ namespace {
                 .FleeTime = OneSecond * 20
             },
             .Encounter {
-                .Rarity = 3
+                .Rarity = 3,
+                .PrereqDesc = "None"
             }
         };
 
@@ -74,7 +82,8 @@ namespace {
                 .FleeTime = OneSecond * 15
             },
             .Encounter{
-                .Rarity = 4
+                .Rarity = 4,
+                .PrereqDesc = "None"
             }
         };
 
@@ -92,7 +101,11 @@ namespace {
                 .FleeTime = OneSecond * 20
             },
             .Encounter {
-                .Rarity = 5
+                .Rarity = 5,
+                .IsEligible = [](const EncounterContext& context) {
+                    return context.Party.Pets.size() == 1;
+                },
+                .PrereqDesc = "Must fight alone"
             }
         };
 

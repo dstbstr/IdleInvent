@@ -6,25 +6,41 @@
 #include <Utilities/IRandom.h>
 
 #include <array>
+#include <vector>
+
+namespace {
+    std::vector<Pets::PetKind> GetValidPrey(const Pets::EncounterContext& context) {
+        std::vector<Pets::PetKind> valid{};
+
+        for(auto kind : Pets::GetNonHeroPets()) {
+            if(Pets::Details::ContainsPrey(kind)) {
+                auto details = Pets::Details::GetPrey(kind);
+                if(!details.Encounter.IsEligible || details.Encounter.IsEligible(context)) {
+                    valid.push_back(kind);
+                }
+            }
+        }
+
+        return valid;
+    }
+}
 
 namespace Pets::PreyProvider {
-	HuntCombatant GetPrey() {
-        constexpr std::array Valid{
-            PetKind::Bloodhound, PetKind::Labrador, PetKind::Poodle, PetKind::Chihuahua, PetKind::HouseCat
-        };
-
+	HuntCombatant GetPrey(const EncounterContext& context) {
         struct Candidate {
             const PreyDetails* Details{};
             f64 CumulativeWeight{};
         };
 
-        std::array<Candidate, Valid.size()> candidates{};
+        auto valid = GetValidPrey(context);
+        auto candidates = std::vector<Candidate>{};
+        candidates.reserve(valid.size());
         auto totalWeight = 0.0;
 
-        for(size_t i = 0; i < Valid.size(); i++) {
-            auto& details = Details::GetPrey(Valid[i]);
+        for(size_t i = 0; i < valid.size(); i++) {
+            auto& details = Details::GetPrey(valid[i]);
             totalWeight += 1.0 / static_cast<f64>(details.Encounter.Rarity);
-            candidates[i] = {&details, totalWeight};
+            candidates.emplace_back(&details, totalWeight);
         }
 
         auto& rand = ServiceLocator::Get().GetRequired<IRandom>();

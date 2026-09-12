@@ -4,6 +4,7 @@
 
 #include <array>
 #include <optional>
+#include <span>
 #include <string_view>
 
 namespace Pets {
@@ -142,4 +143,5 @@ namespace Pets {
     };
 
     std::string_view ToString(PetKind kind);
+    std::span<const PetKind> GetNonHeroPets();
 }

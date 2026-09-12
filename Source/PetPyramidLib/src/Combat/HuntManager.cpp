@@ -59,7 +59,9 @@ namespace Pets {
             party.ActionInterval
         );
 
-        auto prey = PreyProvider::GetPrey();
+        auto context = EncounterContext{*m_CurrentResolution, m_Roster, m_Inventory};
+    
+        auto prey = PreyProvider::GetPrey(context);
         m_PreyId = encounter.AddCombatant(
             Social::ToFactionId(HuntFaction::Prey), 
             prey, prey.ActionInterval);

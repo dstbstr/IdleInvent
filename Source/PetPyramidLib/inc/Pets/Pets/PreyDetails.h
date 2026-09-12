@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Pets/Pets/Pets.h"
+#include "Pets/Combat/EncounterContext.h"
+
 #include <GameState/GameTime.h>
 
 namespace Pets {
@@ -17,7 +19,8 @@ namespace Pets {
 
     struct EncounterDetails {
         u32 Rarity{};
-
+        bool (*IsEligible)(const EncounterContext&) = nullptr;
+        std::string_view PrereqDesc{};
     };
 
     struct PreyDetails {

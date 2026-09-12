@@ -45,4 +45,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/RebirthScreen.cpp
 	src/Ui/Screens/Screens.cpp
 	src/Ui/Screens/StoreScreen.cpp
-)
+ "inc/Pets/Combat/EncounterContext.h")
