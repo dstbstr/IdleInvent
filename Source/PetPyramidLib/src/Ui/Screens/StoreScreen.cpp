@@ -9,21 +9,6 @@
 #include <Ui/UiUtil.h>
 
 namespace {
-    constexpr std::array<std::pair<Pets::CombatItemKind, const char*>, 6> CombatItems{{
-        {Pets::CombatItemKind::Distraction, "Distraction"},
-        {Pets::CombatItemKind::Net, "Net"},
-        {Pets::CombatItemKind::AtkPotion, "AtkPotion"},
-        {Pets::CombatItemKind::SpdPotion, "SpdPotion"},
-        {Pets::CombatItemKind::PiercePotion, "PiercePotion"},
-        {Pets::CombatItemKind::Poison, "Poison"}
-    }};
-
-    constexpr std::array<std::pair<Pets::FieldItemKind, const char*>, 3> FieldItems{{
-         {Pets::FieldItemKind::Bait, "Bait"},
-         {Pets::FieldItemKind::PetRepelent, "PetRepelent"},
-         {Pets::FieldItemKind::Hint, "Hint"}
-    }};
-
     Pets::Inventory* Inv{nullptr};
 
     template<typename TItems>
@@ -34,22 +19,22 @@ namespace {
         auto imageWidth = columnWidth - style.CellPadding.x * 2.f - style.FramePadding.x * 2.f;
         auto imageSize = ImVec2{imageWidth, imageWidth};
         if(ImGui::BeginTable(tableId, columns, ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings)) {
-            for(const auto& [item, spriteName] : items) {
+            for(const auto& details : items) {
                 ImGui::TableNextColumn();
 
-                auto& details = Pets::Details::GetItem(item);
                 auto canAfford = Inv->GetGold() >= details.Cost;
+                auto spriteName = std::string(details.SpriteName);
                 ImGui::BeginDisabled(!canAfford);
-                if(SpriteButton(spriteName, Graphics::GetSprite(spriteName), imageSize)) {
+                if(SpriteButton(spriteName.c_str(), Graphics::GetSprite(spriteName), imageSize)) {
                     if(Inv->TrySpendGold(details.Cost)) {
-                        Inv->Add(item);
+                        Inv->Add(details.Kind);
                     }
                 }
                 ImGui::EndDisabled();
 
                 ImGui::TextUnformatted(details.Name.data(), details.Name.data() + details.Name.size());
                 ImGui::Text("Cost: %llu", details.Cost);
-                ImGui::Text("Owned: %zu", Inv->Count(item));
+                ImGui::Text("Owned: %zu", Inv->Count(details.Kind));
             }
 
             ImGui::EndTable();
@@ -60,12 +45,12 @@ namespace {
 namespace Pets::Ui::Screens::Store {
     bool Initialize() { 
         bool valid = true;
-        for(const auto& [item, name] : CombatItems) {
-            valid &= Graphics::IsSpriteValid(name);
+        for(const auto& details : Details::GetCombatItems()) {
+            valid &= Graphics::IsSpriteValid(std::string(details.SpriteName));
             DR_ASSERT(valid);
         }
-        for(const auto& [item, name]: FieldItems) {
-            valid &= Graphics::IsSpriteValid(name);
+        for(const auto& details: Details::GetFieldItems()) {
+            valid &= Graphics::IsSpriteValid(std::string(details.SpriteName));
             DR_ASSERT(valid);
         }
 
@@ -81,10 +66,10 @@ namespace Pets::Ui::Screens::Store {
         ImGui::Text("%llu", Inv->GetGold());
 
         ImGui::SeparatorText("Combat Items");
-        RenderItems("##CombatStore", CombatItems, 3);
+        RenderItems("##CombatStore", Details::GetCombatItems(), 3);
 
         ImGui::SeparatorText("Field Items");
-        RenderItems("##FieldStore", FieldItems, 3);        
+        RenderItems("##FieldStore", Details::GetFieldItems(), 3);
     }
     void ShutDown() {
         Inv = nullptr;
