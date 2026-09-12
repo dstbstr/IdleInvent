@@ -71,6 +71,38 @@ namespace {
         });
     }
 
+    void RenderFieldItems() {
+        ImGui::PushFont(GetFont(FontSizes::H3));
+        auto iconSize = ImGui::GetFontSize() * 2.f;
+
+        if(ImGui::BeginTable("##FieldItems", 2, ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoSavedSettings)) {
+            for(auto kind : Pets::UsableFieldItems) {
+                ImGui::TableNextColumn();
+                auto& details = Pets::Details::GetItem(kind);
+                auto spriteName = std::string(details.SpriteName);
+
+                ImGui::BeginDisabled(!Manager->GetInventory().Contains(kind));
+                if(SpriteButton(spriteName.c_str(), Graphics::GetSprite(spriteName), {iconSize, iconSize})) {
+                    Manager->TryUseFieldItem(kind);
+                }
+                ImGui::EndDisabled();
+
+                auto& effects = Manager->GetFieldEffects();
+                auto effect = std::ranges::find(effects, kind, &Pets::FieldEffect::Kind);
+                if(effect != effects.end()) {
+                    auto rounded = std::chrono::ceil<std::chrono::seconds>(effect->Remaining);
+                    auto text = Constexpr::TimeString(std::chrono::duration_cast<BaseTime>(rounded).count());
+                    ImGui::TextUnformatted(text.c_str());
+                } else {
+                    ImGui::TextUnformatted("0s");
+                }
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::PopFont();
+    }
+
 	void RenderControls() {
         static bool isManual = true;
 
@@ -187,7 +219,6 @@ namespace {
         ImGui::ProgressBar(remainingTime);
         auto petName = ToString(stats->Kind);
         ImGui::TextUnformatted(petName.data(), petName.data() + petName.size());
-		// render Hunt
 
         auto visual = Pets::GetVisual(stats->Kind);
         auto parentBounds = Ui::UiRect::FromPosSize(ImGui::GetWindowPos(), ImGui::GetWindowSize());
@@ -196,9 +227,7 @@ namespace {
 	}
 
 	void RenderSearching() {
-		
         TextCentered("Searching for prey...");
-		// render Search
 	}
 
     void OnLevelingEvent(const Pets::Leveling::Event& event) {
@@ -286,6 +315,7 @@ namespace {
 
 	void RenderContent() { 
         RenderChild("##Battlefield", BattlefieldBounds, [] {
+            RenderFieldItems();
             if(Manager->IsHunting()) { 
                 RenderHunting(); 
             } else {

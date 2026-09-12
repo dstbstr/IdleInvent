@@ -8,19 +8,19 @@ namespace {
 }
 
 void TextCenteredX(const char* text) {
-    ImGui::SetCursorPosX((ImGui::GetWindowSize().x - ImGui::CalcTextSize(text).x) / 2);
-    ImGui::Text("%s", text);
+    ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(text).x) / 2.f);
+    ImGui::TextUnformatted(text);
 }
 void TextCenterdY(const char* text) {
-    ImGui::SetCursorPosY((ImGui::GetWindowSize().y - ImGui::CalcTextSize(text).y) / 2);
-    ImGui::Text("%s", text);
+    ImGui::SetCursorPosY((ImGui::GetContentRegionAvail().y - ImGui::CalcTextSize(text).y) / 2.f);
+    ImGui::TextUnformatted(text);
 }
 void TextCentered(const char* text) {
     auto size = ImGui::CalcTextSize(text);
-    auto winPos = ImGui::GetWindowSize();
-    auto finalPos = (winPos - size) / 2;
+    auto winPos = ImGui::GetContentRegionAvail();
+    auto finalPos = (winPos - size) / 2.f;
     ImGui::SetCursorPos(finalPos);
-    ImGui::Text("%s", text);
+    ImGui::TextUnformatted(text);
 }
 
 void InitializeFonts(const std::string& fontName) {

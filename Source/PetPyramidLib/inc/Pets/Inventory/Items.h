@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 namespace Pets {
     enum struct CombatItemKind {
         Distraction,
@@ -15,6 +17,9 @@ namespace Pets {
         PetRepelent,
         Hint
     };
+
+    constexpr auto UsableFieldItems = std::array{FieldItemKind::Bait, FieldItemKind::PetRepelent};
+
     /*
     enum struct Items {
         EnergyDrink,

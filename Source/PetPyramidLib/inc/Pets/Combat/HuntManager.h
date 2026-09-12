@@ -16,6 +16,10 @@
 #include <optional>
 
 namespace Pets {
+    struct FieldEffect {
+        FieldItemKind Kind{};
+        BaseTime Remaining{};
+    };
 
     class HuntManager {
     public:
@@ -37,6 +41,8 @@ namespace Pets {
         Combat::CombatantId GetPreyId() const { return m_PreyId; }
         std::optional<PreyStats> GetPreyStats() const;
         const Inventory& GetInventory() const { return m_Inventory; }
+        bool TryUseFieldItem(FieldItemKind kind);
+        const std::vector<FieldEffect>& GetFieldEffects() const { return m_FieldEffects; }
 
         ScopedHandle SubscribeActionResults(const std::function<void(const ActionResult&)>& subscriber);
         void SubscribeActionResults(std::vector<ScopedHandle>& outHandles, const std::function<void(const ActionResult&)>& subscriber);
@@ -54,6 +60,7 @@ namespace Pets {
         Inventory& m_Inventory;
         Party& m_Party;
         PetRoster& m_Roster;
+        std::vector<FieldEffect> m_FieldEffects{};
         std::optional<PartyResolution> m_CurrentResolution{};
         Combat::CombatantId m_PartyId{};
         Combat::CombatantId m_PreyId{};

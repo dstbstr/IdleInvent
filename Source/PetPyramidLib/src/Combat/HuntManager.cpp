@@ -22,6 +22,9 @@ namespace {
 
 namespace Pets {
     void HuntManager::Tick(BaseTime elapsed) {
+        for(auto& effect: m_FieldEffects) effect.Remaining -= elapsed;
+        std::erase_if(m_FieldEffects, [](const FieldEffect& effect) { return effect.Remaining <= ZeroTime; });
+
         if(m_Runner) {
             m_Runner->Tick(elapsed);
             if(m_Runner->GetStatus().State == Combat::RunnerState::Finished) {
@@ -59,7 +62,7 @@ namespace Pets {
             party.ActionInterval
         );
 
-        auto context = EncounterContext{*m_CurrentResolution, m_Roster, m_Inventory};
+        auto context = EncounterContext{*m_CurrentResolution, m_Roster, m_Inventory, m_FieldEffects};
     
         auto prey = PreyProvider::GetPrey(context);
         m_PreyId = encounter.AddCombatant(
@@ -125,6 +128,22 @@ namespace Pets {
     }
     void HuntManager::SubscribeLevelingEvents(std::vector<ScopedHandle>& outHandles, const std::function<void(const Leveling::Event&)>& subscriber) {
         m_LevelingEvents.Subscribe(outHandles, subscriber);
+    }
+
+    bool HuntManager::TryUseFieldItem(FieldItemKind kind) {
+        if(kind != FieldItemKind::Bait && kind != FieldItemKind::PetRepelent) return false;
+        auto qty = m_Inventory.Count(kind);
+        if(qty <= 0) return false;
+
+        m_Inventory.Consume(kind);
+        auto existing = std::ranges::find(m_FieldEffects, kind, &FieldEffect::Kind);
+        if(existing == m_FieldEffects.end()) {
+            m_FieldEffects.push_back(FieldEffect{kind, OneMinute * 2});
+        } else {
+            existing->Remaining += OneMinute * 2;
+        }
+
+        return true;
     }
 
     void HuntManager::HandleActionResult(const ActionResult& result) {
