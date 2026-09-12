@@ -34,8 +34,8 @@ namespace Pets {
 
         auto action = ActionRequestKind::LookPretty;
         // simple stand-in logic
-        if(stats->CurrentHp <= stats->MaxHp / 2) {
-            if (stats->Dodge < 0.5f) {
+        if(stats->CurrentHp <= stats->Battle.MaxHp / 2) {
+            if (stats->Battle.Dodge < 0.5f) {
                 action = ActionRequestKind::Hide;
             } else {
                 action = ActionRequestKind::Defend;

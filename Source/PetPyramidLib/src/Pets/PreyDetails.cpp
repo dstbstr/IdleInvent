@@ -12,63 +12,88 @@ namespace {
         // Dogs
         details[static_cast<size_t>(PetKind::Bloodhound)] = PreyDetails{
             .Kind = PetKind::Bloodhound,
-            .MaxHp = 100,
-            .Armor = 3,
-            .Dodge = 0.2f,
-            .CaptureHpLevel = 0.25f,
-            .CaptureChance = 0.5f,
-            .Gold = 100,
-            .Xp = 50,
-            .FleeTime = OneSecond * 30
+            .Battle {
+                .MaxHp = 100,
+                .Armor = 3,
+                .Dodge = 0.2f,
+                .CaptureHpLevel = 0.25f,
+                .CaptureChance = 0.5f,
+                .Gold = 100,
+                .Xp = 50,
+                .FleeTime = OneSecond * 30
+            },
+            .Encounter {
+                .Rarity = 1
+            }
         };
         
         details[static_cast<size_t>(PetKind::Labrador)] = PreyDetails{
             .Kind = PetKind::Labrador,
-            .MaxHp = 80,
-            .Armor = 2,
-            .Dodge = 0.1f,
-            .CaptureHpLevel = 0.2f,
-            .CaptureChance = 0.4f,
-            .Gold = 80,
-            .Xp = 40,
-            .FleeTime = OneSecond * 25
+            .Battle {
+                .MaxHp = 80,
+                .Armor = 2,
+                .Dodge = 0.1f,
+                .CaptureHpLevel = 0.2f,
+                .CaptureChance = 0.4f,
+                .Gold = 80,
+                .Xp = 40,
+                .FleeTime = OneSecond * 25
+            },
+            .Encounter {
+                .Rarity = 2
+            }
         };
 
         details[static_cast<size_t>(PetKind::Poodle)] = PreyDetails{
             .Kind = PetKind::Poodle,
-            .MaxHp = 60,
-            .Armor = 1,
-            .Dodge = 0.15f,
-            .CaptureHpLevel = 0.15f,
-            .CaptureChance = 0.3f,
-            .Gold = 60,
-            .Xp = 30,
-            .FleeTime = OneSecond * 20
+            .Battle {
+                .MaxHp = 60,
+                .Armor = 1,
+                .Dodge = 0.15f,
+                .CaptureHpLevel = 0.15f,
+                .CaptureChance = 0.3f,
+                .Gold = 60,
+                .Xp = 30,
+                .FleeTime = OneSecond * 20
+            },
+            .Encounter {
+                .Rarity = 3
+            }
         };
 
         details[static_cast<size_t>(PetKind::Chihuahua)] = PreyDetails{
             .Kind = PetKind::Chihuahua,
-            .MaxHp = 40,
-            .Armor = 0,
-            .Dodge = 0.25f,
-            .CaptureHpLevel = 0.1f,
-            .CaptureChance = 0.2f,
-            .Gold = 40,
-            .Xp = 20,
-            .FleeTime = OneSecond * 15
+            .Battle {
+                .MaxHp = 40,
+                .Armor = 0,
+                .Dodge = 0.25f,
+                .CaptureHpLevel = 0.1f,
+                .CaptureChance = 0.2f,
+                .Gold = 40,
+                .Xp = 20,
+                .FleeTime = OneSecond * 15
+            },
+            .Encounter{
+                .Rarity = 4
+            }
         };
 
         // Cats
         details[static_cast<size_t>(PetKind::HouseCat)] = PreyDetails{
             .Kind = PetKind::HouseCat,
-            .MaxHp = 50,
-            .Armor = 1,
-            .Dodge = 0.2f,
-            .CaptureHpLevel = 0.15f,
-            .CaptureChance = 0.1f,
-            .Gold = 50,
-            .Xp = 25,
-            .FleeTime = OneSecond * 20
+            .Battle {
+                .MaxHp = 50,
+                .Armor = 1,
+                .Dodge = 0.2f,
+                .CaptureHpLevel = 0.15f,
+                .CaptureChance = 0.1f,
+                .Gold = 50,
+                .Xp = 25,
+                .FleeTime = OneSecond * 20
+            },
+            .Encounter {
+                .Rarity = 5
+            }
         };
 
             /*

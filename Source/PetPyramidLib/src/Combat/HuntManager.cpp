@@ -155,13 +155,13 @@ namespace Pets {
         auto prey = GetPreyStats();
         if(!prey || !m_CurrentResolution) return;
 
-        m_Inventory.AddGold(prey->Gold);
+        m_Inventory.AddGold(prey->Battle.Gold);
 
         for(const auto& pet : m_CurrentResolution->Pets) {
             auto& owned = m_Roster[pet.Kind];
             if(!owned) continue;
 
-            auto xp = Leveling::XpForDepth(prey->Xp, pet.Depth);
+            auto xp = Leveling::XpForDepth(prey->Battle.Xp, pet.Depth);
             auto result = Leveling::GrantXp(*owned, xp);
             if(result.LeveledUp()) {
                 m_LevelingEvents.Publish({

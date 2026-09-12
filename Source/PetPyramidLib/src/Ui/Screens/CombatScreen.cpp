@@ -113,9 +113,9 @@ namespace {
 	void RenderStats() {
         auto stats = Manager->GetPreyStats();
         if(!stats) return;
-        ImGui::Text("Hp: %d/%d", stats->CurrentHp, stats->MaxHp);
-        ImGui::Text("Armor: %d", stats->Armor);
-        ImGui::Text("Dodge: %.2f", stats->Dodge);
+        ImGui::Text("Hp: %d/%d", stats->CurrentHp, stats->Battle.MaxHp);
+        ImGui::Text("Armor: %d", stats->Battle.Armor);
+        ImGui::Text("Dodge: %.2f", stats->Battle.Dodge);
 		// render prey (and maybe party) stats
 	}
 
@@ -183,7 +183,7 @@ namespace {
 	void RenderHunting() {
         auto stats = Manager->GetPreyStats();
         if(!stats) return;
-        auto remainingTime = static_cast<f32>(stats->FleeTime.count()) / static_cast<f32>(stats->MaxFleeTime.count());
+        auto remainingTime = static_cast<f32>(stats->FleeTime.count()) / static_cast<f32>(stats->Battle.FleeTime.count());
         ImGui::ProgressBar(remainingTime);
         auto petName = ToString(stats->Kind);
         ImGui::TextUnformatted(petName.data(), petName.data() + petName.size());

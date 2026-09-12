@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pets/Pets/Pets.h"
+#include "Pets/Pets/PreyDetails.h"
 
 #include <GameState/GameTime.h>
 #include <Platform/NumTypes.h>
@@ -14,18 +15,9 @@ namespace Pets {
 
     struct PreyStats {
         PetKind Kind{};
+        BattleDetails Battle{};
         s32 CurrentHp{0};
-        s32 MaxHp{0};
-        s32 Armor{0};
-        f32 Dodge{0.f};
-
-        f32 CaptureHpLevel{0.f};
-        f32 CaptureChance{0.f};
-
-        u32 Gold{0};
-        u32 Xp{0};
         BaseTime FleeTime{};
-        BaseTime MaxFleeTime{};
     };
 
     struct HuntCombatant {

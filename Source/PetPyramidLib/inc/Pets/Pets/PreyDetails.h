@@ -4,8 +4,7 @@
 #include <GameState/GameTime.h>
 
 namespace Pets {
-    struct PreyDetails {
-        PetKind Kind{};
+    struct BattleDetails {
         s32 MaxHp{};
         s32 Armor{};
         f32 Dodge{};
@@ -13,7 +12,18 @@ namespace Pets {
         f32 CaptureChance{};
         u32 Gold{};
         u32 Xp{};
-        BaseTime FleeTime{};
+        BaseTime FleeTime{};    
+    };
+
+    struct EncounterDetails {
+        u32 Rarity{};
+
+    };
+
+    struct PreyDetails {
+        PetKind Kind{};
+        BattleDetails Battle{};
+        EncounterDetails Encounter{};
     };
 
     namespace Details {

@@ -28,14 +28,16 @@ namespace Pets {
 
         CombatantId preyId{};
         PreyStats preyStats{
+            .Battle {
+                .MaxHp = 50,
+                .Armor = 5,
+                .Dodge = 0.1f,
+                .CaptureHpLevel = 0.2f,
+                .CaptureChance = 0.5f,
+                .Gold = 100,
+                .Xp = 50,
+            },
             .CurrentHp = 10,
-            .MaxHp = 50,
-            .Armor = 5,
-            .Dodge = 0.1f,
-            .CaptureHpLevel = 0.2f,
-            .CaptureChance = 0.5f,
-            .Gold = 100,
-            .Xp = 50,
             .FleeTime = OneMinute,
         };
         HuntCombatant prey{.ActionInterval = OneSecond, .Stats = preyStats};
@@ -148,7 +150,7 @@ namespace Pets {
         auto& updatedPrey = roster.Get(preyId);
         auto* updatedStats = std::get_if<PreyStats>(&updatedPrey.Stats);
         ASSERT_NE(updatedStats, nullptr);
-        ASSERT_TRUE(updatedStats->Armor > preyStats.Armor);
+        ASSERT_TRUE(updatedStats->Battle.Armor > preyStats.Battle.Armor);
     }
 
     TEST_F(HuntRulesTest, Resolve_WithHide_IncreasesDodge) {
@@ -158,7 +160,7 @@ namespace Pets {
         auto& updatedPrey = roster.Get(preyId);
         auto* updatedStats = std::get_if<PreyStats>(&updatedPrey.Stats);
         ASSERT_NE(updatedStats, nullptr);
-        ASSERT_TRUE(updatedStats->Dodge > preyStats.Dodge);
+        ASSERT_TRUE(updatedStats->Battle.Dodge > preyStats.Battle.Dodge);
     }
 
     struct ResolveItemTest : public HuntRulesTest {
@@ -217,14 +219,14 @@ namespace Pets {
 
     TEST_F(ResolveItemTest, Resolve_WithNet_IncreasesCaptureChance) {
         inventory.Add(CombatItemKind::Net, 1);
-        auto initialCaptureChance = preyStats.CaptureChance;
+        auto initialCaptureChance = preyStats.Battle.CaptureChance;
         auto action = PreyItem(CombatItemKind::Net);
         auto result = rules->Resolve(roster, partyId, action);
 
         auto& updatedPrey = roster.Get(preyId);
         auto* updatedStats = std::get_if<PreyStats>(&updatedPrey.Stats);
         ASSERT_NE(updatedStats, nullptr);
-        ASSERT_TRUE(updatedStats->CaptureChance > initialCaptureChance);
+        ASSERT_TRUE(updatedStats->Battle.CaptureChance > initialCaptureChance);
     }
 
     TEST_F(ResolveItemTest, Resolve_WithSpeedPotion_IncreasesSpeed) {

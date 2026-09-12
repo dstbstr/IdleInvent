@@ -18,16 +18,9 @@ namespace Pets::PreyProvider {
             .ActionInterval = OneSecond,
             .Stats = PreyStats{
                 .Kind = kind,
-                .CurrentHp = details.MaxHp,
-                .MaxHp = details.MaxHp,
-                .Armor = details.Armor,
-                .Dodge = details.Dodge,
-                .CaptureHpLevel = details.CaptureHpLevel,
-                .CaptureChance = details.CaptureChance,
-                .Gold = details.Gold,
-                .Xp = details.Xp,
-                .FleeTime = details.FleeTime,
-                .MaxFleeTime = details.FleeTime
+                .Battle = details.Battle,
+                .CurrentHp = details.Battle.MaxHp,
+                .FleeTime = details.Battle.FleeTime
             }
         };
 	}

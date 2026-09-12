@@ -34,7 +34,7 @@ namespace {
         if(!attackerStats || !defenderStats) return {};
 
         auto amount = attackerStats->Attack;
-        auto reduced = defenderStats->Armor - static_cast<s32>(attackerStats->Piercing);
+        auto reduced = defenderStats->Battle.Armor - static_cast<s32>(attackerStats->Piercing);
         reduced = std::clamp(reduced, 0, static_cast<s32>(amount));
         amount -= reduced;
 
@@ -56,14 +56,14 @@ namespace {
         if(!attackerStats || !defenderStats) return {};
     
         ActionResolution<ActionResult> result{};
-        if(defenderStats->CurrentHp > static_cast<s32>(defenderStats->MaxHp * defenderStats->CaptureHpLevel)) {
+        if(defenderStats->CurrentHp > static_cast<s32>(defenderStats->Battle.MaxHp * defenderStats->Battle.CaptureHpLevel)) {
             result.Events.push_back(MakeEvent(ActionResultKind::CaptureFailed, context));
             return result;
         }
 
         auto& rand = ServiceLocator::Get().GetRequired<IRandom>();
         auto roll = rand.GetNextFloat();
-        auto chance = std::clamp(defenderStats->CaptureChance, 0.f, 1.f);
+        auto chance = std::clamp(defenderStats->Battle.CaptureChance, 0.f, 1.f);
         if(roll < chance) {
             result.Events.push_back(MakeEvent(ActionResultKind::Captured, context));
             result.EncounterFinished = true;        
@@ -88,7 +88,7 @@ namespace {
         if(!preyStats) return {};
 
         auto amount = 10; // TODO: Calculate
-        preyStats->Armor += amount;
+        preyStats->Battle.Armor += amount;
 
         ActionResolution<ActionResult> result{};
         result.Events.push_back(MakeEvent(ActionResultKind::Defended, context, amount));
@@ -102,7 +102,7 @@ namespace {
         if(!preyStats) return {};
 
         auto amount = 0.1f;
-        preyStats->Dodge += amount;
+        preyStats->Battle.Dodge += amount;
 
         ActionResolution<ActionResult> result{};
         result.Events.push_back(MakeEvent(ActionResultKind::Hidden, context));
@@ -135,7 +135,7 @@ namespace {
             case Net: {
                 DR_ASSERT_MSG(preyStats, "Target must have PreyStats for Net item");
                 if(!preyStats) return result;
-                preyStats->CaptureChance *= 1.2f;
+                preyStats->Battle.CaptureChance *= 1.2f;
                 break;
             }
             case AtkPotion: {
