@@ -4,6 +4,7 @@ add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PUBLIC
     imgui # TODO: Consider removing this separate the responsibility with IdleUi
     stbimage
+    miniaudio
 )
 
 # set_source_files_properties(mods/std.ixx PROPERTIES SKIP_LINTING ON)
@@ -31,7 +32,7 @@ if (WIN32)
         src/Win/Win_Platform.cpp
         src/Win/D3dAllocator.cpp
         src/Win/D3dContext.cpp 
-    )
+     "src/Audio.cpp")
     target_link_libraries(${PROJECT_NAME} PRIVATE
         d3d12
         dxgi

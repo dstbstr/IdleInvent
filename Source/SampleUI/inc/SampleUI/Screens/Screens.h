@@ -12,7 +12,8 @@ namespace SampleUI {
 		SampleSimpleMap, 
 		SampleNav, 
 		SampleGiantMap,
-		SampleCombat
+		SampleCombat,
+		SampleAudio
 	};
 
     struct ScreenDefinition {

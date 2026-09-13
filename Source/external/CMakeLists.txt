@@ -26,3 +26,4 @@ endif()
 
 add_subdirectory(imgui)
 add_subdirectory(stb-image)
+add_subdirectory(miniaudio)

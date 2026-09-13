@@ -58,7 +58,6 @@ namespace {
 Engine::~Engine() { 
     m_Game.ShutDown();
     ServiceLocator::Get().ResetAll();
-    Graphics::Shutdown();
     gameLog.reset();
 }
 

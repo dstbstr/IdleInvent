@@ -1,12 +1,13 @@
-#include <SampleUI/Screens/Screens.h>
+#include "SampleUI/Screens/Screens.h"
 
-#include <SampleUI/Screens/Landing.h>
-#include <SampleUI/Screens/SampleCombat.h>
-#include <SampleUI/Screens/SampleGiantMap.h>
-#include <SampleUI/Screens/SampleNav.h>
-#include <SampleUI/Screens/SampleParticles.h>
-#include <SampleUI/Screens/SampleSimpleMap.h>
-#include <SampleUI/Screens/SampleTreePanel.h>
+#include "SampleUI/Screens/Landing.h"
+#include "SampleUI/Screens/SampleAudio.h"
+#include "SampleUI/Screens/SampleCombat.h"
+#include "SampleUI/Screens/SampleGiantMap.h"
+#include "SampleUI/Screens/SampleNav.h"
+#include "SampleUI/Screens/SampleParticles.h"
+#include "SampleUI/Screens/SampleSimpleMap.h"
+#include "SampleUI/Screens/SampleTreePanel.h"
 
 #include <Instrumentation/Logging.h>
 #include <Ui/Dialog.h>
@@ -70,6 +71,14 @@ namespace {
             .Initialize = Screens::SampleCombat::Initialize,
             .ShutDown = Screens::SampleCombat::ShutDown,
             .Render = Screens::SampleCombat::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleAudio,
+            .Name = "SampleAudio",
+            .LandingLabel = "Audio",
+            .Initialize = Screens::SampleAudio::Initialize,
+            .ShutDown = Screens::SampleAudio::ShutDown,
+            .Render = Screens::SampleAudio::Render
         }
     };
 

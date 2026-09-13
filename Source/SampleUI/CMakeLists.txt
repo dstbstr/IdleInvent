@@ -38,7 +38,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Screens/SampleNav.cpp
 	src/Screens/SampleGiantMap.cpp
 	src/Screens/SampleCombat.cpp
-)
+ "src/Screens/SampleAudio.cpp")
 
 if(EXISTS ${SHARED_ASSET_DIR})
 	add_custom_target(SyncSampleUIAssets
