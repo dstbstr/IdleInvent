@@ -59,7 +59,7 @@ namespace Ui::Components::Project {
         auto label = std::format("{}", Constexpr::TimeString(remainingTime));
         ImGui::ProgressBar(timeProgress, ImVec2(-1, 0), label.c_str());
 
-        if(ImGui::CollapsingHeader("ResourceCosts", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanTextWidth)) {
+        if(ImGui::CollapsingHeader("ResourceCosts", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanLabelWidth)) {
             ImGui::TextWrapped("%s", project.Description.c_str());
             ImGui::TextWrapped("%s", project.EffectDescription.c_str());
             for(const auto& resource: Invent::AllResources()) {

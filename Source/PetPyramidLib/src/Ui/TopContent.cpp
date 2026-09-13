@@ -26,14 +26,17 @@ namespace Pets::Ui::Screens::TopContent {
 
     f32 GetRequestedHeight(f32) {
         auto& style = ImGui::GetStyle();
-        return TopFont->FontSize + style.FramePadding.y * 2.f + style.WindowPadding.y * 2.f;
+        ImGui::PushFont(TopFont);
+        auto result = ImGui::GetFontSize() + style.FramePadding.y * 2.f + style.WindowPadding.y * 2.f;
+        ImGui::PopFont();
+        return result;
     }
 
     void Render() {
         auto contentOrigin = ImGui::GetCursorPos();
 
         ImGui::PushFont(TopFont);
-        auto iconSize = TopFont->FontSize;
+        auto iconSize = ImGui::GetFontSize();
         if(ImGui::ImageButton("Settings", Graphics::GetImageHandle(SettingsIcon), {iconSize, iconSize})) {
             if(Ui::Screens::GetActiveScreen() == Ui::Screen::Settings) {
                 Ui::Screens::SetActiveScreen(Ui::Screen::Pets);

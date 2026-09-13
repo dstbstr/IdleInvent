@@ -43,9 +43,9 @@ namespace {
         if(!Selected) return;
         const auto& details = Pets::Details::GetPet(*Selected);
         auto owned = (*Roster)[*Selected];
-        ImGui::Text("Base Attack: %u", details.Attack);
-        ImGui::Text("Base Pierce: %u", details.Piercing);
         if(owned) {
+            ImGui::Text("Base Attack: %u", details.Attack);
+            ImGui::Text("Base Pierce: %u", details.Piercing);
             ImGui::Text("Level: %u", owned->Level);
             for(const auto& ability: details.Abilities) {
                 if(ability.Level <= owned->Level) {

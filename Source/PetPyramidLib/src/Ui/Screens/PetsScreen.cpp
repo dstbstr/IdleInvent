@@ -316,8 +316,9 @@ namespace Pets::Ui::Screens::Pets {
 			? available.y * DetailsHeightPercent
 			: 0.f;
         auto gapCount = 1 + hasDetails;
-        auto* statsFont = GetFont(FontSizes::H2);
-        auto statsHeight = statsFont->FontSize + ImGui::GetStyle().CellPadding.y;
+        ImGui::PushFont(GetFont(FontSizes::H2));
+        auto statsHeight = ImGui::GetFontSize() + ImGui::GetStyle().CellPadding.y;
+        ImGui::PopFont();
 
 		auto treeHeight = available.y - statsHeight - rosterHeight - detailsHeight - gap * gapCount;
         auto statsBounds = ::Ui::UiRect::FromPosSize(origin, {available.x, statsHeight});

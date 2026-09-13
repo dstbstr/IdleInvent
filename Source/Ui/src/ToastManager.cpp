@@ -66,12 +66,14 @@ namespace Ui {
 					image->UvMax,
 					toast.Color);
 			} else if(auto* str = std::get_if<std::string>(&toast.Content)) {
+                ImGui::PushFont(m_Config.ToastFont);
                 drawList->AddText(
 					m_Config.ToastFont,
-					m_Config.ToastFont->FontSize,
+					ImGui::GetFontSize(),
 					toast.Position, 
 					toast.Color, 
 					str->c_str());
+                ImGui::PopFont();
 			}
 		}
 	}

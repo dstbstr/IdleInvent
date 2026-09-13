@@ -157,14 +157,23 @@ D3dContext::D3dContext(Platform& platform) {
 
     CreateRenderTarget();
 
-    [[maybe_unused]] auto success = ImGui_ImplDX12_Init(
-        Device.Get(),
-        FramesInFlightCount,
-        DXGI_FORMAT_R8G8B8A8_UNORM, // rtv format
-        SrvHeap.Get(), // cbv_srv_heap
-        SrvHeap->GetCPUDescriptorHandleForHeapStart(),
-        SrvHeap->GetGPUDescriptorHandleForHeapStart()
-    );
+    ImGui_ImplDX12_InitInfo info{};
+    info.Device = Device.Get();
+    info.CommandQueue = CommandQueue.Get();
+    info.NumFramesInFlight = FramesInFlightCount;
+    info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    info.DSVFormat = DXGI_FORMAT_UNKNOWN;
+    info.SrvDescriptorHeap = SrvHeap.Get();
+    info.UserData = Alloc.get();
+
+    info.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* init, D3D12_CPU_DESCRIPTOR_HANDLE* cpu, D3D12_GPU_DESCRIPTOR_HANDLE* gpu) {
+            static_cast<D3dAllocator*>(init->UserData)->Alloc(cpu, gpu);
+    };
+    info.SrvDescriptorFreeFn =
+        [](ImGui_ImplDX12_InitInfo* init, D3D12_CPU_DESCRIPTOR_HANDLE cpu, D3D12_GPU_DESCRIPTOR_HANDLE gpu) {
+            static_cast<D3dAllocator*>(init->UserData)->Free(cpu, gpu);
+        };
+    [[maybe_unused]] auto success = ImGui_ImplDX12_Init(&info);
     IM_ASSERT(success);
 }
 

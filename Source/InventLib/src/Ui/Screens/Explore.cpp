@@ -47,7 +47,7 @@ namespace {
             SelectedExpedition->Invest(life.Resources);
         }
         if(ImGui::CollapsingHeader(
-               "ResourceCosts", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanTextWidth
+               "ResourceCosts", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanLabelWidth
            )) {
             for(const auto& resource: Invent::AllResources()) {
                 auto id = static_cast<u16>(resource);
