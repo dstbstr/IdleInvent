@@ -2,6 +2,7 @@
 #include "Pets/Combat/HuntManager.h"
 #include "Pets/Ui/Ui.h"
 #include "Pets/Inventory/Inventory.h"
+#include "Pets/Pets/Bestiary.h"
 
 #include <DesignPatterns/PubSub.h>
 #include "DesignPatterns/ServiceLocator.h"
@@ -23,6 +24,7 @@ namespace Pets {
         auto& inv = services.GetOrCreate<Inventory>();
         auto& party = services.GetOrCreate<Party>();
 		auto& petRoster = services.GetOrCreate<PetRoster>();
+        auto& bestiary = services.GetOrCreate<Bestiary>();
 		auto searchTime = OneSecond;
 		auto& hunt = services.GetOrCreate<HuntManager>(inv, party, petRoster, searchTime);
 		TickManager::Get().Register(GlobalSubs, hunt);

@@ -8,18 +8,26 @@ namespace {
 }
 
 void TextCenteredX(const char* text) {
-    ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(text).x) / 2.f);
+    auto origin = ImGui::GetCursorPosX();
+    auto available = ImGui::GetContentRegionAvail().x;
+    auto size = ImGui::CalcTextSize(text).x;
+    ImGui::SetCursorPosX(origin + (available - size) * 0.5f);
     ImGui::TextUnformatted(text);
 }
+
 void TextCenterdY(const char* text) {
-    ImGui::SetCursorPosY((ImGui::GetContentRegionAvail().y - ImGui::CalcTextSize(text).y) / 2.f);
+    auto origin = ImGui::GetCursorPosY();
+    auto available = ImGui::GetContentRegionAvail().y;
+    auto size = ImGui::CalcTextSize(text).y;
+    ImGui::SetCursorPosY(origin + (available - size) * 0.5f);
     ImGui::TextUnformatted(text);
 }
+
 void TextCentered(const char* text) {
+    auto origin = ImGui::GetCursorPos();
+    auto available = ImGui::GetContentRegionAvail();
     auto size = ImGui::CalcTextSize(text);
-    auto winPos = ImGui::GetContentRegionAvail();
-    auto finalPos = (winPos - size) / 2.f;
-    ImGui::SetCursorPos(finalPos);
+    ImGui::SetCursorPos(origin + (available - size) * 0.5f);
     ImGui::TextUnformatted(text);
 }
 

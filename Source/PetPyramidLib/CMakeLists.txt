@@ -28,6 +28,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Inventory/Inventory.cpp
 	src/Inventory/ItemDetails.cpp
 
+	src/Pets/Bestiary.cpp
 	src/Pets/Leveling.cpp
 	src/Pets/PetDetails.cpp
 	src/Pets/Pets.cpp
@@ -45,4 +46,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/RebirthScreen.cpp
 	src/Ui/Screens/Screens.cpp
 	src/Ui/Screens/StoreScreen.cpp
- "inc/Pets/Combat/EncounterContext.h")
+)

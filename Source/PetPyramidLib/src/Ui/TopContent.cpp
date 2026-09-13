@@ -30,6 +30,8 @@ namespace Pets::Ui::Screens::TopContent {
     }
 
     void Render() {
+        auto contentOrigin = ImGui::GetCursorPos();
+
         ImGui::PushFont(TopFont);
         auto iconSize = TopFont->FontSize;
         if(ImGui::ImageButton("Settings", Graphics::GetImageHandle(SettingsIcon), {iconSize, iconSize})) {
@@ -39,6 +41,8 @@ namespace Pets::Ui::Screens::TopContent {
                 Ui::Screens::SetActiveScreen(Ui::Screen::Settings);
             }
         }
+
+        ImGui::SetCursorPos(contentOrigin);
         RenderFps();
         ImGui::PopFont();
     }
