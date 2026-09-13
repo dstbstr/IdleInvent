@@ -49,7 +49,7 @@ namespace Pets::PreyProvider {
 
             auto weight = 1.0 / static_cast<f64>(details.Encounter.Rarity);
             if(baitActive) weight = std::sqrt(weight);
-            if(repellentActive && context.Roster[details.Kind].has_value()) weight *= 0.1f;
+            if(repellentActive && context.Roster[details.Kind].has_value()) weight *= 0.01f;
             
             totalWeight += weight;
             candidates.emplace_back(&details, totalWeight);

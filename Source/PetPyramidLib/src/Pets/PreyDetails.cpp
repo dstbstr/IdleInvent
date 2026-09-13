@@ -25,8 +25,7 @@ namespace {
                 .FleeTime = OneSecond * 30
             },
             .Encounter {
-                .Rarity = 1,
-                .PrereqDesc = "None"
+                .Rarity = 1
             }
         };
         
@@ -64,8 +63,7 @@ namespace {
                 .FleeTime = OneSecond * 20
             },
             .Encounter {
-                .Rarity = 3,
-                .PrereqDesc = "None"
+                .Rarity = 3
             }
         };
 
@@ -82,8 +80,7 @@ namespace {
                 .FleeTime = OneSecond * 15
             },
             .Encounter{
-                .Rarity = 4,
-                .PrereqDesc = "None"
+                .Rarity = 4
             }
         };
 

@@ -1,4 +1,5 @@
 #include "Pets/Ui/Screens/BestiaryScreen.h"
+#include "Pets/Pets/PreyDetails.h"
 #include "Pets/Ui/Ui.h"
 #include "Pets/Pets/Bestiary.h"
 #include "Pets/Pets/PetDetails.h"
@@ -41,18 +42,41 @@ namespace {
 
 	void RenderInfoPanel() {
         if(!Selected) return;
-        const auto& details = Pets::Details::GetPet(*Selected);
-        auto owned = (*Roster)[*Selected];
-        if(owned) {
-            ImGui::Text("Base Attack: %u", details.Attack);
-            ImGui::Text("Base Pierce: %u", details.Piercing);
-            ImGui::Text("Level: %u", owned->Level);
-            for(const auto& ability: details.Abilities) {
-                if(ability.Level <= owned->Level) {
-                    // TODO: Render abilities description
-                    ImGui::Text("Ability: (Level %u)", ability.Level);
-                }
-            }
+        auto kind = *Selected;
+
+        if(!Pets::Details::ContainsPrey(kind)) {
+            ImGui::TextUnformatted("No details availble yet.");
+            return;
+        }
+        
+        auto level = Instance->GetLevel(kind);
+        auto hintCount = Inv->Count(Pets::FieldItemKind::Hint);
+        auto canHint = hintCount > 0 && level != Pets::DiscoveryLevel::Studied;
+
+        ImGui::BeginDisabled(!canHint);
+        if(ImGui::Button("Use Hint") && Instance->Hint(kind)) {
+            Inv->Consume(Pets::FieldItemKind::Hint);
+            level = Instance->GetLevel(kind);
+        }
+        ImGui::EndDisabled();
+
+        ImGui::SameLine();
+        ImGui::Text("Hints: %zu", Inv->Count(Pets::FieldItemKind::Hint));
+
+        if(level == Pets::DiscoveryLevel::Unknown) {
+            ImGui::TextUnformatted("Unknown Pet");
+            return;
+        }
+
+        const auto& prey = Pets::Details::GetPrey(kind);
+
+        ImGui::Text("Capture Chance: %.2f%%", prey.Battle.CaptureChance * 100);
+        if(level == Pets::DiscoveryLevel::Identified) return;
+
+        ImGui::Text("Capture Hp Level: %.2f%%", prey.Battle.CaptureHpLevel * 100);
+        auto prereq = prey.Encounter.PrereqDesc;
+        if(!prereq.empty()) {
+            ImGui::TextUnformatted(prereq.data(), prereq.data() + prereq.size());
         }
 	}
 
