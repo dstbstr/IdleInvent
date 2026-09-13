@@ -26,7 +26,7 @@ namespace Pets {
 		auto& petRoster = services.GetOrCreate<PetRoster>();
         auto& bestiary = services.GetOrCreate<Bestiary>();
 		auto searchTime = OneSecond;
-		auto& hunt = services.GetOrCreate<HuntManager>(inv, party, petRoster, searchTime);
+		auto& hunt = services.GetOrCreate<HuntManager>(inv, party, petRoster, bestiary, searchTime);
 		TickManager::Get().Register(GlobalSubs, hunt);
 
 		petRoster[PetKind::Hero] = OwnedPet {

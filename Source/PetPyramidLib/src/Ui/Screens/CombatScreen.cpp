@@ -20,6 +20,7 @@
 
 namespace {
     Pets::HuntManager* Manager{nullptr};
+
     std::unique_ptr<Ui::ToastManager> Toasts{nullptr};
     std::vector<ScopedHandle> Subs{};
     bool ShowItems{false};

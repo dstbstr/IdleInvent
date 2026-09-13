@@ -8,6 +8,7 @@
 #include "Pets/Combat/HuntEvents.h"
 #include "Pets/Combat/HuntRules.h"
 #include "Pets/Inventory/Inventory.h"
+#include "Pets/Pets/Bestiary.h"
 #include "Pets/Pets/Leveling.h"
 
 #include <Combat/CombatRunner.h>
@@ -23,13 +24,15 @@ namespace Pets {
 
     class HuntManager {
     public:
-        HuntManager(Inventory& inventory, Party& party, PetRoster& roster, BaseTime searchTime = OneSecond * 30)
+        HuntManager(Inventory& inventory, Party& party, PetRoster& roster, Bestiary& bestiary, BaseTime searchTime = OneSecond * 30)
             : m_SearchTime(searchTime)
             , m_RemainingSearchTime(searchTime)
             , m_Runner(nullptr)
             , m_Inventory(inventory)
             , m_Party(party)
-            , m_Roster(roster) {}
+            , m_Roster(roster)
+            , m_Bestiary(bestiary)
+        {}
 
         void Tick(BaseTime elapsed);
         bool IsHunting() const { return m_Runner != nullptr; }
@@ -60,6 +63,7 @@ namespace Pets {
         Inventory& m_Inventory;
         Party& m_Party;
         PetRoster& m_Roster;
+        Bestiary& m_Bestiary;
         std::vector<FieldEffect> m_FieldEffects{};
         std::optional<PartyResolution> m_CurrentResolution{};
         Combat::CombatantId m_PartyId{};

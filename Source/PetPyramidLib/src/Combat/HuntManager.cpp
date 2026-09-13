@@ -68,7 +68,6 @@ namespace Pets {
         m_PreyId = encounter.AddCombatant(
             Social::ToFactionId(HuntFaction::Prey), 
             prey, prey.ActionInterval);
-        
         m_Runner = std::make_unique<HuntCombatRunner>(std::move(encounter));
         m_Runner->SetController(m_PreyId, std::make_unique<PreyController>());
         m_EventHandle = m_Runner->SubscribeEvents([this](const ActionResult& result) {
@@ -162,6 +161,7 @@ namespace Pets {
         auto prey = GetPreyStats();
         if(!prey) return;
 
+        m_Bestiary.Study(prey->Kind);
         auto& owned = m_Roster[prey->Kind];
         if(owned) return;
 
@@ -176,6 +176,7 @@ namespace Pets {
         auto prey = GetPreyStats();
         if(!prey || !m_CurrentResolution) return;
 
+        m_Bestiary.Identify(prey->Kind);
         m_Inventory.AddGold(prey->Battle.Gold);
 
         for(const auto& pet : m_CurrentResolution->Pets) {
@@ -194,7 +195,9 @@ namespace Pets {
         }
     }
 
-    void HuntManager::OnPreyFled() {
-        
+    void HuntManager::OnPreyFled() { 
+        auto prey = GetPreyStats();
+        if(!prey) return;
+        m_Bestiary.Identify(prey->Kind);
     }
 }
