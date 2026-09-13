@@ -27,9 +27,7 @@ git-lfs pull
 * In the root CMakeLists.txt
     * add_subdirectory(<Game>Lib)
 * In the Game/CMakeLists.txt
-    * Add <Game> to the list of game proejcts
-    * Set the GAME to <Game>
-    * Add a block to set the GAME_LIB, GAME_HEADER, and GAME_TYPE to match
+    * Add a row of add_game_exe(<Game> <gameLib> <gameHeader> <gameNamespace> )
 * In <Game>Lib/inc/<Game>
     * Create a <Game>Game.h
     * Copy an existing one
@@ -38,4 +36,3 @@ git-lfs pull
     * Copy an existing one
 * Optionally
     * Create <Game>LibTest project
-* Clear the CMake cache and rebuild
