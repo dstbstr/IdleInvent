@@ -11,9 +11,12 @@
 
 #include "imgui.h"
 
+#include <optional>
+#include <sstream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 #ifdef DEBUG
@@ -48,7 +51,37 @@ namespace {
     Platform* PlatformPtr;
     ImVec2 ScreenSize{0, 0};
     std::unordered_map<std::string, AndroidImage> Images{};
+    std::unordered_map<std::string, ImFont*> Fonts{};
+    std::unordered_map<std::string, Sprite> Sprites{};
 
+    std::optional<AndroidImage> TryLoadTextureFromMemory(const void* data, size_t dataSize) {
+        int width = 0;
+        int height = 0;
+        int channels = 0;
+        auto* pixels = stbi_load_from_memory(
+            static_cast<const stbi_uc*>(data), static_cast<int>(dataSize), &width, &height, &channels, 4
+        );
+        if(!pixels) return std::nullopt;
+
+        GLuint textureId = 0;
+        glGenTextures(1, &textureId);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        stbi_image_free(pixels);
+
+        // stbi reports the channel count of the source, but we always request RGBA
+        return AndroidImage{width, height, 4, textureId};
+    }
+    /*
     bool BindTexture(stbi_uc* data, AndroidImage& outImage) {
         // Create OpenGL texture id
         GL_CHECK(glGenTextures(1, &outImage.TextureId));
@@ -77,6 +110,7 @@ namespace {
 
         return true;
     }
+    */
 
     bool InitializeEgl() {
         EGL_CHECK(display = eglGetDisplay(EGL_DEFAULT_DISPLAY));
@@ -119,8 +153,6 @@ namespace {
         io.DisplaySize = ScreenSize;
         io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
-        Graphics::SetFont("DroidSans.ttf", 32.0f);
-
         ImGui::GetStyle().ScaleAllSizes(3.0f);
     }
 }
@@ -146,6 +178,10 @@ namespace Graphics {
     }
 
     void Shutdown() {
+        Fonts.clear();
+        Sprites.clear();
+        Images.clear();
+
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplAndroid_Shutdown();
         ImGui::DestroyContext();
@@ -165,78 +201,105 @@ namespace Graphics {
         ANativeWindow_release(Window);
     }
 
-    void SetFont(const char* fontName, float fontSize) {
-        ImGuiIO& io = ImGui::GetIO();
+    bool TryLoadFont(const std::string& id, const char* fontName, float fontSize) {
+        constexpr std::string_view fontsDir = "Fonts/";
         
-        void* fontData;
-        size_t fontDataSize;
-        if(!PlatformPtr->TryGetAsset(fontName, &fontData, fontDataSize)) {
-            IM_ASSERT(false);
-            return;
+        auto resolvedName = std::string(fontName);
+        if(!resolvedName.starts_with(fontsDir)) {
+            resolvedName = std::string(fontsDir) + resolvedName;
         }
 
-        ImFont* font = io.Fonts->AddFontFromMemoryTTF(fontData, fontDataSize, fontSize);
-        IM_ASSERT(font != nullptr);
+        void* fontData = nullptr;
+        size_t fontDataSize = 0;
+        if(!PlatformPtr->TryGetAsset(resolvedName.c_str(), &fontData, fontDataSize)) {
+            return false;
+        }
+
+        auto& io = ImGui::GetIO();
+        auto* font = io.Fonts->AddFontFromMemoryTTF(fontData, static_cast<int>(fontDataSize), fontSize);
+        if(!font) return false;
+
+        Fonts.emplace(id, font);
+        return true;
+    }
+
+    ImFont* GetFont(const std::string& id) {
+        IM_ASSERT(Fonts.contains(id));
+        return Fonts.at(id);
     }
 
     bool TryLoadImageFile(const std::string& file) {
         if(Images.contains(file)) return true;
 
-        stbi_uc* fileData;
-        size_t dataSize;
+        void* fileData = nullptr;
+        size_t fileSize = 0;
 
-        if(!PlatformPtr->TryGetAsset(file.c_str(), reinterpret_cast<void**>(&fileData), dataSize)) {
+        if(!PlatformPtr->TryGetAsset(file.c_str(), &fileData, fileSize)) {
             IM_ASSERT(false);
             return false;
         }
 
-        int width, height, channels;
-        auto* data = stbi_load_from_memory(fileData, dataSize, &width, &height, &channels, 0);
-        if(!data) return false;
+        auto img = TryLoadTextureFromMemory(fileData, fileSize);
+        IM_FREE(fileData);
+        if(!img) return false;
 
-        Images.emplace(file, AndroidImage{width, height, channels});
-        auto success = BindTexture(data, Images.at(file));
-        if(!success) {
-            Images.erase(file);
-        }
-
-        stbi_image_free(data);
-
-        return success;
+        Images.emplace(file, std::move(*img));
+        return true;
     }
 
     // TODO: Untested
-    bool TryLoadSpriteSheet(const std::string& file, const std::vector<SpriteRegion>& regions) {
+    bool TryLoadSpriteRegions(const std::string& file, std::vector<SpriteRegion>& outRegions) {
         void* fileData = nullptr;
         size_t fileSize = 0;
-        if(!g_Platform->TryGetAsset(file.c_str(), &fileData, fileSize)) return false;
+        if(!PlatformPtr->TryGetAsset(file.c_str(), &fileData, fileSize)) return false;
+        // returned buffer is not null terminated, so create with the known size
+        std::string txtData(static_cast<const char*>(fileData), fileSize);
+        IM_FREE(fileData);
 
-        int sheetWidth = 0, sheetHeight = 0;
-        auto* pixels = stbi_load_from_memory(
-            static_cast<const unsigned char*>(fileData),
-            static_cast<int>(fileSize),
-            &sheetWidth,
-            &sheetHeight,
-            nullptr,
-            4
-        );
-        if(!pixels) return false;
-        bool success = true;
-        for(const auto& region: regions) {
-            if(Images.contains(region.Name)) continue;
-            auto img =
-                TryLoadTextureFromPixels(pixels, sheetWidth, region.X, region.Y, region.Width, region.Height);
-            if(img) {
-                Images.emplace(region.Name, std::move(img));
-            } else {
-                success = false;
-                break;
-            }
+        std::istringstream ss(txtData);
+        std::string line;
+        while(std::getline(ss, line)) {
+            if(line.empty()) continue;
+            std::istringstream lineStream(line);
+            SpriteRegion region{};
+            lineStream >> region.Name >> region.X >> region.Y >> region.Width >> region.Height;
+            outRegions.push_back(region);
         }
-        stbi_image_free(pixels);
-        return success;
+        return true;
     }
 
+    bool TryLoadSpriteSheet(const std::string& file) {
+        auto txtName = file.substr(0, file.find_last_of('.')) + ".txt";
+        std::vector<SpriteRegion> regions;
+        if(!TryLoadSpriteRegions(txtName, regions)) return false;
+        return TryLoadSpriteSheet(file, regions);
+    }
+
+    bool TryLoadSpriteSheet(const std::string& file, const std::vector<SpriteRegion>& regions) {
+        if(!TryLoadImageFile(file)) return false;
+
+        const auto& sheet = Images.at(file);
+        const auto handle = sheet.ToHandle();
+        const float w = static_cast<float>(sheet.Width);
+        const float h = static_cast<float>(sheet.Height);
+
+        for(const auto& r: regions) {
+            const ImVec2 uvMin{static_cast<float>(r.X) / w, static_cast<float>(r.Y) / h};
+            const ImVec2 uvMax{static_cast<float>(r.X + r.Width) / w, static_cast<float>(r.Y + r.Height) / h};
+            Sprites[r.Name] = Sprite{handle, uvMin, uvMax};
+        }
+
+        return true;
+    }
+
+    Sprite GetSprite(const std::string& name) {
+        IM_ASSERT(Sprites.contains(name));
+        return Sprites.at(name);
+    }
+
+    bool IsImageValid(const std::string& name) { return Images.contains(name); }
+
+    bool IsSpriteValid(const std::string& name) { return Sprites.contains(name); }
 
     ImTextureID GetImageHandle(const std::string& file) {
         IM_ASSERT(Images.contains(file));

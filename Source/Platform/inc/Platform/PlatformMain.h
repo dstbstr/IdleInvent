@@ -41,7 +41,7 @@ void android_main(android_app* app) {
     platform.HandleInput();
 
     auto gameState = GetGameState(platform);
-    if(Graphics::Initialize(platform) && gameState->Initialize(platform)) {
+    if(Graphics::Initialize(platform) && gameState->Initialize()) {
         gameState->Run();
     }
 }

@@ -119,6 +119,16 @@ bool Platform::HandleInput() {
     return true;
 }
 
+std::pair<float, float> Platform::GetScreenSize() const {
+    auto* window = App->Window;
+    if(!window.f) return {0.f, 0.f};
+
+    return {
+        static_cast<float>(ANativeWindow_getWidth(window)),
+        static_cast<float>(ANativeWindow_getHeight(window))
+    };
+}
+
 std::filesystem::path Platform::GetRootPath() const { 
     return std::filesystem::path(App->activity->internalDataPath); 
 }
