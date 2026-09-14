@@ -22,11 +22,16 @@ namespace {
 
     Audio::Sound Tone{};
     Audio::AudioHandle Voice{};
+
+    Audio::Sound ButtonClick{};
+    Audio::Sound CoinDrop{};
 }
 
 namespace SampleUI::Screens::SampleAudio {
     bool Initialize() { 
-        return true; 
+        ButtonClick = Audio::LoadSound("Sfx/ButtonClick.mp3");
+        CoinDrop = Audio::LoadSound("Sfx/DropCoin.mp3");
+        return ButtonClick.GetDuration() > Audio::Duration::zero();
     }
 
     void ShutDown() { 
@@ -74,6 +79,11 @@ namespace SampleUI::Screens::SampleAudio {
                     Voice = Looping ? Tone.Loop(Volume) : Tone.Play(Volume);
                 }
             }
+
+            if(ImGui::Button("Click")) ButtonClick.PlayOnce(0.2f);
+            ImGui::SameLine();
+            if(ImGui::Button("Coin Drop")) CoinDrop.PlayOnce(0.2f);
+            
 
             ImGui::PopFont();
         });

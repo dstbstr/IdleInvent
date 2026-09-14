@@ -26,6 +26,7 @@ namespace SampleUiApp {
 
 		void Tick(BaseTime elapsed) override {
 			TickManager::Get().Tick(elapsed);
+            Audio::Update();
 			Graphics::Render(SampleUI::Render);
 		}
 	};
