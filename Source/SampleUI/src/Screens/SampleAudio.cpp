@@ -13,7 +13,11 @@ namespace {
         Triangle,
         Pulse
     };
-    f32 Volume = 0.1f;
+    f32 MasterVolume = 0.1f;
+    f32 SfxVolume = 0.5f;
+    f32 MusicVolume = 0.5f;
+    bool Mute = false;
+
     f32 Hz = 440.f;
     f32 Duration = 1.f;
     f32 DutyCycle = 0.5f;
@@ -29,8 +33,8 @@ namespace {
 
 namespace SampleUI::Screens::SampleAudio {
     bool Initialize() { 
-        ButtonClick = Audio::LoadSound("Sfx/ButtonClick.mp3");
-        CoinDrop = Audio::LoadSound("Sfx/DropCoin.mp3");
+        ButtonClick = Audio::LoadSound("Sfx/ButtonClick.mp3", Audio::Kind::Sfx);
+        CoinDrop = Audio::LoadSound("Sfx/DropCoin.mp3", Audio::Kind::Sfx);
         return ButtonClick.GetDuration() > Audio::Duration::zero();
     }
 
@@ -52,9 +56,19 @@ namespace SampleUI::Screens::SampleAudio {
             }
             ImGui::Checkbox("Loop", &Looping);
 
-            if(ImGui::SliderFloat("Volume", &Volume, 0.f, 1.f, "%.2f")) {
-                Voice.SetVolume(Volume);
+            if(ImGui::SliderFloat("Master Volume", &MasterVolume, 0.f, 1.f, "%.2f")) {
+                Audio::SetMasterVolume(MasterVolume);
             }
+            if(ImGui::SliderFloat("Sfx Volume", &SfxVolume, 0.f, 1.f, "%.2f")) {
+                Audio::SetKindVolume(Audio::Kind::Sfx, SfxVolume);
+            }
+            if(ImGui::SliderFloat("Music Volume", &MusicVolume, 0.f, 1.f, "%.2f")) {
+                Audio::SetKindVolume(Audio::Kind::Music, MusicVolume);
+            }
+            if(ImGui::Checkbox("Mute", &Mute)) {
+                Audio::SetMuted(Mute);
+            }
+
             ImGui::TextUnformatted("Frequency, duration, looping take affect on next play");
 
             auto playing = !Voice.IsDone();
@@ -76,14 +90,13 @@ namespace SampleUI::Screens::SampleAudio {
                         Tone = fn(Hz, Audio::Duration{Duration});
                     }
 
-                    Voice = Looping ? Tone.Loop(Volume) : Tone.Play(Volume);
+                    Voice = Looping ? Tone.Loop() : Tone.Play();
                 }
             }
 
-            if(ImGui::Button("Click")) ButtonClick.PlayOnce(0.2f);
+            if(ImGui::Button("Click")) ButtonClick.PlayOnce();
             ImGui::SameLine();
-            if(ImGui::Button("Coin Drop")) CoinDrop.PlayOnce(0.2f);
-            
+            if(ImGui::Button("Coin Drop")) CoinDrop.PlayOnce();
 
             ImGui::PopFont();
         });

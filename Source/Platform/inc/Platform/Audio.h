@@ -8,6 +8,7 @@ struct Platform;
 
 namespace Audio {
     using Duration = std::chrono::duration<double>;
+    enum struct Kind { Sfx, Music };
 
     class AudioHandle {
     public:
@@ -34,21 +35,25 @@ namespace Audio {
     struct SoundData;
     struct Sound {
         Duration GetDuration() const;
-        void PlayOnce(float volume = 1.f) const;
-        AudioHandle Play(float volume = 1.f) const;
-        AudioHandle Loop(float volume = 1.f) const;
+        void PlayOnce() const;
+        AudioHandle Play() const;
+        AudioHandle Loop() const;
 
     private:
         std::shared_ptr<const SoundData> m_Data;
-        friend Sound LoadSound(std::string_view soundName);
+        Kind m_Kind{Kind::Sfx};
+        friend Sound LoadSound(std::string_view soundName, Kind kind);
         friend struct ToneGenerator;
     };
 
     bool Initialize(Platform& platform);
     void Shutdown();
 
-    Sound LoadSound(std::string_view soundName);
+    Sound LoadSound(std::string_view soundName, Kind kind);
     void Update();
+    void SetMasterVolume(float volume);
+    void SetKindVolume(Kind kind, float volume);
+    void SetMuted(bool muted);
 
     struct ToneGenerator {
         static Sound Sine(float hz, Duration duration);

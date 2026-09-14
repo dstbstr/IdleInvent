@@ -14,8 +14,24 @@ namespace {
     Platform* PlatformPtr{nullptr};
     ma_engine Engine{};
     bool AudioSystemInitialized{};
+    float MasterVolume{1.f};
+    float MusicVolume{1.f};
+    float SfxVolume{1.f};
+    bool Muted{false};
 
     std::vector<Audio::AudioHandle> PlayOnceHandles{};
+    ma_sound_group MusicGroup{};
+    ma_sound_group SfxGroup{};
+
+    ma_sound_group* GetGroup(Audio::Kind kind) { return kind == Audio::Kind::Music ? &MusicGroup : &SfxGroup; }
+
+    void ApplyVolumes() {
+        if(!AudioSystemInitialized) return;
+
+        ma_engine_set_volume(&Engine, Muted ? 0.f : MasterVolume);
+        ma_sound_group_set_volume(&MusicGroup, MusicVolume);
+        ma_sound_group_set_volume(&SfxGroup, SfxVolume);
+    }
 }
 
 namespace Audio {
@@ -32,7 +48,7 @@ namespace Audio {
         bool BufferInitialized{};
         bool VoiceInitialized{};
 
-        bool Initialize(std::shared_ptr<const SoundData> data, bool loop, float volume) {
+        bool Initialize(std::shared_ptr<const SoundData> data, bool loop, Kind kind) {
             if(!AudioSystemInitialized || !data || data->Samples.empty() || data->Channels == 0 || data->SampleRate == 0) {
                 return false;
             }
@@ -46,13 +62,13 @@ namespace Audio {
             if(ma_audio_buffer_init(&config, &Buffer) != MA_SUCCESS) return false;
             BufferInitialized = true;
 
-            if(ma_sound_init_from_data_source(&Engine, &Buffer, MA_SOUND_FLAG_NO_SPATIALIZATION, nullptr, &Voice) != MA_SUCCESS) {
+            auto* group = GetGroup(kind);
+            if(ma_sound_init_from_data_source(&Engine, &Buffer, MA_SOUND_FLAG_NO_SPATIALIZATION, group, &Voice) != MA_SUCCESS) {
                 return false;
             }
             VoiceInitialized = true;
 
             ma_sound_set_looping(&Voice, loop ? MA_TRUE : MA_FALSE);
-            ma_sound_set_volume(&Voice, volume);
             return ma_sound_start(&Voice) == MA_SUCCESS;
         }
 
@@ -79,20 +95,20 @@ namespace Audio {
         return Duration{static_cast<double>(frames) / m_Data->SampleRate};
     }
 
-    void Sound::PlayOnce(float volume) const { 
-        PlayOnceHandles.emplace_back(Play(volume)); 
+    void Sound::PlayOnce() const { 
+        PlayOnceHandles.emplace_back(Play()); 
     }
 
-    AudioHandle Sound::Play(float volume) const {
+    AudioHandle Sound::Play() const {
         auto impl = std::make_unique<AudioHandle::Impl>();
-        if(!impl->Initialize(m_Data, false, volume)) return {};
+        if(!impl->Initialize(m_Data, false, m_Kind)) return {};
 
         return AudioHandle(std::move(impl));
     }
 
-    AudioHandle Sound::Loop(float volume) const {
+    AudioHandle Sound::Loop() const {
         auto impl = std::make_unique<AudioHandle::Impl>();
-        if(!impl->Initialize(m_Data, true, volume)) return {};
+        if(!impl->Initialize(m_Data, true, m_Kind)) return {};
 
         return AudioHandle(std::move(impl));
     }
@@ -115,10 +131,24 @@ namespace Audio {
     bool Initialize(Platform& platform) {
         if(AudioSystemInitialized) return true;
 
-        PlatformPtr = &platform;
         auto config = ma_engine_config_init();
-        AudioSystemInitialized = ma_engine_init(&config, &Engine) == MA_SUCCESS;
-        return AudioSystemInitialized;
+        if(ma_engine_init(&config, &Engine) != MA_SUCCESS) return false;
+        
+        auto flags = MA_SOUND_FLAG_NO_SPATIALIZATION;
+        if(ma_sound_group_init(&Engine, flags, nullptr, &MusicGroup) != MA_SUCCESS) {
+            ma_engine_uninit(&Engine);
+            return false;
+        }
+        if(ma_sound_group_init(&Engine, flags, nullptr, &SfxGroup) != MA_SUCCESS) {
+            ma_sound_group_uninit(&MusicGroup);
+            ma_engine_uninit(&Engine);
+            return false;
+        }
+
+        PlatformPtr = &platform;
+        AudioSystemInitialized = true;
+        ApplyVolumes();
+        return true;
     }
 
     void Shutdown() {
@@ -126,6 +156,8 @@ namespace Audio {
 
         PlayOnceHandles.clear();
 
+        ma_sound_group_uninit(&SfxGroup);
+        ma_sound_group_uninit(&MusicGroup);
         ma_engine_uninit(&Engine);
         AudioSystemInitialized = false;
         PlatformPtr = nullptr;
@@ -137,7 +169,27 @@ namespace Audio {
         });
     }
 
-    Sound LoadSound(std::string_view soundName) {
+    void SetMasterVolume(float volume) { 
+        MasterVolume = volume; 
+        ApplyVolumes();
+    }
+
+    void SetKindVolume(Kind kind, float volume) {
+        switch(kind) {
+            using enum Kind;
+            case Music: MusicVolume = volume; break;
+            case Sfx: SfxVolume = volume; break;
+        }
+
+        ApplyVolumes();
+    }
+
+    void SetMuted(bool muted) { 
+        Muted = muted; 
+        ApplyVolumes();
+    }
+
+    Sound LoadSound(std::string_view soundName, Kind kind) {
         if(!AudioSystemInitialized || !PlatformPtr) return {};
 
         auto fileName = std::string(soundName);
@@ -170,6 +222,7 @@ namespace Audio {
 
         Sound sound;
         sound.m_Data = std::move(data);
+        sound.m_Kind = kind;
         return sound;
     }
 
@@ -201,6 +254,7 @@ namespace Audio {
 
         Sound sound;
         sound.m_Data = std::move(data);
+        sound.m_Kind = Kind::Music;
         return sound;
     }
 
