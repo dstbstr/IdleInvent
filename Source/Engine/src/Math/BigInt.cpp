@@ -66,3 +66,24 @@ static_assert(BigInt(2).Pow(10) == BigInt(1'024));
 static_assert(BigInt(-3).Pow(3) == BigInt(-27));
 static_assert(BigInt(-3).Pow(4) == BigInt(81));
 static_assert(BigInt(42).Pow(0) == BigInt(1));
+
+// Human readable
+static_assert(BigInt(0).ToHumanReadable() == "0");
+static_assert(BigInt(1'234'567).ToHumanReadable() == "1.23M");
+static_assert(BigInt(123'456).ToHumanReadable() == "123.45K");
+static_assert(BigInt(10'000).ToHumanReadable(2) == "10.00K");
+static_assert(BigInt(-1'234).ToHumanReadable(2) == "-1.23K");
+
+static_assert(BigInt(999).ToHumanReadable() == "999.00");
+static_assert(BigInt(1000).ToHumanReadable() == "1.00K");
+static_assert(BigInt::Pow10(93).ToHumanReadable() == "1.00Trd");
+static_assert(BigInt::Pow10(95).ToHumanReadable() == "100.00Trd");
+static_assert(BigInt::Pow10(96).ToHumanReadable() == std::nullopt);
+
+static_assert(BigInt(999).ToHumanReadable(0) == "999");
+
+// To Scientific
+static_assert(BigInt(1'234'567).ToScientific() == "1.23e6");
+static_assert(BigInt(123'456).ToScientific() == "1.23e5");
+static_assert(BigInt(10'000).ToScientific() == "1.00e4");
+static_assert(BigInt(-1'234).ToScientific() == "-1.23e3");

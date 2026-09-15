@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Constexpr/ConstexprStrUtils.h"
+
 #include <cmath>
 
 constexpr BigInt::BigInt(u64 coef, u32 exp, bool neg) : m_Exp(exp), m_Neg(neg) {
@@ -75,7 +77,7 @@ constexpr BigInt& BigInt::operator+=(const BigInt& other) {
     }
 
     auto Align = [](u64& loCoef, u64& loExp, u64& hiCoef, u64& hiExp) {
-        auto limit = std::numeric_limits<u64>::max() / 2;
+        constexpr auto limit = std::numeric_limits<u64>::max() / 2;
 
         while(loExp < hiExp && hiCoef <= limit / 10) {
             hiCoef *= 10;
@@ -218,6 +220,60 @@ constexpr BigInt& BigInt::operator*=(TMul mul) {
     return *this;
 }
 
+static constexpr auto Suffixes = std::array{
+    "K",  "M",  "B",  "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De",
+    "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", "Vn", 
+    "Vu", "Vd", "Vt", "Vqa", "Vqi", "Vsx", "Vsp", "Voc", "Vnd", "Trd"
+};
+constexpr std::optional<std::string> BigInt::ToHumanReadable(size_t precision) const { 
+    if(m_Coef == 0) return "0";
+    auto mag = static_cast<u64>(m_Exp) + DigitCount() - 1;
+    auto group = mag / 3;
+    if(group > Suffixes.size()) return std::nullopt;
+
+    auto digits = Constexpr::ToString(m_Coef);
+    auto wholeDigits = static_cast<size_t>(mag % 3 + 1);
+    std::string result;
+    if(m_Neg) result += '-';
+
+    for(size_t i = 0; i < wholeDigits; i++) {
+        result += i < digits.size() ? digits[i] : '0';
+    }
+
+    auto fracDigits = digits.size() - wholeDigits;
+    if(precision > 0) {
+        result += '.';
+        for(size_t i = 0; i < precision; i++) {
+            auto digit = i + wholeDigits;
+            result.push_back(digit < digits.size() ? digits[digit] : '0');
+        }
+    }
+
+    if(group > 0) {
+        result += Suffixes[static_cast<size_t>(group - 1)];
+    }
+
+    return result;
+}
+
+constexpr std::string BigInt::ToScientific(size_t precision) const {
+    if(m_Coef == 0) return "0e0";
+    auto digits = Constexpr::ToString(m_Coef);
+    std::string result;
+    result.reserve(precision + 5);
+    result += digits.substr(0, precision + 1);
+    while(result.size() < precision + 1) {
+        result.push_back('0');
+    }
+
+    result.insert(result.begin() + 1, '.');
+    result.push_back('e');
+
+    auto exponent = static_cast<u64>(m_Exp) + digits.size() - 1;
+    result += Constexpr::ToString(exponent);
+    if(m_Neg) result.insert(result.begin(), '-');
+    return result;
+}
 
 constexpr u64 BigInt::Mag(s64 val) {
     auto uVal = static_cast<u64>(val);

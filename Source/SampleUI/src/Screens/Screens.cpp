@@ -2,6 +2,7 @@
 
 #include "SampleUI/Screens/Landing.h"
 #include "SampleUI/Screens/SampleAudio.h"
+#include "SampleUI/Screens/SampleBigNum.h"
 #include "SampleUI/Screens/SampleCombat.h"
 #include "SampleUI/Screens/SampleGiantMap.h"
 #include "SampleUI/Screens/SampleNav.h"
@@ -79,6 +80,14 @@ namespace {
             .Initialize = Screens::SampleAudio::Initialize,
             .ShutDown = Screens::SampleAudio::ShutDown,
             .Render = Screens::SampleAudio::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleBigNum,
+            .Name = "SampleBigNum",
+            .LandingLabel = "Big\nNumbers",
+            .Initialize = Screens::SampleBigNum::Initialize,
+            .ShutDown = Screens::SampleBigNum::ShutDown,
+            .Render = Screens::SampleBigNum::Render
         }
     };
 

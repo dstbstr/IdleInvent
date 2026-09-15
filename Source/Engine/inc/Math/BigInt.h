@@ -4,6 +4,8 @@
 #include <limits>
 #include <compare>
 #include <concepts>
+#include <optional>
+#include <string>
 
 class BigInt {
 private:
@@ -40,6 +42,9 @@ public:
     friend constexpr BigInt operator*(BigInt lhs, TMul rhs) {return lhs *= rhs;}
     template<std::floating_point TMul>
     friend constexpr BigInt operator*(TMul lhs, BigInt rhs) { return rhs *= lhs; }
+
+    constexpr std::optional<std::string> ToHumanReadable(size_t precision = 2) const;
+    constexpr std::string ToScientific(size_t precision = 2) const;
 
     static const BigInt MaxValue;
     static const BigInt MinValue;
