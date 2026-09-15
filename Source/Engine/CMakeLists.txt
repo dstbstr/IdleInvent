@@ -51,4 +51,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/World/Noise.cpp
 	src/World/World.cpp
 	src/World/Movement.cpp
- "src/Combat/RealTimeScheduler.cpp")
+ "src/Combat/RealTimeScheduler.cpp" "inc/Math/BigInt.h" "src/Math/BigInt.cpp")
