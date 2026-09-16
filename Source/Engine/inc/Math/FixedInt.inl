@@ -202,6 +202,40 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator>>=(size_t
 }
 
 template<size_t TBits, bool TSigned>
+constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::operator~() const {
+    auto result = *this;
+    for(auto& limb : result.m_Limbs) {
+        limb = static_cast<u32>(~limb);
+    }
+    result.ClearUnusedBits();
+    return result;
+}
+
+template<size_t TBits, bool TSigned>
+constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator&=(const FixedInt<TBits, TSigned>& other) {
+    for(size_t i =0; i < LimbCount; i++) {
+        m_Limbs[i] &= other.m_Limbs[i];
+    }
+    return *this;
+}
+
+template<size_t TBits, bool TSigned>
+constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator|=(const FixedInt<TBits, TSigned>& other) {
+    for(size_t i = 0; i < LimbCount; i++) {
+        m_Limbs[i] |= other.m_Limbs[i];
+    }
+    return *this;
+}
+
+template<size_t TBits, bool TSigned>
+constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator^=(const FixedInt<TBits, TSigned>& other) {
+    for(size_t i = 0; i < LimbCount; i++) {
+        m_Limbs[i] ^= other.m_Limbs[i];
+    }
+    return *this;
+}
+
+template<size_t TBits, bool TSigned>
 constexpr std::pair<FixedInt<TBits, TSigned>, FixedInt<TBits, TSigned>> FixedInt<TBits, TSigned>::DivRem(const FixedInt& other) const {
     if(other == FixedInt{}) throw std::domain_error("Division by 0");
 

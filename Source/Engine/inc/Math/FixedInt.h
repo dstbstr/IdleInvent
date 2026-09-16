@@ -42,6 +42,10 @@ public:
     constexpr FixedInt& operator%=(const FixedInt& other);
     constexpr FixedInt& operator<<=(size_t shift);
     constexpr FixedInt& operator>>=(size_t shift);
+    constexpr FixedInt operator~() const;
+    constexpr FixedInt& operator&=(const FixedInt& other);
+    constexpr FixedInt& operator|=(const FixedInt& other);
+    constexpr FixedInt& operator^=(const FixedInt& other);
 
     friend constexpr FixedInt operator+(FixedInt lhs, const FixedInt& rhs) { return lhs += rhs; }
     friend constexpr FixedInt operator-(FixedInt lhs, const FixedInt& rhs) { return lhs -= rhs; }
@@ -50,6 +54,9 @@ public:
     friend constexpr FixedInt operator%(FixedInt lhs, const FixedInt& rhs) { return lhs %= rhs; }
     friend constexpr FixedInt operator<<(FixedInt lhs, size_t shift) { return lhs <<= shift; }
     friend constexpr FixedInt operator>>(FixedInt lhs, size_t shift) { return lhs >>= shift; }
+    friend constexpr FixedInt operator&(FixedInt lhs, const FixedInt& rhs) { return lhs &= rhs; }
+    friend constexpr FixedInt operator|(FixedInt lhs, const FixedInt& rhs) { return lhs |= rhs; }
+    friend constexpr FixedInt operator^(FixedInt lhs, const FixedInt& rhs) { return lhs ^= rhs; }
 
     constexpr std::string ToString() const;
 

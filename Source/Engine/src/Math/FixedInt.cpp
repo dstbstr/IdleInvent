@@ -43,12 +43,24 @@ static_assert(SFixedInt<8>::MinValue == SFixedInt<8>(-128));
 static_assert(SFixedInt<8>::MaxValue == SFixedInt<8>(127));
 static_assert(UFixedInt<96>::MaxValue == -UFixedInt<96>(1));
 
-// unary minus
+// unary operators
 static_assert(-SFixedInt<8>(42) == SFixedInt<8>(-42));
 static_assert(-SFixedInt<5>(0) == SFixedInt<5>(0));
 static_assert(-SFixedInt<8>(-128) == SFixedInt<8>(-128)); // overflow, should remain the same
 static_assert(-UFixedInt<8>(1) == UFixedInt<8>(255)); // underflow, should wrap around
 
+static_assert((UFixedInt<8>(12) & UFixedInt<8>(10)) == UFixedInt<8>(8));
+static_assert((UFixedInt<8>(12) | UFixedInt<8>(10)) == UFixedInt<8>(14));
+static_assert((UFixedInt<8>(12) ^ UFixedInt<8>(10)) == UFixedInt<8>(6));
+static_assert(~UFixedInt<5>(0) == UFixedInt<5>(31));
+static_assert(~SFixedInt<8>(0) == SFixedInt<8>(-1));
+static_assert(~UFixedInt<128>(0) == UFixedInt<128>::MaxValue);
+
+static_assert([] {
+    auto value = SFixedInt<40>{-42};
+    value ^= value;
+    return value == SFixedInt<40>{0};
+}());
 // addition
 static_assert(UFixedInt<8>(24) + UFixedInt<8>(24) == UFixedInt<8>(48));
 static_assert(UFixedInt<8>(0) + UFixedInt<8>(32) == UFixedInt<8>(32));
