@@ -59,6 +59,8 @@ namespace SampleUI::Screens::SampleBigNum {
             if(ImGui::Button("x10")) Number *= 10;
             ImGui::SameLine();
             if(ImGui::Button("^2")) Number.Pow(2);
+            ImGui::SameLine();
+            if(ImGui::Button("Reset")) Number = 100;
             ImGui::PopFont();
             ImGui::PushFont(GetFont(FontSizes::H1));
             ImGui::TextUnformatted(txt.c_str());

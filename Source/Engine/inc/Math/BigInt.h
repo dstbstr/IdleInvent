@@ -51,9 +51,20 @@ public:
 
 private:
     u32 m_Coef{};
-    u32 m_Exp{};
-    bool m_Neg{};
+    u32 m_ExpAndSign{};
 
+    static constexpr u32 SignMask = u32{1} << 31;
+    static constexpr u32 ExponentMask = SignMask - 1;
+
+    constexpr u32 Exponent() const { return m_ExpAndSign & ExponentMask; }
+    constexpr void SetExponent(u32 exp) {
+        if(exp > ExponentMask) throw "Bad input";
+        m_ExpAndSign = (m_ExpAndSign & SignMask) | exp;
+    }
+    constexpr bool IsNegative() const { return (m_ExpAndSign & SignMask) != 0; }
+    constexpr void SetNegative(bool negative) { 
+        m_ExpAndSign = (m_ExpAndSign & ExponentMask) | (negative ? SignMask : 0u);
+    }
     static constexpr u64 Mag(s64 val);
     constexpr void Normalize();
     constexpr u32 DigitCount() const;

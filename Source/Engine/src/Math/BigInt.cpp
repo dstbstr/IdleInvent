@@ -1,5 +1,7 @@
 #include "Math/BigInt.h"
 
+static_assert(sizeof(BigInt) == sizeof(u32) * 2);
+
 // construction
 // 1e12'000
 static_assert(BigInt::Pow10(12'000) > BigInt(std::numeric_limits<u64>::max()));

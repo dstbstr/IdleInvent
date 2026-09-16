@@ -4,19 +4,21 @@
 
 #include <cmath>
 
-constexpr BigInt::BigInt(u64 coef, u32 exp, bool neg) : m_Exp(exp), m_Neg(neg) {
-    auto wideExp = static_cast<u64>(m_Exp);
+constexpr BigInt::BigInt(u64 coef, u32 exp, bool neg) {
+    SetExponent(exp);
+    SetNegative(neg);
+    auto wideExp = static_cast<u64>(Exponent());
     while(coef > std::numeric_limits<u32>::max()) {
         coef /= 10;
         ++wideExp;
     }
-    if(wideExp > std::numeric_limits<u32>::max()) {
+    if(wideExp > std::numeric_limits<u32>::max() / 2) {
         m_Coef = std::numeric_limits<u32>::max();
-        m_Exp = std::numeric_limits<u32>::max();
+        SetExponent(std::numeric_limits<u32>::max() / 2);
         return;
     }
 
-    m_Exp = static_cast<u32>(wideExp);
+    SetExponent(static_cast<u32>(wideExp));
     m_Coef = static_cast<u32>(coef);
     Normalize();
 }
@@ -31,20 +33,20 @@ constexpr BigInt BigInt::Pow10(u32 exponent) { return BigInt(1, exponent, false)
 constexpr BigInt BigInt::FromScientific(u64 coef, u32 exp) { return BigInt(coef, exp, false); }
 
 constexpr bool BigInt::operator==(BigInt other) const {
-    return m_Neg == other.m_Neg && m_Coef == other.m_Coef && m_Exp == other.m_Exp;
+    return m_Coef == other.m_Coef && m_ExpAndSign == other.m_ExpAndSign;
 }
 
 constexpr std::strong_ordering BigInt::operator<=>(const BigInt& other) const {
-    if(m_Neg != other.m_Neg) {
-        return m_Neg ? std::strong_ordering::less : std::strong_ordering::greater;
+    if(IsNegative() != other.IsNegative()) {
+        return IsNegative() ? std::strong_ordering::less : std::strong_ordering::greater;
     }
     if(*this == other) return std::strong_ordering::equal;
     auto lhsDigits = DigitCount();
     auto rhsDigits = other.DigitCount();
-    auto lhsMag = static_cast<u64>(m_Exp) + lhsDigits;
-    auto rhsMag = static_cast<u64>(other.m_Exp) + rhsDigits;
+    auto lhsMag = static_cast<u64>(Exponent()) + lhsDigits;
+    auto rhsMag = static_cast<u64>(other.Exponent()) + rhsDigits;
     if(lhsMag != rhsMag) {
-        return m_Neg ? rhsMag <=> lhsMag : lhsMag <=> rhsMag;
+        return IsNegative() ? rhsMag <=> lhsMag : lhsMag <=> rhsMag;
     }
 
     auto lhs = static_cast<u64>(m_Coef);
@@ -58,13 +60,13 @@ constexpr std::strong_ordering BigInt::operator<=>(const BigInt& other) const {
         ++rhsDigits;
     }
 
-    return m_Neg ? rhs <=> lhs : lhs <=> rhs;
+    return IsNegative() ? rhs <=> lhs : lhs <=> rhs;
 }
 
 constexpr BigInt BigInt::operator-() const { 
     auto result = *this;
     if(result.m_Coef != 0) {
-        result.m_Neg = !result.m_Neg;
+        result.SetNegative(!result.IsNegative());
     }
     return result;
 }
@@ -93,19 +95,19 @@ constexpr BigInt& BigInt::operator+=(const BigInt& other) {
 
     auto lhsCoef = static_cast<u64>(m_Coef);
     auto rhsCoef = static_cast<u64>(other.m_Coef);
-    auto lhsExp = static_cast<u64>(m_Exp);
-    auto rhsExp = static_cast<u64>(other.m_Exp);
+    auto lhsExp = static_cast<u64>(Exponent());
+    auto rhsExp = static_cast<u64>(other.Exponent());
 
     if(lhsExp < rhsExp) Align(lhsCoef, lhsExp, rhsCoef, rhsExp);
     else if(rhsExp < lhsExp) Align(rhsCoef, rhsExp, lhsCoef, lhsExp);
 
     auto exp = static_cast<u32>(lhsExp);
-    if(m_Neg == other.m_Neg) {
-        *this = BigInt(lhsCoef + rhsCoef, exp, m_Neg);
+    if(IsNegative() == other.IsNegative()) {
+        *this = BigInt(lhsCoef + rhsCoef, exp, IsNegative());
     } else if(lhsCoef >= rhsCoef) {
-        *this = BigInt(lhsCoef - rhsCoef, exp, m_Neg);
+        *this = BigInt(lhsCoef - rhsCoef, exp, IsNegative());
     } else {
-        *this = BigInt(rhsCoef - lhsCoef, exp, other.m_Neg);
+        *this = BigInt(rhsCoef - lhsCoef, exp, other.IsNegative());
     }
 
     return *this;
@@ -123,10 +125,10 @@ constexpr BigInt& BigInt::operator*=(const BigInt& other) {
     }
 
     auto coef = static_cast<u64>(m_Coef) * static_cast<u64>(other.m_Coef);
-    auto exp = static_cast<u64>(m_Exp) + static_cast<u64>(other.m_Exp);
-    auto neg = m_Neg != other.m_Neg;
+    auto exp = static_cast<u64>(Exponent()) + static_cast<u64>(other.Exponent());
+    auto neg = IsNegative() != other.IsNegative();
 
-    if(exp > std::numeric_limits<u32>::max()) {
+    if(exp > std::numeric_limits<u32>::max() / 2) {
         *this = neg ? MinValue : MaxValue;
     } else {
         *this = BigInt(coef, static_cast<u32>(exp), neg);
@@ -141,8 +143,8 @@ constexpr BigInt& BigInt::operator/=(const BigInt& other) {
     }
 
     if(m_Coef == 0) return *this;
-    auto neg = m_Neg != other.m_Neg;
-    auto expDiff = static_cast<s64>(m_Exp) - static_cast<s64>(other.m_Exp);
+    auto neg = IsNegative() != other.IsNegative();
+    auto expDiff = static_cast<s64>(Exponent()) - static_cast<s64>(other.Exponent());
 
     auto num = static_cast<u64>(m_Coef);
     while(expDiff > 0 && num <= std::numeric_limits<u64>::max() / 10) {
@@ -204,8 +206,8 @@ constexpr BigInt& BigInt::operator*=(TMul mul) {
     }
 
     auto coef = static_cast<f64>(m_Coef) * sig;
-    auto exp = static_cast<s64>(m_Exp) + mulExp;
-    auto neg = m_Neg != negMul;
+    auto exp = static_cast<s64>(Exponent()) + mulExp;
+    auto neg = IsNegative() != negMul;
 
     while(exp > 0 && coef <= static_cast<f64>(std::numeric_limits<u32>::max()) / 10.0) {
         coef *= 10.0;
@@ -227,14 +229,14 @@ static constexpr auto Suffixes = std::array{
 };
 constexpr std::optional<std::string> BigInt::ToHumanReadable(size_t precision) const { 
     if(m_Coef == 0) return "0";
-    auto mag = static_cast<u64>(m_Exp) + DigitCount() - 1;
+    auto mag = static_cast<u64>(Exponent()) + DigitCount() - 1;
     auto group = mag / 3;
     if(group > Suffixes.size()) return std::nullopt;
 
     auto digits = Constexpr::ToString(m_Coef);
     auto wholeDigits = static_cast<size_t>(mag % 3 + 1);
     std::string result;
-    if(m_Neg) result += '-';
+    if(IsNegative()) result += '-';
 
     for(size_t i = 0; i < wholeDigits; i++) {
         result += i < digits.size() ? digits[i] : '0';
@@ -269,9 +271,9 @@ constexpr std::string BigInt::ToScientific(size_t precision) const {
     result.insert(result.begin() + 1, '.');
     result.push_back('e');
 
-    auto exponent = static_cast<u64>(m_Exp) + digits.size() - 1;
+    auto exponent = static_cast<u64>(Exponent()) + digits.size() - 1;
     result += Constexpr::ToString(exponent);
-    if(m_Neg) result.insert(result.begin(), '-');
+    if(IsNegative()) result.insert(result.begin(), '-');
     return result;
 }
 
@@ -282,25 +284,25 @@ constexpr u64 BigInt::Mag(s64 val) {
 
 constexpr void BigInt::Normalize() {
     if(m_Coef == 0) {
-        m_Exp = 0;
-        m_Neg = false;
+        SetExponent(0);
+        SetNegative(false);
         return;
     }
 
     auto coef = m_Coef;
-    auto exp = static_cast<u64>(m_Exp);
+    auto exp = static_cast<u64>(Exponent());
     while(coef % 10 == 0) {
         coef /= 10;
         ++exp;
     }
-    if(exp > std::numeric_limits<u32>::max()) {
+    if(exp > std::numeric_limits<u32>::max() / 2) {
         m_Coef = std::numeric_limits<u32>::max();
-        m_Exp = std::numeric_limits<u32>::max();
+        SetExponent(std::numeric_limits<u32>::max() / 2);
         return;
     }
 
     m_Coef = coef;
-    m_Exp = static_cast<u32>(exp);
+    SetExponent(static_cast<u32>(exp));
 }
 
 constexpr u32 BigInt::DigitCount() const {
@@ -314,6 +316,6 @@ constexpr u32 BigInt::DigitCount() const {
 }
 
 inline constexpr BigInt BigInt::MaxValue =
-    BigInt(std::numeric_limits<u32>::max(), std::numeric_limits<u32>::max(), false);
+    BigInt(std::numeric_limits<u32>::max(), std::numeric_limits<u32>::max() / 2, false);
 inline constexpr BigInt BigInt::MinValue =
-    BigInt(std::numeric_limits<u32>::max(), std::numeric_limits<u32>::max(), true);
+    BigInt(std::numeric_limits<u32>::max(), std::numeric_limits<u32>::max() / 2, true);
