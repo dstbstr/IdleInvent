@@ -18,9 +18,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Animation/Animation.cpp 
 
 	src/Combat/CombatTypes.cpp
-	src/Social/Faction.cpp
-	src/Social/Faction.test.cpp
 	src/Combat/RoundRobinScheduler.cpp
+	src/Combat/RealTimeScheduler.cpp
 
 	src/Constexpr/ConstexprStrUtils.cpp
 
@@ -35,6 +34,9 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Manage/EventManager.cpp
 	src/Manage/TickManager.cpp
 	
+	src/Math/BigInt.cpp
+	src/Math/FixedInt.cpp
+
 	src/Mechanics/Advancement.cpp
 	src/Mechanics/Modifier.cpp
 	src/Mechanics/Progression.cpp
@@ -46,9 +48,12 @@ target_sources(${PROJECT_NAME} PRIVATE
 	
 	src/Settings/PurchaseAmount.cpp
 
+	src/Social/Faction.cpp
+	src/Social/Faction.test.cpp
+
 	src/Utilities/Handle.cpp
 	
 	src/World/Noise.cpp
 	src/World/World.cpp
 	src/World/Movement.cpp
- "src/Combat/RealTimeScheduler.cpp" "inc/Math/BigInt.h" "src/Math/BigInt.cpp")
+)
