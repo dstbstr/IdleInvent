@@ -92,14 +92,14 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator+=(const BigInt
         return *this;
     }
 
-    auto Align = [](u64& loCoef, u64& loExp, u64& hiCoef, u64& hiExp) {
-        constexpr auto limit = std::numeric_limits<u64>::max() / 2;
+    auto Align = [](u128& loCoef, u64& loExp, u128& hiCoef, u64& hiExp) {
+        constexpr auto limit = u128::MaxValue >> 1;
 
         while(loExp < hiExp && hiCoef <= limit / 10) {
             hiCoef *= 10;
             hiExp--;
         }
-        while(loExp < hiExp && loCoef != 0) {
+        while(loExp < hiExp && loCoef != u128{}) {
             loCoef /= 10;
             loExp++;
         }
@@ -107,8 +107,8 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator+=(const BigInt
         loExp = hiExp;
     };
 
-    auto lhsCoef = static_cast<u64>(Coef());
-    auto rhsCoef = static_cast<u64>(other.Coef());
+    auto lhsCoef = u128(Coef());
+    auto rhsCoef = u128(other.Coef());
     auto lhsExp = static_cast<u64>(Exponent());
     auto rhsExp = static_cast<u64>(other.Exponent());
 

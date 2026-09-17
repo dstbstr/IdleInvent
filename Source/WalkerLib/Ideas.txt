@@ -1,0 +1,8 @@
+The journey there and back again
+Travel to a location, pick up the MacGuffin, return it for profit.
+Vehicles: Foot, bike, car, boat, plane, jet, rocket, starship
+Jobs: Scientist, engineer, navigator
+Destinations: Across Town, the city, the next state, Hawaii, Europe, the Moon, Mars, Pluto, Alpha Centauri, Andromeda Galaxy, Virgo Supercluster, edge of the universe, beyond
+Attributes: Max speed, max acceleration, cargo+crew capacity, Load/Unload speed, fuel capacity, fuel efficiency
+Rebirth: (Rebirth) Multipliers to attributes, (Prestige) exponents to multipliers, (Ascend) ??
+Pop-up Events: Distress call (add crew), Shortcut (reduce journey distance), Fuel leak (double fuel consumption)
