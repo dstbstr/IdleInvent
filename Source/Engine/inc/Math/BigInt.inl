@@ -144,7 +144,7 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(const BigInt
     auto exp = static_cast<u64>(Exponent()) + static_cast<u64>(other.Exponent());
     auto neg = IsNegative() != other.IsNegative();
 
-    if(exp > std::numeric_limits<u32>::max() / 2) {
+    if(exp > ExponentMask.ToU64()) {
         *this = neg ? MinValue : MaxValue;
     } else {
         *this = BigIntImpl(coef, static_cast<u32>(exp), neg);
@@ -228,7 +228,7 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(TMul mul) ->
     auto exp = static_cast<s64>(Exponent()) + mulExp;
     auto neg = IsNegative() != negMul;
 
-    while(exp > 0 && coef <= static_cast<f64>(std::numeric_limits<u32>::max()) / 10.0) {
+    while(exp > 0 && coef <= static_cast<f64>(CoefMask.ToU64()) / 10.0) {
         coef *= 10.0;
         --exp;
     }
@@ -318,9 +318,9 @@ constexpr void BigIntImpl<TCoefBits, TExpBits, TSigned>::Normalize() {
         coef /= 10;
         ++exp;
     }
-    if(exp > std::numeric_limits<u32>::max() / 2) {
-        SetCoef(std::numeric_limits<u32>::max());
-        SetExponent(std::numeric_limits<u32>::max() / 2);
+    if(exp > ExponentMask.ToU64()) {
+        SetCoef(CoefMask.ToU64());
+        SetExponent(static_cast<u32>(ExponentMask.ToU64()));
         return;
     }
 
