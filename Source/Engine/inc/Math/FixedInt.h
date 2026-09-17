@@ -29,6 +29,8 @@ public:
     static const FixedInt MinValue;
     static const FixedInt MaxValue;
 
+    constexpr std::string ToString() const;
+
     template<size_t TOtherBits>
     constexpr bool operator==(const FixedInt<TOtherBits, TSigned>& other) const;
     template<size_t TOtherBits>
@@ -58,7 +60,13 @@ public:
     friend constexpr FixedInt operator|(FixedInt lhs, const FixedInt& rhs) { return lhs |= rhs; }
     friend constexpr FixedInt operator^(FixedInt lhs, const FixedInt& rhs) { return lhs ^= rhs; }
 
-    constexpr std::string ToString() const;
+    constexpr size_t BitWidth() const requires(!TSigned);
+    constexpr size_t Log2Floor() const requires(!TSigned);
+    constexpr FixedInt& Pow(u64 pow);
+    constexpr bool FitsU64() const requires(!TSigned) { return BitWidth() <= 64; }
+    constexpr u64 ToU64() const requires(!TSigned);
+    constexpr bool FitsS64() const;
+    constexpr s64 ToS64() const;
 
 private:
     template<size_t, bool>

@@ -3,7 +3,6 @@
 #include <limits>
 #include <stdexcept>
 
-
 template<size_t TBits, bool TSigned>
 template<size_t TOtherBits>
     requires(TOtherBits <= TBits)
@@ -94,7 +93,7 @@ constexpr auto FixedInt<TBits, TSigned>::operator<=>(const FixedInt<TOtherBits, 
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::operator-() const {
+constexpr auto FixedInt<TBits, TSigned>::operator-() const -> FixedInt {
     auto result = *this;
     u64 carry = 1;
 
@@ -110,7 +109,7 @@ constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::operator-() const {
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator+=(const FixedInt& other) {
+constexpr auto FixedInt<TBits, TSigned>::operator+=(const FixedInt& other) -> FixedInt& {
     u64 carry = 0;
 
     for(size_t i = 0; i < LimbCount; i++) {
@@ -124,7 +123,7 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator+=(const F
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator*=(const FixedInt& other) {
+constexpr auto FixedInt<TBits, TSigned>::operator*=(const FixedInt& other) -> FixedInt& {
     FixedInt result{};
 
     for(size_t i = 0; i < LimbCount; i++) {
@@ -146,19 +145,19 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator*=(const F
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator/=(const FixedInt& other) {
+constexpr auto FixedInt<TBits, TSigned>::operator/=(const FixedInt& other) -> FixedInt& {
     *this = DivRem(other).first;
     return *this;
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator%=(const FixedInt& other) {
+constexpr auto FixedInt<TBits, TSigned>::operator%=(const FixedInt& other) -> FixedInt& {
     *this = DivRem(other).second;
     return *this;
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator<<=(size_t shift) {
+constexpr auto FixedInt<TBits, TSigned>::operator<<=(size_t shift) -> FixedInt& {
     FixedInt result{};
     if(shift < TBits) {
         auto words = shift / 32;
@@ -179,7 +178,7 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator<<=(size_t
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator>>=(size_t shift) {
+constexpr auto FixedInt<TBits, TSigned>::operator>>=(size_t shift) -> FixedInt& {
     FixedInt result{};
     if(shift >= TBits) {
         result.m_Limbs.fill(IsNegative() ? std::numeric_limits<u32>::max() : 0u);
@@ -202,7 +201,7 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator>>=(size_t
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::operator~() const {
+constexpr auto FixedInt<TBits, TSigned>::operator~() const -> FixedInt {
     auto result = *this;
     for(auto& limb : result.m_Limbs) {
         limb = static_cast<u32>(~limb);
@@ -212,7 +211,7 @@ constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::operator~() const {
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator&=(const FixedInt<TBits, TSigned>& other) {
+constexpr auto FixedInt<TBits, TSigned>::operator&=(const FixedInt<TBits, TSigned>& other) -> FixedInt& {
     for(size_t i =0; i < LimbCount; i++) {
         m_Limbs[i] &= other.m_Limbs[i];
     }
@@ -220,7 +219,7 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator&=(const F
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator|=(const FixedInt<TBits, TSigned>& other) {
+constexpr auto FixedInt<TBits, TSigned>::operator|=(const FixedInt<TBits, TSigned>& other) -> FixedInt& {
     for(size_t i = 0; i < LimbCount; i++) {
         m_Limbs[i] |= other.m_Limbs[i];
     }
@@ -228,7 +227,7 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator|=(const F
 }
 
 template<size_t TBits, bool TSigned>
-constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator^=(const FixedInt<TBits, TSigned>& other) {
+constexpr auto FixedInt<TBits, TSigned>::operator^=(const FixedInt<TBits, TSigned>& other) -> FixedInt& {
     for(size_t i = 0; i < LimbCount; i++) {
         m_Limbs[i] ^= other.m_Limbs[i];
     }
@@ -236,7 +235,78 @@ constexpr FixedInt<TBits, TSigned>& FixedInt<TBits, TSigned>::operator^=(const F
 }
 
 template<size_t TBits, bool TSigned>
-constexpr std::pair<FixedInt<TBits, TSigned>, FixedInt<TBits, TSigned>> FixedInt<TBits, TSigned>::DivRem(const FixedInt& other) const {
+constexpr size_t FixedInt<TBits, TSigned>::BitWidth() const requires(!TSigned) {
+    for(size_t i = LimbCount; i > 0;) {
+        i--;
+        if(m_Limbs[i] != 0) {
+            return std::bit_width(m_Limbs[i]) + i * 32;
+        }
+    }
+
+    return 0;
+}
+
+template<size_t TBits, bool TSigned>
+constexpr size_t FixedInt<TBits, TSigned>::Log2Floor() const requires(!TSigned)
+{
+    auto width = BitWidth();
+    if(width == 0) {
+        throw std::domain_error("Log2 is undefined for 0");
+    }
+    return width - 1;
+}
+
+template<size_t TBits, bool TSigned>
+constexpr auto FixedInt<TBits, TSigned>::Pow(u64 pow) -> FixedInt& {
+    auto base = *this;
+    auto result = FixedInt(1);
+
+    while(pow != 0) {
+        if((pow & 1u) != 0) result *= base;
+
+        pow >>= 1;
+        if(pow != 0) base *= base;
+    }
+
+    *this = result;
+    return *this;
+}
+
+template<size_t TBits, bool TSigned>
+constexpr u64 FixedInt<TBits, TSigned>::ToU64() const requires(!TSigned) {
+    if(!FitsU64()) throw std::overflow_error("The FixedInt doesn't fit in a u64");
+
+    auto value = static_cast<u64>(m_Limbs[0]);
+    if constexpr(LimbCount > 1) {
+        value |= static_cast<u64>(m_Limbs[1]) << 32;
+    }
+    return value;
+}
+
+template<size_t TBits, bool TSigned>
+constexpr bool FixedInt<TBits, TSigned>::FitsS64() const {
+    if constexpr(!TSigned) {
+        return BitWidth() <= 63;
+    }
+    else if constexpr(TBits <= 64) {
+        return true;
+    } else {
+        static constexpr auto min = FixedInt{std::numeric_limits<s64>::min()};
+        static constexpr auto max = FixedInt{std::numeric_limits<s64>::max()};
+        return *this >= min && *this <= max;
+    }
+}
+
+template<size_t TBits, bool TSigned>
+constexpr s64 FixedInt<TBits, TSigned>::ToS64() const {
+    if(!FitsS64()) throw std::overflow_error("The FixedInt doesn't fit in a s64");
+
+    auto bits = static_cast<u64>(ExtendedLimb(0)) | (static_cast<u64>(ExtendedLimb(1)) << 32);
+    return std::bit_cast<s64>(bits);
+}
+
+template<size_t TBits, bool TSigned>
+constexpr auto FixedInt<TBits, TSigned>::DivRem(const FixedInt& other) const -> std::pair<FixedInt, FixedInt> {
     if(other == FixedInt{}) throw std::domain_error("Division by 0");
 
     auto negative = IsNegative() != other.IsNegative();

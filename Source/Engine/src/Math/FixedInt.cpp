@@ -43,12 +43,13 @@ static_assert(SFixedInt<8>::MinValue == SFixedInt<8>(-128));
 static_assert(SFixedInt<8>::MaxValue == SFixedInt<8>(127));
 static_assert(UFixedInt<96>::MaxValue == -UFixedInt<96>(1));
 
-// unary operators
+// unary minus
 static_assert(-SFixedInt<8>(42) == SFixedInt<8>(-42));
 static_assert(-SFixedInt<5>(0) == SFixedInt<5>(0));
 static_assert(-SFixedInt<8>(-128) == SFixedInt<8>(-128)); // overflow, should remain the same
 static_assert(-UFixedInt<8>(1) == UFixedInt<8>(255)); // underflow, should wrap around
 
+// bitwise operations
 static_assert((UFixedInt<8>(12) & UFixedInt<8>(10)) == UFixedInt<8>(8));
 static_assert((UFixedInt<8>(12) | UFixedInt<8>(10)) == UFixedInt<8>(14));
 static_assert((UFixedInt<8>(12) ^ UFixedInt<8>(10)) == UFixedInt<8>(6));
@@ -116,3 +117,39 @@ static_assert(SFixedInt<8>(-42).ToString() == "-42");
 static_assert(UFixedInt<8>(0).ToString() == "0");
 static_assert(SFixedInt<8>::MinValue.ToString() == "-128");
 static_assert(UFixedInt<2>(3).ToString() == "3");
+
+
+// BitWidth
+static_assert(UFixedInt<8>(0).BitWidth() == 0);
+static_assert(UFixedInt<8>(1).BitWidth() == 1);
+static_assert(UFixedInt<8>(255).BitWidth() == 8);
+static_assert(u128(256).BitWidth() == 9);
+static_assert(UFixedInt<33>::MaxValue.BitWidth() == 33);
+
+// Log2Floor
+static_assert(u128(16).Log2Floor() == 4);
+static_assert(u128(15).Log2Floor() == 3);
+static_assert(u128(1).Log2Floor() == 0);
+
+// Pow
+static_assert(u128(2).Pow(10) == u128(1'024));
+static_assert(s128(-2).Pow(3) == s128(-8));
+static_assert(s128(-2).Pow(4) == s128(16));
+static_assert(u128(42).Pow(0) == u128(1));
+static_assert(u128(0).Pow(0) == u128(1)); // 0^0 is defined as 1
+static_assert(UFixedInt<8>(2).Pow(8) == UFixedInt<8>::MinValue); // overflow, should wrap around
+static_assert(SFixedInt<8>(2).Pow(7) == SFixedInt<8>::MinValue);
+
+// ToU64
+static_assert(u128(42).FitsU64());
+static_assert(u128::MaxValue.FitsU64() == false);
+static_assert(u128(42).ToU64() == 42);
+
+// ToS64
+static_assert(u128(42).FitsS64());
+static_assert(s128(42).FitsS64());
+static_assert(s128(-42).FitsS64());
+static_assert(s128::MaxValue.FitsS64() == false);
+static_assert(s128::MinValue.FitsS64() == false);
+static_assert(s128(42).ToS64() == 42);
+static_assert(s128(-42).ToS64() == -42);
