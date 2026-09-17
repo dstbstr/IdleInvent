@@ -89,3 +89,24 @@ static_assert(BigInt(1'234'567).ToScientific() == "1.23e6");
 static_assert(BigInt(123'456).ToScientific() == "1.23e5");
 static_assert(BigInt(10'000).ToScientific() == "1.00e4");
 static_assert(BigInt(-1'234).ToScientific() == "-1.23e3");
+
+// 40 bits for the number, 23 bits for the exponent, 1 bit for the sign
+// supports up to 1e8'388'608 and 13 digits of precision
+using HpBigInt = BigIntImpl<40, 23, true>;
+static_assert(sizeof(HpBigInt) == 2 * sizeof(u32));
+static_assert(HpBigInt{34'359'738'368ull}.ToHumanReadable() == "34.35B");
+
+
+using TinyInt = BigIntImpl<8, 3, true>;
+static_assert(sizeof(TinyInt) == sizeof(u32));
+
+static_assert(TinyInt{255}.ToScientific() == "2.55e2");
+static_assert(TinyInt{256} == TinyInt{250});
+static_assert(TinyInt::Pow10(7) < TinyInt::MaxValue);
+static_assert(TinyInt::Pow10(8) == TinyInt::MaxValue);
+static_assert(TinyInt::MaxValue * 10 == TinyInt::MaxValue);
+static_assert(TinyInt::MinValue * 10 == TinyInt::MinValue);
+
+using UTiny = BigIntImpl<16, 8, false>;
+static_assert(UTiny::MinValue == UTiny{0});
+static_assert(UTiny::MaxValue == UTiny::FromScientific(65'535, 255));

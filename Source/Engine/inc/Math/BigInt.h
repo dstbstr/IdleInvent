@@ -1,69 +1,104 @@
 #pragma once
 #include <Platform/NumTypes.h>
+#include "Math/FixedInt.h"
 
-#include <limits>
 #include <compare>
 #include <concepts>
+#include <limits>
 #include <optional>
+#include <stdexcept>
 #include <string>
 
-class BigInt {
+template<size_t TCoefBits = 32, size_t TExpBits = 31, bool TSigned = true>
+class BigIntImpl;
+
+using BigInt = BigIntImpl<>;
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+class BigIntImpl {
 private:
-    constexpr BigInt(u64 coef, u32 exp, bool neg);
+    constexpr BigIntImpl(u128 coef, u32 exp, bool neg);
 
 public:
-    constexpr BigInt(u32 val);
-    constexpr BigInt(s32 val);
-    constexpr BigInt(u64 val);
-    constexpr BigInt(s64 val);
+    constexpr BigIntImpl(u32 val);
+    constexpr BigIntImpl(s32 val);
+    constexpr BigIntImpl(u64 val);
+    constexpr BigIntImpl(s64 val);
 
-    static constexpr BigInt Pow10(u32 exponent);
-    static constexpr BigInt FromScientific(u64 coef, u32 exp);
+    static constexpr BigIntImpl Pow10(u32 exponent);
+    static constexpr BigIntImpl FromScientific(u64 coef, u32 exp);
 
-    constexpr bool operator==(BigInt other) const;
-    constexpr std::strong_ordering operator<=>(const BigInt& other) const;
+    constexpr bool operator==(BigIntImpl other) const;
+    constexpr std::strong_ordering operator<=>(const BigIntImpl& other) const;
 
-    constexpr BigInt operator-() const;
-    constexpr BigInt& operator+=(const BigInt& other);
-    constexpr BigInt& operator-=(const BigInt& other);
-    constexpr BigInt& operator*=(const BigInt& other);
-    constexpr BigInt& operator/=(const BigInt& other);
-    constexpr BigInt& Pow(u32 pow);
+    constexpr BigIntImpl operator-() const;
+    constexpr BigIntImpl& operator+=(const BigIntImpl& other);
+    constexpr BigIntImpl& operator-=(const BigIntImpl& other);
+    constexpr BigIntImpl& operator*=(const BigIntImpl& other);
+    constexpr BigIntImpl& operator/=(const BigIntImpl& other);
+    constexpr BigIntImpl& Pow(u32 pow);
 
-    friend constexpr BigInt operator+(BigInt lhs, BigInt rhs) { return lhs += rhs; }
-    friend constexpr BigInt operator-(BigInt lhs, BigInt rhs) { return lhs += -rhs; }
-    friend constexpr BigInt operator*(BigInt lhs, BigInt rhs) { return lhs *= rhs; }
-    friend constexpr BigInt operator/(BigInt lhs, BigInt rhs) { return lhs /= rhs; }
-
-    template<std::floating_point TMul>
-    constexpr BigInt& operator*=(TMul mul);
+    friend constexpr BigIntImpl operator+(BigIntImpl lhs, BigIntImpl rhs) { return lhs += rhs; }
+    friend constexpr BigIntImpl operator-(BigIntImpl lhs, BigIntImpl rhs) { return lhs += -rhs; }
+    friend constexpr BigIntImpl operator*(BigIntImpl lhs, BigIntImpl rhs) { return lhs *= rhs; }
+    friend constexpr BigIntImpl operator/(BigIntImpl lhs, BigIntImpl rhs) { return lhs /= rhs; }
 
     template<std::floating_point TMul>
-    friend constexpr BigInt operator*(BigInt lhs, TMul rhs) {return lhs *= rhs;}
+    constexpr BigIntImpl& operator*=(TMul mul);
+
     template<std::floating_point TMul>
-    friend constexpr BigInt operator*(TMul lhs, BigInt rhs) { return rhs *= lhs; }
+    friend constexpr BigIntImpl operator*(BigIntImpl lhs, TMul rhs) {return lhs *= rhs;}
+    template<std::floating_point TMul>
+    friend constexpr BigIntImpl operator*(TMul lhs, BigIntImpl rhs) { return rhs *= lhs; }
 
     constexpr std::optional<std::string> ToHumanReadable(size_t precision = 2) const;
     constexpr std::string ToScientific(size_t precision = 2) const;
 
-    static const BigInt MaxValue;
-    static const BigInt MinValue;
+    static const BigIntImpl MaxValue;
+    static const BigIntImpl MinValue;
 
 private:
-    u32 m_Coef{};
-    u32 m_ExpAndSign{};
+    static_assert(TCoefBits > 0 && TCoefBits <= 64); // TODO: consider relaxing this
+    static_assert(TExpBits > 0 && TExpBits <= 32);
+    using Storage = UFixedInt<TCoefBits + TExpBits + TSigned>;
+    using Coefficient = UFixedInt<TCoefBits>;
 
-    static constexpr u32 SignMask = u32{1} << 31;
-    static constexpr u32 ExponentMask = SignMask - 1;
+    Storage m_Storage{};
 
-    constexpr u32 Exponent() const { return m_ExpAndSign & ExponentMask; }
-    constexpr void SetExponent(u32 exp) {
-        if(exp > ExponentMask) throw "Bad input";
-        m_ExpAndSign = (m_ExpAndSign & SignMask) | exp;
+    static constexpr Storage ExponentMask = (Storage{1} << TExpBits) - Storage{1};
+    static constexpr Storage CoefMask = (Storage{1} << TCoefBits) - Storage{1};
+    static constexpr Storage SignMask = [] {
+        if constexpr(TSigned) {
+            return Storage{1} << (TCoefBits + TExpBits);
+        } else {
+            return Storage{};
+        }
+    }();
+
+    constexpr u32 Exponent() const { 
+        auto bits = (m_Storage >> TCoefBits) & ExponentMask;
+        return static_cast<u32>(bits.ToU64());
     }
-    constexpr bool IsNegative() const { return (m_ExpAndSign & SignMask) != 0; }
+    constexpr void SetExponent(u32 exp) {
+        if(static_cast<u64>(exp) > ExponentMask.ToU64()) throw "Bad input";
+
+        auto fieldMask = ExponentMask << TCoefBits;
+        m_Storage = (m_Storage & ~fieldMask) | (Storage{exp} << TCoefBits);
+    }
+
+    constexpr u64 Coef() const { return (m_Storage & CoefMask).ToU64(); }
+    constexpr void SetCoef(u64 coef) { 
+        if(coef > CoefMask.ToU64()) throw "Bad input";
+        m_Storage = (m_Storage & ~CoefMask) | Storage{coef};
+    }
+
+    constexpr bool IsNegative() const { return (m_Storage & SignMask) != Storage{}; }
     constexpr void SetNegative(bool negative) { 
-        m_ExpAndSign = (m_ExpAndSign & ExponentMask) | (negative ? SignMask : 0u);
+        if constexpr(TSigned) {
+            m_Storage = (m_Storage & ~SignMask) | (negative ? SignMask : Storage{});
+        } else if(negative) {
+            throw std::domain_error("Cannot set negative on unsigned BigInt");
+        }
     }
     static constexpr u64 Mag(s64 val);
     constexpr void Normalize();

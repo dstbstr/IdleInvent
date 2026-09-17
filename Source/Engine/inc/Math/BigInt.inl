@@ -4,39 +4,51 @@
 
 #include <cmath>
 
-constexpr BigInt::BigInt(u64 coef, u32 exp, bool neg) {
-    SetExponent(exp);
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(u128 coef, u32 exp, bool neg) {
     SetNegative(neg);
-    auto wideExp = static_cast<u64>(Exponent());
-    while(coef > std::numeric_limits<u32>::max()) {
+    auto wideExp = static_cast<u64>(exp);
+    while(coef.BitWidth() > TCoefBits) {
         coef /= 10;
         ++wideExp;
     }
-    if(wideExp > std::numeric_limits<u32>::max() / 2) {
-        m_Coef = std::numeric_limits<u32>::max();
-        SetExponent(std::numeric_limits<u32>::max() / 2);
+    if(wideExp > ExponentMask.ToU64()) {
+        SetCoef(CoefMask.ToU64());
+        SetExponent(static_cast<u32>(ExponentMask.ToU64()));
         return;
     }
 
     SetExponent(static_cast<u32>(wideExp));
-    m_Coef = static_cast<u32>(coef);
+    SetCoef(coef.ToU64());
     Normalize();
 }
 
-constexpr BigInt::BigInt(u32 val) : BigInt(static_cast<u64>(val)) {}
-constexpr BigInt::BigInt(s32 val) : BigInt(static_cast<s64>(val)) {}
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(u32 val) : BigIntImpl(static_cast<u64>(val)) {}
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(s32 val) : BigIntImpl(static_cast<s64>(val)) {}
 
-constexpr BigInt::BigInt(u64 val) : BigInt(val, 0, false) {}
-constexpr BigInt::BigInt(s64 val) : BigInt(Mag(val), 0, val < 0) {}
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(u64 val) : BigIntImpl(val, 0, false) {}
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(s64 val) : BigIntImpl(Mag(val), 0, val < 0) {}
 
-constexpr BigInt BigInt::Pow10(u32 exponent) { return BigInt(1, exponent, false); }
-constexpr BigInt BigInt::FromScientific(u64 coef, u32 exp) { return BigInt(coef, exp, false); }
-
-constexpr bool BigInt::operator==(BigInt other) const {
-    return m_Coef == other.m_Coef && m_ExpAndSign == other.m_ExpAndSign;
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Pow10(u32 exponent) -> BigIntImpl {
+    return BigIntImpl(1, exponent, false);
+}
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::FromScientific(u64 coef, u32 exp) -> BigIntImpl {
+    return BigIntImpl(coef, exp, false);
 }
 
-constexpr std::strong_ordering BigInt::operator<=>(const BigInt& other) const {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr bool BigIntImpl<TCoefBits, TExpBits, TSigned>::operator==(BigIntImpl other) const {
+    return m_Storage == other.m_Storage;
+}
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr std::strong_ordering BigIntImpl<TCoefBits, TExpBits, TSigned>::operator<=>(const BigIntImpl& other) const {
     if(IsNegative() != other.IsNegative()) {
         return IsNegative() ? std::strong_ordering::less : std::strong_ordering::greater;
     }
@@ -49,8 +61,8 @@ constexpr std::strong_ordering BigInt::operator<=>(const BigInt& other) const {
         return IsNegative() ? rhsMag <=> lhsMag : lhsMag <=> rhsMag;
     }
 
-    auto lhs = static_cast<u64>(m_Coef);
-    auto rhs = static_cast<u64>(other.m_Coef);
+    auto lhs = static_cast<u64>(Coef());
+    auto rhs = static_cast<u64>(other.Coef());
     while(lhsDigits < rhsDigits) {
         lhs *= 10;
         ++lhsDigits;
@@ -63,17 +75,19 @@ constexpr std::strong_ordering BigInt::operator<=>(const BigInt& other) const {
     return IsNegative() ? rhs <=> lhs : lhs <=> rhs;
 }
 
-constexpr BigInt BigInt::operator-() const { 
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator-() const -> BigIntImpl { 
     auto result = *this;
-    if(result.m_Coef != 0) {
+    if(result.Coef() != 0) {
         result.SetNegative(!result.IsNegative());
     }
     return result;
 }
 
-constexpr BigInt& BigInt::operator+=(const BigInt& other) { 
-    if(other.m_Coef == 0) return *this;
-    if(m_Coef == 0) {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator+=(const BigIntImpl& other) -> BigIntImpl& { 
+    if(other.Coef() == 0) return *this;
+    if(Coef() == 0) {
         *this = other;
         return *this;
     }
@@ -93,8 +107,8 @@ constexpr BigInt& BigInt::operator+=(const BigInt& other) {
         loExp = hiExp;
     };
 
-    auto lhsCoef = static_cast<u64>(m_Coef);
-    auto rhsCoef = static_cast<u64>(other.m_Coef);
+    auto lhsCoef = static_cast<u64>(Coef());
+    auto rhsCoef = static_cast<u64>(other.Coef());
     auto lhsExp = static_cast<u64>(Exponent());
     auto rhsExp = static_cast<u64>(other.Exponent());
 
@@ -103,50 +117,53 @@ constexpr BigInt& BigInt::operator+=(const BigInt& other) {
 
     auto exp = static_cast<u32>(lhsExp);
     if(IsNegative() == other.IsNegative()) {
-        *this = BigInt(lhsCoef + rhsCoef, exp, IsNegative());
+        *this = BigIntImpl(lhsCoef + rhsCoef, exp, IsNegative());
     } else if(lhsCoef >= rhsCoef) {
-        *this = BigInt(lhsCoef - rhsCoef, exp, IsNegative());
+        *this = BigIntImpl(lhsCoef - rhsCoef, exp, IsNegative());
     } else {
-        *this = BigInt(rhsCoef - lhsCoef, exp, other.IsNegative());
+        *this = BigIntImpl(rhsCoef - lhsCoef, exp, other.IsNegative());
     }
 
     return *this;
 }
 
-constexpr BigInt& BigInt::operator-=(const BigInt& other) {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator-=(const BigIntImpl & other) ->BigIntImpl& {
     *this += -other;
     return *this;
 }
 
-constexpr BigInt& BigInt::operator*=(const BigInt& other) {
-    if(m_Coef == 0 || other.m_Coef == 0) {
-        *this = BigInt(0);
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(const BigIntImpl& other) -> BigIntImpl& {
+    if(Coef() == 0 || other.Coef() == 0) {
+        *this = BigIntImpl(0);
         return *this;
     }
 
-    auto coef = static_cast<u64>(m_Coef) * static_cast<u64>(other.m_Coef);
+    auto coef = u128(Coef()) * u128(other.Coef()); 
     auto exp = static_cast<u64>(Exponent()) + static_cast<u64>(other.Exponent());
     auto neg = IsNegative() != other.IsNegative();
 
     if(exp > std::numeric_limits<u32>::max() / 2) {
         *this = neg ? MinValue : MaxValue;
     } else {
-        *this = BigInt(coef, static_cast<u32>(exp), neg);
+        *this = BigIntImpl(coef, static_cast<u32>(exp), neg);
     }
 
     return *this;
 }
 
-constexpr BigInt& BigInt::operator/=(const BigInt& other) {
-    if(other.m_Coef == 0) {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator/=(const BigIntImpl& other) -> BigIntImpl& {
+    if(other.Coef() == 0) {
         throw std::domain_error("Divide by 0");
     }
 
-    if(m_Coef == 0) return *this;
+    if(Coef() == 0) return *this;
     auto neg = IsNegative() != other.IsNegative();
     auto expDiff = static_cast<s64>(Exponent()) - static_cast<s64>(other.Exponent());
 
-    auto num = static_cast<u64>(m_Coef);
+    auto num = static_cast<u64>(Coef());
     while(expDiff > 0 && num <= std::numeric_limits<u64>::max() / 10) {
         num *= 10;
         expDiff--;
@@ -155,19 +172,20 @@ constexpr BigInt& BigInt::operator/=(const BigInt& other) {
         num /= 10;
         expDiff++;
         if(num == 0) {
-            *this = BigInt(0);
+            *this = BigIntImpl(0);
             return *this;
         }
     }
 
-    auto q = num / other.m_Coef;
-    *this = BigInt(q, static_cast<u32>(expDiff), neg);
+    auto q = num / other.Coef();
+    *this = BigIntImpl(q, static_cast<u32>(expDiff), neg);
     return *this;
 }
 
-constexpr BigInt& BigInt::Pow(u32 pow) {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Pow(u32 pow) -> BigIntImpl& {
     auto base = *this;
-    auto result = BigInt(1);
+    auto result = BigIntImpl(1);
 
     while(pow != 0) {
         if((pow & 1u) != 0) result *= base;
@@ -180,13 +198,14 @@ constexpr BigInt& BigInt::Pow(u32 pow) {
     return *this;
 }
 
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 template<std::floating_point TMul>
-constexpr BigInt& BigInt::operator*=(TMul mul) {
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(TMul mul) -> BigIntImpl& {
     if(!(mul >= std::numeric_limits<TMul>::lowest() && mul <= std::numeric_limits<TMul>::max())) {
         throw std::domain_error("Invalid floating point value");
     }
     if(mul == 0.0) {
-        *this = BigInt(0);
+        *this = BigIntImpl(0);
         return *this;
     }
 
@@ -205,7 +224,7 @@ constexpr BigInt& BigInt::operator*=(TMul mul) {
         --mulExp;
     }
 
-    auto coef = static_cast<f64>(m_Coef) * sig;
+    auto coef = static_cast<f64>(Coef()) * sig;
     auto exp = static_cast<s64>(Exponent()) + mulExp;
     auto neg = IsNegative() != negMul;
 
@@ -218,7 +237,7 @@ constexpr BigInt& BigInt::operator*=(TMul mul) {
         ++exp;
     }
 
-    *this = BigInt(static_cast<u64>(coef), static_cast<u32>(exp), neg);
+    *this = BigIntImpl(static_cast<u64>(coef), static_cast<u32>(exp), neg);
     return *this;
 }
 
@@ -227,13 +246,14 @@ static constexpr auto Suffixes = std::array{
     "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", "Vn", 
     "Vu", "Vd", "Vt", "Vqa", "Vqi", "Vsx", "Vsp", "Voc", "Vnd", "Trd"
 };
-constexpr std::optional<std::string> BigInt::ToHumanReadable(size_t precision) const { 
-    if(m_Coef == 0) return "0";
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr std::optional<std::string> BigIntImpl<TCoefBits, TExpBits, TSigned>::ToHumanReadable(size_t precision) const { 
+    if(Coef() == 0) return "0";
     auto mag = static_cast<u64>(Exponent()) + DigitCount() - 1;
     auto group = mag / 3;
     if(group > Suffixes.size()) return std::nullopt;
 
-    auto digits = Constexpr::ToString(m_Coef);
+    auto digits = Constexpr::ToString(Coef());
     auto wholeDigits = static_cast<size_t>(mag % 3 + 1);
     std::string result;
     if(IsNegative()) result += '-';
@@ -258,9 +278,10 @@ constexpr std::optional<std::string> BigInt::ToHumanReadable(size_t precision) c
     return result;
 }
 
-constexpr std::string BigInt::ToScientific(size_t precision) const {
-    if(m_Coef == 0) return "0e0";
-    auto digits = Constexpr::ToString(m_Coef);
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr std::string BigIntImpl<TCoefBits, TExpBits, TSigned>::ToScientific(size_t precision) const {
+    if(Coef() == 0) return "0e0";
+    auto digits = Constexpr::ToString(Coef());
     std::string result;
     result.reserve(precision + 5);
     result += digits.substr(0, precision + 1);
@@ -277,37 +298,40 @@ constexpr std::string BigInt::ToScientific(size_t precision) const {
     return result;
 }
 
-constexpr u64 BigInt::Mag(s64 val) {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr u64 BigIntImpl<TCoefBits, TExpBits, TSigned>::Mag(s64 val) {
     auto uVal = static_cast<u64>(val);
     return val < 0 ? u64{0} - uVal : uVal;
 }
 
-constexpr void BigInt::Normalize() {
-    if(m_Coef == 0) {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr void BigIntImpl<TCoefBits, TExpBits, TSigned>::Normalize() {
+    if(Coef() == 0) {
         SetExponent(0);
         SetNegative(false);
         return;
     }
 
-    auto coef = m_Coef;
+    auto coef = Coef();
     auto exp = static_cast<u64>(Exponent());
     while(coef % 10 == 0) {
         coef /= 10;
         ++exp;
     }
     if(exp > std::numeric_limits<u32>::max() / 2) {
-        m_Coef = std::numeric_limits<u32>::max();
+        SetCoef(std::numeric_limits<u32>::max());
         SetExponent(std::numeric_limits<u32>::max() / 2);
         return;
     }
 
-    m_Coef = coef;
+    SetCoef(coef);
     SetExponent(static_cast<u32>(exp));
 }
 
-constexpr u32 BigInt::DigitCount() const {
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr u32 BigIntImpl<TCoefBits, TExpBits, TSigned>::DigitCount() const {
     u32 result = 0;
-    auto running = m_Coef;
+    auto running = Coef();
     while(running > 0) {
         running /= 10;
         result++;
@@ -315,7 +339,15 @@ constexpr u32 BigInt::DigitCount() const {
     return result;
 }
 
-inline constexpr BigInt BigInt::MaxValue =
-    BigInt(std::numeric_limits<u32>::max(), std::numeric_limits<u32>::max() / 2, false);
-inline constexpr BigInt BigInt::MinValue =
-    BigInt(std::numeric_limits<u32>::max(), std::numeric_limits<u32>::max() / 2, true);
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+inline constexpr BigIntImpl<TCoefBits, TExpBits, TSigned> BigIntImpl<TCoefBits, TExpBits, TSigned>::MaxValue =
+    BigIntImpl(CoefMask.ToU64(), static_cast<u32>(ExponentMask.ToU64()), false);
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+inline constexpr BigIntImpl<TCoefBits, TExpBits, TSigned> BigIntImpl<TCoefBits, TExpBits, TSigned>::MinValue = [] {
+    if constexpr(TSigned) {
+        return BigIntImpl(CoefMask.ToU64(), static_cast<u32>(ExponentMask.ToU64()), true);
+    } else {
+        return BigIntImpl{0};
+    }
+}();
