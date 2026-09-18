@@ -1,5 +1,8 @@
 #include "Walker/WalkerGame.h"
 #include "Walker/Ui/WalkerLayout.h"
+#include "Walker/Journey/Journey.h"
+#include "Walker/Travel/Vehicle.h"
+
 #include "Animation/Animation.h"
 #include "DesignPatterns/ServiceLocator.h"
 #include "Manage/TickManager.h"

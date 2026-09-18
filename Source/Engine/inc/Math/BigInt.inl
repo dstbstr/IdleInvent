@@ -24,6 +24,8 @@ constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(u128 coef, u32 ex
 }
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl() : BigIntImpl(static_cast<u64>(0)) {}
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(u32 val) : BigIntImpl(static_cast<u64>(val)) {}
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 constexpr BigIntImpl<TCoefBits, TExpBits, TSigned>::BigIntImpl(s32 val) : BigIntImpl(static_cast<s64>(val)) {}
@@ -40,6 +42,13 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Pow10(u32 exponent) -> 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::FromScientific(u64 coef, u32 exp) -> BigIntImpl {
     return BigIntImpl(coef, exp, false);
+}
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+f64 BigIntImpl<TCoefBits, TExpBits, TSigned>::Ratio(const BigIntImpl& numerator, const BigIntImpl& denominator) {
+    auto coefRatio = static_cast<f64>(numerator.Coef()) / static_cast<f64>(denominator.Coef());
+    auto denomRatio = static_cast<f64>(numerator.Exponent()) - static_cast<f64>(denominator.Exponent());
+    return coefRatio * std::pow(10.0, denomRatio);
 }
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>

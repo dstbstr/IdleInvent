@@ -6,3 +6,5 @@ Destinations: Across Town, the city, the next state, Hawaii, Europe, the Moon, M
 Attributes: Max speed, max acceleration, cargo+crew capacity, Load/Unload speed, fuel capacity, fuel efficiency
 Rebirth: (Rebirth) Multipliers to attributes, (Prestige) exponents to multipliers, (Ascend) ??
 Pop-up Events: Distress call (add crew), Shortcut (reduce journey distance), Fuel leak (double fuel consumption)
+
+CargoSpace is shared between Cargo, Crew, and Fuel. Fuel is spent during the journey
