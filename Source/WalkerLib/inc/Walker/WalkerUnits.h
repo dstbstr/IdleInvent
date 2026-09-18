@@ -3,7 +3,7 @@
 #include <Math/BigInt.h>
 
 namespace Walker {
-	using Quantity = BigIntImpl<40, 24, false>;
+	using Quantity = BigIntImpl<40, 23, true>;
 
 	using Distance = Quantity; // millimeters
     using Speed = Quantity; // Distance per second
@@ -11,7 +11,7 @@ namespace Walker {
     using CargoAmount = Quantity; // milligrams
     using Work = Quantity; 
     using WorkRate = Quantity; // Work per second
-    using FuelEfficiency = Quantity; // Seconds per milligram
+    using FuelEfficiency = Quantity; // Seconds per Kg
 
     namespace Literals {
         inline constexpr auto LightYear = Distance::FromScientific(9'460'730'472'580'800ull, 3);

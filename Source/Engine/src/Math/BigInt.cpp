@@ -1,6 +1,8 @@
 #include "Math/BigInt.h"
 
+using UBigInt = BigIntImpl<40, 24, false>;
 static_assert(sizeof(BigInt) == sizeof(u32) * 2);
+static_assert(sizeof(UBigInt) == sizeof(u32) * 2);
 
 // construction
 // 1e12'000
@@ -45,6 +47,11 @@ static_assert(BigInt(-3) + 7 == BigInt(4));
 static_assert(BigInt(7) + -3 == BigInt(4));
 static_assert(BigInt(-7) + 7 == BigInt(0));
 
+// operator -
+static_assert(UBigInt(10) - UBigInt(3) == UBigInt(7));
+static_assert(UBigInt(10) - UBigInt(20) == UBigInt::MinValue);
+static_assert(UBigInt(10) - UBigInt(0) == UBigInt(10));
+
 // operator *
 static_assert(BigInt(12) * 30 == BigInt(360));
 static_assert(BigInt(-7) * 3 == BigInt(-21));
@@ -75,6 +82,9 @@ static_assert(BigInt(1'234'567).ToHumanReadable() == "1.23M");
 static_assert(BigInt(123'456).ToHumanReadable() == "123.45K");
 static_assert(BigInt(10'000).ToHumanReadable(2) == "10.00K");
 static_assert(BigInt(-1'234).ToHumanReadable(2) == "-1.23K");
+static_assert(BigInt(123'456).ToHumanReadable(0) == "123K");
+static_assert(BigInt(1'234'567).ToHumanReadable(2, 1) == "123.45K");
+static_assert(BigInt(1'234'567).ToHumanReadable(2, 3) == "1.23K");
 
 static_assert(BigInt(999).ToHumanReadable() == "999.00");
 static_assert(BigInt(1000).ToHumanReadable() == "1.00K");
@@ -85,10 +95,15 @@ static_assert(BigInt::Pow10(96).ToHumanReadable() == std::nullopt);
 static_assert(BigInt(999).ToHumanReadable(0) == "999");
 
 // To Scientific
+static_assert(BigInt(0).ToScientific() == "0e0");
 static_assert(BigInt(1'234'567).ToScientific() == "1.23e6");
 static_assert(BigInt(123'456).ToScientific() == "1.23e5");
 static_assert(BigInt(10'000).ToScientific() == "1.00e4");
 static_assert(BigInt(-1'234).ToScientific() == "-1.23e3");
+static_assert(BigInt(1'234'567).ToScientific(0) == "1e6");
+static_assert(BigInt(1'234'567).ToScientific(2, 1) == "1.23e5");
+static_assert(BigInt(1'234'567).ToScientific(2, 3) == "1.23e3");
+
 
 // 40 bits for the number, 23 bits for the exponent, 1 bit for the sign
 // supports up to 1e8'388'608 and 13 digits of precision

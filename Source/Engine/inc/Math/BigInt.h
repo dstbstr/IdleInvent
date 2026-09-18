@@ -41,7 +41,7 @@ public:
     constexpr BigIntImpl& Pow(u32 pow);
 
     friend constexpr BigIntImpl operator+(BigIntImpl lhs, BigIntImpl rhs) { return lhs += rhs; }
-    friend constexpr BigIntImpl operator-(BigIntImpl lhs, BigIntImpl rhs) { return lhs += -rhs; }
+    friend constexpr BigIntImpl operator-(BigIntImpl lhs, BigIntImpl rhs) { return lhs -= rhs; }
     friend constexpr BigIntImpl operator*(BigIntImpl lhs, BigIntImpl rhs) { return lhs *= rhs; }
     friend constexpr BigIntImpl operator/(BigIntImpl lhs, BigIntImpl rhs) { return lhs /= rhs; }
 
@@ -49,12 +49,16 @@ public:
     constexpr BigIntImpl& operator*=(TMul mul);
 
     template<std::floating_point TMul>
-    friend constexpr BigIntImpl operator*(BigIntImpl lhs, TMul rhs) {return lhs *= rhs;}
+    friend constexpr BigIntImpl operator*(BigIntImpl lhs, TMul rhs) {
+        return lhs *= rhs;
+    }
     template<std::floating_point TMul>
-    friend constexpr BigIntImpl operator*(TMul lhs, BigIntImpl rhs) { return rhs *= lhs; }
+    friend constexpr BigIntImpl operator*(TMul lhs, BigIntImpl rhs) {
+        return rhs *= lhs;
+    }
 
-    constexpr std::optional<std::string> ToHumanReadable(size_t precision = 2) const;
-    constexpr std::string ToScientific(size_t precision = 2) const;
+    constexpr std::optional<std::string> ToHumanReadable(size_t precision = 2, size_t scale = 0) const;
+    constexpr std::string ToScientific(size_t precision = 2, size_t scale = 0) const;
 
     static const BigIntImpl MaxValue;
     static const BigIntImpl MinValue;
@@ -77,7 +81,7 @@ private:
         }
     }();
 
-    constexpr u32 Exponent() const { 
+    constexpr u32 Exponent() const {
         auto bits = (m_Storage >> TCoefBits) & ExponentMask;
         return static_cast<u32>(bits.ToU64());
     }
@@ -89,13 +93,13 @@ private:
     }
 
     constexpr u64 Coef() const { return (m_Storage & CoefMask).ToU64(); }
-    constexpr void SetCoef(u64 coef) { 
+    constexpr void SetCoef(u64 coef) {
         if(coef > CoefMask.ToU64()) throw "Bad input";
         m_Storage = (m_Storage & ~CoefMask) | Storage{coef};
     }
 
     constexpr bool IsNegative() const { return (m_Storage & SignMask) != Storage{}; }
-    constexpr void SetNegative(bool negative) { 
+    constexpr void SetNegative(bool negative) {
         if constexpr(TSigned) {
             m_Storage = (m_Storage & ~SignMask) | (negative ? SignMask : Storage{});
         } else if(negative) {
@@ -105,6 +109,8 @@ private:
     static constexpr u64 Mag(s64 val);
     constexpr void Normalize();
     constexpr u32 DigitCount() const;
+
+    constexpr static void Align(u128& loCoef, u64& loExp, u128& hiCoef, u64& hiExp);
 };
 
 #include "BigInt.inl"

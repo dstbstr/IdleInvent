@@ -5,6 +5,7 @@
 
 namespace Walker {
     enum struct VehicleKind : u8 { Unset, Foot, Bike, Car, Boat, Plane, Jet, Rocket, Starship, COUNT };
+    struct VehicleChanged {};
 
 	struct VehicleDetails {
         CargoAmount InitialCapacity;
@@ -33,11 +34,16 @@ namespace Walker {
         CargoAmount CargoMass{}; 
         CargoAmount CrewMass{};
         CargoAmount FuelMass{};
-        
+
         Speed MaxSpeed{};
         Acceleration MaxAcceleration{};
 
         FuelEfficiency Efficiency{};
+
+        f32 FillRatio() const {
+            return static_cast<f32>(CargoAmount::Ratio(CargoMass + CrewMass + FuelMass, TotalCapacity));
+        }
+
 	};
 
 }

@@ -11,7 +11,7 @@ namespace {
 
 	static constexpr std::array Details {
 		VehicleDetails{}, // Unset
-        VehicleDetails{5_Kg, 30_Kg, 1_mps, 3_mps, 0_mps2, 2_mps2, 0_spKg, 0_spKg}, //Foot
+        VehicleDetails{5_Kg, 30_Kg, 1_mps, 3_mps, Acceleration(10), 2_mps2, 0_spKg, 0_spKg}, //Foot
         VehicleDetails{20_Kg, 100_Kg, 5_mps, 15_mps, 1_mps2, 3_mps2, 0_spKg, 0_spKg }, // Bike
         VehicleDetails{500_Kg, 1500_Kg, 30_mps, 70_mps, 1_mps2, 6_mps2, 1_spKg, 2_spKg }, // Car
         VehicleDetails{20_t, 200_t, 10_mps, 25_mps, 0_mps2, 1_mps2, 5_spKg, 10_spKg }, // Boat

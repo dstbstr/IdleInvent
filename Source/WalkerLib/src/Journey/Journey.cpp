@@ -5,17 +5,20 @@
 namespace Walker {
 	Journey::Journey(OwnedVehicle& vehicle, EndpointKind end) 
 		: m_Vehicle(vehicle)
-		, m_End(end) {
+		, m_End(end)
+		, m_Ps(ServiceLocator::Get().GetRequired<PubSub<Phase>>())
+	{
         const auto& details = GetEndpointDetails(end);
         m_EndpointCargo = details.InitialCargo;
         m_EndpointDistance = details.DistanceFromHome;
-        m_CurrentSpeed = vehicle.MaxSpeed;
+        m_CurrentSpeed = Speed{};
         m_CurrentAccel = vehicle.MaxAcceleration;
 	}
 
 	void Journey::Start() {
 		if(m_Phase == Phase::Preparing) {
             m_Phase = Phase::Outbound;
+            m_Ps.Publish(m_Phase);
 		}
 	}
 
@@ -23,12 +26,12 @@ namespace Walker {
 		if(m_Phase == Phase::Preparing) return;
 
 		m_PendingTime += elapsed;
-		while(m_PendingTime > m_UpdateInterval) {
+		while(m_PendingTime >= m_UpdateInterval) {
             m_PendingTime -= m_UpdateInterval;
 
 			if(m_Phase == Phase::Outbound || m_Phase == Phase::Returning) {
 				if(m_CurrentSpeed < m_Vehicle.MaxSpeed) {
-					m_CurrentSpeed += m_CurrentAccel;
+                    m_CurrentSpeed = std::clamp(m_CurrentSpeed + m_CurrentAccel, Speed{}, m_Vehicle.MaxSpeed);
 				}
 				if(m_Phase == Phase::Outbound) {
                     m_CurrentDistance += m_CurrentSpeed;
@@ -36,12 +39,14 @@ namespace Walker {
                         m_CurrentDistance = m_EndpointDistance;
                         m_CurrentSpeed = 0;
                         m_Phase = Phase::Loading;
+                        m_Ps.Publish(m_Phase);
                     }
 				} else {
                     m_CurrentDistance -= std::min(m_CurrentDistance, m_CurrentSpeed);
 					if(m_CurrentDistance == Distance{}) {
                         m_CurrentSpeed = 0;
                         m_Phase = Phase::Unloading;
+                        m_Ps.Publish(m_Phase);
 					}
 				}
 			} else {

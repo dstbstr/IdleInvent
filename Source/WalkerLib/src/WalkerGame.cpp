@@ -21,6 +21,15 @@ namespace Walker {
         services.CreateIfMissing<TickManager>();
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
+        services.CreateIfMissing<OwnedVehicle>(VehicleKind::Foot);
+        services.CreateIfMissing<PubSub<VehicleChanged>>();
+        services.CreateIfMissing<PubSub<Phase>>();
+
+        TickManager::Get().Register(GlobalSubs, [](BaseTime elapsed) {
+            if(auto* journey = ServiceLocator::Get().Get<Journey>()) {
+                journey->Tick(elapsed);
+            }
+        });
 
         return WalkerUi::Layout::Initialize();
     }
