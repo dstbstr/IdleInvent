@@ -30,8 +30,8 @@ namespace Walker {
 		if(m_Phase == Phase::Preparing) return;
 
 		m_PendingTime += elapsed;
-		while(m_PendingTime >= m_UpdateInterval) {
-            m_PendingTime -= m_UpdateInterval;
+		while(m_PendingTime >= UpdateInterval) {
+            m_PendingTime -= UpdateInterval;
 
             switch(m_Phase) {
                 using enum Phase;
@@ -69,11 +69,18 @@ namespace Walker {
     }
 
     void Journey::TickTravel() {
-        auto burned = BurnFuel();
-        ApplyAcceleration(burned);
+        auto previousSpeed = m_CurrentSpeed;
+        if(NeedsBrakes()) {
+            auto burned = BurnFuel(m_CurrentSpeed - m_ArrivalSpeed);
+            ApplyBrakes(burned);
+        } else {
+            auto burned = BurnFuel(m_Vehicle.MaxSpeed - m_CurrentSpeed);
+            ApplyAcceleration(burned);
+        }
 
+        auto stepDistance = (previousSpeed + m_CurrentSpeed) * StepMs / (MsPerSec * 2);
         if(m_Phase == Phase::Outbound) {
-            m_CurrentDistance += m_CurrentSpeed;
+            m_CurrentDistance += stepDistance;
             if(m_CurrentDistance >= m_EndpointDistance) {
                 m_CurrentDistance = m_EndpointDistance;
                 m_CurrentSpeed = 0;
@@ -87,7 +94,7 @@ namespace Walker {
                 m_Ps.Publish(m_Phase);
             }
         } else {
-            m_CurrentDistance -= std::min(m_CurrentDistance, m_CurrentSpeed);
+            m_CurrentDistance -= std::min(m_CurrentDistance, stepDistance);
             if(m_CurrentDistance == Distance{}) {
                 m_CurrentSpeed = 0;
                 m_UnloadTarget = m_Vehicle.CargoMass;
@@ -153,19 +160,60 @@ namespace Walker {
         }
     }
 
-    BaseTime Journey::BurnFuel() {
-        if(m_CurrentSpeed >= m_Vehicle.MaxSpeed || m_Vehicle.MaxAcceleration <= Acceleration{}) return ZeroTime;
+    Distance Journey::GetRemainingDistance() const {
+        if(m_Phase == Phase::Outbound) {
+            return m_EndpointDistance - m_CurrentDistance;
+        } else {
+            return m_CurrentDistance;
+        }
+    }
+
+    bool Journey::NeedsBrakes() const {
+        // if we accelerate for another step, will there still be room to brake?
+        if(m_CurrentSpeed <= Speed{}) return false;
+
+        auto brakingAccel = m_Vehicle.BaseAcceleration;
+        if(brakingAccel <= Acceleration{}) {
+            throw std::domain_error("Travel requires positive acceleration");
+        }
+
+        auto nextSpeed = std::min(m_CurrentSpeed + m_Vehicle.MaxAcceleration * StepMs / MsPerSec, m_Vehicle.MaxSpeed);
+
+        auto nextStepDistance = nextSpeed * StepMs / MsPerSec;
+        auto stoppingDistance = (nextSpeed * nextSpeed - m_ArrivalSpeed * m_ArrivalSpeed) / (brakingAccel * 2);
+
+        return GetRemainingDistance() <= nextStepDistance + stoppingDistance;
+    }
+
+    void Journey::ApplyBrakes(BaseTime poweredTime) {
+        m_CurrentAccel = Acceleration{};
+        if(m_CurrentSpeed <= m_ArrivalSpeed) return;
+
+        poweredTime = std::clamp(poweredTime, ZeroTime, UpdateInterval);
+
+        auto poweredMs = Quantity{poweredTime.count()};
+        auto unpoweredMs = StepMs - poweredMs;
+
+        auto weightedAccel = m_Vehicle.MaxAcceleration * poweredMs + m_Vehicle.BaseAcceleration * unpoweredMs;
+        auto previousSpeed = m_CurrentSpeed;
+        auto delta = weightedAccel / MsPerSec;
+
+        m_CurrentSpeed = std::max(previousSpeed - delta, m_ArrivalSpeed);
+        m_CurrentAccel = ((m_CurrentSpeed - previousSpeed) * MsPerSec) / StepMs;
+    }
+
+    BaseTime Journey::BurnFuel(Speed requiredChange) {
+        if(requiredChange <= Speed{} || m_Vehicle.MaxAcceleration <= Acceleration{}) return ZeroTime;
         if(m_Vehicle.FuelMass <= CargoAmount {} || m_Vehicle.Efficiency <= FuelEfficiency{}) return ZeroTime; 
 
-        auto speedGap = m_Vehicle.MaxSpeed - m_CurrentSpeed;
-        auto secondsToMax = Quantity::Ratio(speedGap, m_Vehicle.MaxAcceleration);
-        auto stepSeconds = std::chrono::duration<double>(m_UpdateInterval).count();
-        auto usefulSeconds = std::min(secondsToMax, stepSeconds);
+        auto secondsRequired = Quantity::Ratio(requiredChange, m_Vehicle.MaxAcceleration);
+        auto stepSeconds = std::chrono::duration<double>(UpdateInterval).count();
+        auto usefulSeconds = std::min(secondsRequired, stepSeconds);
         
         auto usefulTime = std::chrono::duration_cast<BaseTime>(std::chrono::duration<double>{usefulSeconds});
 
         auto fundedMs = (m_Vehicle.FuelMass + m_FuelConsumed) * m_Vehicle.Efficiency / 1_Kg;
-        auto affordableMs = std::clamp(fundedMs - Quantity{m_PoweredTime.count()}, Quantity{}, Quantity{m_UpdateInterval.count()});
+        auto affordableMs = std::clamp(fundedMs - Quantity{m_PoweredTime.count()}, Quantity{}, Quantity{UpdateInterval.count()});
         auto affordableTime = OneInstant * static_cast<BaseTime::rep>(Quantity::Ratio(affordableMs, Quantity{1}));
 
         auto poweredTime = std::min(usefulTime, affordableTime);
@@ -184,17 +232,16 @@ namespace Walker {
         m_CurrentAccel = Acceleration{};
         if(m_CurrentSpeed >= m_Vehicle.MaxSpeed) return;
 
-        poweredTime = std::clamp(poweredTime, ZeroTime, m_UpdateInterval);
+        poweredTime = std::clamp(poweredTime, ZeroTime, UpdateInterval);
 
-        auto stepMs = Quantity{m_UpdateInterval.count()};
         auto poweredMs = Quantity{poweredTime.count()};
-        auto unpoweredMs = stepMs - poweredMs;
+        auto unpoweredMs = StepMs - poweredMs;
 
         auto weightedAccel = m_Vehicle.MaxAcceleration * poweredMs + m_Vehicle.BaseAcceleration * unpoweredMs;
         auto previousSpeed = m_CurrentSpeed;
-        auto speedIncrease = weightedAccel / Quantity{OneSecond.count()};
+        auto speedIncrease = weightedAccel / MsPerSec;
 
         m_CurrentSpeed = std::min(previousSpeed + speedIncrease, m_Vehicle.MaxSpeed);
-        m_CurrentAccel = ((m_CurrentSpeed - previousSpeed) * Quantity{OneSecond.count()}) / stepMs;
+        m_CurrentAccel = ((m_CurrentSpeed - previousSpeed) * MsPerSec) / StepMs;
     }
 }

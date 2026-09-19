@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GameState/GameTime.h>
 #include <Math/BigInt.h>
 
 namespace Walker {
@@ -12,6 +13,10 @@ namespace Walker {
     using Work = Quantity; 
     using WorkRate = Quantity; // Work per second
     using FuelEfficiency = Quantity; // Milliseconds per Kg
+
+    static constexpr BaseTime UpdateInterval = OneSecond;
+    static constexpr Quantity StepMs{UpdateInterval.count()};
+    static constexpr Quantity MsPerSec{OneSecond.count()};
 
     namespace Literals {
         inline constexpr auto LightYear = Distance::FromScientific(9'460'730'472'580'800ull, 3);

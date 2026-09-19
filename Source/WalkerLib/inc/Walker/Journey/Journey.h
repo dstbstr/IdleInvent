@@ -52,13 +52,13 @@ namespace Walker {
 
 		Distance m_CurrentDistance{0};
         Speed m_CurrentSpeed{0};
+        Speed m_ArrivalSpeed{100};
         Acceleration m_CurrentAccel{0};
 
         Distance m_EndpointDistance{0};
 		CargoAmount m_EndpointCargo{0};
 
         BaseTime m_PendingTime{};
-        BaseTime m_UpdateInterval{OneSecond};
         BaseTime m_PoweredTime{};
         CargoAmount m_FuelConsumed{};
 
@@ -80,7 +80,11 @@ namespace Walker {
         void TickLoading();
         void TickUnloading();
 
-        BaseTime BurnFuel();
+        Distance GetRemainingDistance() const;
+        bool NeedsBrakes() const;
+        void ApplyBrakes(BaseTime poweredTime);
+
+        BaseTime BurnFuel(Speed requiredChange);
         void ApplyAcceleration(BaseTime poweredTime);
 
         PubSub<Phase>& m_Ps;
