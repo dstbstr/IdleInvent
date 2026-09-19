@@ -11,7 +11,7 @@ namespace Walker {
     using CargoAmount = Quantity; // milligrams
     using Work = Quantity; 
     using WorkRate = Quantity; // Work per second
-    using FuelEfficiency = Quantity; // Seconds per Kg
+    using FuelEfficiency = Quantity; // Milliseconds per Kg
 
     namespace Literals {
         inline constexpr auto LightYear = Distance::FromScientific(9'460'730'472'580'800ull, 3);
@@ -64,6 +64,6 @@ namespace Walker {
         constexpr FuelEfficiency operator""_spKg(u64 val) { return FuelEfficiency::FromScientific(val, 3); }
         constexpr FuelEfficiency operator""_mpKg(u64 val) { return FuelEfficiency::FromScientific(val, 3) * 60; }
         constexpr FuelEfficiency operator""_hpKg(u64 val) { return FuelEfficiency::FromScientific(val, 3) * 3600; }
-        constexpr FuelEfficiency operator""_dpKg(u64 val) { return FuelEfficiency::FromScientific(val, 9) * 3600 * 24; }
+        constexpr FuelEfficiency operator""_dpKg(u64 val) { return FuelEfficiency::FromScientific(val, 3) * 3600 * 24; }
     }
 }

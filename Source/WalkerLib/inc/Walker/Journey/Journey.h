@@ -18,6 +18,7 @@ namespace Walker {
             case Loading: return "Loading";
             case Returning: return "Returning";
             case Unloading: return "Unloading";
+            case Complete: return "Complete";
         }
         return "Unknown";
     }
@@ -29,12 +30,20 @@ namespace Walker {
         void Start();
         void Tick(BaseTime elasped);
         f32 GetJourneyRatio() const;
+        EndpointKind GetEndpoint() const { return m_End; }
         Distance GetCurrentDistance() const { return m_CurrentDistance; }
         Distance GetEndDistance() const { return m_EndpointDistance; }
         Speed GetCurrentSpeed() const { return m_CurrentSpeed; }
         Acceleration GetCurrentAcceleration() const { return m_CurrentAccel; }
         Phase GetPhase() const { return m_Phase; }
+        CargoAmount GetEndpointCargo() const { return m_EndpointCargo; }
+        CargoAmount GetInitialCargo() const { return m_InitialCargo; }
+        CargoAmount GetDeliveredCargo() const { return m_DeliveredCargo; }
 
+        f32 GetLoadingRatio() const;
+        f32 GetUnloadRatio() const;
+        f32 GetDeliveryRatio() const;
+        f32 GetEndpointCargoRatio() const;
     private:
 
         OwnedVehicle& m_Vehicle;
@@ -50,6 +59,29 @@ namespace Walker {
 
         BaseTime m_PendingTime{};
         BaseTime m_UpdateInterval{OneSecond};
+        BaseTime m_PoweredTime{};
+        CargoAmount m_FuelConsumed{};
+
+        Work m_UnitCargoWork{}; // Work per Kg
+        WorkRate m_LoadRate{1'000}; // TODO: Get from crew
+        WorkRate m_UnloadRate{2'000}; // TODO: Get from crew
+        Work m_LoadWork{};
+        Work m_UnloadWork{};
+
+        CargoAmount m_InitialCargo{};
+        CargoAmount m_DeliveredCargo{};
+
+        CargoAmount m_LoadedFromWork{};
+        CargoAmount m_UnloadedFromWork{};
+        CargoAmount m_LoadTarget{};
+        CargoAmount m_UnloadTarget{};
+
+        void TickTravel();
+        void TickLoading();
+        void TickUnloading();
+
+        BaseTime BurnFuel();
+        void ApplyAcceleration(BaseTime poweredTime);
 
         PubSub<Phase>& m_Ps;
 	};

@@ -8,6 +8,9 @@
 #include <GameState/GameTime.h>
 #include <Manage/TickManager.h>
 #include <Math/BigInt.h>
+#include <Ui/UiUtil.h>
+#include <Ui/Widgets/DotSlider.h>
+#include <Ui/Widgets/StackedProgress.h>
 #include <Utilities/Handle.h>
 
 #include <imgui.h>
@@ -23,26 +26,16 @@ namespace {
     ServiceLocator* Services{nullptr};
     std::vector<ScopedHandle> Subs{};
 
-    void DotSlider(f32 position) {
-        auto origin = ImGui::GetCursorScreenPos();
-        auto width = ImGui::GetContentRegionAvail().x;
-        auto height = ImGui::GetFrameHeight();
-        auto radius = ImGui::GetFontSize() * 0.15f;
+    auto DeliveredColor = IM_COL32(0, 255, 0, 255);
+    auto OnboardColor = IM_COL32(255, 255, 0, 255);
+    auto AwaitingColor = IM_COL32(255, 0, 0, 255);
 
-        ImGui::Dummy({width, height});
-        if(width > radius * 2.f) {
-            auto start = ImVec2{origin.x + radius, origin.y + height * 0.5f};
-            auto end = ImVec2{origin.x + width - radius, start.y};
-            auto marker = ImVec2{start.x + (end.x - start.x) * position, start.y};
+    auto CrewColor = IM_COL32(0, 255, 255, 255);
+    auto FuelColor = IM_COL32(255, 0, 255, 255);
+    auto CargoColor = IM_COL32(255, 255, 0, 255);
 
-            auto* drawList = ImGui::GetWindowDrawList();
-            drawList->AddLine(start, end, ImGui::GetColorU32(ImGuiCol_Separator), 2.f);
-            drawList->AddCircleFilled(marker, radius, ImGui::GetColorU32(ImGuiCol_SliderGrabActive));
-        };
-    }
-
-    const char* Str(Walker::Quantity q) {
-        return q.ToHumanReadable(2, 3).value_or(q.ToScientific(2, 3)).c_str();
+    std::string Str(Walker::Quantity q) {
+        return q.ToHumanReadable(2, 3).value_or(q.ToScientific(2, 3));
     }
 }
 
@@ -72,6 +65,12 @@ namespace Walker::WalkerUi::Screens::Travel {
 
             if(phase == Phase::Preparing) {
                 // load fuel
+                f32 fuelPercent = CurrentVehicle->FuelMass > CargoAmount{}
+                    ? static_cast<f32>(CargoAmount::Ratio(CurrentVehicle->FuelMass, CurrentVehicle->TotalCapacity))
+                    : 0.f;
+                Ui::DotSlider("FuelSlider", fuelPercent);
+                CurrentVehicle->FuelMass = CurrentVehicle->TotalCapacity * fuelPercent;
+
                 if(ImGui::Button("Start")) {
                     CurrentJourney->Start();
                 }
@@ -79,11 +78,26 @@ namespace Walker::WalkerUi::Screens::Travel {
                 if(ImGui::Button("Click")) {
                     CurrentJourney->Tick(OneSecond);
                 }
+            } else if(phase == Phase::Loading) {
+                ImGui::TextUnformatted("Loading Cargo...");
+                ImGui::SameLine();
+                ImGui::ProgressBar(CurrentJourney->GetLoadingRatio(), ImVec2{0.f, 0.f});
+            } else if(phase == Phase::Unloading) {
+                ImGui::TextUnformatted("Unloading Cargo...");
+                ImGui::SameLine();
+                ImGui::ProgressBar(CurrentJourney->GetUnloadRatio(), ImVec2{0.f, 0.f});
             }
             auto ratio = CurrentJourney->GetJourneyRatio();
-            DotSlider(ratio);
+            auto endpointStr = ToString(CurrentJourney->GetEndpoint());
+            ImGui::BeginDisabled();
+            ImGui::PushFont(GetFont(FontSizes::H3));
+            Ui::DotSlider("JourneySlider", ratio, "Home", endpointStr.c_str(), 9);
+            ImGui::PopFont();
+            ImGui::EndDisabled();
+
         } else {
             if(ImGui::Button("Start Journey")) {
+                Services->Reset<Journey>();
                 Services->Set<Journey>(*CurrentVehicle, EndpointKind::AcrossTheStreet);
                 CurrentJourney = Services->Get<Journey>();
             }
@@ -95,10 +109,37 @@ namespace Walker::WalkerUi::Screens::Travel {
         auto speed = CurrentJourney ? CurrentJourney->GetCurrentSpeed() : Speed{0};
         auto cargo = CurrentVehicle ? CurrentVehicle->FillRatio() : 0.f;
 
-        ImGui::Text("CurrentDistance: %sm / %sm", Str(dist), Str(dest));
-        ImGui::Text("Acceleration: %s m/s^2", Str(accel));
-        ImGui::Text("Speed: %s m/s", Str(speed));
+        ImGui::Text("CurrentDistance: %sm / %sm", Str(dist).c_str(), Str(dest).c_str());
+        ImGui::Text("Acceleration: %s m/s^2", Str(accel).c_str());
+        ImGui::Text("Speed: %s m/s", Str(speed).c_str());
 
         ImGui::Text("Cargo Fill: %.1f%%", cargo * 100.f);
+
+        if(CurrentJourney && CurrentVehicle) {
+            auto total = CurrentJourney->GetInitialCargo();
+            auto Fraction = [&](const CargoAmount& amount) -> f32 {
+                return total > CargoAmount{} ? static_cast<f32>(CargoAmount::Ratio(amount, total)) : 0.f;
+            };
+            
+            auto segments = std::array<Ui::ProgressSegment, 3>{{
+                {Fraction(CurrentJourney->GetDeliveredCargo()), DeliveredColor},
+                {Fraction(CurrentVehicle->CargoMass), OnboardColor},
+                {Fraction(CurrentJourney->GetEndpointCargo()), AwaitingColor}
+            }};
+
+            ImGui::TextUnformatted("Cargo Progress");
+            Ui::MultiProgress(segments);
+
+            total = CurrentVehicle->TotalCapacity;
+            auto cargoSegments = std::array<Ui::ProgressSegment, 3>{
+                {{Fraction(CurrentVehicle->CrewMass), CrewColor},
+                 {Fraction(CurrentVehicle->FuelMass), FuelColor},
+                 {Fraction(CurrentVehicle->CargoMass), CargoColor}}
+            };
+
+            ImGui::TextUnformatted("Vehicle Fill");
+            Ui::MultiProgress(cargoSegments);
+        }
+
     }
 }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="BigIntImpl&lt;*,*,*&gt;">
+	<Intrinsic Name="limb" Expression="index &lt; (($T1 + $T2 + $T3 + 31) / 32) ? m_Storage.m_Limbs._Elems[index] : 0">
+		<Parameter Name="index" Type="unsigned int" />
+	</Intrinsic>
+
+    <Intrinsic Name="coefficient"
+      Expression="((unsigned __int64)limb(0) | ((unsigned __int64)limb(1) &lt;&lt; 32)) &amp; (~0ULL &gt;&gt; (64 - $T1))" />
+
+    <Intrinsic Name="exponent"
+      Expression="(((unsigned __int64)limb($T1 / 32) | ((unsigned __int64)limb($T1 / 32 + 1) &lt;&lt; 32)) &gt;&gt; ($T1 % 32)) &amp; ((1ULL &lt;&lt; $T2) - 1)" />
+
+    <Intrinsic Name="negative"
+      Expression="$T3 &amp;&amp; ((limb(($T1 + $T2) / 32) &gt;&gt; (($T1 + $T2) % 32)) &amp; 1) != 0" />
+
+    <DisplayString Condition="negative()">-{coefficient()}e{exponent()}</DisplayString>
+    <DisplayString>{coefficient()}e{exponent()}</DisplayString>
+
+    <Expand>
+      <Item Name="Coefficient">coefficient()</Item>
+      <Item Name="Exponent">exponent()</Item>
+      <Item Name="Negative">negative()</Item>
+      <Item Name="Storage">m_Storage</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

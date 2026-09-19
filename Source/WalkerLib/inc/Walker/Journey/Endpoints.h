@@ -25,6 +25,8 @@ namespace Walker {
 		COUNT
 	};
 
+	std::string ToString(EndpointKind kind);
+
 	struct EndpointDetails {
         Distance DistanceFromHome{};
         CargoAmount InitialCargo{};

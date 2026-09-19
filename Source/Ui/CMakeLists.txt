@@ -30,7 +30,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 
     src/Particle/ParticleSystem.cpp
 
-    inc/Ui/Direction.h
-    inc/Ui/Overlay.h
-    inc/Ui/Dialog.h
- "inc/Ui/ToastManager.h" "src/ToastManager.cpp")
+    src/ToastManager.cpp
+
+    src/Widgets/DotSlider.cpp
+    src/Widgets/StackedProgress.cpp
+)

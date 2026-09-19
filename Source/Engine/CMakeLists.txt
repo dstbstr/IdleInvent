@@ -57,3 +57,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/World/World.cpp
 	src/World/Movement.cpp
 )
+
+target_sources(${PROJECT_NAME} PRIVATE
+	src/Math/FixedInt.natvis
+	src/Math/BigInt.natvis
+)

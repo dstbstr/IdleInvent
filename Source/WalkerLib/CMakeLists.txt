@@ -17,6 +17,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/WalkerGame.cpp
 
 	src/Journey/EndpointDetails.cpp
+	src/Journey/Endpoints.cpp
 	src/Journey/Journey.cpp
 
 	src/Travel/VehicleDetails.cpp

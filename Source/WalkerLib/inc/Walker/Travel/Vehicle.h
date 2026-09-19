@@ -25,6 +25,7 @@ namespace Walker {
             const auto& details = GetVehicleDetails(kind);
             TotalCapacity = details.InitialCapacity;
             MaxSpeed = details.InitialSpeed;
+            BaseAcceleration = details.InitialAcceleration / 4;
             MaxAcceleration = details.InitialAcceleration;
             Efficiency = details.InitialFuelEfficiency;
         }
@@ -36,6 +37,7 @@ namespace Walker {
         CargoAmount FuelMass{};
 
         Speed MaxSpeed{};
+        Acceleration BaseAcceleration{};
         Acceleration MaxAcceleration{};
 
         FuelEfficiency Efficiency{};

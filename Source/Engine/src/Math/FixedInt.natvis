@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="FixedInt&lt;*,*&gt;">
+    <DisplayString>FixedInt: {$T1} bits, signed={$T2}</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>($T1 + 31) / 32</Size>
+        <ValuePointer>m_Limbs._Elems</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>

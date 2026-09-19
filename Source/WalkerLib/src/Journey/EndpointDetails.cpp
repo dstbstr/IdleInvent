@@ -9,8 +9,8 @@ namespace {
 
     static constexpr std::array Details = {
 		EndpointDetails{}, // Unset
-        EndpointDetails{10_m, 2_Kg, 10_j}, // across the street
-        EndpointDetails{5_Km, 100_Kg, 20_j}, // across town
+        EndpointDetails{10_m, 50_Kg, 10_j}, // across the street
+        EndpointDetails{5_Km, 250_Kg, 20_j}, // across town
         EndpointDetails{1'00_Km, 1_Mg, 50_j}, // the capitol
         EndpointDetails{5'00_Km, 2_Mg, 70_j}, // next state
 		EndpointDetails{5400_Km, 20_Mg, 100_j}, // Hawaii
