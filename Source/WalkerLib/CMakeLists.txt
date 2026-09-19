@@ -16,10 +16,12 @@ enable_project_clang_tidy(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
 	src/WalkerGame.cpp
 
+	src/Journey/CargoTransfer.cpp
 	src/Journey/EndpointDetails.cpp
 	src/Journey/Endpoints.cpp
 	src/Journey/Journey.cpp
 
+	src/Travel/TravelLeg.cpp
 	src/Travel/VehicleDetails.cpp
 	
 	src/Ui/WalkerContent.cpp

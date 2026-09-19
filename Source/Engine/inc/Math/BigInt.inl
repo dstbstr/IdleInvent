@@ -324,6 +324,50 @@ constexpr std::string BigIntImpl<TCoefBits, TExpBits, TSigned>::ToScientific(siz
 }
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr std::string BigIntImpl<TCoefBits, TExpBits, TSigned>::ToTimeString(const BigIntImpl<TCoefBits, TExpBits, TSigned>& ms) {
+    static constexpr auto MsPerSecond = BigIntImpl(1'000);
+    static constexpr auto MsPerMinute = MsPerSecond * 60;
+    static constexpr auto MsPerHour = MsPerMinute * 60;
+    static constexpr auto MsPerDay = MsPerHour * 24;
+    static constexpr auto MsPerYear = MsPerDay * 365;
+    static constexpr auto Zero = BigIntImpl(0);
+
+    auto years = ms / MsPerYear;
+    if(years > BigIntImpl{1}) {
+        return years.ToHumanReadable(2, 0).value_or(years.ToScientific(2, 0)) + "y";
+    }
+
+    std::string result;
+    auto remaining = ms;
+    if(years > 0) {
+        result += "1y";
+        remaining -= MsPerYear;
+    }
+
+    if(auto days = remaining / MsPerDay; days > 0) {
+        if(!result.empty() && result.back() != ' ') result += ' ';
+        result += *days.ToHumanReadable(0) + "d";
+        remaining -= days * MsPerDay;
+    }
+    if(auto hours = remaining / MsPerHour; hours > 0) {
+        if(!result.empty() && result.back() != ' ') result += ' ';
+        result += *hours.ToHumanReadable(0) + "h";
+        remaining -= hours * MsPerHour;
+    }
+    if(auto minutes = remaining / MsPerMinute; minutes > 0) {
+        if(!result.empty() && result.back() != ' ') result += ' ';
+        result += *minutes.ToHumanReadable(0) + "m";
+        remaining -= minutes * MsPerMinute;
+    }
+    if(auto seconds = remaining / MsPerSecond; seconds > 0) {
+        if(!result.empty() && result.back() != ' ') result += ' ';
+        result += *seconds.ToHumanReadable(0) + "s";
+    }
+
+    return result;
+}
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 constexpr u64 BigIntImpl<TCoefBits, TExpBits, TSigned>::Mag(s64 val) {
     auto uVal = static_cast<u64>(val);
     return val < 0 ? u64{0} - uVal : uVal;

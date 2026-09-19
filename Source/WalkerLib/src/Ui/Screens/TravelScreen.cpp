@@ -62,11 +62,14 @@ namespace Walker::WalkerUi::Screens::Travel {
             auto phase = CurrentJourney->GetPhase();
             auto phaseStr = ToString(phase);
             ImGui::TextUnformatted(phaseStr.data(), phaseStr.data() + phaseStr.size());
+            auto eta = CurrentJourney->GetPhaseEta();
+            ImGui::SameLine();
+            auto etaString = Time::ToTimeString(eta);
+            ImGui::Text("[%s]", etaString.c_str());
 
             if(phase == Phase::Preparing) {
-                // load fuel
-                f32 fuelPercent = CurrentVehicle->FuelMass > CargoAmount{}
-                    ? static_cast<f32>(CargoAmount::Ratio(CurrentVehicle->FuelMass, CurrentVehicle->TotalCapacity))
+                f32 fuelPercent = CurrentVehicle->FuelMass > Zero
+                    ? static_cast<f32>(Mass::Ratio(CurrentVehicle->FuelMass, CurrentVehicle->TotalCapacity))
                     : 0.f;
                 Ui::DotSlider("FuelSlider", fuelPercent);
                 CurrentVehicle->FuelMass = CurrentVehicle->TotalCapacity * fuelPercent;
@@ -79,12 +82,8 @@ namespace Walker::WalkerUi::Screens::Travel {
                     CurrentJourney->Tick(OneSecond);
                 }
             } else if(phase == Phase::Loading) {
-                ImGui::TextUnformatted("Loading Cargo...");
-                ImGui::SameLine();
                 ImGui::ProgressBar(CurrentJourney->GetLoadingRatio(), ImVec2{0.f, 0.f});
             } else if(phase == Phase::Unloading) {
-                ImGui::TextUnformatted("Unloading Cargo...");
-                ImGui::SameLine();
                 ImGui::ProgressBar(CurrentJourney->GetUnloadRatio(), ImVec2{0.f, 0.f});
             }
             auto ratio = CurrentJourney->GetJourneyRatio();
@@ -117,8 +116,8 @@ namespace Walker::WalkerUi::Screens::Travel {
 
         if(CurrentJourney && CurrentVehicle) {
             auto total = CurrentJourney->GetInitialCargo();
-            auto Fraction = [&](const CargoAmount& amount) -> f32 {
-                return total > CargoAmount{} ? static_cast<f32>(CargoAmount::Ratio(amount, total)) : 0.f;
+            auto Fraction = [&](const Mass& amount) -> f32 {
+                return total > Zero ? static_cast<f32>(Mass::Ratio(amount, total)) : 0.f;
             };
             
             auto segments = std::array<Ui::ProgressSegment, 3>{{

@@ -104,6 +104,20 @@ static_assert(BigInt(1'234'567).ToScientific(0) == "1e6");
 static_assert(BigInt(1'234'567).ToScientific(2, 1) == "1.23e5");
 static_assert(BigInt(1'234'567).ToScientific(2, 3) == "1.23e3");
 
+// To Time String
+static constexpr auto Second = BigInt(1'000);
+static_assert(BigInt::ToTimeString(Second) == "1s");
+static_assert(BigInt::ToTimeString(Second * 60) == "1m");
+static_assert(BigInt::ToTimeString(Second * 60 * 60) == "1h");
+static_assert(BigInt::ToTimeString(Second * 60 * 60 * 24) == "1d");
+static_assert(BigInt::ToTimeString(Second * 60 * 60 * 24 * 365) == "1y");
+static_assert(BigInt::ToTimeString(Second * 60 * 60 * 24 * 365 * 1'234) == "1.23Ky");
+static_assert(BigInt::ToTimeString(
+        (Second * 60 * 60 * 24 * 365) + 
+        (Second * 60 * 60 * 24) + 
+        (Second * 60 * 60) + 
+        (Second * 60) + 
+        Second) == "1y 1d 1h 1m 1s");
 
 // 40 bits for the number, 23 bits for the exponent, 1 bit for the sign
 // supports up to 1e8'388'608 and 13 digits of precision

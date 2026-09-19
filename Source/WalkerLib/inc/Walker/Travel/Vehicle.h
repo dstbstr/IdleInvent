@@ -8,8 +8,8 @@ namespace Walker {
     struct VehicleChanged {};
 
 	struct VehicleDetails {
-        CargoAmount InitialCapacity;
-        CargoAmount MaxCapacity;
+        Mass InitialCapacity;
+        Mass MaxCapacity;
         Speed InitialSpeed;
         Speed MaxSpeed;
         Acceleration InitialAcceleration;
@@ -31,10 +31,10 @@ namespace Walker {
         }
 
         VehicleKind Kind{};
-        CargoAmount TotalCapacity{}; // shared between cargo, crew, and fuel
-        CargoAmount CargoMass{}; 
-        CargoAmount CrewMass{};
-        CargoAmount FuelMass{};
+        Mass TotalCapacity{}; // shared between cargo, crew, and fuel
+        Mass CargoMass{}; 
+        Mass CrewMass{};
+        Mass FuelMass{};
 
         Speed MaxSpeed{};
         Acceleration BaseAcceleration{};
@@ -43,7 +43,7 @@ namespace Walker {
         FuelEfficiency Efficiency{};
 
         f32 FillRatio() const {
-            return static_cast<f32>(CargoAmount::Ratio(CargoMass + CrewMass + FuelMass, TotalCapacity));
+            return static_cast<f32>(Mass::Ratio(CargoMass + CrewMass + FuelMass, TotalCapacity));
         }
 
 	};

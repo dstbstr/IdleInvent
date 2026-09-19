@@ -29,7 +29,7 @@ namespace Walker {
 
 	struct EndpointDetails {
         Distance DistanceFromHome{};
-        CargoAmount InitialCargo{};
+        Mass InitialCargo{};
         Work UnitCargoWork{};
 	};
 

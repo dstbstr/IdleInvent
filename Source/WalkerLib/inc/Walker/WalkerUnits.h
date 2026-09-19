@@ -5,14 +5,16 @@
 
 namespace Walker {
 	using Quantity = BigIntImpl<40, 23, true>;
+    static constexpr Quantity Zero{0};
 
 	using Distance = Quantity; // millimeters
     using Speed = Quantity; // Distance per second
     using Acceleration = Quantity; // Speed per second
-    using CargoAmount = Quantity; // milligrams
+    using Mass = Quantity; // milligrams
     using Work = Quantity; 
     using WorkRate = Quantity; // Work per second
     using FuelEfficiency = Quantity; // Milliseconds per Kg
+    using Time = Quantity; // Millseconds
 
     static constexpr BaseTime UpdateInterval = OneSecond;
     static constexpr Quantity StepMs{UpdateInterval.count()};
@@ -30,14 +32,14 @@ namespace Walker {
         constexpr Distance operator""_MLy(u64 val) { return Distance::FromScientific(val, 6) * LightYear; }
         constexpr Distance operator""_GLy(u64 val) { return Distance::FromScientific(val, 9) * LightYear; }
 
-        constexpr CargoAmount operator""_g(u64 val) { return CargoAmount::FromScientific(val, 3); }
-        constexpr CargoAmount operator""_Kg(u64 val) { return CargoAmount::FromScientific(val, 6); }
-        constexpr CargoAmount operator""_Mg(u64 val) { return CargoAmount::FromScientific(val, 9); }
-        constexpr CargoAmount operator""_Gg(u64 val) { return CargoAmount::FromScientific(val, 12); }
-        constexpr CargoAmount operator""_t(u64 val) { return CargoAmount::FromScientific(val, 9); }
-        constexpr CargoAmount operator""_Kt(u64 val) { return CargoAmount::FromScientific(val, 12); }
-        constexpr CargoAmount operator""_Mt(u64 val) { return CargoAmount::FromScientific(val, 15); }
-        constexpr CargoAmount operator""_Gt(u64 val) { return CargoAmount::FromScientific(val, 18); }
+        constexpr Mass operator""_g(u64 val) { return Mass::FromScientific(val, 3); }
+        constexpr Mass operator""_Kg(u64 val) { return Mass::FromScientific(val, 6); }
+        constexpr Mass operator""_Mg(u64 val) { return Mass::FromScientific(val, 9); }
+        constexpr Mass operator""_Gg(u64 val) { return Mass::FromScientific(val, 12); }
+        constexpr Mass operator""_t(u64 val) { return Mass::FromScientific(val, 9); }
+        constexpr Mass operator""_Kt(u64 val) { return Mass::FromScientific(val, 12); }
+        constexpr Mass operator""_Mt(u64 val) { return Mass::FromScientific(val, 15); }
+        constexpr Mass operator""_Gt(u64 val) { return Mass::FromScientific(val, 18); }
 
         constexpr Work operator""_j(u64 val) { return Work::FromScientific(val, 3); }
         constexpr Work operator""_Kj(u64 val) { return Work::FromScientific(val, 6); }
@@ -70,5 +72,11 @@ namespace Walker {
         constexpr FuelEfficiency operator""_mpKg(u64 val) { return FuelEfficiency::FromScientific(val, 3) * 60; }
         constexpr FuelEfficiency operator""_hpKg(u64 val) { return FuelEfficiency::FromScientific(val, 3) * 3600; }
         constexpr FuelEfficiency operator""_dpKg(u64 val) { return FuelEfficiency::FromScientific(val, 3) * 3600 * 24; }
+
+        constexpr Time operator""_ms(u64 val) { return Time::FromScientific(val, 0); }
+        constexpr Time operator""_sec(u64 val) { return Time::FromScientific(val, 3); }
+        constexpr Time operator""_min(u64 val) { return Time::FromScientific(val, 3) * 60; }
+        constexpr Time operator""_hour(u64 val) { return Time::FromScientific(val, 3) * 3'600; }
+        constexpr Time operator""_day(u64 val) { return Time::FromScientific(val, 3) * 3'600 * 24; }
     }
 }
