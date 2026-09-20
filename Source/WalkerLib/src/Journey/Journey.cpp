@@ -30,11 +30,15 @@ namespace Walker {
 
 	void Journey::Start() {
 		if(m_Phase == Phase::Preparing) {
-            m_Travel.emplace(m_EndpointDistance, m_ArrivalSpeed);
-            m_Phase = Phase::Outbound;
-            m_Ps.Publish(m_Phase);
+			ChangePhase(Phase::Outbound);
 		}
 	}
+
+    void Journey::ReturnEarly() {
+        if(m_Phase == Phase::Loading) {
+			ChangePhase(Phase::Returning);
+        }
+    }
 
 	void Journey::Tick(BaseTime elapsed) { 
 		if(m_Phase == Phase::Preparing) return;
@@ -79,12 +83,11 @@ namespace Walker {
     Time Journey::GetPhaseEta() const {
         switch(m_Phase) {
             using enum Phase;
-            case Preparing: return Zero;
-            case Complete: return Zero;
             case Loading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.TravelingCrew, m_UnitCargoWork).value_or(Zero) : Zero;
             case Unloading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.TotalCrew, m_UnitCargoWork).value_or(Zero) : Zero;
             case Outbound: // fallthrough
             case Returning: return m_Travel->GetEta(m_Vehicle);
+            default: return Zero;
         }
 
         return Zero;
@@ -92,20 +95,7 @@ namespace Walker {
 
     void Journey::TickTravel() {
         if(m_Travel->Advance(m_Vehicle, UpdateInterval)) {
-            if(m_Phase == Phase::Outbound) {
-                auto used = m_Vehicle.CargoMass + m_Vehicle.CrewMass + m_Vehicle.FuelMass;
-                auto freeSpace = std::max(Zero, m_Vehicle.TotalCapacity - used);
-
-                m_Transfer.emplace(CargoTransfer{.Target = std::min(freeSpace, m_EndpointCargo)});
-                m_Travel.reset();
-                m_Phase = Phase::Loading;
-                m_Ps.Publish(m_Phase);
-            } else {
-                m_Transfer.emplace(CargoTransfer{.Target = m_Vehicle.CargoMass});
-                m_Travel.reset();
-                m_Phase = Phase::Unloading;
-                m_Ps.Publish(m_Phase);
-            }
+			ChangePhase(m_Phase == Phase::Outbound ? Phase::Loading : Phase::Unloading);
         }
     }
 
@@ -120,10 +110,7 @@ namespace Walker {
         m_EndpointCargo -= transferred;
 
 		if(m_Transfer->Transferred >= m_Transfer->Target || transferred == available) {
-            m_Transfer.reset();
-            m_Travel.emplace(m_EndpointDistance, m_ArrivalSpeed);
-            m_Phase = Phase::Returning;
-            m_Ps.Publish(m_Phase);
+            ChangePhase(Phase::Returning);
 		}
 	}
 
@@ -134,10 +121,30 @@ namespace Walker {
         m_DeliveredCargo += transferred;
 
         if(m_Vehicle.CargoMass == Zero) {
-            m_Phase = m_EndpointCargo > Zero ? Phase::Preparing : Phase::Complete;
-            m_PendingTime = ZeroTime;
-            m_Transfer.reset();
-            m_Ps.Publish(m_Phase);
+			ChangePhase(m_EndpointCargo > Zero ? Phase::Preparing : Phase::Complete);
         }
+    }
+
+    void Journey::ChangePhase(Phase next) {
+		if (next == m_Phase) return;
+		if (next == Phase::Preparing || next == Phase::Complete) {
+			m_Travel.reset();
+			m_Transfer.reset();
+		} else if(next == Phase::Outbound || next == Phase::Returning) {
+            m_Transfer.reset();
+            m_Travel.emplace(m_EndpointDistance, m_ArrivalSpeed);
+        } else if(next == Phase::Loading) {
+            m_Travel.reset();
+            auto used = m_Vehicle.CargoMass + m_Vehicle.CrewMass + m_Vehicle.FuelMass;
+            auto freeSpace = std::max(Zero, m_Vehicle.TotalCapacity - used);
+
+            m_Transfer.emplace(CargoTransfer{ .Target = std::min(freeSpace, m_EndpointCargo) });
+        } else if(next == Phase::Unloading) {
+            m_Travel.reset();
+			m_Transfer.emplace(CargoTransfer{ .Target = m_Vehicle.CargoMass });
+        }
+
+        m_Phase = next;
+        m_Ps.Publish(m_Phase);
     }
 }

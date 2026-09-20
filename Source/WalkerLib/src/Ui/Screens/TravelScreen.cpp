@@ -105,6 +105,9 @@ namespace {
         else {
             auto ratio = phase == Phase::Loading ? CurrentJourney->GetLoadingRatio() : CurrentJourney->GetUnloadRatio();
             RenderLoading(ratio);
+            if(phase == Phase::Loading && ImGui::Button("Return Early")) {
+                CurrentJourney->ReturnEarly();
+            }
         }
 
         auto ratio = CurrentJourney->GetJourneyRatio();

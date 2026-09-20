@@ -170,6 +170,8 @@ namespace Walker {
 
 		auto speedToLose = std::max(Zero, v - u);
 		auto poweredReduction = std::min(speedToLose, vehicle.MaxAcceleration * poweredMs / MsPerSec);
+        
+        // speed post power brakes
 		auto intermediateSpeed = v - poweredReduction;
 
 		auto poweredDistance = DistanceForSpeedChange<Distance>(v, intermediateSpeed, vehicle.MaxAcceleration);

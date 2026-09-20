@@ -35,6 +35,8 @@ namespace Walker {
         void Start();
         void Tick(BaseTime elasped);
         f32 GetJourneyRatio() const;
+        void ReturnEarly();
+
         EndpointKind GetEndpoint() const { return m_End; }
         Distance GetCurrentDistance() const;
         Distance GetEndDistance() const { return m_EndpointDistance; }
@@ -76,6 +78,6 @@ namespace Walker {
         void TickTravel();
         void TickLoading();
         void TickUnloading();
-
+        void ChangePhase(Phase next);
 	};
 }
