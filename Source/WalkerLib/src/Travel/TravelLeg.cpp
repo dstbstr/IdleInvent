@@ -2,9 +2,10 @@
 
 #include "Walker/Travel/Vehicle.h"
 
+#include <Math/Kinematics.h>
+
 #include <algorithm>
 #include <cmath>
-
 
 namespace Walker {
     bool TravelLeg::Advance(OwnedVehicle& vehicle, BaseTime elapsed) { 
@@ -65,8 +66,6 @@ namespace Walker {
 		auto b = vehicle.BaseAcceleration;
         auto v = m_CurrentSpeed;
         auto u = m_ArrivalSpeed;
-        auto v2 = v * v;
-        auto u2 = u * u;
 
         auto poweredChange = a * poweredMs / MsPerSec;
         auto poweredIncrease = std::min(peak - v, poweredChange);
@@ -75,20 +74,22 @@ namespace Walker {
 
         auto poweredDecrease = std::min(peak - u, poweredChange);
         auto brakingEnd = peak - poweredDecrease;
-        auto p2 = peak * peak;
-        auto a2 = accelerationEnd * accelerationEnd;
-        auto b2 = brakingEnd * brakingEnd;
 
-        auto accelerating = (a2 - v2) / (a * 2) + (p2 - a2) / (2 * b);
-        auto braking = (p2 - b2) / (a * 2) + (b2 - u * u) / (2 * b);
+		auto accelerating = 
+            DistanceForSpeedChange<Distance>(v, accelerationEnd, a) +
+            DistanceForSpeedChange<Distance>(accelerationEnd, peak, b);
+
+		auto braking = 
+            DistanceForSpeedChange<Distance>(peak, brakingEnd, a) +
+            DistanceForSpeedChange<Distance>(brakingEnd, u, b);
 
         auto distance = accelerating + braking;
 
         auto poweredSpeedChange = poweredIncrease + poweredDecrease;
         auto unpoweredSpeedChange = (peak - accelerationEnd) + (brakingEnd - u);
 
-        auto poweredTimeMs = poweredSpeedChange * MsPerSec / a;
-        auto unpoweredTimeMs = unpoweredSpeedChange * MsPerSec / vehicle.BaseAcceleration;
+		auto poweredTimeMs = TimeForSpeedChange<Time>(Zero, poweredSpeedChange, a, MsPerSec);
+		auto unpoweredTimeMs = TimeForSpeedChange<Time>(Zero, unpoweredSpeedChange, b, MsPerSec);
 
         return std::make_pair(distance, poweredTimeMs + unpoweredTimeMs);
     }
@@ -98,11 +99,9 @@ namespace Walker {
         auto d = GetRemainingDistance();
         auto v = m_CurrentSpeed;
         auto u = m_ArrivalSpeed;
-        auto v2 = v * v;
-        auto u2 = u * u;
 
-        auto peakSquared = a * d + (v2 + u2) / 2;
-        auto poweredTarget = std::min(vehicle.MaxSpeed, peakSquared.Sqrt());
+        auto p2 = PeakSpeedSquaredForDistance(d, v, u, a);
+        auto poweredTarget = std::min(vehicle.MaxSpeed, p2.Sqrt());
         auto poweredMs = GetRemainingPoweredTime(vehicle);
         auto dA = std::max(Zero, poweredTarget - v);
         auto dB = std::max(Zero, poweredTarget - u);
@@ -112,7 +111,7 @@ namespace Walker {
 
         auto b = vehicle.BaseAcceleration;
         if(poweredMs == Zero) {
-            auto p2 = b * d + (v2 + u2) / 2;
+            p2 = PeakSpeedSquaredForDistance(d, v, u, b);
             return std::min(vehicle.MaxSpeed, p2.Sqrt());
         }
 
@@ -143,9 +142,7 @@ namespace Walker {
 
     TravelLeg::TravelSegment TravelLeg::CalculateNextSegment(const Walker::OwnedVehicle& vehicle, BaseTime elapsed) const {
         auto v = m_CurrentSpeed;
-		auto v2 = v * v;
 		auto u = m_ArrivalSpeed;
-		auto u2 = u * u;
 
         auto poweredMs = GetRemainingPoweredTime(vehicle);
 
@@ -155,7 +152,7 @@ namespace Walker {
 			auto powered = poweredMs > Zero;
 			auto mag = powered ? vehicle.MaxAcceleration : vehicle.BaseAcceleration;
 
-			auto durationTime = std::min(ToWalkerTime(elapsed), dv * MsPerSec / mag);
+            auto durationTime = std::min(ToWalkerTime(elapsed), TimeForSpeedChange<Time>(Zero, dv, mag, MsPerSec));
             if(powered) {
                 durationTime = std::min(durationTime, poweredMs);
             }
@@ -174,12 +171,11 @@ namespace Walker {
 		auto speedToLose = std::max(Zero, v - u);
 		auto poweredReduction = std::min(speedToLose, vehicle.MaxAcceleration * poweredMs / MsPerSec);
 		auto intermediateSpeed = v - poweredReduction;
-		auto i2 = intermediateSpeed * intermediateSpeed;
 
-		auto poweredDistance = (v2 - i2) / (vehicle.MaxAcceleration * 2);
-        auto unpoweredDistance = intermediateSpeed > m_ArrivalSpeed
-			? (i2 - u2) / (vehicle.BaseAcceleration * 2)
-			: Zero;
+		auto poweredDistance = DistanceForSpeedChange<Distance>(v, intermediateSpeed, vehicle.MaxAcceleration);
+        auto unpoweredDistance = intermediateSpeed > u
+			? DistanceForSpeedChange<Distance>(intermediateSpeed, u, vehicle.BaseAcceleration)
+            : Zero;
 
 		auto brakingDistance = poweredDistance + unpoweredDistance;
         auto d = GetRemainingDistance();
