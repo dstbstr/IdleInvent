@@ -46,6 +46,19 @@ namespace Walker {
             return static_cast<f32>(Mass::Ratio(CargoMass + CrewMass + FuelMass, TotalCapacity));
         }
 
+		constexpr Mass GetAvailableCapacity() const {
+			return std::max(Zero, TotalCapacity - (CargoMass + CrewMass + FuelMass));
+		}
+
+        constexpr bool CanHoldMoreCrew() const {
+            using namespace Walker::Literals;
+            return GetAvailableCapacity() > 100_Kg;
+        }
+
+        void SetCrew(u64 crewCount) {
+			using namespace Walker::Literals;
+			CrewMass = (crewCount - 1) * 100_Kg;
+        }
 	};
 
 }

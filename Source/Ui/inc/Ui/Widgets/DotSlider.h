@@ -8,5 +8,7 @@ namespace Ui {
         f32& position, 
         const char* leftLabel = "", 
         const char* rightLabel = "", 
-        size_t tickCount = 0);
+        size_t tickCount = 0,
+        f32 minPosition = 0.f,
+        f32 maxPosition = 1.f);
 }

@@ -5,10 +5,11 @@
 namespace Walker {
     using namespace Walker::Literals;
 
-	Journey::Journey(OwnedVehicle& vehicle, EndpointKind end) 
-		: m_Vehicle(vehicle)
+	Journey::Journey(OwnedVehicle& vehicle, EndpointKind end, const HomeBase& home) 
+		: m_Ps(ServiceLocator::Get().GetRequired<PubSub<Phase>>())
+		, m_Vehicle(vehicle)
 		, m_End(end)
-		, m_Ps(ServiceLocator::Get().GetRequired<PubSub<Phase>>())
+        , m_Home(home)
 	{
         const auto& details = GetEndpointDetails(end);
         m_EndpointCargo = details.InitialCargo;
@@ -80,10 +81,10 @@ namespace Walker {
             using enum Phase;
             case Preparing: return Zero;
             case Complete: return Zero;
-            case Loading: return Zero;
-            case Unloading: return Zero;
-            case Outbound: return Zero;
-            case Returning: return Zero;
+            case Loading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.TravelingCrew, m_UnitCargoWork).value_or(Zero) : Zero;
+            case Unloading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.TotalCrew, m_UnitCargoWork).value_or(Zero) : Zero;
+            case Outbound: // fallthrough
+            case Returning: return m_Travel->GetEta(m_Vehicle);
         }
 
         return Zero;
@@ -112,7 +113,8 @@ namespace Walker {
 		auto used = m_Vehicle.CargoMass + m_Vehicle.CrewMass + m_Vehicle.FuelMass;
         auto freeSpace = std::max(Zero, m_Vehicle.TotalCapacity - used);
         auto available = std::min(freeSpace, m_EndpointCargo);
-        auto transferred = m_Transfer->Advance(m_LoadRate, m_UnitCargoWork, available);
+        auto rate = m_BaseWorkRate * m_Home.TravelingCrew;
+        auto transferred = m_Transfer->Advance(rate, m_UnitCargoWork, available);
 
         m_Vehicle.CargoMass += transferred;
         m_EndpointCargo -= transferred;
@@ -126,7 +128,8 @@ namespace Walker {
 	}
 
     void Journey::TickUnloading() {
-        auto transferred = m_Transfer->Advance(m_UnloadRate, m_UnitCargoWork, m_Vehicle.CargoMass);
+		auto rate = m_BaseWorkRate * m_Home.TotalCrew;
+        auto transferred = m_Transfer->Advance(rate, m_UnitCargoWork, m_Vehicle.CargoMass);
         m_Vehicle.CargoMass -= transferred;
         m_DeliveredCargo += transferred;
 

@@ -1,5 +1,6 @@
 #include "Walker/WalkerGame.h"
 #include "Walker/Ui/WalkerLayout.h"
+#include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/Journey.h"
 #include "Walker/Travel/Vehicle.h"
 
@@ -22,6 +23,7 @@ namespace Walker {
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
         services.CreateIfMissing<OwnedVehicle>(VehicleKind::Foot);
+        services.CreateIfMissing<HomeBase>();
         services.CreateIfMissing<PubSub<VehicleChanged>>();
         services.CreateIfMissing<PubSub<Phase>>();
 
@@ -30,6 +32,13 @@ namespace Walker {
                 journey->Tick(elapsed);
             }
         });
+
+        //// cheats
+        services.GetRequired<HomeBase>().TotalCrew = 10;
+        //services.Reset<OwnedVehicle>();
+        //services.Set<OwnedVehicle>(VehicleKind::Jet);
+
+        ////
 
         return WalkerUi::Layout::Initialize();
     }

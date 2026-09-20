@@ -27,7 +27,16 @@ namespace Walker {
         return std::clamp(static_cast<f32>(Mass::Ratio(Transferred, Target)), 0.f, 1.f); 
     }
 
-    std::optional<Time> CargoTransfer::GetEta(WorkRate rate, Work workPerKg) const { 
-        return std::nullopt;
+    std::optional<Time> CargoTransfer::GetEta(WorkRate rate, Work workPerKg) const {
+        using namespace Walker::Literals;
+
+		if (workPerKg <= Zero) throw std::domain_error("Cargo work must be positive");
+        if(Transferred >= Target) return Zero;
+
+        auto remainingWork = std::max(Zero, Target * workPerKg - AccumulatedWork * 1_Kg);
+        if(remainingWork == Zero) return Zero;
+        if(rate <= Zero) return std::nullopt;
+
+        return remainingWork * MsPerSec / (rate * 1_Kg);
     }
 }

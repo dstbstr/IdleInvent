@@ -57,6 +57,8 @@ public:
         return rhs *= lhs;
     }
 
+    BigIntImpl Sqrt() const;
+
     constexpr std::optional<std::string> ToHumanReadable(size_t precision = 2, size_t scale = 0) const;
     constexpr std::string ToScientific(size_t precision = 2, size_t scale = 0) const;
     static constexpr std::string ToTimeString(const BigIntImpl& milliseconds);

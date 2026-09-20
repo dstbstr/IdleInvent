@@ -3,7 +3,8 @@
 #include <algorithm>
 
 namespace Ui {
-    void DotSlider(const char* id, f32& position, const char* leftLabel, const char* rightLabel, size_t tickCount) {
+    void DotSlider(const char* id, f32& position, const char* leftLabel, const char* rightLabel, size_t tickCount, f32 minPos, f32 maxPos) {
+        position = std::clamp(position, minPos, maxPos);
         auto origin = ImGui::GetCursorScreenPos();
         auto width = ImGui::GetContentRegionAvail().x;
         auto trackHeight = ImGui::GetFrameHeight();
@@ -20,7 +21,7 @@ namespace Ui {
         auto trackWidth = end.x - start.x;
         ImGui::InvisibleButton(id, {width, height}); 
         if(ImGui::IsItemActive() && ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-            position = std::clamp((ImGui::GetMousePos().x - start.x) / trackWidth, 0.f, 1.f);
+            position = std::clamp((ImGui::GetMousePos().x - start.x) / trackWidth, minPos, maxPos);
         }
 
         auto trackColor = ImGui::GetColorU32(ImGuiCol_Separator);

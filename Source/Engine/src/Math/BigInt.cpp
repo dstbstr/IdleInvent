@@ -106,6 +106,7 @@ static_assert(BigInt(1'234'567).ToScientific(2, 3) == "1.23e3");
 
 // To Time String
 static constexpr auto Second = BigInt(1'000);
+static_assert(BigInt::ToTimeString(BigInt{}) == "0s");
 static_assert(BigInt::ToTimeString(Second) == "1s");
 static_assert(BigInt::ToTimeString(Second * 60) == "1m");
 static_assert(BigInt::ToTimeString(Second * 60 * 60) == "1h");

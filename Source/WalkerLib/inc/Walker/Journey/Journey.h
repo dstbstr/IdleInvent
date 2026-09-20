@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Walker/WalkerUnits.h"
+#include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/CargoTransfer.h"
 #include "Walker/Journey/Endpoints.h"
 #include "Walker/Travel/TravelLeg.h"
@@ -29,7 +30,7 @@ namespace Walker {
 
 	class Journey {
     public:
-        Journey(OwnedVehicle& vehicle, EndpointKind endpoint);
+        Journey(OwnedVehicle& vehicle, EndpointKind endpoint, const HomeBase& home);
 
         void Start();
         void Tick(BaseTime elasped);
@@ -54,6 +55,7 @@ namespace Walker {
         PubSub<Phase>& m_Ps;
         OwnedVehicle& m_Vehicle;
         EndpointKind m_End{};
+        const HomeBase& m_Home;
         Phase m_Phase{Phase::Preparing};
 
         Speed m_ArrivalSpeed{100};
@@ -66,8 +68,7 @@ namespace Walker {
         std::optional<CargoTransfer> m_Transfer;
         std::optional<TravelLeg> m_Travel;
         Work m_UnitCargoWork{}; // Work per Kg
-        WorkRate m_LoadRate{1'000}; // TODO: Get from crew
-        WorkRate m_UnloadRate{2'000}; // TODO: Get from crew
+        WorkRate m_BaseWorkRate{ 1'000 };
 
         Mass m_InitialCargo{};
         Mass m_DeliveredCargo{};

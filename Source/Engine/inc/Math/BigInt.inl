@@ -256,6 +256,20 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(TMul mul) ->
     return *this;
 }
 
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Sqrt() const -> BigIntImpl {
+    if (IsNegative()) throw std::domain_error("Sqrt requires a positive value");
+    if (Coef() == 0) return {};
+
+    auto coef = static_cast<f64>(Coef());
+    auto exp = Exponent();
+    if(exp % 2 != 0) {
+        coef *= 10.f;
+    }
+
+    return Pow10(exp / 2) * std::sqrt(coef);
+}
+
 static constexpr auto Suffixes = std::array{
     "K",  "M",  "B",  "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De",
     "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", "Vn", 
@@ -359,10 +373,11 @@ constexpr std::string BigIntImpl<TCoefBits, TExpBits, TSigned>::ToTimeString(con
         result += *minutes.ToHumanReadable(0) + "m";
         remaining -= minutes * MsPerMinute;
     }
-    if(auto seconds = remaining / MsPerSecond; seconds > 0) {
+    auto seconds = remaining / MsPerSecond;
+    if(seconds > 0 || result.empty()) {
         if(!result.empty() && result.back() != ' ') result += ' ';
-        result += *seconds.ToHumanReadable(0) + "s";
-    }
+		result += *seconds.ToHumanReadable(0) + "s";
+	}
 
     return result;
 }

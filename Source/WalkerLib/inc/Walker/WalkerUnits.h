@@ -15,10 +15,14 @@ namespace Walker {
     using WorkRate = Quantity; // Work per second
     using FuelEfficiency = Quantity; // Milliseconds per Kg
     using Time = Quantity; // Millseconds
+    using Money = Quantity; // millicopper pieces
 
     static constexpr BaseTime UpdateInterval = OneSecond;
     static constexpr Quantity StepMs{UpdateInterval.count()};
     static constexpr Quantity MsPerSec{OneSecond.count()};
+
+	constexpr BaseTime ToBaseTime(Quantity q) { return OneInstant * static_cast<BaseTime::rep>(Time::Ratio(q, Time{ 1 })); }
+	constexpr Quantity ToWalkerTime(BaseTime t) { return Quantity{ t.count() }; }
 
     namespace Literals {
         inline constexpr auto LightYear = Distance::FromScientific(9'460'730'472'580'800ull, 3);
@@ -78,5 +82,11 @@ namespace Walker {
         constexpr Time operator""_min(u64 val) { return Time::FromScientific(val, 3) * 60; }
         constexpr Time operator""_hour(u64 val) { return Time::FromScientific(val, 3) * 3'600; }
         constexpr Time operator""_day(u64 val) { return Time::FromScientific(val, 3) * 3'600 * 24; }
+
+        constexpr Money operator""_cp(u64 val) { return Money::FromScientific(val, 3); }
+        constexpr Money operator""_sp(u64 val) { return Money::FromScientific(val, 5); }
+        constexpr Money operator""_gp(u64 val) { return Money::FromScientific(val, 7); }
+        constexpr Money operator""_pp(u64 val) { return Money::FromScientific(val, 9); }
+
     }
 }
