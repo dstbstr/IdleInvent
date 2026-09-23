@@ -16,6 +16,8 @@ enable_project_clang_tidy(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
 	src/WalkerGame.cpp
 
+	src/Home/Garage.cpp
+
 	src/Journey/CargoTransfer.cpp
 	src/Journey/EndpointDetails.cpp
 	src/Journey/Endpoints.cpp
@@ -24,6 +26,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Travel/TravelLeg.cpp
 	src/Travel/VehicleDetails.cpp
 	
+	src/Ui/VehicleSelector.cpp
 	src/Ui/WalkerContent.cpp
 	src/Ui/WalkerHeader.cpp
 	src/Ui/WalkerLayout.cpp
@@ -32,6 +35,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/CrewScreen.cpp
 	src/Ui/Screens/RebirthScreen.cpp
 	src/Ui/Screens/SettingsScreen.cpp
+	src/Ui/Screens/StoreScreen.cpp
 	src/Ui/Screens/TravelScreen.cpp
 	src/Ui/Screens/WalkerScreens.cpp
 )

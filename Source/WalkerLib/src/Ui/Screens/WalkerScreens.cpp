@@ -1,5 +1,6 @@
 #include "Walker/Ui/Screens/WalkerScreens.h"
 #include "Walker/Ui/Screens/CrewScreen.h"
+#include "Walker/Ui/Screens/StoreScreen.h"
 #include "Walker/Ui/Screens/RebirthScreen.h"
 #include "Walker/Ui/Screens/SettingsScreen.h"
 #include "Walker/Ui/Screens/TravelScreen.h"
@@ -15,6 +16,7 @@ namespace Walker::WalkerUi {
         switch(screen) {
             using enum Screen;
             case Travel: return "Travel";
+            case Store: return "Store";
             case Crew: return "Crew";
             case Rebirth: return "Rebirth";
             case Settings: return "Settings";
@@ -28,6 +30,7 @@ namespace Walker::WalkerUi {
         bool Initialize() { 
             auto success = true;
             success &= Travel::Initialize();
+            success &= Store::Initialize();
             success &= Crew::Initialize();
             success &= Rebirth::Initialize();
             success &= Settings::Initialize();
@@ -40,6 +43,7 @@ namespace Walker::WalkerUi {
             Settings::ShutDown();
             Rebirth::ShutDown();
             Crew::ShutDown();
+            Store::ShutDown();
             Travel::ShutDown();
         }
 
@@ -50,6 +54,7 @@ namespace Walker::WalkerUi {
             switch(screen) {
                 using enum Screen;
                 case Travel: ActiveScreenFn = Travel::Render; break;
+				case Store: ActiveScreenFn = Store::Render; break;
                 case Crew: ActiveScreenFn = Crew::Render; break;
                 case Rebirth: ActiveScreenFn = Rebirth::Render; break;
                 case Settings: ActiveScreenFn = Settings::Render; break;

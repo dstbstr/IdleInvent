@@ -4,21 +4,21 @@
 
 #include <Platform/NumTypes.h>
 
+#include <string>
+
 namespace Walker {
 	enum struct EndpointKind : u8 { 
 		Unset,
-		AcrossTheStreet, 
-		AcrossTown, 
-		TheCapitol, 
-		NextState, 
-		Hawaii, 
-		Europe, 
-		Moon, 
-		Mars, 
-		Pluto,
-        AlphaCentauri,
-        AndromedaGalaxy,
-        VirgoSupercluster,
+		Neighborhood, 
+		InTown, 
+		InState, 
+		NearState, 
+		FarState, 
+		Earth, 
+		SolarSystem,
+        MilkyWay,
+        NearGalaxy,
+        FarGalaxy,
         EdgeOfUniverse,
         GreatBeyond,
 		
@@ -31,6 +31,21 @@ namespace Walker {
         Distance DistanceFromHome{};
         Mass InitialCargo{};
         Work UnitCargoWork{};
+	};
+
+	struct EndpointInstance {
+		explicit EndpointInstance(EndpointKind kind);
+
+		EndpointKind Kind{};
+		u64 Id{};
+		std::string Name{};
+		Distance DistanceFromHome{};
+		Mass InitialCargo{};
+		Mass RemainingCargo{};
+		Mass DeliveredCargo{};
+		Work UnitCargoWork{};
+	private:
+		inline static u64 NextId{1};
 	};
 
 	const EndpointDetails& GetEndpointDetails(EndpointKind kind);

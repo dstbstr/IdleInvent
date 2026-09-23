@@ -5,21 +5,32 @@ namespace Walker {
         switch(kind) {
             using enum EndpointKind;
             case Unset: return "Unset";
-		    case AcrossTheStreet: return "Across The Street";
-		    case AcrossTown: return "Across Town";
-		    case TheCapitol: return "The Capitol";
-		    case NextState: return "Next State";
-		    case Hawaii: return "Hawaii";
-		    case Europe: return "Europe";
-		    case Moon: return "Moon";
-		    case Mars: return "Mars";
-		    case Pluto: return "Pluto";
-            case AlphaCentauri: return "Alpha Centauri";
-            case AndromedaGalaxy: return "Andromeda";
-            case VirgoSupercluster: return "Virgo Supercluster";
+		    case Neighborhood: return "Neighborhood";
+		    case InTown: return "In Town";
+		    case InState: return "In State";
+		    case NearState: return "Near State";
+		    case FarState: return "Far State";
+		    case Earth: return "Earth";
+		    case SolarSystem: return "Moon";
+            case MilkyWay: return "Milky Way";
+            case NearGalaxy: return "Near Galaxy";
+            case FarGalaxy: return "Far Galaxy";
             case EdgeOfUniverse: return "Edge Of The Universe";
             case GreatBeyond: return "The Great Beyond";
         }
         return "Unknown";
+    }
+
+    EndpointInstance::EndpointInstance(EndpointKind kind)
+        : Kind(kind)
+		, Id(NextId++)
+        , Name(ToString(kind)) {
+        // TODO: roll distance, cargo, name etc.
+		auto details = GetEndpointDetails(kind);
+        DistanceFromHome = details.DistanceFromHome;
+		InitialCargo = details.InitialCargo;
+        RemainingCargo = InitialCargo;
+        DeliveredCargo = Zero;
+		UnitCargoWork = details.UnitCargoWork;
     }
 }

@@ -11,7 +11,7 @@ namespace {
 namespace Walker::WalkerUi::Nav {
     bool Initialize() { return true; }
     void Render() { 
-        constexpr std::array screens{Screen::Travel, Screen::Crew, Screen::Rebirth};
+        constexpr std::array screens{Screen::Travel, Screen::Store, Screen::Crew, Screen::Rebirth};
 
         if(ImGui::BeginTable("##WalkerNav", static_cast<int>(screens.size()), TableFlags)) {
             for(auto screen : screens) {

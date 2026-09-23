@@ -3,6 +3,7 @@
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/Journey.h"
 #include "Walker/Journey/Endpoints.h"
+#include "Walker/Ui/VehicleSelector.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <DesignPatterns/ServiceLocator.h>
@@ -23,7 +24,6 @@
 namespace {
     using namespace Walker;
     Journey* CurrentJourney{nullptr};
-    OwnedVehicle* CurrentVehicle{nullptr};
     HomeBase* Home{nullptr};
 
     ServiceLocator* Services{nullptr};
@@ -42,16 +42,26 @@ namespace {
     }
 
     void RenderPreparing() {
-		auto maxFuel = std::max(Zero, CurrentVehicle->TotalCapacity - CurrentVehicle->CrewMass - CurrentVehicle->CargoMass);
-        auto maxFuelPercent = CurrentVehicle->TotalCapacity > Zero
-            ? std::clamp(static_cast<f32>(Mass::Ratio(maxFuel, CurrentVehicle->TotalCapacity)), 0.f, 1.f)
+		auto& garage = Home->Vehicles;
+		VehicleKind SelectedKind = garage.GetSelected()->Kind;
+        if(WalkerUi::VehicleSelector("VehicleSelector", garage.GetAvailable(), SelectedKind)) {
+			garage.Select(SelectedKind);
+            CurrentJourney->ChangeVehicle(garage.GetSelected());
+            Home->TravelingCrew = 1;
+            garage.GetSelected()->SetCrew(1);
+        }
+        auto* vehicle = garage.GetSelected();
+
+		auto maxFuel = std::max(Zero, vehicle->TotalCapacity - vehicle->CrewMass - vehicle->CargoMass);
+        auto maxFuelPercent = vehicle->TotalCapacity > Zero
+            ? std::clamp(static_cast<f32>(Mass::Ratio(maxFuel, vehicle->TotalCapacity)), 0.f, 1.f)
             : 0.f;
-        f32 fuelPercent = CurrentVehicle->FuelMass > Zero
-            ? static_cast<f32>(Mass::Ratio(CurrentVehicle->FuelMass, CurrentVehicle->TotalCapacity))
+        f32 fuelPercent = vehicle->FuelMass > Zero
+            ? static_cast<f32>(Mass::Ratio(vehicle->FuelMass, vehicle->TotalCapacity))
             : 0.f;
         ImGui::TextUnformatted("Fuel");
         Ui::DotSlider("FuelSlider", fuelPercent, "", "", 0, 0.f, maxFuelPercent);
-        CurrentVehicle->FuelMass = CurrentVehicle->TotalCapacity * fuelPercent;
+        vehicle->FuelMass = std::min(maxFuel, vehicle->TotalCapacity * fuelPercent);
 
         ImGui::TextUnformatted("Crew");
         u64 crewCount = Home->TravelingCrew;
@@ -61,15 +71,15 @@ namespace {
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
-        ImGui::BeginDisabled(crewCount >= Home->TotalCrew || !CurrentVehicle->CanHoldMoreCrew());
+        ImGui::BeginDisabled(crewCount >= Home->TotalCrew || !vehicle->CanHoldMoreCrew());
         if (ImGui::SmallButton("+")) {
             crewCount++;
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
-        ImGui::Text("%d/%d", crewCount, Home->TotalCrew);
+        ImGui::Text("%llu/%llu", crewCount, Home->TotalCrew);
 
-        CurrentVehicle->SetCrew(crewCount);
+        vehicle->SetCrew(crewCount);
         Home->TravelingCrew = crewCount;
 
         if (ImGui::Button("Start")) {
@@ -111,7 +121,7 @@ namespace {
         }
 
         auto ratio = CurrentJourney->GetJourneyRatio();
-        auto endpointStr = ToString(CurrentJourney->GetEndpoint());
+        auto endpointStr = ToString(CurrentJourney->GetEndpoint()->Kind);
         ImGui::BeginDisabled();
         ImGui::PushFont(GetFont(FontSizes::H3));
         Ui::DotSlider("JourneySlider", ratio, "Home", endpointStr.c_str(), 9);
@@ -122,17 +132,19 @@ namespace {
     void RenderHome() {
         if (ImGui::Button("Start Journey")) {
             Services->Reset<Journey>();
-            Services->Set<Journey>(*CurrentVehicle, EndpointKind::AcrossTheStreet, *Home);
+            Services->Set<Journey>(Home->Vehicles.GetSelected(), Home->Endpoints[0].get(), *Home);
             CurrentJourney = Services->Get<Journey>();
         }
     }
 
     void RenderStats() {
+		const auto* vehicle = Home->Vehicles.GetSelected();
+		ImGui::Text("$%s", Str(Home->Funds.GetBalance()).c_str());
         auto dist = CurrentJourney ? CurrentJourney->GetCurrentDistance() : Distance{ 0 };
         auto dest = CurrentJourney ? CurrentJourney->GetEndDistance() : Distance{ 0 };
         auto accel = CurrentJourney ? CurrentJourney->GetCurrentAcceleration() : Acceleration{ 0 };
         auto speed = CurrentJourney ? CurrentJourney->GetCurrentSpeed() : Speed{ 0 };
-        auto cargo = CurrentVehicle ? CurrentVehicle->FillRatio() : 0.f;
+        auto cargo = vehicle ? vehicle->FillRatio() : 0.f;
 
         ImGui::Text("CurrentDistance: %sm / %sm", Str(dist).c_str(), Str(dest).c_str());
         ImGui::Text("Acceleration: %s m/s^2", Str(accel).c_str());
@@ -140,7 +152,7 @@ namespace {
 
         ImGui::Text("Cargo Fill: %.1f%%", cargo * 100.f);
 
-        if (CurrentJourney && CurrentVehicle) {
+        if (CurrentJourney && vehicle) {
             auto total = CurrentJourney->GetInitialCargo();
             auto Fraction = [&](const Mass& amount) -> f32 {
                 return total > Zero ? static_cast<f32>(Mass::Ratio(amount, total)) : 0.f;
@@ -148,18 +160,18 @@ namespace {
 
             auto segments = std::array<Ui::ProgressSegment, 3>{ {
                 {Fraction(CurrentJourney->GetDeliveredCargo()), DeliveredColor},
-                {Fraction(CurrentVehicle->CargoMass), OnboardColor},
+                {Fraction(vehicle->CargoMass), OnboardColor},
                 {Fraction(CurrentJourney->GetEndpointCargo()), AwaitingColor}
             } };
 
             ImGui::TextUnformatted("Cargo Progress");
             Ui::MultiProgress(segments);
 
-            total = CurrentVehicle->TotalCapacity;
+            total = vehicle->TotalCapacity;
             auto cargoSegments = std::array<Ui::ProgressSegment, 3>{
-                {{Fraction(CurrentVehicle->CrewMass), CrewColor},
-                 {Fraction(CurrentVehicle->FuelMass), FuelColor},
-                 {Fraction(CurrentVehicle->CargoMass), CargoColor}}
+                {{Fraction(vehicle->CrewMass), CrewColor},
+                 {Fraction(vehicle->FuelMass), FuelColor},
+                 {Fraction(vehicle->CargoMass), CargoColor}}
             };
 
             ImGui::TextUnformatted("Vehicle Fill");
@@ -188,12 +200,7 @@ namespace Walker::WalkerUi::Screens::Travel {
         auto& services = ServiceLocator::Get();
         Services = &services;
         CurrentJourney = services.Get<Journey>();
-        CurrentVehicle = &services.GetRequired<OwnedVehicle>();
         Home = &services.GetRequired<HomeBase>();
-
-        services.GetRequired<PubSub<VehicleChanged>>().Subscribe(Subs, [](const auto&) {
-            CurrentVehicle = ServiceLocator::Get().Get<OwnedVehicle>();
-        });
 
         return true; 
     }

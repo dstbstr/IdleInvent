@@ -62,8 +62,8 @@ namespace Walker {
     }
 
     std::pair<Distance, Time> TravelLeg::RequiredDistanceAndTime(const OwnedVehicle& vehicle, Speed peak, Time poweredMs) const {
-        auto a = vehicle.MaxAcceleration;
-		auto b = vehicle.BaseAcceleration;
+        auto a = vehicle.BaseAcceleration;
+		auto b = vehicle.PoweredAcceleration;
         auto v = m_CurrentSpeed;
         auto u = m_ArrivalSpeed;
 
@@ -95,7 +95,7 @@ namespace Walker {
     }
 
     Speed TravelLeg::CalculateTargetSpeed(const OwnedVehicle& vehicle) const {
-        auto a = vehicle.MaxAcceleration;
+        auto a = vehicle.PoweredAcceleration;
         auto d = GetRemainingDistance();
         auto v = m_CurrentSpeed;
         auto u = m_ArrivalSpeed;
@@ -150,7 +150,7 @@ namespace Walker {
             auto braking = delta < Zero;
             auto dv = braking ? -delta : delta;
 			auto powered = poweredMs > Zero;
-			auto mag = powered ? vehicle.MaxAcceleration : vehicle.BaseAcceleration;
+			auto mag = powered ? vehicle.PoweredAcceleration : vehicle.BaseAcceleration;
 
             auto durationTime = std::min(ToWalkerTime(elapsed), TimeForSpeedChange<Time>(Zero, dv, mag, MsPerSec));
             if(powered) {
@@ -169,12 +169,12 @@ namespace Walker {
 
 
 		auto speedToLose = std::max(Zero, v - u);
-		auto poweredReduction = std::min(speedToLose, vehicle.MaxAcceleration * poweredMs / MsPerSec);
+		auto poweredReduction = std::min(speedToLose, vehicle.PoweredAcceleration * poweredMs / MsPerSec);
         
         // speed post power brakes
 		auto intermediateSpeed = v - poweredReduction;
 
-		auto poweredDistance = DistanceForSpeedChange<Distance>(v, intermediateSpeed, vehicle.MaxAcceleration);
+		auto poweredDistance = DistanceForSpeedChange<Distance>(v, intermediateSpeed, vehicle.PoweredAcceleration);
         auto unpoweredDistance = intermediateSpeed > u
 			? DistanceForSpeedChange<Distance>(intermediateSpeed, u, vehicle.BaseAcceleration)
             : Zero;

@@ -8,7 +8,7 @@ namespace Ui {
         auto origin = ImGui::GetCursorScreenPos();
         auto width = ImGui::GetContentRegionAvail().x;
         auto trackHeight = ImGui::GetFrameHeight();
-        auto radius = ImGui::GetFontSize() * 0.15f;
+        auto radius = ImGui::GetFontSize() * 0.2f;
         if(width <= radius * 2.f) return;
 
         auto gap = ImGui::GetStyle().ItemSpacing.y;

@@ -30,22 +30,24 @@ namespace Walker {
 
 	class Journey {
     public:
-        Journey(OwnedVehicle& vehicle, EndpointKind endpoint, const HomeBase& home);
+        Journey(OwnedVehicle* vehicle, EndpointInstance* endpoint, HomeBase& home);
 
         void Start();
         void Tick(BaseTime elasped);
         f32 GetJourneyRatio() const;
         void ReturnEarly();
+		bool ChangeVehicle(OwnedVehicle* vehicle);
+		bool ChangeEndpoint(EndpointInstance* end);
+		EndpointInstance* GetEndpoint() const { return m_End; }
 
-        EndpointKind GetEndpoint() const { return m_End; }
         Distance GetCurrentDistance() const;
-        Distance GetEndDistance() const { return m_EndpointDistance; }
+        Distance GetEndDistance() const { return m_End ? m_End->DistanceFromHome : Zero; }
         Speed GetCurrentSpeed() const { return m_Travel ? m_Travel->GetCurrentSpeed() : Zero; }
         Acceleration GetCurrentAcceleration() const { return m_Travel ? m_Travel->GetCurrentAcceleration() : Zero; }
         Phase GetPhase() const { return m_Phase; }
-        Mass GetEndpointCargo() const { return m_EndpointCargo; }
-        Mass GetInitialCargo() const { return m_InitialCargo; }
-        Mass GetDeliveredCargo() const { return m_DeliveredCargo; }
+        Mass GetEndpointCargo() const { return m_End ? m_End->RemainingCargo : Zero; }
+        Mass GetInitialCargo() const { return m_End ? m_End->InitialCargo : Zero; }
+        Mass GetDeliveredCargo() const { return m_End ? m_End->DeliveredCargo : Zero; }
 
         f32 GetLoadingRatio() const;
         f32 GetUnloadRatio() const;
@@ -55,25 +57,19 @@ namespace Walker {
         Time GetPhaseEta() const;
     private:
         PubSub<Phase>& m_Ps;
-        OwnedVehicle& m_Vehicle;
-        EndpointKind m_End{};
-        const HomeBase& m_Home;
+        OwnedVehicle* m_Vehicle;
+        EndpointInstance* m_End{};
+        HomeBase& m_Home;
         Phase m_Phase{Phase::Preparing};
 
         Speed m_ArrivalSpeed{100};
 
-        Distance m_EndpointDistance{0};
-		Mass m_EndpointCargo{0};
 
         BaseTime m_PendingTime{};
 
         std::optional<CargoTransfer> m_Transfer;
         std::optional<TravelLeg> m_Travel;
-        Work m_UnitCargoWork{}; // Work per Kg
         WorkRate m_BaseWorkRate{ 1'000 };
-
-        Mass m_InitialCargo{};
-        Mass m_DeliveredCargo{};
 
         void TickTravel();
         void TickLoading();

@@ -5,17 +5,19 @@
 
 namespace Walker {
     enum struct VehicleKind : u8 { Unset, Foot, Bike, Car, Boat, Plane, Jet, Rocket, Starship, COUNT };
+
+	std::string ToString(VehicleKind kind);
+
     struct VehicleChanged {};
 
 	struct VehicleDetails {
-        Mass InitialCapacity;
+        VehicleKind Kind{};
+        Money Cost{};
         Mass MaxCapacity;
-        Speed InitialSpeed;
         Speed MaxSpeed;
-        Acceleration InitialAcceleration;
-        Acceleration MaxAcceleration;
-        FuelEfficiency InitialFuelEfficiency;
-        FuelEfficiency MaxFuelEfficiency;
+        Acceleration BaseAcceleration;
+        Acceleration PoweredAcceleration;
+        FuelEfficiency FuelEfficiency;
 	};
     
     const VehicleDetails& GetVehicleDetails(VehicleKind kind);
@@ -23,11 +25,11 @@ namespace Walker {
 	struct OwnedVehicle {
         explicit OwnedVehicle(VehicleKind kind) : Kind(kind) {
             const auto& details = GetVehicleDetails(kind);
-            TotalCapacity = details.InitialCapacity;
-            MaxSpeed = details.InitialSpeed;
-            BaseAcceleration = details.InitialAcceleration / 4;
-            MaxAcceleration = details.InitialAcceleration;
-            Efficiency = details.InitialFuelEfficiency;
+            TotalCapacity = details.MaxCapacity;
+            MaxSpeed = details.MaxSpeed;
+            BaseAcceleration = details.BaseAcceleration;
+            PoweredAcceleration = details.PoweredAcceleration;
+            Efficiency = details.FuelEfficiency;
         }
 
         VehicleKind Kind{};
@@ -38,7 +40,7 @@ namespace Walker {
 
         Speed MaxSpeed{};
         Acceleration BaseAcceleration{};
-        Acceleration MaxAcceleration{};
+        Acceleration PoweredAcceleration{};
 
         FuelEfficiency Efficiency{};
 
