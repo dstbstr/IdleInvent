@@ -125,7 +125,8 @@ namespace {
         }
 
         auto ratio = CurrentJourney->GetJourneyRatio();
-        auto endpointStr = ToString(CurrentJourney->GetEndpoint()->Kind);
+        const auto& endpointStr = CurrentJourney->GetEndpoint()->Name;
+
         ImGui::BeginDisabled();
         ImGui::PushFont(GetFont(FontSizes::H3));
         Ui::DotSlider("JourneySlider", ratio, "Home", endpointStr.c_str(), 9);
@@ -134,11 +135,13 @@ namespace {
     }
 
     void RenderHome() {
+		ImGui::BeginDisabled(Home->Endpoints.empty() || !Home->Vehicles.GetSelected());
         if (ImGui::Button("Start Journey")) {
             Services->Reset<Journey>();
             Services->Set<Journey>(Home->Vehicles.GetSelected(), Home->Endpoints[0].get(), *Home);
             CurrentJourney = Services->Get<Journey>();
         }
+        ImGui::EndDisabled();
     }
 
     void RenderStats() {
@@ -187,8 +190,11 @@ namespace {
         if (CurrentJourney) {
             RenderJourney();
             if(CurrentJourney->GetPhase() == Phase::Complete) {
+				auto endpointId = CurrentJourney->GetEndpoint()->Id;
                 Services->Reset<Journey>();
 				CurrentJourney = nullptr;
+
+				std::erase_if(Home->Endpoints, [endpointId](const auto& e) { return e->Id == endpointId; });
             }
         }
         else {
