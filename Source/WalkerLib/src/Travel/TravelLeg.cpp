@@ -62,8 +62,8 @@ namespace Walker {
     }
 
     std::pair<Distance, Time> TravelLeg::RequiredDistanceAndTime(const OwnedVehicle& vehicle, Speed peak, Time poweredMs) const {
-        auto a = vehicle.BaseAcceleration;
-		auto b = vehicle.PoweredAcceleration;
+        auto a = vehicle.PoweredAcceleration;
+		auto b = vehicle.BaseAcceleration;
         auto v = m_CurrentSpeed;
         auto u = m_ArrivalSpeed;
 

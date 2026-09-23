@@ -51,6 +51,10 @@ namespace {
             garage.GetSelected()->SetCrew(1);
         }
         auto* vehicle = garage.GetSelected();
+        auto* selectedEndpoint = CurrentJourney->GetEndpoint();
+        if(WalkerUi::EndpointSelector("EndpointSelector", Home->Endpoints, selectedEndpoint)) {
+			CurrentJourney->ChangeEndpoint(selectedEndpoint);
+        }
 
 		auto maxFuel = std::max(Zero, vehicle->TotalCapacity - vehicle->CrewMass - vehicle->CargoMass);
         auto maxFuelPercent = vehicle->TotalCapacity > Zero
