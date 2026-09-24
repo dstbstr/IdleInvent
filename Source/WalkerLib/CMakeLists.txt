@@ -16,6 +16,7 @@ enable_project_clang_tidy(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
 	src/WalkerGame.cpp
 
+	src/Home/CrewRoster.cpp
 	src/Home/Garage.cpp
 
 	src/Journey/CargoTransfer.cpp

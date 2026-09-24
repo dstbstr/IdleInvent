@@ -89,8 +89,8 @@ namespace Walker {
     Time Journey::GetPhaseEta() const {
         switch(m_Phase) {
             using enum Phase;
-            case Loading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.TravelingCrew, m_End->UnitCargoWork).value_or(Zero) : Zero;
-            case Unloading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.TotalCrew, m_End->UnitCargoWork).value_or(Zero) : Zero;
+            case Loading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.Crew[CrewRole::Traveling], m_End->UnitCargoWork).value_or(Zero) : Zero;
+            case Unloading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.Crew.GetCount(), m_End->UnitCargoWork).value_or(Zero) : Zero;
             case Outbound: // fallthrough
             case Returning: return m_Travel->GetEta(*m_Vehicle);
             default: return Zero;
@@ -109,7 +109,7 @@ namespace Walker {
 		auto used = m_Vehicle->CargoMass + m_Vehicle->CrewMass + m_Vehicle->FuelMass;
         auto freeSpace = std::max(Zero, m_Vehicle->TotalCapacity - used);
         auto available = std::min(freeSpace, m_End->RemainingCargo);
-        auto rate = m_BaseWorkRate * m_Home.TravelingCrew;
+        auto rate = m_BaseWorkRate * m_Home.Crew[CrewRole::Traveling];
         auto transferred = m_Transfer->Advance(rate, m_End->UnitCargoWork, available);
 
         m_Vehicle->CargoMass += transferred;
@@ -121,7 +121,7 @@ namespace Walker {
 	}
 
     void Journey::TickUnloading() {
-		auto rate = m_BaseWorkRate * m_Home.TotalCrew;
+		auto rate = m_BaseWorkRate * m_Home.Crew.GetCount();
         auto transferred = m_Transfer->Advance(rate, m_End->UnitCargoWork, m_Vehicle->CargoMass);
         m_Vehicle->CargoMass -= transferred;
         m_End->DeliveredCargo += transferred;

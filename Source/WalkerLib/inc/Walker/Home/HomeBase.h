@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Walker/WalkerUnits.h"
+#include "Walker/Home/CrewRoster.h"
 #include "Walker/Home/Garage.h"
 #include "Walker/Home/Wallet.h"
 #include "Walker/Journey/Endpoints.h"
@@ -13,8 +14,7 @@
 
 namespace Walker {
 	struct HomeBase {
-		u64 TotalCrew{1};
-		u64 TravelingCrew{1};
+		CrewRoster Crew{};
 
 		Wallet Funds{};
 		Garage Vehicles{};

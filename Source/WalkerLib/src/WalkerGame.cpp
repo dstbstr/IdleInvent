@@ -39,7 +39,7 @@ namespace Walker {
         });
 
         //// cheats
-        services.GetRequired<HomeBase>().TotalCrew = 10;
+        home.Crew.Add(9);
         home.Vehicles.Add(VehicleKind::Jet);
         home.Funds.Add(Money::Pow10(24));
         home.Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::InState));

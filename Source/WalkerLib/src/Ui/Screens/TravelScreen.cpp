@@ -47,7 +47,7 @@ namespace {
         if(WalkerUi::VehicleSelector("VehicleSelector", garage.GetAvailable(), SelectedKind)) {
 			garage.Select(SelectedKind);
             CurrentJourney->ChangeVehicle(garage.GetSelected());
-            Home->TravelingCrew = 1;
+            Home->Crew.ClearTravelers();
             garage.GetSelected()->SetCrew(1);
         }
         auto* vehicle = garage.GetSelected();
@@ -68,23 +68,21 @@ namespace {
         vehicle->FuelMass = std::min(maxFuel, vehicle->TotalCapacity * fuelPercent);
 
         ImGui::TextUnformatted("Crew");
-        u64 crewCount = Home->TravelingCrew;
-        ImGui::BeginDisabled(crewCount <= 1);
-        if (ImGui::SmallButton("-")) {
-            crewCount--;
+        auto& crew = Home->Crew;
+        ImGui::BeginDisabled(crew[CrewRole::Traveling] <= 1);
+        if (ImGui::SmallButton("-") && crew.TryUnassign(1, CrewRole::Traveling)) {
+            vehicle->SetCrew(crew[CrewRole::Traveling]);
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
-        ImGui::BeginDisabled(crewCount >= Home->TotalCrew || !vehicle->CanHoldMoreCrew());
-        if (ImGui::SmallButton("+")) {
-            crewCount++;
+        ImGui::BeginDisabled(crew[CrewRole::Idle] == 0 || !vehicle->CanHoldMoreCrew());
+        if (ImGui::SmallButton("+") && crew.TryAssign(1, CrewRole::Traveling)) {
+            vehicle->SetCrew(crew[CrewRole::Traveling]);
         }
         ImGui::EndDisabled();
-        ImGui::SameLine();
-        ImGui::Text("%llu/%llu", crewCount, Home->TotalCrew);
 
-        vehicle->SetCrew(crewCount);
-        Home->TravelingCrew = crewCount;
+        ImGui::SameLine();
+        ImGui::Text("%llu/%llu", crew[CrewRole::Traveling], Home->Crew.GetCount());
 
         if (ImGui::Button("Start")) {
             CurrentJourney->Start();
