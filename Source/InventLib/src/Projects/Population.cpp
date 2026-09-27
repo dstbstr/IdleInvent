@@ -10,7 +10,7 @@ namespace {
     //constexpr auto IncreaseRate = Invent::Scale::Linear<3>;
     //constexpr auto PopulationIncreaseRate = Invent::Scale::FixedPointLog<double, 110, 100>;
     //constexpr auto IncreaseRate = Invent::Scale::Linear<size_t, 10>;
-    constexpr auto IncreaseRate = Scale::MakeLogPunctuated<size_t, 10>(Scale::Linear<size_t, 5>);
+    constexpr auto IncreaseRate = Scale::MakeExponentialPunctuated<size_t, 10>(Scale::Linear<size_t, 5>);
 }
 namespace Invent {
     Project GetPopulationIncreaseProject(size_t currentPopulation) {

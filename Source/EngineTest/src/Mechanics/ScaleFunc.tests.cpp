@@ -14,13 +14,13 @@ namespace Invent {
         ASSERT_EQ(scale(3), 30); 
     }
 
-    TEST(Scale, Logarithmic_WithBase2AndLevel3_Returns8) { 
-        auto scale = Scale::Logarithmic<int, 2>;
+    TEST(Scale, Exponential_WithBase2AndLevel3_Returns8) { 
+        auto scale = Scale::Exponential<int, 2>;
         ASSERT_EQ(scale(3), 8); 
     }
 
-    TEST(Scale, Logarithmic_WithBase10AndLevel3_Returns1000) { 
-        auto scale = Scale::Logarithmic<int, 10>;
+    TEST(Scale, Exponential_WithBase10AndLevel3_Returns1000) { 
+        auto scale = Scale::Exponential<int, 10>;
         ASSERT_EQ(scale(3), 1'000); 
     }
 
@@ -42,15 +42,15 @@ namespace Invent {
         ASSERT_EQ(expected, scale(30));
 	}
 
-    TEST(Scale, LogPunctuated_WithSpecifiedValueAndLogBase2_ReturnsSpecifiedValuesOnPowersOfTwo) {
-        auto fn = Scale::MakeLogPunctuated<int, 2>(Scale::Specified<int, 3, 4, 5>);
+    TEST(Scale, ExponentialPunctuated_WithSpecifiedValueAndLogBase2_ReturnsSpecifiedValuesOnPowersOfTwo) {
+        auto fn = Scale::MakeExponentialPunctuated<int, 2>(Scale::Specified<int, 3, 4, 5>);
         ASSERT_EQ(fn(1), 3);
         ASSERT_EQ(fn(2), 4);
         ASSERT_EQ(fn(4), 5);
 	}
 
-    TEST(Scale, LogPunctuated_WithSpecifiedValueAndLogBase10_RetursSpecifiedValueOnPowersOf10) {
-        auto fn = Scale::MakeLogPunctuated<int, 10>(Scale::Specified<int, 3, 4, 5>);
+    TEST(Scale, ExponentialPunctuated_WithSpecifiedValueAndLogBase10_RetursSpecifiedValueOnPowersOf10) {
+        auto fn = Scale::MakeExponentialPunctuated<int, 10>(Scale::Specified<int, 3, 4, 5>);
 		ASSERT_EQ(fn(1), 3);
 		ASSERT_EQ(fn(10), 4);
 		ASSERT_EQ(fn(100), 5);

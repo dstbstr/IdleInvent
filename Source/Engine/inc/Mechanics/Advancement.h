@@ -18,7 +18,7 @@ struct Advancement {
     u64 MaxLevel{100};
 
 	u64 CurrentExp{ 0 };
-	std::function<u64(u64)> NextLevelCost = Scale::Logarithmic<u64, 2>;
+	std::function<u64(u64)> NextLevelCost = Scale::Exponential<u64, 2>;
 	u64 ExpToNextLevel{ 0 };
 	Progression Progress{};
 

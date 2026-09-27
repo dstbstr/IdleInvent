@@ -5,7 +5,7 @@
 
 namespace Scale {
     template<typename T, size_t Log>
-    T Logarithmic(size_t currentLevel) {
+    T Exponential(size_t currentLevel) {
         return static_cast<T>(std::pow(Log, currentLevel));
     }
 
@@ -36,7 +36,7 @@ namespace Scale {
     }
 
     template<typename T, size_t Base, typename StepFn>
-    constexpr auto MakeLogPunctuated(StepFn stepFn) {
+    constexpr auto MakeExponentialPunctuated(StepFn stepFn) {
         return [stepFn](size_t currentLevel) {
             auto log = std::log(static_cast<double>(currentLevel)) / std::log(static_cast<double>(Base));
             return static_cast<T>(stepFn(static_cast<size_t>(log)));

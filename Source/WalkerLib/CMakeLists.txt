@@ -16,8 +16,10 @@ enable_project_clang_tidy(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
 	src/WalkerGame.cpp
 
-	src/Home/CrewRoster.cpp
+	src/Home/CrewManager.cpp
 	src/Home/Garage.cpp
+	src/Home/HomeBase.cpp
+	src/Home/JobProgress.cpp
 
 	src/Journey/CargoTransfer.cpp
 	src/Journey/EndpointDetails.cpp
@@ -27,6 +29,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Travel/TravelLeg.cpp
 	src/Travel/VehicleDetails.cpp
 	
+	src/Ui/EtaProgress.cpp
 	src/Ui/VehicleSelector.cpp
 	src/Ui/WalkerContent.cpp
 	src/Ui/WalkerHeader.cpp

@@ -8,7 +8,7 @@ namespace Pets::Leveling {
         DR_ASSERT_MSG(currentLevel > 0, "Current level must be greater than 0");
         if(currentLevel == 0) return 0;
 
-        return 100 * Scale::Logarithmic<u32, 2>(currentLevel - 1);
+        return 100 * Scale::Exponential<u32, 2>(currentLevel - 1);
 	}
 
 	Result GrantXp(OwnedPet& pet, u32 xp) {

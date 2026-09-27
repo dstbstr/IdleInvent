@@ -37,6 +37,18 @@ namespace Walker {
                 journey->Tick(elapsed);
             }
         });
+		TickManager::Get().Register(GlobalSubs, [](BaseTime elapsed) {
+			ServiceLocator::Get().GetRequired<HomeBase>().Tick(elapsed);
+		});
+
+        // TODO: Move this somewhere
+		home.Crew.Subscribe(GlobalSubs, [](const JobCompleted& job) {
+			if (job.Role == CrewRole::Scout) {
+				auto& home = ServiceLocator::Get().GetRequired<HomeBase>();
+
+				home.Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::Neighborhood));
+			}
+		});
 
         //// cheats
         home.Crew.Add(9);
