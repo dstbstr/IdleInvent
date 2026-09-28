@@ -23,6 +23,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 
 	src/Journey/CargoTransfer.cpp
 	src/Journey/EndpointDetails.cpp
+	src/Journey/EndpointNames.cpp
 	src/Journey/Endpoints.cpp
 	src/Journey/Journey.cpp
 
@@ -30,7 +31,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Travel/VehicleDetails.cpp
 	
 	src/Ui/EtaProgress.cpp
-	src/Ui/VehicleSelector.cpp
+	src/Ui/Selectors.cpp
 	src/Ui/WalkerContent.cpp
 	src/Ui/WalkerHeader.cpp
 	src/Ui/WalkerLayout.cpp

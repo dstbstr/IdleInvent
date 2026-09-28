@@ -34,4 +34,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 
     src/Widgets/DotSlider.cpp
     src/Widgets/StackedProgress.cpp
-)
+ "inc/Ui/Widgets/Carousel.h" "src/Widgets/Carousel.cpp")

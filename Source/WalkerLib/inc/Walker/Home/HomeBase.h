@@ -21,6 +21,8 @@ namespace Walker {
 		Garage Vehicles{};
 
 		std::vector<std::unique_ptr<EndpointInstance>> Endpoints{};
+		EndpointKind FurthestEndpoint{EndpointKind::Unset};
+		EndpointKind GetMaxScoutKind() const;
 
 		void Tick(BaseTime elapsed);
 	};

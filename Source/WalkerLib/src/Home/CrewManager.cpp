@@ -4,17 +4,28 @@
 #include <numeric>
 
 namespace Walker {
+	std::string ToString(CrewRole role) {
+		switch (role) {
+			using enum CrewRole;
+			case Idle: return "Idle";
+			case Traveling: return "Traveling";
+			case Scout: return "Scout";
+			case Scientist: return "Scientist";
+			case Engineer: return "Engineer";
+		}
+		return "Unknown";
+	}
+
 	CrewManager::CrewManager() {
 		m_State.fill({
 			.CrewCount = 0,
-			.Completions = 0,
 			.Progress = {},
 			.Rate = WorkRate{1},
 			.WorkRemainder = Zero
 		});
 		// player is always 'traveling'
 		m_State[static_cast<size_t>(CrewRole::Traveling)].CrewCount = 1;
-		StartJob(CrewRole::Scout);
+		StartScout();
 	}
 
 	u64 CrewManager::operator[](CrewRole role) const {
@@ -77,6 +88,11 @@ namespace Walker {
 		});
 	}
 
+	void CrewManager::SetNextSearch(EndpointKind kind) {
+		DR_ASSERT_MSG(kind > EndpointKind::Unset && kind < EndpointKind::COUNT, "Invalid endpoint");
+		m_NextSearch = kind;
+	}
+
 	void CrewManager::Tick(BaseTime elapsed) {
 		if(elapsed <= ZeroTime) return;
 		auto elapsedMs = ToWalkerTime(elapsed);
@@ -105,20 +121,15 @@ namespace Walker {
 		subs.push_back(Subscribe(callback));
 	}
 
-	Work CrewManager::GetRequiredWork(CrewRole role, u64 completions) const {
-		switch(role) {
-			using enum CrewRole;
-			case Scout: return Work{10} * (completions + 1);
-			default: return Work{ 1'000 } * (completions + 1);
-		}
-	}
-
-	void CrewManager::StartJob(CrewRole role, Work initialWork) {
-		auto& state = m_State[static_cast<size_t>(role)];
+	void CrewManager::StartScout(Work initialWork) {
+		auto& state = m_State[static_cast<size_t>(CrewRole::Scout)];
 		if(state.Progress) return;
 
+		m_CurrentSearch = m_NextSearch;
+		auto completions = m_ScoutCompletions[static_cast<size_t>(m_CurrentSearch)];
+		auto requiredWork = Work{10}.Pow(static_cast<u32>(m_CurrentSearch)) * (completions + 1);
 		state.Progress = JobProgress{
-			.RequiredWork = GetRequiredWork(role, state.Completions),
+			.RequiredWork = requiredWork,
 			.CompletedWork = initialWork
 		};
 	}
@@ -129,19 +140,19 @@ namespace Walker {
 		auto extraWork = std::max(Zero, state.Progress->CompletedWork - state.Progress->RequiredWork);
 		state.Progress.reset();
 
-		state.Completions++;
-
 		if (role == CrewRole::Scout) {
-			StartJob(role, extraWork);
+			auto kind = static_cast<size_t>(m_CurrentSearch);
+			m_ScoutCompletions[kind]++;
+			StartScout(extraWork);
+			m_Ps.Publish({
+				.Role = role,
+				.CompletedKind = kind
+			});
 		} else {
 			TryUnassign(state.CrewCount, role); // roles which don't auto restart get unassigned
 			state.WorkRemainder = Zero;
+			// m_Ps.Publish({role});
 		}
-
-		m_Ps.Publish({
-			.Role = role,
-			.Completion = state.Completions 
-		});
 
 	}
 }

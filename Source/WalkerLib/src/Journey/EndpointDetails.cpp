@@ -9,20 +9,22 @@ namespace {
 
     static constexpr std::array Details = {
 		EndpointDetails{}, // Unset
-        EndpointDetails{10_m, 50_Kg, 10_j}, // across the street
-        EndpointDetails{5_Km, 250_Kg, 20_j}, // across town
-        EndpointDetails{1'00_Km, 1_Mg, 50_j}, // the capitol
-        EndpointDetails{5'00_Km, 2_Mg, 70_j}, // next state
-		EndpointDetails{5400_Km, 20_Mg, 100_j}, // Hawaii
-		EndpointDetails{9000_Km, 50_Mg, 1_Kj}, // Europe
-        EndpointDetails{384_Mm, 200_t, 5_Kj}, // Moon
-        EndpointDetails{2'25_Gm, 1_Kt, 10'0_Kj}, // Mars
-        EndpointDetails{5'90_Gm, 2_Mt, 20'0_Kj}, // Pluto
-        EndpointDetails{437_Ly / 100, 50_Mt, 50'0_Kj}, // Alpha Centauri
-        EndpointDetails{2540_Ly, 10'0_Gt, 100'0_Kj}, // Andromeda Galaxy
-        EndpointDetails{54_MLy, 1000_Gt, 500'0_Kj}, // Virgo Supercluster
-        EndpointDetails{465_GLy, 100000_Gt, 1_Mj} // Edge of the Universe
+        //              Min distance, Max distance, Min cargo, Max cargo, Work/Kg
+        EndpointDetails{10_m,         100_m,        50_Kg,     500_Kg,    10_j},   // Neighborhood
+        EndpointDetails{1_Km,         50_Km,        250_Kg,    7'500_Kg,  20_j},   // InTown
+        EndpointDetails{50_Km,        1_Mm,         1_Mg,      100_Mg,    50_j},   // InState
+        EndpointDetails{500_Km,       3_Mm,         2_Mg,      500_Mg,    70_j},   // NearState
+        EndpointDetails{3_Mm,         10_Mm,        20_Mg,     1_Kt,      100_j},  // FarState
+        EndpointDetails{10_Mm,        40_Mm,        50_Mg,     5_Kt,      1_Kj},   // Earth
+        EndpointDetails{100_Mm,       10'000_Gm,    200_t,     2_Mt,      5_Kj},   // SolarSystem
+        EndpointDetails{1_Ly,         100_KLy,      1_Kt,      50_Mt,     100_Kj}, // MilkyWay
+        EndpointDetails{100_KLy,      10_MLy,       2_Mt,      100_Gt,    200_Kj}, // NearGalaxy
+        EndpointDetails{10_MLy,       1_GLy,        50_Mt,     1'000_Gt,  500_Kj}, // FarGalaxy
+        EndpointDetails{1_GLy,        50_GLy,       100_Gt,    10'000_Gt, 1_Mj},   // EdgeOfUniverse
+        EndpointDetails{50_GLy,       5'000_GLy,    1'000_Gt,  100'000_Gt, 5_Mj}   // GreatBeyond
     };
+
+	static_assert(Details.size() == static_cast<size_t>(EndpointKind::COUNT));
 }
 namespace Walker {
     const EndpointDetails& GetEndpointDetails(EndpointKind kind) {

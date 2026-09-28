@@ -1,6 +1,6 @@
 #include "Walker/Ui/Screens/StoreScreen.h"
 #include "Walker/Home/HomeBase.h"
-#include "Walker/Ui/VehicleSelector.h"
+#include "Walker/Ui/Selectors.h"
 
 #include <Utilities/EnumUtils.h>
 

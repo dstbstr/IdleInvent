@@ -3,6 +3,7 @@
 #include "Walker/WalkerUnits.h"
 
 #include <Platform/NumTypes.h>
+#include <Utilities/IRandom.h>
 
 #include <string>
 
@@ -28,8 +29,10 @@ namespace Walker {
 	std::string ToString(EndpointKind kind);
 
 	struct EndpointDetails {
-        Distance DistanceFromHome{};
-        Mass InitialCargo{};
+		Distance MinDistance{};
+        Distance MaxDistance{};
+        Mass MinCargo{};
+		Mass MaxCargo{};
         Work UnitCargoWork{};
 	};
 
@@ -49,4 +52,5 @@ namespace Walker {
 	};
 
 	const EndpointDetails& GetEndpointDetails(EndpointKind kind);
+	std::string GenerateEndpointName(EndpointKind kind, IRandom& rand);
 }

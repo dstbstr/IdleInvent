@@ -1,5 +1,11 @@
 #include "Walker/Journey/Endpoints.h"
 
+#include <DesignPatterns/ServiceLocator.h>
+#include <Utilities/IRandom.h>
+
+#include <algorithm>
+#include <cmath>
+
 namespace Walker {
     std::string ToString(EndpointKind kind) {
         switch(kind) {
@@ -23,12 +29,22 @@ namespace Walker {
 
     EndpointInstance::EndpointInstance(EndpointKind kind)
         : Kind(kind)
-		, Id(NextId++)
-        , Name(ToString(kind)) {
+		, Id(NextId++) {
         // TODO: roll distance, cargo, name etc.
 		auto details = GetEndpointDetails(kind);
-        DistanceFromHome = details.DistanceFromHome;
-		InitialCargo = details.InitialCargo;
+		auto& rand = ServiceLocator::Get().GetRequired<IRandom>();
+		Name = GenerateEndpointName(kind, rand);
+
+		auto LogRoll = [&](const Quantity& min, const Quantity& max) -> Quantity {
+            if(min == max) return min;
+
+            auto ratio = Quantity::Ratio(max, min);
+            auto mul = std::pow(ratio, static_cast<double>(rand.GetNextFloat()));
+            return std::clamp(min * mul, min, max);
+		};
+
+		DistanceFromHome = LogRoll(details.MinDistance, details.MaxDistance);
+		InitialCargo = LogRoll(details.MinCargo, details.MaxCargo);
         RemainingCargo = InitialCargo;
         DeliveredCargo = Zero;
 		UnitCargoWork = details.UnitCargoWork;

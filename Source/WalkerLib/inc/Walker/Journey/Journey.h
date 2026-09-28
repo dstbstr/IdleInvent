@@ -69,7 +69,7 @@ namespace Walker {
 
         std::optional<CargoTransfer> m_Transfer;
         std::optional<TravelLeg> m_Travel;
-        WorkRate m_BaseWorkRate{ 1'000 };
+        WorkRate m_BaseWorkRate{ 10'000 };
 
         void TickTravel();
         void TickLoading();
