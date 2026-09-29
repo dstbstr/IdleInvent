@@ -1,5 +1,6 @@
 #include "Walker/Ui/Screens/RebirthScreen.h"
 #include "Walker/Home/HomeBase.h"
+#include "Walker/Journey/Journey.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <Ui/UiUtil.h>
@@ -71,6 +72,7 @@ namespace {
         ImGui::Text("In exchange you'll receive %llu rebirth points", rebirthPoints);
 
         if(ImGui::Button("Confirm") && rebirthPoints > 0) {
+            ServiceLocator::Get().Reset<Journey>();
             Home->Rebirth();
             Home->Rates.GetRebirth().AvailablePoints += rebirthPoints;
 			CurrentRebirthType = std::nullopt;

@@ -34,9 +34,16 @@ namespace Walker {
 
         TickManager::Get().Register(GlobalSubs, [](BaseTime elapsed) {
             auto& services = ServiceLocator::Get();
+			auto& home = services.GetRequired<HomeBase>();
             auto* journey = services.Get<Journey>();
-			// TODO: Consider starting a journey if one is not active and there are endpoints to visit
-            if(!journey) return;
+            if(!journey) {
+                auto* vehicle = home.Vehicles.GetSelected();
+				if (vehicle && home.Endpoints.size() > 0) {
+					services.Set<Journey>(vehicle, home.Endpoints[0].get(), home);
+				}
+                return;
+            }
+
             journey->Tick(elapsed);
             if(journey->GetPhase() != Phase::Complete) return;
 
