@@ -47,7 +47,6 @@ namespace Walker {
             journey->Tick(elapsed);
             if(journey->GetPhase() != Phase::Complete) return;
 
-			auto& home = services.GetRequired<HomeBase>();
 			auto* endpoint = journey->GetEndpoint();
 			home.FurthestEndpoint = std::max(home.FurthestEndpoint, endpoint->Kind);
             auto endpointId = endpoint->Id;
