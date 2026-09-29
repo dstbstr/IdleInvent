@@ -37,6 +37,7 @@ namespace Walker {
         TickManager::Get().Register(GlobalSubs, [](BaseTime elapsed) {
             auto& services = ServiceLocator::Get();
             auto* journey = services.Get<Journey>();
+			// TODO: Consider starting a journey if one is not active and there are endpoints to visit
             if(!journey) return;
             journey->Tick(elapsed);
             if(journey->GetPhase() != Phase::Complete) return;
@@ -46,8 +47,18 @@ namespace Walker {
 			home.FurthestEndpoint = std::max(home.FurthestEndpoint, endpoint->Kind);
             auto endpointId = endpoint->Id;
 
+			auto it = std::ranges::find_if(home.Endpoints, [endpointId](const auto& e) { return e->Id == endpointId; });
+			DR_ASSERT_MSG(it != home.Endpoints.end(), "Completed endpoint not found in home");
+			if (it == home.Endpoints.end()) return;
+
+			auto index = static_cast<size_t>(it - home.Endpoints.begin());
             services.Reset<Journey>();
-			std::erase_if(home.Endpoints, [endpointId](const auto& e) { return e->Id == endpointId; });
+            home.Endpoints.erase(it);
+            if(home.Endpoints.empty()) return;
+
+            // TODO: Consider unlocking auto-mission (through science?)
+			index = std::min(index, home.Endpoints.size() - 1);
+			services.Set<Journey>(home.Vehicles.GetSelected(), home.Endpoints[index].get(), home);
         });
 
 		TickManager::Get().Register(GlobalSubs, [](BaseTime elapsed) {

@@ -64,16 +64,16 @@ namespace Walker {
 
         Speed m_ArrivalSpeed{100};
 
-
-        BaseTime m_PendingTime{};
+        BaseTime m_Countdown{std::chrono::seconds{30}};
 
         std::optional<CargoTransfer> m_Transfer;
         std::optional<TravelLeg> m_Travel;
         WorkRate m_BaseWorkRate{ 10'000 };
+        WorkRate m_WorkRemainder{};
 
-        void TickTravel();
-        void TickLoading();
-        void TickUnloading();
+        void TickTravel(BaseTime elapsed);
+        void TickLoading(BaseTime elapsed);
+        void TickUnloading(BaseTime elapsed);
         void ChangePhase(Phase next);
 	};
 }
