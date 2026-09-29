@@ -16,11 +16,11 @@ namespace Walker {
 		return "Unknown";
 	}
 
-	CrewManager::CrewManager() {
+	CrewManager::CrewManager(const WalkerRates& rates) : m_Rates(rates) {
 		m_State.fill({
 			.CrewCount = 0,
 			.Progress = {},
-			.Rate = WorkRate{1},
+			.Rate = m_Rates.GetJobWorkRate(),
 			.WorkRemainder = Zero
 		});
 		// player is always 'traveling'

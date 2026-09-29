@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Walker/WalkerUnits.h"
+#include "Walker/WalkerRates.h"
 #include "Walker/Home/CrewManager.h"
 #include "Walker/Home/Garage.h"
 #include "Walker/Home/Wallet.h"
@@ -15,7 +16,10 @@
 
 namespace Walker {
 	struct HomeBase {
-		CrewManager Crew{};
+		HomeBase();
+
+		WalkerRates Rates{};
+		CrewManager Crew;
 
 		Wallet Funds{};
 		Garage Vehicles{};

@@ -3,6 +3,7 @@
 #include "Walker/Home/JobProgress.h"
 #include "Walker/Journey/Endpoints.h"
 #include "Walker/WalkerUnits.h"
+#include "Walker/WalkerRates.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <Platform/NumTypes.h>
@@ -33,7 +34,7 @@ namespace Walker {
 	class CrewManager {
 		using JobDoneFn = std::function<void(const JobCompleted&)>;
 	public:
-		CrewManager();
+		CrewManager(const WalkerRates& rates);
 
 		void Add(u64 count);
 		bool TryAssign(u64 count, CrewRole role);
@@ -61,6 +62,7 @@ namespace Walker {
 			WorkRate Rate{};
 			Quantity WorkRemainder{};
 		};
+		const WalkerRates& m_Rates;
 		std::array<State, static_cast<size_t>(CrewRole::COUNT)> m_State{};
 		std::array<u64, static_cast<size_t>(EndpointKind::COUNT)> m_ScoutCompletions{};
 		PubSub<JobCompleted> m_Ps{};

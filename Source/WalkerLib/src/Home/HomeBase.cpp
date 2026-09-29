@@ -3,6 +3,8 @@
 #include <Utilities/EnumUtils.h>
 
 namespace Walker {
+	HomeBase::HomeBase() : Crew(Rates) {}
+
 	void HomeBase::Tick(BaseTime elapsed) {
 		Crew.Tick(elapsed);
 	}

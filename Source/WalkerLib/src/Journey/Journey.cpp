@@ -88,8 +88,8 @@ namespace Walker {
     Time Journey::GetPhaseEta() const {
         switch(m_Phase) {
             using enum Phase;
-            case Loading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.Crew[CrewRole::Traveling], m_End->UnitCargoWork).value_or(Zero) : Zero;
-            case Unloading: return m_Transfer ? m_Transfer->GetEta(m_BaseWorkRate * m_Home.Crew.GetCount(), m_End->UnitCargoWork).value_or(Zero) : Zero;
+            case Loading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * m_Home.Crew[CrewRole::Traveling], m_End->UnitCargoWork).value_or(Zero) : Zero;
+            case Unloading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * m_Home.Crew.GetCount(), m_End->UnitCargoWork).value_or(Zero) : Zero;
             case Outbound: // fallthrough
             case Returning: return m_Travel->GetEta(*m_Vehicle);
 			case Preparing: return ToWalkerTime(m_Countdown);
@@ -109,7 +109,7 @@ namespace Walker {
 		auto used = m_Vehicle->CargoMass + m_Vehicle->CrewMass + m_Vehicle->FuelMass;
         auto freeSpace = std::max(Zero, m_Vehicle->TotalCapacity - used);
         auto available = std::min(freeSpace, m_End->RemainingCargo);
-        auto rate = m_BaseWorkRate * m_Home.Crew[CrewRole::Traveling];
+        auto rate = m_Home.Rates.GetCargoWorkRate() * m_Home.Crew[CrewRole::Traveling];
         auto numerator = rate * ToWalkerTime(elapsed) + m_WorkRemainder;
         auto work = numerator / MsPerSec;
         m_WorkRemainder = numerator - work * MsPerSec;
@@ -124,7 +124,7 @@ namespace Walker {
 	}
 
     void Journey::TickUnloading(BaseTime elapsed) {
-		auto rate = m_BaseWorkRate * m_Home.Crew.GetCount();
+		auto rate = m_Home.Rates.GetCargoWorkRate() * m_Home.Crew.GetCount();
         auto numerator = rate * ToWalkerTime(elapsed) + m_WorkRemainder;
         auto work = numerator / MsPerSec;
         m_WorkRemainder = numerator - work * MsPerSec;
