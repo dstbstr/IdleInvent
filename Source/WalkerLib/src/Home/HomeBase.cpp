@@ -12,4 +12,13 @@ namespace Walker {
 	EndpointKind HomeBase::GetMaxScoutKind() const {
 		return Enum::Increment(FurthestEndpoint);
 	}
+
+	void HomeBase::Rebirth() {
+		FurthestEndpoint = EndpointKind::Unset;
+		Funds.Reset();
+		Vehicles.Reset();
+		Endpoints.clear();
+		Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::Neighborhood));
+		Crew.Rebirth();
+	}
 }

@@ -39,4 +39,12 @@ namespace Walker {
 	bool Garage::Contains(VehicleKind kind) const {
 		return m_Vehicles[static_cast<size_t>(kind)] != nullptr;
 	}
+
+	void Garage::Reset() {
+		for (auto& vehicle : m_Vehicles) {
+			vehicle.reset();
+		}
+		Add(VehicleKind::Foot);
+		Select(VehicleKind::Foot);
+	}
 }

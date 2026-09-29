@@ -27,9 +27,7 @@ namespace Walker {
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
         
         auto& home = services.GetOrCreate<HomeBase>();
-        home.Vehicles.Add(VehicleKind::Foot);
-        home.Vehicles.Select(VehicleKind::Foot);
-		home.Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::Neighborhood));
+        home.Rebirth();
 
         services.CreateIfMissing<PubSub<VehicleChanged>>();
         services.CreateIfMissing<PubSub<Phase>>();
@@ -81,6 +79,7 @@ namespace Walker {
         home.Vehicles.Add(VehicleKind::Jet);
         home.Funds.Add(Money::Pow10(24));
         home.Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::InState));
+        home.Rates.GetRebirth().AvailablePoints = 100;
         ////
 
         return WalkerUi::Layout::Initialize();

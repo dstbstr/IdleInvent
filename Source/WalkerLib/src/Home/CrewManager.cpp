@@ -1,6 +1,7 @@
 #include "Walker/Home/CrewManager.h"
 #include <Utilities/EnumUtils.h>
 
+#include <algorithm>
 #include <numeric>
 
 namespace Walker {
@@ -17,15 +18,7 @@ namespace Walker {
 	}
 
 	CrewManager::CrewManager(const WalkerRates& rates) : m_Rates(rates) {
-		m_State.fill({
-			.CrewCount = 0,
-			.Progress = {},
-			.Rate = m_Rates.GetJobWorkRate(),
-			.WorkRemainder = Zero
-		});
-		// player is always 'traveling'
-		m_State[static_cast<size_t>(CrewRole::Traveling)].CrewCount = 1;
-		StartScout();
+		Rebirth();
 	}
 
 	u64 CrewManager::operator[](CrewRole role) const {
@@ -77,7 +70,7 @@ namespace Walker {
 		auto index = static_cast<size_t>(role);
 		const auto& state = m_State[index];
 		return state.Progress.and_then([&](const auto& progress) {
-			return progress.GetEta(state.Rate * state.CrewCount);
+			return progress.GetEta(m_Rates.GetJobWorkRate() * state.CrewCount);
 		});
 	}
 
@@ -102,7 +95,7 @@ namespace Walker {
 			auto& state = m_State[static_cast<size_t>(job)];
 			if(state.Progress == std::nullopt || state.CrewCount == 0) continue;
 
-			auto numerator = state.Rate * state.CrewCount * elapsedMs + state.WorkRemainder;
+			auto numerator = m_Rates.GetJobWorkRate() * state.CrewCount * elapsedMs + state.WorkRemainder;
 			auto work = numerator / MsPerSec;
 			state.WorkRemainder = numerator - work * MsPerSec;
 
@@ -119,6 +112,22 @@ namespace Walker {
 
 	void CrewManager::Subscribe(std::vector<ScopedHandle>& subs, const JobDoneFn& callback) {
 		subs.push_back(Subscribe(callback));
+	}
+
+	void CrewManager::Rebirth() {
+		auto count = std::max(1ull, GetCount());
+
+		m_State.fill({
+			.CrewCount = 0,
+			.Progress = {},
+			.WorkRemainder = Zero
+		});
+		// player is always 'traveling'
+		m_State[static_cast<size_t>(CrewRole::Traveling)].CrewCount = 1;
+		m_State[static_cast<size_t>(CrewRole::Idle)].CrewCount = count - 1;
+		m_ScoutCompletions.fill(0);
+
+		StartScout();
 	}
 
 	void CrewManager::StartScout(Work initialWork) {

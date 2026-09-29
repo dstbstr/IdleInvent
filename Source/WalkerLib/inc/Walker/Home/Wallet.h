@@ -15,6 +15,7 @@ namespace Walker {
 			m_Balance -= amount; 
 			return true;
 		}
+		constexpr void Reset() { m_Balance = Zero; }
 
 	private:
 		Money m_Balance{};

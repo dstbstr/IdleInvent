@@ -29,5 +29,6 @@ namespace Walker {
 		EndpointKind GetMaxScoutKind() const;
 
 		void Tick(BaseTime elapsed);
+		void Rebirth();
 	};
 }

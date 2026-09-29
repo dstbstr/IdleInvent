@@ -14,9 +14,12 @@ namespace Walker {
 		Speed GetVehicleMaxSpeed(VehicleKind kind) const;
 		Mass GetVehicleCapacity(VehicleKind kind) const;
 
+		WalkerRebirth& GetRebirth() { return m_Rebirth; }
+		const WalkerRebirth& GetRebirth() const { return m_Rebirth; }
+
 	private:
 		WorkRate m_BaseCargoRate{10'000};
 		WorkRate m_BaseJobRate{10};
-
+		WalkerRebirth m_Rebirth{};
 	};
 }

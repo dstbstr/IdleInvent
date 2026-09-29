@@ -17,6 +17,7 @@ namespace Walker {
 		bool Add(VehicleKind kind);
 		bool Contains(VehicleKind kind) const;
 
+		void Reset();
 	private:
 		std::array<std::unique_ptr<OwnedVehicle>, static_cast<size_t>(VehicleKind::COUNT)> m_Vehicles{};
 		VehicleKind m_Selected{VehicleKind::Unset};

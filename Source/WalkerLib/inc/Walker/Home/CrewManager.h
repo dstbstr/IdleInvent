@@ -54,12 +54,12 @@ namespace Walker {
 		void Tick(BaseTime elapsed);
 		ScopedHandle Subscribe(const JobDoneFn& callback);
 		void Subscribe(std::vector<ScopedHandle>& subs, const JobDoneFn& callback);
+		void Rebirth();
 
 	private:
 		struct State {
 			u64 CrewCount{};
 			std::optional<JobProgress> Progress{};
-			WorkRate Rate{};
 			Quantity WorkRemainder{};
 		};
 		const WalkerRates& m_Rates;
