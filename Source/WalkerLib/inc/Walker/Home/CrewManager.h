@@ -37,12 +37,14 @@ namespace Walker {
 		CrewManager(const WalkerRates& rates);
 
 		void Add(u64 count);
+		void Hire(u64 count);
 		bool TryAssign(u64 count, CrewRole role);
 		bool TryUnassign(u64 count, CrewRole role);
 		void ClearTravelers();
 
 		u64 GetCount() const;
 		u64 GetCount(CrewRole role) const;
+		u64 GetHiredCount() const;
 
 		u64 operator[](CrewRole role) const;
 
@@ -68,6 +70,7 @@ namespace Walker {
 		PubSub<JobCompleted> m_Ps{};
 		EndpointKind m_NextSearch{EndpointKind::Neighborhood};
 		EndpointKind m_CurrentSearch{EndpointKind::Neighborhood};
+		u64 m_HiredCount{};
 
 		void StartScout(Work initialWork = Zero);
 		void FinishJob(CrewRole role);

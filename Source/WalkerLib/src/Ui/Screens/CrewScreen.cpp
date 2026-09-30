@@ -20,6 +20,21 @@ namespace {
 		ImGui::TextUnformatted("Idle");
 		ImGui::SameLine();
 		ImGui::Text("%llu", Home->Crew[CrewRole::Idle]);
+        auto CostButton = [](u64 count) {
+			auto cost = Home->Rates.GetHireCost(Home->Crew.GetHiredCount(), count);
+			ImGui::BeginDisabled(!Home->Funds.CanAfford(cost));
+			ImGui::SameLine();
+			auto label = "+ " + std::to_string(count);
+			if (ImGui::SmallButton(label.c_str())) {
+                Home->TryHireCrew(count);
+            }
+            ImGui::EndDisabled();
+        };
+
+        CostButton(1);
+        CostButton(10);
+        CostButton(100);
+        CostButton(1000);
 	}
 
     void RenderJob(CrewRole role) {

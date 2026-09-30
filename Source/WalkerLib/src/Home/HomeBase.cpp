@@ -13,6 +13,16 @@ namespace Walker {
 		return Enum::Increment(FurthestEndpoint);
 	}
 
+	bool HomeBase::TryHireCrew(u64 count) {
+		auto cost = Rates.GetHireCost(Crew.GetHiredCount(), count);
+		if(Funds.Spend(cost)) {
+			Crew.Hire(count);
+			return true;
+		}
+
+		return false;
+	}
+
 	void HomeBase::Rebirth() {
 		FurthestEndpoint = EndpointKind::Unset;
 		Funds.Reset();

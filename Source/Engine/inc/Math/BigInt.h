@@ -39,6 +39,9 @@ public:
     constexpr BigIntImpl& operator*=(const BigIntImpl& other);
     constexpr BigIntImpl& operator/=(const BigIntImpl& other);
     constexpr BigIntImpl& Pow(u32 pow);
+	
+    template<std::floating_point TBase>
+    BigIntImpl& ScaleByPower(TBase base, u32 pow);
 
     friend constexpr BigIntImpl operator+(BigIntImpl lhs, BigIntImpl rhs) { return lhs += rhs; }
     friend constexpr BigIntImpl operator-(BigIntImpl lhs, BigIntImpl rhs) { return lhs -= rhs; }

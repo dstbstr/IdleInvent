@@ -214,6 +214,47 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Pow(u32 pow) -> BigIntI
 }
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+template<std::floating_point TBase>
+auto BigIntImpl<TCoefBits, TExpBits, TSigned>::ScaleByPower(TBase base, u32 exp) -> BigIntImpl& {
+    auto growth = static_cast<f64>(base);
+    if(!std::isfinite(growth) || growth <= 0.0) {
+		throw std::domain_error("ScaleByPower requires a positive finite base");
+    }
+    if(exp == 0 || Coef() == 0 || growth == 1.0) return *this;
+
+    // base^exp = 10^whole * 10^(factor - whole)
+    auto factor = static_cast<f64>(exp) * std::log10(growth);
+    auto whole = std::floor(factor);
+
+	auto coef = static_cast<f64>(Coef()) * std::pow(10.0, factor - whole);
+	auto exponent = static_cast<s64>(Exponent()) + static_cast<s64>(whole);
+
+    if(exponent < 0) {
+        coef *= std::pow(10.0, static_cast<f64>(exponent));
+        exponent = 0;
+    }
+    auto maxCoef = static_cast<f64>(CoefMask.ToU64());
+
+    while(exponent > 0 && coef <= maxCoef / 10.0) {
+        coef *= 10.0;
+        --exponent;
+    }
+
+    while(coef > maxCoef || coef >= std::ldexp(1.0, 64)) {
+        coef /= 10.0;
+        ++exponent;
+    }
+
+	if (exponent > static_cast<s64>(ExponentMask.ToU64())) {
+		*this = IsNegative() ? MinValue : MaxValue;
+        return *this;
+	}
+
+	*this = BigIntImpl(static_cast<u64>(coef), static_cast<u32>(exponent), IsNegative());
+    return *this;
+}
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 template<std::floating_point TMul>
 constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(TMul mul) -> BigIntImpl& {
     if(!(mul >= std::numeric_limits<TMul>::lowest() && mul <= std::numeric_limits<TMul>::max())) {

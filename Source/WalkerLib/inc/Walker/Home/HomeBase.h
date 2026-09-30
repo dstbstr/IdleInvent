@@ -28,6 +28,8 @@ namespace Walker {
 		EndpointKind FurthestEndpoint{EndpointKind::Unset};
 		EndpointKind GetMaxScoutKind() const;
 
+		bool TryHireCrew(u64 count = 1);
+
 		void Tick(BaseTime elapsed);
 		void Rebirth();
 	};

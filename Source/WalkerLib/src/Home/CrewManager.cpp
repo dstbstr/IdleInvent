@@ -29,6 +29,11 @@ namespace Walker {
 		m_State[static_cast<size_t>(CrewRole::Idle)].CrewCount += count;
 	}
 
+	void CrewManager::Hire(u64 count) {
+		Add(count);
+		m_HiredCount += count;
+	}
+
 	bool CrewManager::TryAssign(u64 count, CrewRole role) {
 		auto& idleCount = m_State[static_cast<size_t>(CrewRole::Idle)].CrewCount;
 		if(idleCount < count) return false;
@@ -64,6 +69,10 @@ namespace Walker {
 
 	u64 CrewManager::GetCount(CrewRole role) const {
 		return m_State[static_cast<size_t>(role)].CrewCount;
+	}
+
+	u64 CrewManager::GetHiredCount() const {
+		return m_HiredCount;
 	}
 
 	std::optional<Time> CrewManager::GetEta(CrewRole role) const {

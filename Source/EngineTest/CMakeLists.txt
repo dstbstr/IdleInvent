@@ -56,4 +56,4 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Utilities/TypeUtils.test.cpp
  
   src/World/AStar.test.cpp
- "src/Combat/RealTimeScheduler.test.cpp")
+ "src/Combat/RealTimeScheduler.test.cpp" "src/Math/BigInt.test.cpp")
