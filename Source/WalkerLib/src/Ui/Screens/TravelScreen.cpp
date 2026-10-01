@@ -1,4 +1,5 @@
 #include "Walker/Ui/Screens/TravelScreen.h"
+#include "Walker/WalkerSettings.h"
 #include "Walker/WalkerUnits.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/Journey.h"
@@ -24,6 +25,7 @@
 namespace {
     using namespace Walker;
     HomeBase* Home{nullptr};
+    WalkerSettings* Settings{nullptr};
 
     ServiceLocator* Services{nullptr};
 
@@ -39,22 +41,27 @@ namespace {
         return q.ToHumanReadable(2, 3).value_or(q.ToScientific(2, 3));
     }
 
-    void RenderPreparing(Journey& journey) {
+    void RenderGarage(Journey& journey) {
 		auto& garage = Home->Vehicles;
-		VehicleKind SelectedKind = garage.GetSelected()->Kind;
-        if(WalkerUi::VehicleSelector("VehicleSelector", garage.GetAvailable(), SelectedKind)) {
-			garage.Select(SelectedKind);
+        VehicleKind SelectedKind = garage.GetSelected()->Kind;
+        if (WalkerUi::VehicleSelector("VehicleSelector", garage.GetAvailable(), SelectedKind)) {
+            garage.Select(SelectedKind);
             journey.ChangeVehicle(garage.GetSelected());
             Home->Crew.ClearTravelers();
             garage.GetSelected()->SetCrew(1);
         }
-        auto* vehicle = garage.GetSelected();
-        auto* selectedEndpoint = journey.GetEndpoint();
-        if(WalkerUi::EndpointSelector("EndpointSelector", Home->Endpoints, selectedEndpoint)) {
-			journey.ChangeEndpoint(selectedEndpoint);
-        }
+    }
 
-		auto maxFuel = std::max(Zero, vehicle->TotalCapacity - vehicle->CrewMass - vehicle->CargoMass);
+    void RenderDestination(Journey& journey) {
+        auto* selectedEndpoint = journey.GetEndpoint();
+        if (WalkerUi::EndpointSelector("EndpointSelector", Home->Endpoints, selectedEndpoint)) {
+            journey.ChangeEndpoint(selectedEndpoint);
+        }
+    }
+
+    void RenderFuel(Journey& journey) {
+		auto* vehicle = Home->Vehicles.GetSelected();
+        auto maxFuel = std::max(Zero, vehicle->TotalCapacity - vehicle->CrewMass - vehicle->CargoMass);
         auto maxFuelPercent = vehicle->TotalCapacity > Zero
             ? std::clamp(static_cast<f32>(Mass::Ratio(maxFuel, vehicle->TotalCapacity)), 0.f, 1.f)
             : 0.f;
@@ -64,23 +71,40 @@ namespace {
         ImGui::TextUnformatted("Fuel");
         Ui::DotSlider("FuelSlider", fuelPercent, "", "", 0, 0.f, maxFuelPercent);
         vehicle->FuelMass = std::min(maxFuel, vehicle->TotalCapacity * fuelPercent);
+    }
 
+    void RenderCrew(Journey& journey) {
         ImGui::TextUnformatted("Crew");
         auto& crew = Home->Crew;
-        ImGui::BeginDisabled(crew[CrewRole::Traveling] <= 1);
-        if (ImGui::SmallButton("-") && crew.TryUnassign(1, CrewRole::Traveling)) {
+		auto* vehicle = Home->Vehicles.GetSelected();
+
+		auto removable = GetPurchaseCount(crew[CrewRole::Traveling] - 1, Settings->PurchaseSetting);
+        ImGui::BeginDisabled(removable == 0);
+        if (ImGui::SmallButton("-") && crew.TryUnassign(removable, CrewRole::Traveling)) {
             vehicle->SetCrew(crew[CrewRole::Traveling]);
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
-        ImGui::BeginDisabled(crew[CrewRole::Idle] == 0 || !vehicle->CanHoldMoreCrew());
-        if (ImGui::SmallButton("+") && crew.TryAssign(1, CrewRole::Traveling)) {
+
+        auto available = crew[CrewRole::Idle];
+		auto capacity = vehicle->GetRemainingCrewCapacity().TryConvert<u64>().value_or(available);
+		available = std::min(available, capacity);
+		auto addable = GetPurchaseCount(available, Settings->PurchaseSetting);
+        ImGui::BeginDisabled(addable == 0);
+        if (ImGui::SmallButton("+") && crew.TryAssign(addable, CrewRole::Traveling)) {
             vehicle->SetCrew(crew[CrewRole::Traveling]);
         }
         ImGui::EndDisabled();
 
         ImGui::SameLine();
         ImGui::Text("%llu/%llu", crew[CrewRole::Traveling], Home->Crew.GetCount());
+    }
+
+    void RenderPreparing(Journey& journey) {
+        RenderGarage(journey);
+        RenderDestination(journey);
+        RenderFuel(journey);
+        RenderCrew(journey);
 
         if (ImGui::Button("Start")) {
             journey.Start();
@@ -193,12 +217,15 @@ namespace Walker::WalkerUi::Screens::Travel {
         auto& services = ServiceLocator::Get();
         Services = &services;
         Home = &services.GetRequired<HomeBase>();
-
+		Settings = &services.GetRequired<WalkerSettings>();
         return true; 
     }
 
-    void ShutDown() {}
-
+    void ShutDown() {
+        Services = nullptr;
+        Home = nullptr;
+        Settings = nullptr;
+    }
 
     void Render() {
         RenderContent(ServiceLocator::Get().Get<Journey>());

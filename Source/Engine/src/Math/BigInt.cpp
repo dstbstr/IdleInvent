@@ -76,6 +76,15 @@ static_assert(BigInt(-3).Pow(3) == BigInt(-27));
 static_assert(BigInt(-3).Pow(4) == BigInt(81));
 static_assert(BigInt(42).Pow(0) == BigInt(1));
 
+// TryConvert
+static_assert(BigInt(2).TryConvert<u32>().value_or(0) == 2);
+static_assert(BigInt(-2).TryConvert<u32>().has_value() == false);
+static_assert(BigInt(-2).TryConvert<s32>().value_or(0) == -2);
+static_assert(BigInt(std::numeric_limits<u32>::max()).TryConvert<u32>().value_or(0) == std::numeric_limits<u32>::max());
+static_assert(BigInt(std::numeric_limits<u32>::min()).TryConvert<u32>().value_or(42) == std::numeric_limits<u32>::min());
+static_assert(BigInt(std::numeric_limits<s32>::max()).TryConvert<s32>().value_or(0) == std::numeric_limits<s32>::max());
+static_assert(BigInt(std::numeric_limits<s32>::min()).TryConvert<s32>().value_or(42) == std::numeric_limits<s32>::min());
+
 // Human readable
 static_assert(BigInt(0).ToHumanReadable() == "0");
 static_assert(BigInt(1'234'567).ToHumanReadable() == "1.23M");

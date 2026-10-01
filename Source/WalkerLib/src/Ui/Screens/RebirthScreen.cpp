@@ -1,4 +1,5 @@
 #include "Walker/Ui/Screens/RebirthScreen.h"
+#include "Walker/WalkerSettings.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/Journey.h"
 
@@ -12,6 +13,8 @@
 namespace {
     using namespace Walker;
     HomeBase* Home{nullptr};
+    WalkerSettings* Settings{nullptr};
+
     enum struct RebirthType { Rebirth, Prestiege, Ascend };
 	std::optional<RebirthType> CurrentRebirthType{ std::nullopt };
 
@@ -134,12 +137,15 @@ namespace {
 
 namespace Walker::WalkerUi::Screens::Rebirth {
     bool Initialize() { 
-		Home = &ServiceLocator::Get().GetRequired<HomeBase>();
+		auto& services = ServiceLocator::Get();
+		Home = &services.GetRequired<HomeBase>();
+		Settings = &services.GetRequired<WalkerSettings>();
         return true; 
     }
 
     void ShutDown() {
         Home = nullptr;
+        Settings = nullptr;
     }
 
     void Render() { 

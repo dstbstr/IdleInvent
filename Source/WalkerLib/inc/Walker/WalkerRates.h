@@ -14,6 +14,7 @@ namespace Walker {
 		Speed GetVehicleMaxSpeed(VehicleKind kind) const;
 		Mass GetVehicleCapacity(VehicleKind kind) const;
 		Money GetHireCost(u64 hiredCount, u64 count = 1) const;
+		u64 GetMaxHireCount(Money funds, u64 hiredCount) const;
 
 		WalkerRebirth& GetRebirth() { return m_Rebirth; }
 		const WalkerRebirth& GetRebirth() const { return m_Rebirth; }

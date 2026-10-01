@@ -47,7 +47,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Resources/Storage.cpp
 	src/Resources/ResourceConversion.cpp 
 	
-	src/Settings/PurchaseAmount.cpp
+	
 
 	src/Social/Faction.cpp
 	src/Social/Faction.test.cpp

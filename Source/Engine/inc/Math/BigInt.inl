@@ -311,6 +311,41 @@ auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Sqrt() const -> BigIntImpl {
     return Pow10(exp / 2) * std::sqrt(coef);
 }
 
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+template<std::integral T>
+constexpr std::optional<T> BigIntImpl<TCoefBits, TExpBits, TSigned>::TryConvert() const {
+	static_assert(!std::same_as<T, bool>, "Cannot convert to bool");
+    static_assert(sizeof(T) <= sizeof(u64), "Target must fit in 64 bits");
+
+    auto neg = IsNegative();
+	auto limit = static_cast<u64>(std::numeric_limits<T>::max());
+
+    if constexpr(std::signed_integral<T>) {
+        if(neg) ++limit;
+    } else {
+		if (neg) return std::nullopt;
+    }
+    
+    auto value = Coef();
+    if(value == 0) return T{0};
+	if (value > limit) return std::nullopt;
+
+    auto exp = Exponent();
+    while(exp > 0) {
+		if (value > limit / 10) return std::nullopt;
+        value *= 10;
+        exp--;
+    }
+
+    if constexpr(std::signed_integral<T>) { 
+        if(neg) {
+            if(value == limit) return std::numeric_limits<T>::lowest();
+			return static_cast<T>(-static_cast<T>(value));
+        }
+    }
+    return static_cast<T>(value);
+}
+
 static constexpr auto Suffixes = std::array{
     "K",  "M",  "B",  "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "De",
     "Ud", "Dd", "Td", "Qad", "Qid", "Sxd", "Spd", "Ocd", "Nod", "Vn", 

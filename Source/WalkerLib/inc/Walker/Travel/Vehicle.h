@@ -57,6 +57,11 @@ namespace Walker {
             return GetAvailableCapacity() > 100_Kg;
         }
 
+		constexpr Quantity GetRemainingCrewCapacity() const {
+			using namespace Walker::Literals;
+			return std::max(Zero, GetAvailableCapacity() / 100_Kg);
+		}
+
         void SetCrew(u64 crewCount) {
 			using namespace Walker::Literals;
 			CrewMass = (crewCount - 1) * 100_Kg;

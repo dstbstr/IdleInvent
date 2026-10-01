@@ -26,4 +26,15 @@ namespace Walker {
 		}
 		return total;
 	}
+
+	u64 WalkerRates::GetMaxHireCount(Money funds, u64 hiredCount) const {
+		u64 count = 0;
+		Money total{};
+		while(true) {
+			auto nextTotal = total + GetHireCost(hiredCount + count, 1);
+			if(nextTotal > funds) return count;
+			total = nextTotal;
+			count++;
+		}
+	}
 }

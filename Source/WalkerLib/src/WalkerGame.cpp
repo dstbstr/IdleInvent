@@ -1,4 +1,5 @@
 #include "Walker/WalkerGame.h"
+#include "Walker/WalkerSettings.h"
 #include "Walker/Ui/WalkerLayout.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/Endpoints.h"
@@ -26,6 +27,7 @@ namespace Walker {
         services.SetThisAsThat<DefaultRandom, IRandom>();
         services.CreateIfMissing<std::unordered_map<std::string, Animation>>();
         
+        services.CreateIfMissing<WalkerSettings>();
         auto& home = services.GetOrCreate<HomeBase>();
         home.Rebirth();
 

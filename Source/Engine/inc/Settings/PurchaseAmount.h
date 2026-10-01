@@ -7,6 +7,7 @@ enum struct PurchaseAmount : u8 { One, Ten, Half, Max };
 
 template<typename TCount>
 constexpr TCount GetPurchaseCount(TCount count, PurchaseAmount amount) {
+	if (count <= TCount{ 0 }) return TCount{ 0 };
 	switch(amount) {
 		using enum PurchaseAmount;
 		case One: return TCount{1};

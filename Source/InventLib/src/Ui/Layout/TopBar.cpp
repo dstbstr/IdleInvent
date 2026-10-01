@@ -10,6 +10,7 @@
 #include <Instrumentation/Logging.h>
 #include <Platform/Graphics.h>
 #include <Ui/UiUtil.h>
+#include <Ui/Widgets/QuantitySelector.h>
 #include <imgui.h>
 
 namespace {
@@ -40,24 +41,7 @@ namespace {
     }
 
     void RenderPurchaseChoice() {
-        ImGui::BeginTable("PurchaseAmountTable", 4);
-        ImGui::TableNextColumn();
-        if(ImGui::Selectable("1", gameSettings->PurchaseChoice == PurchaseAmount::One)) {
-            gameSettings->PurchaseChoice = PurchaseAmount::One;
-        }
-        ImGui::TableNextColumn();
-        if(ImGui::Selectable("10", gameSettings->PurchaseChoice == PurchaseAmount::Ten)) {
-            gameSettings->PurchaseChoice = PurchaseAmount::Ten;
-        }
-        ImGui::TableNextColumn();
-        if(ImGui::Selectable("1/2", gameSettings->PurchaseChoice == PurchaseAmount::Half)) {
-            gameSettings->PurchaseChoice = PurchaseAmount::Half;
-        }
-        ImGui::TableNextColumn();
-        if(ImGui::Selectable("Max", gameSettings->PurchaseChoice == PurchaseAmount::Max)) {
-            gameSettings->PurchaseChoice = PurchaseAmount::Max;
-        }
-        ImGui::EndTable();
+        Ui::QuantitySelector("PurchaseChoice", gameSettings->PurchaseChoice);
     }
 
 } // namespace

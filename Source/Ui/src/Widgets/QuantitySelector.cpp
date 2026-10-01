@@ -7,7 +7,6 @@ namespace Ui {
         ImGui::PushID(id);
         auto previous = selected;
         if(ImGui::BeginTable("PurchaseAmountTable", 4)) {
-            ImGui::TableNextColumn();
             auto Option = [&](const char* label, PurchaseAmount value) {
                 ImGui::TableNextColumn();
                 if(ImGui::Selectable(label, selected == value)) {

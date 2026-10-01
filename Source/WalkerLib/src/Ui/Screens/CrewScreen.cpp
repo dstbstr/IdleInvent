@@ -1,4 +1,5 @@
 #include "Walker/Ui/Screens/CrewScreen.h"
+#include "Walker/WalkerSettings.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Ui/EtaProgress.h"
 #include "Walker/Ui/Selectors.h"
@@ -13,6 +14,7 @@
 namespace {
     using namespace Walker;
     HomeBase* Home{nullptr};
+    WalkerSettings* Settings{nullptr};
     EndpointKind CurrentSearch{EndpointKind::Neighborhood};
     EndpointKind NextSearch{EndpointKind::Neighborhood};
 
@@ -20,21 +22,16 @@ namespace {
 		ImGui::TextUnformatted("Idle");
 		ImGui::SameLine();
 		ImGui::Text("%llu", Home->Crew[CrewRole::Idle]);
-        auto CostButton = [](u64 count) {
-			auto cost = Home->Rates.GetHireCost(Home->Crew.GetHiredCount(), count);
-			ImGui::BeginDisabled(!Home->Funds.CanAfford(cost));
-			ImGui::SameLine();
-			auto label = "+ " + std::to_string(count);
-			if (ImGui::SmallButton(label.c_str())) {
-                Home->TryHireCrew(count);
-            }
-            ImGui::EndDisabled();
-        };
 
-        CostButton(1);
-        CostButton(10);
-        CostButton(100);
-        CostButton(1000);
+        auto affordable = Home->Rates.GetMaxHireCount(Home->Funds.GetBalance(), Home->Crew.GetHiredCount());
+        auto purchaseCount = GetPurchaseCount(affordable, Settings->PurchaseSetting);
+        ImGui::BeginDisabled(purchaseCount == 0);
+        ImGui::SameLine();
+		auto label = "+ " + std::to_string(purchaseCount);
+        if(ImGui::SmallButton(label.c_str())) {
+            Home->TryHireCrew(purchaseCount);
+        }
+        ImGui::EndDisabled();
 	}
 
     void RenderJob(CrewRole role) {
@@ -43,16 +40,18 @@ namespace {
 		ImGui::PushID(static_cast<int>(role));
 		ImGui::TextUnformatted(roleStr.c_str());
         ImGui::SameLine();
-        ImGui::BeginDisabled(crew[role] < 1);
-        if (ImGui::SmallButton("-"))  crew.TryUnassign(1, role);
+        auto removable = GetPurchaseCount(crew[role], Settings->PurchaseSetting);
+        ImGui::BeginDisabled(removable == 0);
+        if (ImGui::SmallButton("-"))  crew.TryUnassign(removable, role);
         ImGui::EndDisabled();
 
         ImGui::SameLine();
         ImGui::Text("%llu", crew[role]);
 
         ImGui::SameLine();
-        ImGui::BeginDisabled(crew[CrewRole::Idle] == 0);
-        if (ImGui::SmallButton("+")) crew.TryAssign(1, role);
+		auto addable = GetPurchaseCount(crew[CrewRole::Idle], Settings->PurchaseSetting);
+        ImGui::BeginDisabled(addable == 0);
+        if (ImGui::SmallButton("+")) crew.TryAssign(addable, role);
         ImGui::EndDisabled();
 
         if (auto progress = crew.GetProgress(role)) {
@@ -81,12 +80,15 @@ namespace {
 
 namespace Walker::WalkerUi::Screens::Crew {
     bool Initialize() { 
-		Home = &ServiceLocator::Get().GetRequired<HomeBase>();
+		auto& services = ServiceLocator::Get();
+		Home = &services.GetRequired<HomeBase>();
+		Settings = &services.GetRequired<WalkerSettings>();
         return true; 
     }
 
     void ShutDown() {
         Home = nullptr;
+        Settings = nullptr;
     }
 
     void Render() {

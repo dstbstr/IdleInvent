@@ -1,4 +1,5 @@
 #include "Walker/Ui/Screens/StoreScreen.h"
+#include "Walker/WalkerSettings.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Ui/Selectors.h"
 
@@ -10,6 +11,7 @@
 namespace {
     using namespace Walker;
     HomeBase* Home{nullptr};
+    WalkerSettings* Settings{nullptr};
     VehicleKind SelectedKind{VehicleKind::Foot};
 
     void RenderStats(const VehicleDetails& details) {
@@ -42,11 +44,16 @@ namespace {
 
 namespace Walker::WalkerUi::Screens::Store {
     bool Initialize() { 
-		Home = &ServiceLocator::Get().GetRequired<HomeBase>();
+		auto& services = ServiceLocator::Get();
+		Home = &services.GetRequired<HomeBase>();
+		Settings = &services.GetRequired<WalkerSettings>();
         return true; 
     }
 
-    void ShutDown() {}
+    void ShutDown() {
+        Home = nullptr;
+        Settings = nullptr;
+    }
 
     void Render() { 
         RenderSelector();
