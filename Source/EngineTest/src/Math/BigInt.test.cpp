@@ -1,5 +1,45 @@
 #include "Math/BigInt.h"
 
+TEST(BigIntTest, FloatPower_WithDifferentExponents_ReturnsDifferentSizes) {
+	BigInt a{10};
+	BigInt b = a;
+
+	ASSERT_TRUE(a.Pow(1.3f) < b.Pow(1.4f));
+}
+
+TEST(BigIntTest, FloatPower_WithZero_ReturnsOne) {
+	BigInt a{ 10 };
+	a.Pow(0.0f);
+	ASSERT_EQ(a, BigInt{ 1 });
+}
+
+TEST(BigIntTest, FloatPower_WithOne_ReturnsSame) {
+	BigInt a{ 10 };
+	a.Pow(1.0f);
+	ASSERT_EQ(a, BigInt{ 10 });
+}
+
+TEST(BigIntTest, FloatPower_WithOneBase_ReturnsOne) {
+	BigInt a{ 1 };
+	a.Pow(3.4f);
+	ASSERT_EQ(a, BigInt{ 1 });
+}
+
+TEST(BigIntTest, FloatPower_WithNegativeBase_Throws) {
+	BigInt a{ -10 };
+	EXPECT_THROW(a.Pow(1.2f), std::domain_error);
+}
+
+TEST(BigIntTest, FloatPower_WithNegativeExponent_Throws) {
+	BigInt a{10};
+	EXPECT_THROW(a.Pow(-1.0f), std::domain_error);
+}
+
+TEST(BigIntTest, FloatPower_WithNaN_Throws) {
+	BigInt a{ 10 };
+	EXPECT_THROW(a.Pow(std::numeric_limits<float>::quiet_NaN()), std::domain_error);
+}
+
 TEST(BigIntTest, ScaleByPower_With0Exp_ReturnsSame) {
 	BigInt a{1234};
 	a.ScaleByPower(42.0, 0);

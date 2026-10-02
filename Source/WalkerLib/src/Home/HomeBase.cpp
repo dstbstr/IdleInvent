@@ -31,4 +31,16 @@ namespace Walker {
 		Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::Neighborhood));
 		Crew.Rebirth();
 	}
+
+	void HomeBase::Prestiege() {
+		Tech.Reset();
+		Crew.Prestiege();
+		Rates.Prestiege();
+		Rebirth();
+	}
+
+	void HomeBase::Ascend() {
+		Rates.Ascend();
+		Prestiege();
+	}
 }

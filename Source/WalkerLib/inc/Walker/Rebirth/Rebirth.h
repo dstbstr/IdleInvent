@@ -9,9 +9,14 @@ namespace Walker {
 	struct WalkerRebirth {
 		u64 AvailablePoints{0};
 
-		Quantity CargoWorkRateMultiplier{1};
-		Quantity JobWorkRateMultiplier{1};
-		Quantity MaxSpeedMultiplier{1};
-		Quantity MaxCapacityMultiplier{1};
+		u64 CargoWorkPoints{0};
+		u64 JobWorkPoints{0};
+		u64 AccelPoints{0};
+		u64 MaxSpeedPoints{0};
+		u64 MaxCapacityPoints{0};
+
+		void Reset() {
+			*this = {};
+		}
 	};
 }

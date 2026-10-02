@@ -34,5 +34,7 @@ namespace Walker {
 
 		void Tick(BaseTime elapsed);
 		void Rebirth();
+		void Prestiege();
+		void Ascend();
 	};
 }

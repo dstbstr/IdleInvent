@@ -2,19 +2,39 @@
 
 namespace Walker {
 	WorkRate WalkerRates::GetCargoWorkRate() const {
-		return m_BaseCargoRate * m_Rebirth.CargoWorkRateMultiplier;
+		auto rate = m_BaseCargoRate * (1 + m_Rebirth.CargoWorkPoints);
+		auto exp = 1.0 + static_cast<f64>(m_Prestiege.CargoWorkPoints) * 0.1;
+		return rate.Pow(exp);
 	}
 
 	WorkRate WalkerRates::GetJobWorkRate() const {
-		return m_BaseJobRate * m_Rebirth.JobWorkRateMultiplier;
+		auto rate = m_BaseJobRate * (1 + m_Rebirth.JobWorkPoints);
+		auto exp = 1.0 + static_cast<f64>(m_Prestiege.JobWorkPoints) * 0.1;
+		return rate.Pow(exp);
+	}
+
+	Acceleration WalkerRates::GetBaseAccel(VehicleKind kind) const {
+		auto rate = GetVehicleDetails(kind).BaseAcceleration * (1 + m_Rebirth.AccelPoints);
+		auto exp = 1.0 + static_cast<f64>(m_Prestiege.AccelPoints) * 0.1;
+		return rate.Pow(exp);
+	}
+
+	Acceleration WalkerRates::GetPoweredAccel(VehicleKind kind) const {
+		auto rate = GetVehicleDetails(kind).PoweredAcceleration * (1 + m_Rebirth.AccelPoints);
+		auto exp = 1.0 + static_cast<f64>(m_Prestiege.AccelPoints) * 0.1;
+		return rate.Pow(exp);
 	}
 
 	Speed WalkerRates::GetVehicleMaxSpeed(VehicleKind kind) const {
-		return GetVehicleDetails(kind).MaxSpeed * m_Rebirth.MaxSpeedMultiplier;
+		auto rate = GetVehicleDetails(kind).MaxSpeed * (1 + m_Rebirth.MaxSpeedPoints);
+		auto exp = 1.0 + static_cast<f64>(m_Prestiege.MaxSpeedPoints) * 0.1;
+		return rate.Pow(exp);
 	}
 
 	Mass WalkerRates::GetVehicleCapacity(VehicleKind kind) const {
-		return GetVehicleDetails(kind).MaxCapacity * m_Rebirth.MaxCapacityMultiplier;
+		auto rate = GetVehicleDetails(kind).MaxCapacity * (1 + m_Rebirth.MaxCapacityPoints);
+		auto exp = 1.0 + static_cast<f64>(m_Prestiege.MaxCapacityPoints) * 0.1;
+		return rate.Pow(exp);
 	}
 
 	Money WalkerRates::GetHireCost(u64 hiredCount, u64 count) const {
@@ -50,4 +70,11 @@ namespace Walker {
 		return result;
 	}
 
+	void WalkerRates::Prestiege() {
+		m_Rebirth.Reset();
+	}
+
+	void WalkerRates::Ascend() {
+		m_Prestiege.Reset();
+	}
 }

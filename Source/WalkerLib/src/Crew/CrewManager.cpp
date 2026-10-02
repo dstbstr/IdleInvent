@@ -171,6 +171,12 @@ namespace Walker {
 		StartScout();
 	}
 
+	void CrewManager::Prestiege() {
+		m_State.fill({ .CrewCount = 0, .Progress = {}, .WorkRemainder = Zero });
+		m_State[static_cast<size_t>(CrewRole::Traveling)].CrewCount = 1;
+		m_HiredCount = 0;
+	}
+
 	void CrewManager::StartScout(Work initialWork) {
 		auto& state = m_State[static_cast<size_t>(CrewRole::Scout)];
 		if(state.Progress) return;

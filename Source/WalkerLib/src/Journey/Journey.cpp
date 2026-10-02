@@ -155,7 +155,7 @@ namespace Walker {
             }
 		} else if(next == Phase::Outbound || next == Phase::Returning) {
             m_Transfer.reset();
-            m_Travel.emplace(m_End->DistanceFromHome, m_ArrivalSpeed);
+            m_Travel.emplace(m_End->DistanceFromHome, m_ArrivalSpeed, m_Home.Rates);
         } else if(next == Phase::Loading) {
             m_Travel.reset();
             auto used = m_Vehicle->CargoMass + m_Vehicle->CrewMass + m_Vehicle->FuelMass;

@@ -1,13 +1,18 @@
 #pragma once
 
 #include "Walker/WalkerUnits.h"
+#include "Walker/WalkerRates.h"
 
 namespace Walker {
     struct OwnedVehicle;
 
 	class TravelLeg {
     public:
-        TravelLeg(Distance target, Speed arrivalSpeed) : m_TargetDistance(target), m_ArrivalSpeed(arrivalSpeed) {}
+        TravelLeg(Distance target, Speed arrivalSpeed, const WalkerRates& rates) 
+            : m_TargetDistance(target)
+            , m_ArrivalSpeed(arrivalSpeed)
+            , m_Rates(rates)
+        {}
 
         bool Advance(OwnedVehicle& vehicle, BaseTime elapsed);
         Distance GetRemainingDistance() const;
@@ -26,6 +31,7 @@ namespace Walker {
         Acceleration m_CurrentAcceleration{};
         Mass m_FuelConsumed{};
         BaseTime m_PoweredTime{};
+        const WalkerRates& m_Rates;
 
         Speed CalculateTargetSpeed(const OwnedVehicle& vehicle) const;
         Time GetRemainingPoweredTime(const OwnedVehicle& vehicle) const;

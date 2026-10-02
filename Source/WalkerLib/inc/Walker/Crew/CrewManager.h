@@ -60,6 +60,7 @@ namespace Walker {
 		ScopedHandle Subscribe(const JobDoneFn& callback);
 		void Subscribe(std::vector<ScopedHandle>& subs, const JobDoneFn& callback);
 		void Rebirth();
+		void Prestiege();
 
 	private:
 		struct State {

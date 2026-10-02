@@ -27,39 +27,53 @@ namespace {
         auto columns = ImGui::GetContentRegionAvail().x >= minCellWidth * 4.f ? 4 : 2;
 
         if(ImGui::BeginTable("RebirthUpgrades", columns, ImGuiTableFlags_SizingStretchSame)) {
-            auto Upgrade = [&](const char* label, Quantity& multiplier) {
+            auto Upgrade = [&](const char* label, u64& spent) {
                 ImGui::TableNextColumn();
                 ImGui::PushID(label);
                 auto startX = ImGui::GetCursorPosX();
 				auto width = ImGui::GetContentRegionAvail().x;
 
-                ImGui::BeginDisabled(points == 0);
+                auto toSpend = GetPurchaseCount(points, Settings->PurchaseSetting);
+                ImGui::BeginDisabled(toSpend == 0);
 				if (ImGui::Button(label, ImVec2{ width, ImGui::GetFrameHeight() * 1.5f }) && points > 0) {
-					multiplier += 1;
-					points--;
+					spent += toSpend;
+					points -= toSpend;
 				}
                 ImGui::EndDisabled();
 
-				auto text = "x" + multiplier.ToHumanReadable(0).value_or(multiplier.ToScientific(0));
+				auto text = "x" + std::to_string(spent);
 				auto offset = std::max(0.f, (width - ImGui::CalcTextSize(text.c_str()).x) * 0.5f);
                 ImGui::SetCursorPosX(startX + offset);
                 ImGui::TextUnformatted(text.c_str());
                 ImGui::PopID();
             };
 
-            Upgrade("Cargo", rebirth.CargoWorkRateMultiplier);
-			Upgrade("Jobs", rebirth.JobWorkRateMultiplier);
-			Upgrade("Speed", rebirth.MaxSpeedMultiplier);
-			Upgrade("Capacity", rebirth.MaxCapacityMultiplier);
+            Upgrade("Cargo", rebirth.CargoWorkPoints);
+			Upgrade("Jobs", rebirth.JobWorkPoints);
+			Upgrade("Accel", rebirth.AccelPoints);
+			Upgrade("Speed", rebirth.MaxSpeedPoints);
+			Upgrade("Capacity", rebirth.MaxCapacityPoints);
 
             ImGui::EndTable();
         }
+
+		auto& prestige = Home->Rates.GetPrestiege();
+		auto toSpend = GetPurchaseCount(prestige.AvailablePoints, Settings->PurchaseSetting);
+        ImGui::BeginDisabled(toSpend == 0);
+        if(ImGui::Button("Cargo##Prestiege") && toSpend > 0) {
+			prestige.AvailablePoints -= toSpend;
+			prestige.CargoWorkPoints += toSpend;
+        }
+        ImGui::EndDisabled();
+
+		auto exponent = 1.0 + static_cast<f64>(prestige.CargoWorkPoints) * 0.1;
+        ImGui::Text("^%.1f", exponent);
 
         ImGui::PopFont();
     }
 
     void RenderRebirth() {
-        if(Home->GetMaxScoutKind() < EndpointKind::MilkyWay) {
+        if(Home->FurthestEndpoint < EndpointKind::SolarSystem) {
 			CurrentRebirthType = std::nullopt;
             return;
         }
@@ -68,9 +82,9 @@ namespace {
         ImGui::TextUnformatted("This will reset the following:");
         ImGui::TextUnformatted("- Vehicles");
         ImGui::TextUnformatted("- Money");
-        ImGui::TextUnformatted("- Upgrades");
+        ImGui::TextUnformatted("- Endpoints");
         ImGui::Separator();
-		auto overage = static_cast<u64>(Home->GetMaxScoutKind()) - static_cast<u64>(EndpointKind::MilkyWay);
+		auto overage = static_cast<u64>(Home->FurthestEndpoint) - static_cast<u64>(EndpointKind::SolarSystem);
 		auto rebirthPoints = static_cast<u64>(std::pow(2, overage));
         ImGui::Text("In exchange you'll receive %llu rebirth points", rebirthPoints);
 
@@ -85,33 +99,73 @@ namespace {
 			CurrentRebirthType = std::nullopt;
 		}
     }
+
     void RenderPrestiege() {
+        if (Home->FurthestEndpoint < EndpointKind::FarGalaxy) {
+            CurrentRebirthType = std::nullopt;
+            return;
+        }
+
+        ImGui::TextUnformatted("Would you like to Prestiege?");
+        ImGui::TextUnformatted("This will reset the following in addition to rebirth:");
+        ImGui::TextUnformatted("- Population");
+        ImGui::TextUnformatted("- Tech");
+        ImGui::TextUnformatted("- Rebirths");
+        ImGui::Separator();
+        auto overage = static_cast<u64>(Home->FurthestEndpoint) - static_cast<u64>(EndpointKind::FarGalaxy);
+        auto prestigePoints = static_cast<u64>(std::pow(2, overage));
+        ImGui::Text("In exchange you'll receive %llu prestige points", prestigePoints);
+
+        if (ImGui::Button("Confirm") && prestigePoints > 0) {
+            ServiceLocator::Get().Reset<Journey>();
+            Home->Prestiege();
+            Home->Rates.GetPrestiege().AvailablePoints += prestigePoints;
+            CurrentRebirthType = std::nullopt;
+        }
+        ImGui::SameLine();
         if (ImGui::Button("Back")) {
             CurrentRebirthType = std::nullopt;
         }
     }
     void RenderAscend() {
+        if (Home->FurthestEndpoint < EndpointKind::GreatBeyond) {
+            CurrentRebirthType = std::nullopt;
+            return;
+        }
+
+        ImGui::TextUnformatted("Would you like to Ascend?");
+        ImGui::TextUnformatted("This will reset basically everything");
+        ImGui::Separator();
+        ImGui::TextUnformatted("In exchange you'll receive 1 ascend point");
+
+        if (ImGui::Button("Confirm")) {
+            ServiceLocator::Get().Reset<Journey>();
+            Home->Ascend();
+            Home->Rates.GetAscend().AvailablePoints++;
+            CurrentRebirthType = std::nullopt;
+        }
+        ImGui::SameLine();
         if (ImGui::Button("Back")) {
             CurrentRebirthType = std::nullopt;
         }
     }
 
 	void RenderControls() {
-        auto canRebirth = Home->GetMaxScoutKind() >= EndpointKind::MilkyWay;
+        auto canRebirth = Home->FurthestEndpoint >= EndpointKind::SolarSystem;
         ImGui::BeginDisabled(!canRebirth);
         if(ImGui::Button("Rebirth")) {
 			CurrentRebirthType = RebirthType::Rebirth;
 		}
         ImGui::EndDisabled();
         
-		auto canPrestiege = Home->GetMaxScoutKind() >= EndpointKind::EdgeOfUniverse;
+		auto canPrestiege = Home->FurthestEndpoint >= EndpointKind::FarGalaxy;
 		ImGui::BeginDisabled(!canPrestiege);
 		if (ImGui::Button("Prestiege")) {
 			CurrentRebirthType = RebirthType::Prestiege;
 		}
         ImGui::EndDisabled();
 
-		auto canAscend = Home->GetMaxScoutKind() >= EndpointKind::GreatBeyond;
+		auto canAscend = Home->FurthestEndpoint >= EndpointKind::GreatBeyond;
 		ImGui::BeginDisabled(!canAscend);
 		if (ImGui::Button("Ascend")) {
 			CurrentRebirthType = RebirthType::Ascend;

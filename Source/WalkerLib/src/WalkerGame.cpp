@@ -88,6 +88,7 @@ namespace Walker {
         home.Funds.Add(Money::Pow10(24));
         home.Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::InState));
         home.Rates.GetRebirth().AvailablePoints = 100;
+		home.Rates.GetPrestiege().AvailablePoints = 100;
         ////
 
         return WalkerUi::Layout::Initialize();
