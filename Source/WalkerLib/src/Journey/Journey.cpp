@@ -10,7 +10,9 @@ namespace Walker {
 		, m_Vehicle(vehicle)
 		, m_End(end)
         , m_Home(home)
-	{}
+	{
+		m_Countdown = m_Home.Rates.GetPreparationDuration();
+    }
 
     Distance Journey::GetCurrentDistance() const {
         switch(m_Phase) {
@@ -55,8 +57,12 @@ namespace Walker {
             case Loading: TickLoading(elapsed); break;
             case Unloading: TickUnloading(elapsed); break;
             case Preparing:
-				m_Countdown -= elapsed;
-				if (m_Countdown <= ZeroTime) Start();
+                if(m_Countdown) {
+				    *m_Countdown -= elapsed;
+				    if (*m_Countdown <= ZeroTime) Start();
+                } else {
+					m_Countdown = m_Home.Rates.GetPreparationDuration();
+                }
                 break;
         }
 	}
@@ -92,7 +98,7 @@ namespace Walker {
             case Unloading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * m_Home.Crew.GetCount(), m_End->UnitCargoWork).value_or(Zero) : Zero;
             case Outbound: // fallthrough
             case Returning: return m_Travel->GetEta(*m_Vehicle);
-			case Preparing: return ToWalkerTime(m_Countdown);
+			case Preparing: return m_Countdown ? ToWalkerTime(*m_Countdown) : Zero;
             default: return Zero;
         }
 
@@ -145,7 +151,7 @@ namespace Walker {
 			m_Travel.reset();
 			m_Transfer.reset();
             if(next == Phase::Preparing) {
-                m_Countdown = std::chrono::seconds(30);
+                m_Countdown = m_Home.Rates.GetPreparationDuration();
             }
 		} else if(next == Phase::Outbound || next == Phase::Returning) {
             m_Transfer.reset();

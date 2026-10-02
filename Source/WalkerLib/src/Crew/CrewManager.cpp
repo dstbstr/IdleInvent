@@ -1,4 +1,4 @@
-#include "Walker/Home/CrewManager.h"
+#include "Walker/Crew/CrewManager.h"
 #include <Utilities/EnumUtils.h>
 
 #include <algorithm>
@@ -17,7 +17,9 @@ namespace Walker {
 		return "Unknown";
 	}
 
-	CrewManager::CrewManager(const WalkerRates& rates) : m_Rates(rates) {
+	CrewManager::CrewManager(const WalkerRates& rates, TechManager& tech) 
+		: m_Rates(rates)
+		, m_Tech(tech) {
 		Rebirth();
 	}
 
@@ -95,6 +97,35 @@ namespace Walker {
 		m_NextSearch = kind;
 	}
 
+	bool CrewManager::TryStartScience(TechKind kind) {
+		if (kind <= TechKind::Unset || kind >= TechKind::COUNT) return false;
+		auto& state = m_State[static_cast<size_t>(CrewRole::Scientist)];
+		if (state.Progress) return false;
+		auto& techState = m_Tech[kind];
+		if (techState.Researched) return false;
+		state.Progress = JobProgress{
+			.RequiredWork = GetScienceCost(kind),
+			.CompletedWork = Zero,
+		};
+		state.TargetKind = static_cast<u8>(kind);
+		return true;
+	}
+
+	bool CrewManager::TryStartEngineering(TechKind kind) {
+		if (kind <= TechKind::Unset || kind >= TechKind::COUNT) return false;
+
+		auto& state = m_State[static_cast<size_t>(CrewRole::Engineer)];
+		if (state.Progress) return false;
+		auto& techState = m_Tech[kind];
+		if (!techState.Researched) return false;
+		state.Progress = JobProgress{
+			.RequiredWork = GetEngineeringCost(kind, techState.CurrentLevel),
+			.CompletedWork = Zero
+		};
+		state.TargetKind = static_cast<u8>(kind);
+		return true;
+	}
+
 	void CrewManager::Tick(BaseTime elapsed) {
 		if(elapsed <= ZeroTime) return;
 		auto elapsedMs = ToWalkerTime(elapsed);
@@ -136,6 +167,7 @@ namespace Walker {
 		m_State[static_cast<size_t>(CrewRole::Idle)].CrewCount = count - 1;
 		m_ScoutCompletions.fill(0);
 
+		m_NextSearch = EndpointKind::Neighborhood;
 		StartScout();
 	}
 
@@ -143,12 +175,13 @@ namespace Walker {
 		auto& state = m_State[static_cast<size_t>(CrewRole::Scout)];
 		if(state.Progress) return;
 
-		m_CurrentSearch = m_NextSearch;
-		auto completions = m_ScoutCompletions[static_cast<size_t>(m_CurrentSearch)];
-		auto requiredWork = Work{10}.Pow(static_cast<u32>(m_CurrentSearch)) * (completions + 1);
+		auto current = static_cast<u8>(m_NextSearch);
+		state.TargetKind = current;
+		auto completions = m_ScoutCompletions[current];
+		auto requiredWork = Work{10}.Pow(current) * (completions + 1);
 		state.Progress = JobProgress{
 			.RequiredWork = requiredWork,
-			.CompletedWork = initialWork
+			.CompletedWork = initialWork,
 		};
 	}
 
@@ -157,20 +190,28 @@ namespace Walker {
 		if(!state.Progress || !state.Progress->IsComplete()) return;
 		auto extraWork = std::max(Zero, state.Progress->CompletedWork - state.Progress->RequiredWork);
 		state.Progress.reset();
+		auto kind = static_cast<size_t>(state.TargetKind);
+		state.TargetKind = 0;
 
 		if (role == CrewRole::Scout) {
-			auto kind = static_cast<size_t>(m_CurrentSearch);
 			m_ScoutCompletions[kind]++;
 			StartScout(extraWork);
-			m_Ps.Publish({
-				.Role = role,
-				.CompletedKind = kind
-			});
 		} else {
+			auto tech = static_cast<TechKind>(kind);
+			if(role == CrewRole::Scientist) {
+				m_Tech.CompleteResearch(tech);
+			}
+			else if (role == CrewRole::Engineer) {
+				m_Tech.CompleteUpgrade(tech);
+			}
+
 			TryUnassign(state.CrewCount, role); // roles which don't auto restart get unassigned
 			state.WorkRemainder = Zero;
-			// m_Ps.Publish({role});
 		}
 
+		m_Ps.Publish({
+			.Role = role,
+			.CompletedKind = kind
+		});
 	}
 }

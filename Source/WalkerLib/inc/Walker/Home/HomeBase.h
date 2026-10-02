@@ -2,7 +2,8 @@
 
 #include "Walker/WalkerUnits.h"
 #include "Walker/WalkerRates.h"
-#include "Walker/Home/CrewManager.h"
+#include "Walker/Crew/CrewManager.h"
+#include "Walker/Crew/WalkerTech.h"
 #include "Walker/Home/Garage.h"
 #include "Walker/Home/Wallet.h"
 #include "Walker/Journey/Endpoints.h"
@@ -18,7 +19,8 @@ namespace Walker {
 	struct HomeBase {
 		HomeBase();
 
-		WalkerRates Rates{};
+		TechManager Tech{};
+		WalkerRates Rates;
 		CrewManager Crew;
 
 		Wallet Funds{};

@@ -50,7 +50,7 @@ namespace {
 
         ImGui::SameLine();
 		auto addable = GetPurchaseCount(crew[CrewRole::Idle], Settings->PurchaseSetting);
-        ImGui::BeginDisabled(addable == 0);
+        ImGui::BeginDisabled(addable == 0 || !crew.GetProgress(role).has_value());
         if (ImGui::SmallButton("+")) crew.TryAssign(addable, role);
         ImGui::EndDisabled();
 
@@ -68,13 +68,27 @@ namespace {
         static auto kinds = Enum::GetAllValues<EndpointKind>();
         auto count = static_cast<size_t>(Home->GetMaxScoutKind()) - static_cast<size_t>(EndpointKind::Neighborhood) + 1;
 		auto choices = std::span<const EndpointKind>(kinds).first(count);
+
+        auto& crew = Home->Crew;
         if(WalkerUi::ScoutSelector("ScoutSelector", choices, NextSearch)) {
-            Home->Crew.SetNextSearch(NextSearch);
+            crew.SetNextSearch(NextSearch);
         }
 
         // TODO: Block these behind achievements or something
-        RenderJob(CrewRole::Engineer);
+        auto researched = Home->Tech[TechKind::Preparation].Researched;
+        ImGui::BeginDisabled(researched || crew.GetProgress(CrewRole::Scientist).has_value());
+		if (ImGui::Button("Research Preparation")) {
+			crew.TryStartScience(TechKind::Preparation);
+		}
+        ImGui::EndDisabled();
         RenderJob(CrewRole::Scientist);
+
+		ImGui::BeginDisabled(!researched || crew.GetProgress(CrewRole::Engineer).has_value());
+		if (ImGui::Button("Improve Preparation")) {
+			crew.TryStartEngineering(TechKind::Preparation);
+		}
+        ImGui::EndDisabled();
+        RenderJob(CrewRole::Engineer);
     }
 }
 

@@ -128,7 +128,11 @@ namespace {
         auto eta = journey.GetPhaseEta();
         ImGui::SameLine();
         auto etaString = Time::ToTimeString(eta);
-        ImGui::Text("[%s]", etaString.c_str());
+        if(phase == Phase::Preparing && !Home->Tech[TechKind::Preparation].Researched) {
+            ImGui::Text("Waiting for Start");
+        } else {
+            ImGui::Text("[%s]", etaString.c_str());
+        }
 
         if (phase == Phase::Preparing) {
             RenderPreparing(journey);

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Walker/Home/JobProgress.h"
+#include "Walker/Crew/JobProgress.h"
+#include "Walker/Crew/WalkerTech.h"
 #include "Walker/Journey/Endpoints.h"
 #include "Walker/WalkerUnits.h"
 #include "Walker/WalkerRates.h"
@@ -34,7 +35,7 @@ namespace Walker {
 	class CrewManager {
 		using JobDoneFn = std::function<void(const JobCompleted&)>;
 	public:
-		CrewManager(const WalkerRates& rates);
+		CrewManager(const WalkerRates& rates, TechManager& tech);
 
 		void Add(u64 count);
 		void Hire(u64 count);
@@ -52,6 +53,8 @@ namespace Walker {
 		std::optional<f32> GetProgress(CrewRole role) const;
 
 		void SetNextSearch(EndpointKind kind);
+		bool TryStartScience(TechKind kind);
+		bool TryStartEngineering(TechKind kind);
 
 		void Tick(BaseTime elapsed);
 		ScopedHandle Subscribe(const JobDoneFn& callback);
@@ -63,13 +66,15 @@ namespace Walker {
 			u64 CrewCount{};
 			std::optional<JobProgress> Progress{};
 			Quantity WorkRemainder{};
+			u8 TargetKind{};
 		};
+
 		const WalkerRates& m_Rates;
+		TechManager& m_Tech;
 		std::array<State, static_cast<size_t>(CrewRole::COUNT)> m_State{};
 		std::array<u64, static_cast<size_t>(EndpointKind::COUNT)> m_ScoutCompletions{};
 		PubSub<JobCompleted> m_Ps{};
 		EndpointKind m_NextSearch{EndpointKind::Neighborhood};
-		EndpointKind m_CurrentSearch{EndpointKind::Neighborhood};
 		u64 m_HiredCount{};
 
 		void StartScout(Work initialWork = Zero);

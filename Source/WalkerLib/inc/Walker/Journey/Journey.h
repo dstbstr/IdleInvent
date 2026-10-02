@@ -64,7 +64,7 @@ namespace Walker {
 
         Speed m_ArrivalSpeed{100};
 
-        BaseTime m_Countdown{std::chrono::seconds{30}};
+        std::optional<BaseTime> m_Countdown{};
 
         std::optional<CargoTransfer> m_Transfer;
         std::optional<TravelLeg> m_Travel;

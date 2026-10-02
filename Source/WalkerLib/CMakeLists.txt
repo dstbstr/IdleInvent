@@ -17,10 +17,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/WalkerGame.cpp
 	src/WalkerRates.cpp
 
-	src/Home/CrewManager.cpp
+	"src/Crew/CrewManager.cpp"
 	src/Home/Garage.cpp
 	src/Home/HomeBase.cpp
-	src/Home/JobProgress.cpp
+	"src/Crew/JobProgress.cpp"
 
 	src/Journey/CargoTransfer.cpp
 	src/Journey/EndpointDetails.cpp
@@ -44,4 +44,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/StoreScreen.cpp
 	src/Ui/Screens/TravelScreen.cpp
 	src/Ui/Screens/WalkerScreens.cpp
-)
+ "inc/Walker/Crew/WalkerTech.h" "src/Crew/WalkerTech.cpp")

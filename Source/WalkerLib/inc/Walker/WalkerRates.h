@@ -1,14 +1,19 @@
 #pragma once
 
-#include "WalkerUnits.h"
-#include "Rebirth/Rebirth.h"
-#include "Rebirth/Prestiege.h"
-#include "Rebirth/Ascend.h"
-#include "Travel/Vehicle.h"
+#include "Walker/WalkerUnits.h"
+#include "Walker/Crew/WalkerTech.h"
+#include "Walker/Rebirth/Rebirth.h"
+#include "Walker/Rebirth/Prestiege.h"
+#include "Walker/Rebirth/Ascend.h"
+#include "Walker/Travel/Vehicle.h"
+
+#include <optional>
 
 namespace Walker {
 	class WalkerRates {
 	public:
+		WalkerRates(const TechManager& tech) : m_Tech(tech) {}
+
 		WorkRate GetCargoWorkRate() const;
 		WorkRate GetJobWorkRate() const;
 		Speed GetVehicleMaxSpeed(VehicleKind kind) const;
@@ -19,12 +24,15 @@ namespace Walker {
 		WalkerRebirth& GetRebirth() { return m_Rebirth; }
 		const WalkerRebirth& GetRebirth() const { return m_Rebirth; }
 
+		std::optional<BaseTime> GetPreparationDuration() const;
+
 	private:
 		WorkRate m_BaseCargoRate{10'000};
 		WorkRate m_BaseJobRate{10};
 		Money m_BaseHireCost{100};
 		f32 m_HireCostBase{2.f};
 
+		const TechManager& m_Tech;
 		WalkerRebirth m_Rebirth{};
 	};
 }

@@ -37,4 +37,17 @@ namespace Walker {
 			count++;
 		}
 	}
+
+	std::optional<BaseTime> WalkerRates::GetPreparationDuration() const {
+		const auto& tech = m_Tech[TechKind::Preparation];
+		if (!tech.Researched) return std::nullopt;
+
+		auto result = OneSecond * 30;
+		for(size_t i = 0; i < tech.CurrentLevel && result > ZeroTime; i++) {
+			result /= 2;
+		}
+
+		return result;
+	}
+
 }
