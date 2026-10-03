@@ -126,12 +126,13 @@ namespace Walker {
 		return true;
 	}
 
-	void CrewManager::Tick(BaseTime elapsed) {
+	void CrewManager::Tick(BaseTime elapsed, size_t scoutSlots) {
 		if(elapsed <= ZeroTime) return;
 		auto elapsedMs = ToWalkerTime(elapsed);
 
 		for(auto job : Enum::GetAllValues<CrewRole>()) {
 			if(job == CrewRole::Idle || job == CrewRole::Traveling) continue;
+			if(job == CrewRole::Scout && scoutSlots == 0) continue;
 			auto& state = m_State[static_cast<size_t>(job)];
 			if(state.Progress == std::nullopt || state.CrewCount == 0) continue;
 
@@ -141,9 +142,20 @@ namespace Walker {
 
 			state.Progress->Advance(work);
 			while(state.CrewCount > 0 && state.Progress && state.Progress->IsComplete()) {
+				if(job == CrewRole::Scout) {
+					if(scoutSlots == 0) break;
+					--scoutSlots;
+				}
 				FinishJob(job);
 			}
+
+			// keep at most one completed job ready, discarding excess
+			if(job == CrewRole::Scout && scoutSlots == 0 && state.Progress) {
+				state.Progress->CompletedWork = std::min(state.Progress->CompletedWork, state.Progress->RequiredWork);
+				state.WorkRemainder = Zero;
+			}
 		}
+
 	}
 
 	ScopedHandle CrewManager::Subscribe(const JobDoneFn& callback) {

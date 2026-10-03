@@ -34,6 +34,8 @@ namespace Walker {
 		void Prestiege();
 		void Ascend();
 
+		std::pair<Quantity, double> GetBonus(u64 WalkerProgression::* points) const;
+
 	private:
 		WorkRate m_BaseCargoRate{10'000};
 		WorkRate m_BaseJobRate{10};
@@ -44,5 +46,7 @@ namespace Walker {
 		WalkerProgression m_Rebirth{};
 		WalkerProgression m_Prestiege{};
 		WalkerProgression m_Ascend{};
+
+		Quantity Calculate(Quantity base, u64 WalkerProgression::* points) const;
 	};
 }

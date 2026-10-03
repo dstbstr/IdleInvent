@@ -54,23 +54,24 @@ namespace {
 
     void RenderDestination(Journey& journey) {
         auto* selectedEndpoint = journey.GetEndpoint();
-        if (WalkerUi::EndpointSelector("EndpointSelector", Home->Endpoints, selectedEndpoint)) {
+        if (WalkerUi::EndpointSelector("EndpointSelector", Home->GetEndpoints(), selectedEndpoint)) {
             journey.ChangeEndpoint(selectedEndpoint);
         }
     }
 
     void RenderFuel(Journey& journey) {
 		auto* vehicle = Home->Vehicles.GetSelected();
-        auto maxFuel = std::max(Zero, vehicle->TotalCapacity - vehicle->CrewMass - vehicle->CargoMass);
-        auto maxFuelPercent = vehicle->TotalCapacity > Zero
-            ? std::clamp(static_cast<f32>(Mass::Ratio(maxFuel, vehicle->TotalCapacity)), 0.f, 1.f)
+		auto total = vehicle->GetTotalCapacity(Home->Rates);
+        auto maxFuel = std::max(Zero, total - vehicle->CrewMass - vehicle->CargoMass);
+        auto maxFuelPercent = total > Zero
+            ? std::clamp(static_cast<f32>(Mass::Ratio(maxFuel, total)), 0.f, 1.f)
             : 0.f;
         f32 fuelPercent = vehicle->FuelMass > Zero
-            ? static_cast<f32>(Mass::Ratio(vehicle->FuelMass, vehicle->TotalCapacity))
+            ? static_cast<f32>(Mass::Ratio(vehicle->FuelMass, total))
             : 0.f;
         ImGui::TextUnformatted("Fuel");
         Ui::DotSlider("FuelSlider", fuelPercent, "", "", 0, 0.f, maxFuelPercent);
-        vehicle->FuelMass = std::min(maxFuel, vehicle->TotalCapacity * fuelPercent);
+        vehicle->FuelMass = std::min(maxFuel, total * fuelPercent);
     }
 
     void RenderCrew(Journey& journey) {
@@ -87,7 +88,7 @@ namespace {
         ImGui::SameLine();
 
         auto available = crew[CrewRole::Idle];
-		auto capacity = vehicle->GetRemainingCrewCapacity().TryConvert<u64>().value_or(available);
+		auto capacity = vehicle->GetRemainingCrewCapacity(Home->Rates).TryConvert<u64>().value_or(available);
 		available = std::min(available, capacity);
 		auto addable = GetPurchaseCount(available, Settings->PurchaseSetting);
         ImGui::BeginDisabled(addable == 0);
@@ -159,10 +160,10 @@ namespace {
     }
 
     void RenderHome() {
-		ImGui::BeginDisabled(Home->Endpoints.empty() || !Home->Vehicles.GetSelected());
+		ImGui::BeginDisabled(Home->GetEndpoints().empty() || !Home->Vehicles.GetSelected());
         if (ImGui::Button("Start Journey")) {
             Services->Reset<Journey>();
-            Services->Set<Journey>(Home->Vehicles.GetSelected(), Home->Endpoints[0].get(), *Home);
+            Services->Set<Journey>(Home->Vehicles.GetSelected(), Home->GetEndpoints()[0].get(), *Home);
         }
         ImGui::EndDisabled();
     }
@@ -174,7 +175,7 @@ namespace {
         auto dest = journey ? journey->GetEndDistance() : Distance{ 0 };
         auto accel = journey ? journey->GetCurrentAcceleration() : Acceleration{ 0 };
         auto speed = journey ? journey->GetCurrentSpeed() : Speed{ 0 };
-        auto cargo = vehicle ? vehicle->FillRatio() : 0.f;
+        auto cargo = vehicle ? vehicle->FillRatio(Home->Rates) : 0.f;
 
         ImGui::Text("CurrentDistance: %sm / %sm", Str(dist).c_str(), Str(dest).c_str());
         ImGui::Text("Acceleration: %s m/s^2", Str(accel).c_str());
@@ -197,7 +198,7 @@ namespace {
             ImGui::TextUnformatted("Cargo Progress");
             Ui::MultiProgress(segments);
 
-            total = vehicle->TotalCapacity;
+            total = vehicle->GetTotalCapacity(Home->Rates);
             auto cargoSegments = std::array<Ui::ProgressSegment, 3>{
                 {{Fraction(vehicle->CrewMass), CrewColor},
                  {Fraction(vehicle->FuelMass), FuelColor},

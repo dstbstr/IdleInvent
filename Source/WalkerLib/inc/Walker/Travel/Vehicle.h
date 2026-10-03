@@ -4,6 +4,8 @@
 #include <Platform/NumTypes.h>
 
 namespace Walker {
+    class WalkerRates;
+
     enum struct VehicleKind : u8 { Unset, Foot, Bike, Car, Boat, Plane, Jet, Rocket, Starship, COUNT };
 
 	std::string ToString(VehicleKind kind);
@@ -44,28 +46,13 @@ namespace Walker {
 
         FuelEfficiency Efficiency{};
 
-        f32 FillRatio() const {
-            return static_cast<f32>(Mass::Ratio(CargoMass + CrewMass + FuelMass, TotalCapacity));
-        }
+        f32 FillRatio(const WalkerRates& rates) const;
+        Mass GetTotalCapacity(const WalkerRates& rates) const;
+		Mass GetAvailableCapacity(const WalkerRates& rates) const;
+        Mass GetUsedCapacity() const;
+        bool CanHoldMoreCrew(const WalkerRates& rates) const;
+		Quantity GetRemainingCrewCapacity(const WalkerRates& rates) const;
 
-		constexpr Mass GetAvailableCapacity() const {
-			return std::max(Zero, TotalCapacity - (CargoMass + CrewMass + FuelMass));
-		}
-
-        constexpr bool CanHoldMoreCrew() const {
-            using namespace Walker::Literals;
-            return GetAvailableCapacity() > 100_Kg;
-        }
-
-		constexpr Quantity GetRemainingCrewCapacity() const {
-			using namespace Walker::Literals;
-			return std::max(Zero, GetAvailableCapacity() / 100_Kg);
-		}
-
-        void SetCrew(u64 crewCount) {
-			using namespace Walker::Literals;
-			CrewMass = (crewCount - 1) * 100_Kg;
-        }
+        void SetCrew(u64 crewCount);
 	};
-
 }

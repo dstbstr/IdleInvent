@@ -56,7 +56,7 @@ namespace Walker {
 		bool TryStartScience(TechKind kind);
 		bool TryStartEngineering(TechKind kind);
 
-		void Tick(BaseTime elapsed);
+		void Tick(BaseTime elapsed, size_t scoutSlots);
 		ScopedHandle Subscribe(const JobDoneFn& callback);
 		void Subscribe(std::vector<ScopedHandle>& subs, const JobDoneFn& callback);
 		void Rebirth();

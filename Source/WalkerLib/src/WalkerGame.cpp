@@ -40,8 +40,8 @@ namespace Walker {
             auto* journey = services.Get<Journey>();
             if(!journey) {
                 auto* vehicle = home.Vehicles.GetSelected();
-				if (vehicle && home.Endpoints.size() > 0) {
-					services.Set<Journey>(vehicle, home.Endpoints[0].get(), home);
+				if (vehicle && home.GetEndpoints().size() > 0) {
+					services.Set<Journey>(vehicle, home.GetEndpoints()[0].get(), home);
 				}
                 return;
             }
@@ -52,19 +52,14 @@ namespace Walker {
 			auto* endpoint = journey->GetEndpoint();
 			home.FurthestEndpoint = std::max(home.FurthestEndpoint, endpoint->Kind);
             auto endpointId = endpoint->Id;
+            if(auto index = home.RemoveEndpoint(endpoint->Id)) {
+                services.Reset<Journey>();
+                if(home.GetEndpoints().empty()) return;
 
-			auto it = std::ranges::find_if(home.Endpoints, [endpointId](const auto& e) { return e->Id == endpointId; });
-			DR_ASSERT_MSG(it != home.Endpoints.end(), "Completed endpoint not found in home");
-			if (it == home.Endpoints.end()) return;
-
-			auto index = static_cast<size_t>(it - home.Endpoints.begin());
-            services.Reset<Journey>();
-            home.Endpoints.erase(it);
-            if(home.Endpoints.empty()) return;
-
-            // TODO: Consider unlocking auto-mission (through science?)
-			index = std::min(index, home.Endpoints.size() - 1);
-			services.Set<Journey>(home.Vehicles.GetSelected(), home.Endpoints[index].get(), home);
+                // TODO: Consider unlocking auto-mission (through science?)
+			    index = std::min(*index, home.GetEndpoints().size() - 1);
+			    services.Set<Journey>(home.Vehicles.GetSelected(), home.GetEndpoints()[*index].get(), home);
+            }
         });
 
 		TickManager::Get().Register(GlobalSubs, [](BaseTime elapsed) {
@@ -77,7 +72,7 @@ namespace Walker {
 				auto& home = ServiceLocator::Get().GetRequired<HomeBase>();
                 auto endpoint = static_cast<EndpointKind>(job.CompletedKind);
 
-				home.Endpoints.push_back(std::make_unique<EndpointInstance>(endpoint));
+                home.TryAddEndpoint(endpoint);
 			}
 		});
 
@@ -86,9 +81,10 @@ namespace Walker {
         
         home.Vehicles.Add(VehicleKind::Jet);
         home.Funds.Add(Money::Pow10(24));
-        home.Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::InState));
+        home.TryAddEndpoint(EndpointKind::InState);
         home.Rates.GetRebirth().AvailablePoints = 100;
 		home.Rates.GetPrestiege().AvailablePoints = 100;
+        home.Rates.GetAscend().AvailablePoints = 100;
         ////
 
         return WalkerUi::Layout::Initialize();

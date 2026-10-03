@@ -112,8 +112,7 @@ namespace Walker {
     }
 
 	void Journey::TickLoading(BaseTime elapsed) {
-		auto used = m_Vehicle->CargoMass + m_Vehicle->CrewMass + m_Vehicle->FuelMass;
-        auto freeSpace = std::max(Zero, m_Vehicle->TotalCapacity - used);
+		auto freeSpace = m_Vehicle->GetAvailableCapacity(m_Home.Rates);
         auto available = std::min(freeSpace, m_End->RemainingCargo);
         auto rate = m_Home.Rates.GetCargoWorkRate() * m_Home.Crew[CrewRole::Traveling];
         auto numerator = rate * ToWalkerTime(elapsed) + m_WorkRemainder;
@@ -158,9 +157,7 @@ namespace Walker {
             m_Travel.emplace(m_End->DistanceFromHome, m_ArrivalSpeed, m_Home.Rates);
         } else if(next == Phase::Loading) {
             m_Travel.reset();
-            auto used = m_Vehicle->CargoMass + m_Vehicle->CrewMass + m_Vehicle->FuelMass;
-            auto freeSpace = std::max(Zero, m_Vehicle->TotalCapacity - used);
-
+            auto freeSpace = m_Vehicle->GetAvailableCapacity(m_Home.Rates);
             m_Transfer.emplace(CargoTransfer{ .Target = std::min(freeSpace, m_End->RemainingCargo) });
         } else if(next == Phase::Unloading) {
             m_Travel.reset();

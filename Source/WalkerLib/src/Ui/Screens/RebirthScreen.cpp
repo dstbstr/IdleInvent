@@ -9,6 +9,7 @@
 #include <imgui.h>
 
 #include <algorithm>
+#include <format>
 
 namespace {
     using namespace Walker;
@@ -18,58 +19,56 @@ namespace {
     enum struct RebirthType { Rebirth, Prestiege, Ascend };
 	std::optional<RebirthType> CurrentRebirthType{ std::nullopt };
 
-    void RenderStore() {
-        auto& rebirth = Home->Rates.GetRebirth();
-		auto& points = rebirth.AvailablePoints;
-		ImGui::Text("Available Rebirth Points: %llu", points);
+    void RenderProgressionStore(const char* title, WalkerProgression& progression, auto pointFormat) {
+		auto& points = progression.AvailablePoints;
+		ImGui::Text("Available %s Points: %llu", title, points);
         ImGui::PushFont(GetFont(FontSizes::H3));
-        auto minCellWidth = ImGui::GetFontSize() * 8.f;
-        auto columns = ImGui::GetContentRegionAvail().x >= minCellWidth * 4.f ? 4 : 2;
+		auto minCellWidth = ImGui::GetFontSize() * 8.f;
+		auto columns = ImGui::GetContentRegionAvail().x >= minCellWidth * 4.f ? 4 : 2;
 
-        if(ImGui::BeginTable("RebirthUpgrades", columns, ImGuiTableFlags_SizingStretchSame)) {
-            auto Upgrade = [&](const char* label, u64& spent) {
-                ImGui::TableNextColumn();
-                ImGui::PushID(label);
-                auto startX = ImGui::GetCursorPosX();
-				auto width = ImGui::GetContentRegionAvail().x;
+        ImGui::PushID(title);
+		if (ImGui::BeginTable("ProgressionUpgrades", columns, ImGuiTableFlags_SizingStretchSame)) {
+			auto Upgrade = [&](const char* label, u64& spent) {
+				ImGui::TableNextColumn();
+				ImGui::PushID(label);
+				auto startX = ImGui::GetCursorPosX();
+                auto width = ImGui::GetContentRegionAvail().x;
 
-                auto toSpend = GetPurchaseCount(points, Settings->PurchaseSetting);
-                ImGui::BeginDisabled(toSpend == 0);
+				auto toSpend = GetPurchaseCount(points, Settings->PurchaseSetting);
+				ImGui::BeginDisabled(toSpend == 0);
 				if (ImGui::Button(label, ImVec2{ width, ImGui::GetFrameHeight() * 1.5f }) && points > 0) {
-					spent += toSpend;
-					points -= toSpend;
-				}
+                    spent += toSpend;
+                    points -= toSpend;
+                }
                 ImGui::EndDisabled();
-
-				auto text = "x" + std::to_string(spent);
-				auto offset = std::max(0.f, (width - ImGui::CalcTextSize(text.c_str()).x) * 0.5f);
+				auto text = pointFormat(spent);
+                auto offset = std::max(0.f, (width - ImGui::CalcTextSize(text.c_str()).x) * 0.5f);
                 ImGui::SetCursorPosX(startX + offset);
                 ImGui::TextUnformatted(text.c_str());
                 ImGui::PopID();
             };
-
-            Upgrade("Cargo", rebirth.CargoWorkPoints);
-			Upgrade("Jobs", rebirth.JobWorkPoints);
-			Upgrade("Accel", rebirth.AccelPoints);
-			Upgrade("Speed", rebirth.MaxSpeedPoints);
-			Upgrade("Capacity", rebirth.MaxCapacityPoints);
-
+            Upgrade("Cargo", progression.CargoWorkPoints);
+            Upgrade("Jobs", progression.JobWorkPoints);
+            Upgrade("Accel", progression.AccelPoints);
+            Upgrade("Speed", progression.MaxSpeedPoints);
+            Upgrade("Capacity", progression.MaxCapacityPoints);
             ImGui::EndTable();
         }
-
-		auto& prestige = Home->Rates.GetPrestiege();
-		auto toSpend = GetPurchaseCount(prestige.AvailablePoints, Settings->PurchaseSetting);
-        ImGui::BeginDisabled(toSpend == 0);
-        if(ImGui::Button("Cargo##Prestiege") && toSpend > 0) {
-			prestige.AvailablePoints -= toSpend;
-			prestige.CargoWorkPoints += toSpend;
-        }
-        ImGui::EndDisabled();
-
-		auto exponent = 1.0 + static_cast<f64>(prestige.CargoWorkPoints) * 0.1;
-        ImGui::Text("^%.1f", exponent);
-
+        ImGui::PopID();
         ImGui::PopFont();
+    }
+
+    void RenderStore() {
+		RenderProgressionStore("Rebirth", Home->Rates.GetRebirth(), [](u64 spent) { 
+            return std::format("x{}", spent + 1); 
+        });
+		RenderProgressionStore("Prestiege", Home->Rates.GetPrestiege(), [](u64 spent) {
+			auto exponent = 1.0 + static_cast<f64>(spent) * 0.1;
+			return std::format("^{:.1f}", exponent);
+		});
+		RenderProgressionStore("Ascend", Home->Rates.GetAscend(), [](u64 spent) {
+			return std::format("+{}", spent);
+		});
     }
 
     void RenderRebirth() {
@@ -127,6 +126,7 @@ namespace {
             CurrentRebirthType = std::nullopt;
         }
     }
+
     void RenderAscend() {
         if (Home->FurthestEndpoint < EndpointKind::GreatBeyond) {
             CurrentRebirthType = std::nullopt;
@@ -173,6 +173,17 @@ namespace {
         ImGui::EndDisabled();
 	}
 
+    void RenderTotalBonuses() {
+		auto formatBonus = [](const std::pair<Quantity, double>& bonus) {
+			return std::format("{}^{:.1f}", bonus.first.ToHumanReadable(2).value_or(bonus.first.ToScientific(2)), bonus.second);
+		};
+		ImGui::Text("Cargo Loading: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::CargoWorkPoints)).c_str());
+		ImGui::Text("Job Work: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::JobWorkPoints)).c_str());
+		ImGui::Text("Acceleration: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::AccelPoints)).c_str());
+		ImGui::Text("Max Speed: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::MaxSpeedPoints)).c_str());
+		ImGui::Text("Max Capacity: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::MaxCapacityPoints)).c_str());
+    }
+
     void RenderContent() {
         RenderStore();
 
@@ -186,6 +197,7 @@ namespace {
         } else {
             RenderControls();
         }
+        RenderTotalBonuses();
     }
 }
 

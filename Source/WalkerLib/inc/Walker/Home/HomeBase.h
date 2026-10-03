@@ -13,6 +13,8 @@
 #include <Platform/NumTypes.h>
 
 #include <memory>
+#include <optional>
+#include <span>
 #include <vector>
 
 namespace Walker {
@@ -26,7 +28,11 @@ namespace Walker {
 		Wallet Funds{};
 		Garage Vehicles{};
 
-		std::vector<std::unique_ptr<EndpointInstance>> Endpoints{};
+		std::span<const std::unique_ptr<EndpointInstance>> GetEndpoints() const;
+		size_t GetAvailableEndpointSlots() const;
+		bool TryAddEndpoint(EndpointKind kind);
+		std::optional<size_t> RemoveEndpoint(u64 id);
+
 		EndpointKind FurthestEndpoint{EndpointKind::Unset};
 		EndpointKind GetMaxScoutKind() const;
 
@@ -36,5 +42,9 @@ namespace Walker {
 		void Rebirth();
 		void Prestiege();
 		void Ascend();
+
+	private:
+		std::vector<std::unique_ptr<EndpointInstance>> m_Endpoints{};
+		size_t m_MaxEndpointSlots{50};
 	};
 }
