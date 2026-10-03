@@ -2,9 +2,7 @@
 
 #include "Walker/WalkerUnits.h"
 #include "Walker/Crew/WalkerTech.h"
-#include "Walker/Rebirth/Rebirth.h"
-#include "Walker/Rebirth/Prestiege.h"
-#include "Walker/Rebirth/Ascend.h"
+#include "Walker/Rebirth/WalkerProgression.h"
 #include "Walker/Travel/Vehicle.h"
 
 #include <optional>
@@ -24,14 +22,14 @@ namespace Walker {
 		u64 GetMaxHireCount(Money funds, u64 hiredCount) const;
 		std::optional<BaseTime> GetPreparationDuration() const;
 
-		WalkerRebirth& GetRebirth() { return m_Rebirth; }
-		const WalkerRebirth& GetRebirth() const { return m_Rebirth; }
+		WalkerProgression& GetRebirth() { return m_Rebirth; }
+		const WalkerProgression& GetRebirth() const { return m_Rebirth; }
 
-		WalkerPrestiege& GetPrestiege() { return m_Prestiege; }
-		const WalkerPrestiege& GetPrestiege() const { return m_Prestiege; }
+		WalkerProgression& GetPrestiege() { return m_Prestiege; }
+		const WalkerProgression& GetPrestiege() const { return m_Prestiege; }
 
-		WalkerAscend& GetAscend() { return m_Ascend; }
-		const WalkerAscend& GetAscend() const { return m_Ascend; }
+		WalkerProgression& GetAscend() { return m_Ascend; }
+		const WalkerProgression& GetAscend() const { return m_Ascend; }
 
 		void Prestiege();
 		void Ascend();
@@ -43,8 +41,8 @@ namespace Walker {
 		f32 m_HireCostBase{2.f};
 
 		const TechManager& m_Tech;
-		WalkerRebirth m_Rebirth{};
-		WalkerPrestiege m_Prestiege{};
-		WalkerAscend m_Ascend{};
+		WalkerProgression m_Rebirth{};
+		WalkerProgression m_Prestiege{};
+		WalkerProgression m_Ascend{};
 	};
 }
