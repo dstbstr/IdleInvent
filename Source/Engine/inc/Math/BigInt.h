@@ -29,6 +29,7 @@ public:
     static constexpr BigIntImpl Pow10(u32 exponent);
     static constexpr BigIntImpl FromScientific(u64 coef, u32 exp);
     static f64 Ratio(const BigIntImpl& numerator, const BigIntImpl& denominator);
+    static f64 Log10Ratio(const BigIntImpl& numerator, const BigIntImpl& denominator);
 
     constexpr bool operator==(BigIntImpl other) const;
     constexpr std::strong_ordering operator<=>(const BigIntImpl& other) const;

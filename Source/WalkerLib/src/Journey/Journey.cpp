@@ -106,7 +106,13 @@ namespace Walker {
     }
 
     void Journey::TickTravel(BaseTime elapsed) {
-        if(m_Travel->Advance(*m_Vehicle, elapsed)) {
+        auto prevDist = m_Travel->GetTraveled();
+		auto prevFuel = m_Vehicle->FuelMass;
+
+		auto arrived = m_Travel->Advance(*m_Vehicle, elapsed);
+
+		m_Home.Stats.OnTravel(m_Travel->GetTraveled() - prevDist, prevFuel - m_Vehicle->FuelMass);
+        if(arrived) {
 			ChangePhase(m_Phase == Phase::Outbound ? Phase::Loading : Phase::Unloading);
         }
     }
@@ -138,9 +144,16 @@ namespace Walker {
         m_Vehicle->CargoMass -= transferred;
         m_End->DeliveredCargo += transferred;
         m_Home.Funds.Add(transferred);
+        m_Home.Stats.OnCargoDelivered(transferred);
 
         if(m_Vehicle->CargoMass == Zero) {
-			ChangePhase(m_End->RemainingCargo > Zero ? Phase::Preparing : Phase::Complete);
+            m_Home.Stats.OnRoundTripComplete();
+            if(m_End->RemainingCargo > Zero) {
+                ChangePhase(Phase::Preparing);
+            } else {
+                m_Home.Stats.OnEndpointComplete();
+                ChangePhase(Phase::Complete);
+            }
         }
     }
 
@@ -159,6 +172,7 @@ namespace Walker {
             m_Travel.reset();
             auto freeSpace = m_Vehicle->GetAvailableCapacity(m_Home.Rates);
             m_Transfer.emplace(CargoTransfer{ .Target = std::min(freeSpace, m_End->RemainingCargo) });
+            m_Home.Stats.OnArrival(m_End->Kind, m_End->DistanceFromHome);
         } else if(next == Phase::Unloading) {
             m_Travel.reset();
 			m_Transfer.emplace(CargoTransfer{ .Target = m_Vehicle->CargoMass });

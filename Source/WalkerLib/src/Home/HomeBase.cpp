@@ -29,6 +29,7 @@ namespace Walker {
 	}
 
 	void HomeBase::Tick(BaseTime elapsed) {
+		Stats.Tick(elapsed);
 		Crew.Tick(elapsed, GetAvailableEndpointSlots());
 	}
 
@@ -40,6 +41,7 @@ namespace Walker {
 		auto cost = Rates.GetHireCost(Crew.GetHiredCount(), count);
 		if(Funds.Spend(cost)) {
 			Crew.Hire(count);
+			Stats.OnCrewHired(count);
 			return true;
 		}
 
@@ -53,17 +55,20 @@ namespace Walker {
 		m_Endpoints.clear();
 		m_Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::Neighborhood));
 		Crew.Rebirth();
+		Stats.Rebirth();
 	}
 
 	void HomeBase::Prestiege() {
 		Tech.Reset();
 		Crew.Prestiege();
 		Rates.Prestiege();
+		Stats.Prestiege();
 		Rebirth();
 	}
 
 	void HomeBase::Ascend() {
 		Rates.Ascend();
+		Stats.Ascend();
 		Prestiege();
 	}
 }

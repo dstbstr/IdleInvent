@@ -1,5 +1,47 @@
 #include "Math/BigInt.h"
 
+#include <cmath>
+
+TEST(BigIntTest, Log10Ratio_WithEqualVals_ReturnsZero) {
+	ASSERT_EQ(BigInt::Log10Ratio(BigInt{ 42 }, BigInt{ 42 }), 0.0);
+}
+
+TEST(BigIntTest, Log10Ratio_WithPowersOfTen_ReturnsExpDiff) {
+	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ 1000 }, BigInt{ 10 }), 2.0, 0.0001);
+	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ 10 }, BigInt{ 1000 }), -2.0, 0.0001);
+}
+
+TEST(BigIntTest, Log10Ratio_FractionalRatio_DoesNotTruncate) {
+	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ 3 }, BigInt{ 2 }), std::log10(1.5), 0.0001);
+	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ 2 }, BigInt{ 3 }), std::log10(1.5), 0.0001);
+}
+
+TEST(BigIntTest, Log10Ratio_WithHugeValues_DoesNotOverflow) {
+	auto a = BigInt::FromScientific(3, 1000);
+	auto b = BigInt::FromScientific(2, 999);
+	ASSERT_NEAR(BigInt::Log10Ratio(a, b), std::log10(15), 0.0001);
+}
+
+TEST(BigIntTest, Log10Ratio_BeyondDoubleRange_RemainsFinite) {
+	auto a = BigInt::Pow10(1000);
+	ASSERT_NEAR(BigInt::Log10Ratio(a, 1), 1000.0, 0.0001);
+	ASSERT_NEAR(BigInt::Log10Ratio(1, a), 1000.0, 0.0001);
+}
+
+TEST(BigIntTest, Log10Ratio_WithTwoNegatives_ReturnsPositive) {
+	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ -1000 }, BigInt{ -10 }), 2.0, 0.0001);
+}
+
+TEST(BigIntTest, Log10Ratio_WithMismatchedSigns_Throws) {
+	ASSERT_THROW(BigInt::Log10Ratio(BigInt{ -1 }, BigInt{ 1 }), std::domain_error);
+	ASSERT_THROW(BigInt::Log10Ratio(BigInt{ 1 }, BigInt{ -1 }), std::domain_error);
+}
+
+TEST(BigIntTest, Log10Ratio_WithZero_Throw) {
+	ASSERT_THROW(BigInt::Log10Ratio(BigInt{ 0 }, BigInt{ 1 }), std::domain_error);
+	ASSERT_THROW(BigInt::Log10Ratio(BigInt{ 1 }, BigInt{ 0 }), std::domain_error);
+}
+
 TEST(BigIntTest, FloatPower_WithDifferentExponents_ReturnsDifferentSizes) {
 	BigInt a{10};
 	BigInt b = a;

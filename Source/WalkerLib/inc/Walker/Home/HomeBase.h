@@ -2,6 +2,7 @@
 
 #include "Walker/WalkerUnits.h"
 #include "Walker/WalkerRates.h"
+#include "Walker/WalkerStats.h"
 #include "Walker/Crew/CrewManager.h"
 #include "Walker/Crew/WalkerTech.h"
 #include "Walker/Home/Garage.h"
@@ -27,6 +28,7 @@ namespace Walker {
 
 		Wallet Funds{};
 		Garage Vehicles{};
+		StatManager Stats{};
 
 		std::span<const std::unique_ptr<EndpointInstance>> GetEndpoints() const;
 		size_t GetAvailableEndpointSlots() const;

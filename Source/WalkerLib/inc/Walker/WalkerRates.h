@@ -21,6 +21,9 @@ namespace Walker {
 		Money GetHireCost(u64 hiredCount, u64 count = 1) const;
 		u64 GetMaxHireCount(Money funds, u64 hiredCount) const;
 		std::optional<BaseTime> GetPreparationDuration() const;
+		u64 GetRebirthReward(Distance distance) const;
+		u64 GetPrestiegeReward(Distance distance) const;
+		u64 GetAscendReward(Distance distance) const;
 
 		WalkerProgression& GetRebirth() { return m_Rebirth; }
 		const WalkerProgression& GetRebirth() const { return m_Rebirth; }

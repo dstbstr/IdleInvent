@@ -72,8 +72,9 @@ namespace {
     }
 
     void RenderRebirth() {
-        if(Home->FurthestEndpoint < EndpointKind::SolarSystem) {
-			CurrentRebirthType = std::nullopt;
+        auto rebirthPoints = Home->Rates.GetRebirthReward(Home->Stats.SinceRebirth().TotalDistance);
+        if(rebirthPoints == 0) {
+            CurrentRebirthType = std::nullopt;
             return;
         }
 
@@ -83,8 +84,6 @@ namespace {
         ImGui::TextUnformatted("- Money");
         ImGui::TextUnformatted("- Endpoints");
         ImGui::Separator();
-		auto overage = static_cast<u64>(Home->FurthestEndpoint) - static_cast<u64>(EndpointKind::SolarSystem);
-		auto rebirthPoints = static_cast<u64>(std::pow(2, overage));
         ImGui::Text("In exchange you'll receive %llu rebirth points", rebirthPoints);
 
         if(ImGui::Button("Confirm") && rebirthPoints > 0) {
@@ -100,7 +99,9 @@ namespace {
     }
 
     void RenderPrestiege() {
-        if (Home->FurthestEndpoint < EndpointKind::FarGalaxy) {
+        auto prestigePoints = Home->Rates.GetPrestiegeReward(Home->Stats.SincePrestiege().TotalDistance);
+
+        if (prestigePoints == 0) {
             CurrentRebirthType = std::nullopt;
             return;
         }
@@ -111,8 +112,6 @@ namespace {
         ImGui::TextUnformatted("- Tech");
         ImGui::TextUnformatted("- Rebirths");
         ImGui::Separator();
-        auto overage = static_cast<u64>(Home->FurthestEndpoint) - static_cast<u64>(EndpointKind::FarGalaxy);
-        auto prestigePoints = static_cast<u64>(std::pow(2, overage));
         ImGui::Text("In exchange you'll receive %llu prestige points", prestigePoints);
 
         if (ImGui::Button("Confirm") && prestigePoints > 0) {
@@ -128,7 +127,9 @@ namespace {
     }
 
     void RenderAscend() {
-        if (Home->FurthestEndpoint < EndpointKind::GreatBeyond) {
+        auto ascendPoints = Home->Rates.GetAscendReward(Home->Stats.SinceAscend().TotalDistance);
+
+        if (ascendPoints == 0) {
             CurrentRebirthType = std::nullopt;
             return;
         }
@@ -136,12 +137,12 @@ namespace {
         ImGui::TextUnformatted("Would you like to Ascend?");
         ImGui::TextUnformatted("This will reset basically everything");
         ImGui::Separator();
-        ImGui::TextUnformatted("In exchange you'll receive 1 ascend point");
+        ImGui::Text("In exchange you'll receive %llu ascend points", ascendPoints);
 
         if (ImGui::Button("Confirm")) {
             ServiceLocator::Get().Reset<Journey>();
             Home->Ascend();
-            Home->Rates.GetAscend().AvailablePoints++;
+            Home->Rates.GetAscend().AvailablePoints += ascendPoints;
             CurrentRebirthType = std::nullopt;
         }
         ImGui::SameLine();
@@ -151,22 +152,22 @@ namespace {
     }
 
 	void RenderControls() {
-        auto canRebirth = Home->FurthestEndpoint >= EndpointKind::SolarSystem;
-        ImGui::BeginDisabled(!canRebirth);
+        auto rebirthPoints = Home->Rates.GetRebirthReward(Home->Stats.SinceRebirth().TotalDistance);
+        ImGui::BeginDisabled(rebirthPoints == 0);
         if(ImGui::Button("Rebirth")) {
 			CurrentRebirthType = RebirthType::Rebirth;
 		}
         ImGui::EndDisabled();
         
-		auto canPrestiege = Home->FurthestEndpoint >= EndpointKind::FarGalaxy;
-		ImGui::BeginDisabled(!canPrestiege);
+		auto prestiegePoints = Home->Rates.GetPrestiegeReward(Home->Stats.SincePrestiege().TotalDistance);
+		ImGui::BeginDisabled(prestiegePoints == 0);
 		if (ImGui::Button("Prestiege")) {
 			CurrentRebirthType = RebirthType::Prestiege;
 		}
         ImGui::EndDisabled();
 
-		auto canAscend = Home->FurthestEndpoint >= EndpointKind::GreatBeyond;
-		ImGui::BeginDisabled(!canAscend);
+		auto ascendPoints = Home->Rates.GetAscendReward(Home->Stats.SinceAscend().TotalDistance);
+		ImGui::BeginDisabled(ascendPoints == 0);
 		if (ImGui::Button("Ascend")) {
 			CurrentRebirthType = RebirthType::Ascend;
         }

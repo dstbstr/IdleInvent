@@ -1,5 +1,23 @@
 #include "Walker/WalkerRates.h"
 
+#include <cmath>
+
+namespace {
+	using namespace Walker;
+	u64 GetReward(Distance d, Distance t, f64 growth) {
+		if(t <= Zero || !std::isfinite(growth) || growth <= 1.0) throw std::domain_error("Expected positive threshold and growth > 1");
+		if(d < t) return 0;
+
+		auto steps = std::max(0.0, Distance::Log10Ratio(d, t) / std::log10(growth));
+		auto reward = 1.0 + std::floor(steps);
+		if(!std::isfinite(reward) || reward >= std::ldexp(1.0, 64)) {
+			return std::numeric_limits<u64>::max();
+		}
+
+		return static_cast<u64>(reward);
+	}
+}
+
 namespace Walker {
 	WorkRate WalkerRates::GetCargoWorkRate() const {
 		return Calculate(m_BaseCargoRate, &WalkerProgression::CargoWorkPoints);
@@ -56,6 +74,18 @@ namespace Walker {
 		}
 
 		return result;
+	}
+
+	u64 WalkerRates::GetRebirthReward(Distance distance) const {
+		return GetReward(distance, Distance::Pow10(6), 1.5);
+	}
+
+	u64 WalkerRates::GetPrestiegeReward(Distance distance) const {
+		return GetReward(distance, Distance::Pow10(10), 2.5);
+	}
+
+	u64 WalkerRates::GetAscendReward(Distance distance) const {
+		return GetReward(distance, Distance::Pow10(16), 3.75);
 	}
 
 	void WalkerRates::Prestiege() {

@@ -52,6 +52,17 @@ f64 BigIntImpl<TCoefBits, TExpBits, TSigned>::Ratio(const BigIntImpl& numerator,
 }
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+f64 BigIntImpl<TCoefBits, TExpBits, TSigned>::Log10Ratio(const BigIntImpl& numerator, const BigIntImpl& denominator) {
+    if(numerator.IsNegative() != denominator.IsNegative()) throw std::domain_error("Signs must match");
+    if(numerator.Coef() == 0 || denominator.Coef() == 0) throw std::domain_error("Log10Ratio requires positive numbers");
+
+	auto coefRatio = static_cast<f64>(numerator.Coef()) / static_cast<f64>(denominator.Coef());
+	auto expDiff = static_cast<f64>(numerator.Exponent()) - static_cast<f64>(denominator.Exponent());
+
+	return std::log10(coefRatio) + expDiff;
+}
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 constexpr bool BigIntImpl<TCoefBits, TExpBits, TSigned>::operator==(BigIntImpl other) const {
     return m_Storage == other.m_Storage;
 }
