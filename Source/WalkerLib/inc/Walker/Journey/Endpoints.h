@@ -47,6 +47,7 @@ namespace Walker {
 		Mass RemainingCargo{};
 		Mass DeliveredCargo{};
 		Work UnitCargoWork{};
+		u64 StationedCrew{};
 	private:
 		inline static u64 NextId{1};
 	};

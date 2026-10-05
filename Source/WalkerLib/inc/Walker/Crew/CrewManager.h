@@ -18,6 +18,7 @@ namespace Walker {
 	enum struct CrewRole: u8 {
 		Idle,
 		Traveling, // TODO: split into navigator, pilot, other roles?
+		Stationed,
 		Scout,
 		Scientist,
 		Engineer,
@@ -41,6 +42,7 @@ namespace Walker {
 		void Hire(u64 count);
 		bool TryAssign(u64 count, CrewRole role);
 		bool TryUnassign(u64 count, CrewRole role);
+		bool TryReassign(u64 count, CrewRole from, CrewRole to);
 		void ClearTravelers();
 
 		u64 GetCount() const;
@@ -80,5 +82,7 @@ namespace Walker {
 
 		void StartScout(Work initialWork = Zero);
 		void FinishJob(CrewRole role);
+		bool CanAssign(CrewRole role, const State& state) const;
+		bool CanUnassign(CrewRole role, const State& state, u64 count) const;
 	};
 }

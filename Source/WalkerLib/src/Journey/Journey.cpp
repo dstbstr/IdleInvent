@@ -92,10 +92,12 @@ namespace Walker {
     }
 
     Time Journey::GetPhaseEta() const {
+		auto loadingWorkers = m_Home.Crew[CrewRole::Traveling] + m_End->StationedCrew;
+		auto unloadingWorkers = m_Home.Crew.GetCount() - m_Home.Crew[CrewRole::Stationed];
         switch(m_Phase) {
             using enum Phase;
-            case Loading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * m_Home.Crew[CrewRole::Traveling], m_End->UnitCargoWork).value_or(Zero) : Zero;
-            case Unloading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * m_Home.Crew.GetCount(), m_End->UnitCargoWork).value_or(Zero) : Zero;
+            case Loading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * loadingWorkers, m_End->UnitCargoWork).value_or(Zero) : Zero;
+            case Unloading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * unloadingWorkers, m_End->UnitCargoWork).value_or(Zero) : Zero;
             case Outbound: // fallthrough
             case Returning: return m_Travel->GetEta(*m_Vehicle);
 			case Preparing: return m_Countdown ? ToWalkerTime(*m_Countdown) : Zero;
@@ -113,14 +115,24 @@ namespace Walker {
 
 		m_Home.Stats.OnTravel(m_Travel->GetTraveled() - prevDist, prevFuel - m_Vehicle->FuelMass);
         if(arrived) {
-			ChangePhase(m_Phase == Phase::Outbound ? Phase::Loading : Phase::Unloading);
+			auto travelers = m_Home.Crew[CrewRole::Traveling] - 1;
+            if(m_Phase == Phase::Outbound) {
+				ChangePhase(Phase::Loading);
+				StationCrew(travelers);
+            } else {
+				if(m_Home.Crew.TryUnassign(travelers, CrewRole::Traveling)) {
+					m_Vehicle->SetCrew(m_Home.Crew[CrewRole::Traveling]);
+                }
+				ChangePhase(Phase::Unloading);
+            }
         }
     }
 
 	void Journey::TickLoading(BaseTime elapsed) {
 		auto freeSpace = m_Vehicle->GetAvailableCapacity(m_Home.Rates);
         auto available = std::min(freeSpace, m_End->RemainingCargo);
-        auto rate = m_Home.Rates.GetCargoWorkRate() * m_Home.Crew[CrewRole::Traveling];
+		auto workers = m_Home.Crew[CrewRole::Traveling] + m_End->StationedCrew;
+        auto rate = m_Home.Rates.GetCargoWorkRate() * workers;
         auto numerator = rate * ToWalkerTime(elapsed) + m_WorkRemainder;
         auto work = numerator / MsPerSec;
         m_WorkRemainder = numerator - work * MsPerSec;
@@ -130,12 +142,17 @@ namespace Walker {
         m_End->RemainingCargo -= transferred;
 
 		if(m_Transfer->Transferred >= m_Transfer->Target || transferred == available) {
+            if(m_End->RemainingCargo == Zero) {
+                // TODO: should this be an invention?
+				RecoverCrew(m_End->StationedCrew);
+            }
             ChangePhase(Phase::Returning);
 		}
 	}
 
     void Journey::TickUnloading(BaseTime elapsed) {
-		auto rate = m_Home.Rates.GetCargoWorkRate() * m_Home.Crew.GetCount();
+        auto workers = m_Home.Crew.GetCount() - m_Home.Crew[CrewRole::Stationed];
+		auto rate = m_Home.Rates.GetCargoWorkRate() * workers;
         auto numerator = rate * ToWalkerTime(elapsed) + m_WorkRemainder;
         auto work = numerator / MsPerSec;
         m_WorkRemainder = numerator - work * MsPerSec;
@@ -148,13 +165,36 @@ namespace Walker {
 
         if(m_Vehicle->CargoMass == Zero) {
             m_Home.Stats.OnRoundTripComplete();
-            if(m_End->RemainingCargo > Zero) {
+            if(m_End->RemainingCargo > Zero || m_End->StationedCrew > 0) {
                 ChangePhase(Phase::Preparing);
             } else {
                 m_Home.Stats.OnEndpointComplete();
                 ChangePhase(Phase::Complete);
             }
         }
+    }
+
+    void Journey::StationCrew(u64 count) {
+        if(m_Phase != Phase::Loading) return;
+		auto toMove = std::min(count, m_Home.Crew[CrewRole::Traveling] - 1);
+        if(m_Home.Crew.TryReassign(toMove, CrewRole::Traveling, CrewRole::Stationed)) {
+            m_End->StationedCrew += toMove;
+			m_Vehicle->SetCrew(m_Home.Crew[CrewRole::Traveling]);
+
+            // dropping off crew allows storing more cargo
+            auto available = std::min(m_Vehicle->GetAvailableCapacity(m_Home.Rates), m_End->RemainingCargo);
+			m_Transfer->Target = m_Transfer->Transferred + available;
+        }
+    }
+
+    void Journey::RecoverCrew(u64 count) {
+        if(m_Phase != Phase::Loading) return;
+		auto toMove = std::min(count, m_End->StationedCrew);
+		toMove = std::min(toMove, m_Vehicle->GetRemainingCrewCapacity(m_Home.Rates).TryConvert<u64>().value_or(toMove));
+		if (m_Home.Crew.TryReassign(toMove, CrewRole::Stationed, CrewRole::Traveling)) {
+			m_End->StationedCrew -= toMove;
+            m_Vehicle->SetCrew(m_Home.Crew[CrewRole::Traveling]);
+		}
     }
 
     void Journey::ChangePhase(Phase next) {

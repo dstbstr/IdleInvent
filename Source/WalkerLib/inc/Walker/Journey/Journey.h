@@ -54,6 +54,9 @@ namespace Walker {
         f32 GetDeliveryRatio() const;
         f32 GetEndpointCargoRatio() const;
 
+        void StationCrew(u64 count);
+        void RecoverCrew(u64 count);
+
         Time GetPhaseEta() const;
     private:
         PubSub<Phase>& m_Ps;

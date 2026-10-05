@@ -75,7 +75,6 @@ namespace {
     }
 
     void RenderCrew(Journey& journey) {
-        ImGui::TextUnformatted("Crew");
         auto& crew = Home->Crew;
 		auto* vehicle = Home->Vehicles.GetSelected();
 
@@ -98,7 +97,10 @@ namespace {
         ImGui::EndDisabled();
 
         ImGui::SameLine();
-        ImGui::Text("%llu/%llu", crew[CrewRole::Traveling], Home->Crew.GetCount());
+        ImGui::Text("Aboard: %llu | Idle: %llu | Stationed: %llu",
+            crew[CrewRole::Traveling],
+            crew[CrewRole::Idle],
+            journey.GetEndpoint()->StationedCrew);
     }
 
     void RenderPreparing(Journey& journey) {
@@ -144,8 +146,13 @@ namespace {
         else {
             auto ratio = phase == Phase::Loading ? journey.GetLoadingRatio() : journey.GetUnloadRatio();
             RenderLoading(ratio);
-            if(phase == Phase::Loading && ImGui::Button("Return Early")) {
-                journey.ReturnEarly();
+            if(phase == Phase::Loading) {
+                if(ratio >= 1.f) {
+                    ImGui::TextUnformatted("Loading stationed crew");
+                }
+                if(ImGui::Button("Return early")) {
+                    journey.ReturnEarly();
+                }
             }
         }
 

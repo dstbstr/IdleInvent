@@ -36,32 +36,33 @@ namespace Walker {
 		m_HiredCount += count;
 	}
 
-	bool CrewManager::TryAssign(u64 count, CrewRole role) {
-		auto& idleCount = m_State[static_cast<size_t>(CrewRole::Idle)].CrewCount;
-		if(idleCount < count) return false;
+	bool CrewManager::TryReassign(u64 count, CrewRole from, CrewRole to) {
+		DR_ASSERT_MSG(Enum::IsValid(from) && Enum::IsValid(to), "Invalid crew role");
+		if (!Enum::IsValid(from) || !Enum::IsValid(to)) return false;
+		if (from == to) return false;
 
-		auto& state = m_State[static_cast<size_t>(role)];
-		if(role != CrewRole::Idle && role != CrewRole::Traveling && !state.Progress) return false;
+		auto& fromState = m_State[static_cast<size_t>(from)];
+		auto& toState = m_State[static_cast<size_t>(to)];
+		if (!CanUnassign(from, fromState, count)) return false;
+		if (!CanAssign(to, toState)) return false;
 
-		idleCount -= count;
-		state.CrewCount += count;
+		fromState.CrewCount -= count;
+		toState.CrewCount += count;
 		return true;
+	}
+
+	bool CrewManager::TryAssign(u64 count, CrewRole role) {
+		return TryReassign(count, CrewRole::Idle, role);
+	}
+
+	bool CrewManager::TryUnassign(u64 count, CrewRole role) {
+		return TryReassign(count, role, CrewRole::Idle);
 	}
 
 	void CrewManager::ClearTravelers() {
 		TryUnassign((*this)[CrewRole::Traveling] - 1, CrewRole::Traveling);
 	}
 
-	bool CrewManager::TryUnassign(u64 count, CrewRole role) {
-		auto& roleCount = m_State[static_cast<size_t>(role)].CrewCount;
-		if (roleCount < count) return false;
-		if (role == CrewRole::Traveling && roleCount - count < 1) return false; // always leave at least one traveling crew
-
-		auto& idleCount = m_State[static_cast<size_t>(CrewRole::Idle)].CrewCount;
-		roleCount -= count;
-		idleCount += count;
-		return true;
-	}
 
 	u64 CrewManager::GetCount() const {
 		return std::accumulate(m_State.begin(), m_State.end(), u64(0), [](u64 total, const auto& state) -> u64 {
@@ -232,5 +233,16 @@ namespace Walker {
 			.Role = role,
 			.CompletedKind = kind
 		});
+	}
+
+	bool CrewManager::CanAssign(CrewRole role, const State& state) const {
+		using enum CrewRole;
+		if(role == Idle || role == Traveling || role == Stationed) return true;
+		return state.Progress.has_value();
+	}
+
+	bool CrewManager::CanUnassign(CrewRole role, const State& state, u64 count) const {
+		auto reserved = u64{role == CrewRole::Traveling};
+		return state.CrewCount >= reserved && count <= state.CrewCount - reserved;
 	}
 }
