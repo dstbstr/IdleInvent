@@ -112,7 +112,8 @@ namespace Walker {
 	}
 
 	bool CrewManager::TryStartEngineering(TechKind kind) {
-		if (kind <= TechKind::Unset || kind >= TechKind::COUNT) return false;
+		if (!Enum::IsValid(kind)) return false;
+		if (!m_Tech.CanUpgrade(kind)) return false;
 
 		auto& state = m_State[static_cast<size_t>(CrewRole::Engineer)];
 		if (state.Progress) return false;

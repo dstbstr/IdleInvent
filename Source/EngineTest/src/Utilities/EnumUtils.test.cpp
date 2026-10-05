@@ -30,6 +30,13 @@ static_assert(Enum::Begin<EnumWithCount>() == EnumWithCount::A);
 static_assert(Enum::End<EnumWithCount>() == EnumWithCount::C);
 static_assert(Enum::GetAllValues<EnumWithCount>() == std::vector{EnumWithCount::A, EnumWithCount::B, EnumWithCount::C});
 
+static_assert(Enum::IsValid(EnumWithCount::A));
+static_assert(Enum::IsValid(EnumWithCount::B));
+static_assert(Enum::IsValid(EnumWithCount::C));
+
+static_assert(!Enum::IsValid(EnumWithCount::COUNT));
+static_assert(!Enum::IsValid(EnumWithUnset::Unset));
+
 TEST(EnumUtilsTest, GetAllValues_WithoutUnset_GetsAllValues) {
 	auto values = Enum::GetAllValues<EnumWithCount>();
 	ASSERT_EQ(values.size(), 3);

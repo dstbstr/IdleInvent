@@ -63,6 +63,46 @@ namespace {
         ImGui::PopID();
     }
 
+    void RenderTechnologies() {
+        auto& crew = Home->Crew;
+        if(ImGui::BeginTable("Technologies", 2, ImGuiTableFlags_SizingStretchSame)) {
+            auto Technology = [&](TechKind kind) {
+                const auto& state = Home->Tech[kind];
+				auto role = state.Researched ? CrewRole::Engineer : CrewRole::Scientist;
+                auto name = ToString(kind);
+
+                ImGui::TableNextColumn();
+                ImGui::PushID(static_cast<int>(kind));
+                ImGui::TextUnformatted(name.c_str());
+
+                auto busy = crew.GetProgress(role).has_value();
+                auto upgradeBlocked = state.Researched && !Home->Tech.CanUpgrade(kind);
+                ImGui::BeginDisabled(busy || upgradeBlocked);
+				if (ImGui::Button(state.Researched ? "Improve" : "Research", ImVec2{ -1.f, 0.f })) {
+					if (state.Researched) {
+						crew.TryStartEngineering(kind);
+					}
+					else {
+						crew.TryStartScience(kind);
+					}
+				}
+                ImGui::EndDisabled();
+                if(state.Researched) {
+                    ImGui::Text("Level %llu", state.CurrentLevel);
+                } else {
+                    ImGui::TextUnformatted("Unresearched");
+                }
+                ImGui::PopID();
+            };
+
+            for(auto kind : Enum::GetAllValues<TechKind>()) {
+                Technology(kind);
+            }
+
+            ImGui::EndTable();
+        }
+    }
+
     void RenderJobs() {
         RenderJob(CrewRole::Scout);
         static auto kinds = Enum::GetAllValues<EndpointKind>();
@@ -75,19 +115,8 @@ namespace {
         }
 
         // TODO: Block these behind achievements or something
-        auto researched = Home->Tech[TechKind::Preparation].Researched;
-        ImGui::BeginDisabled(researched || crew.GetProgress(CrewRole::Scientist).has_value());
-		if (ImGui::Button("Research Preparation")) {
-			crew.TryStartScience(TechKind::Preparation);
-		}
-        ImGui::EndDisabled();
+        RenderTechnologies();
         RenderJob(CrewRole::Scientist);
-
-		ImGui::BeginDisabled(!researched || crew.GetProgress(CrewRole::Engineer).has_value());
-		if (ImGui::Button("Improve Preparation")) {
-			crew.TryStartEngineering(TechKind::Preparation);
-		}
-        ImGui::EndDisabled();
         RenderJob(CrewRole::Engineer);
     }
 }

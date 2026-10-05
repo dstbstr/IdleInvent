@@ -33,6 +33,15 @@ concept LevelType = CountEnum<T> || (std::incrementable<T> && std::equality_comp
 
 namespace Enum {
     template<CountEnum E>
+    constexpr bool IsValid(E e) {
+        if constexpr(UnsetEnum<E>) {
+			return e > E::Unset && e < E::COUNT;
+		} else {
+			return e < E::COUNT;
+        }
+    }
+
+    template<CountEnum E>
     constexpr E Begin() {
         if constexpr(UnsetEnum<E>) {
             return static_cast<E>(1);

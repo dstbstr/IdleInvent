@@ -3,7 +3,7 @@
 #include <Utilities/EnumUtils.h>
 
 namespace Walker {
-	HomeBase::HomeBase() : Rates(Tech), Crew(Rates, Tech) {}
+	HomeBase::HomeBase() : Rates(Tech), Crew(Rates, Tech), OfflineTime(Rates) {}
 
 	std::span<const std::unique_ptr<EndpointInstance>> HomeBase::GetEndpoints() const {
 		return m_Endpoints;

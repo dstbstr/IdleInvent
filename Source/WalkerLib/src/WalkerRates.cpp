@@ -68,12 +68,30 @@ namespace Walker {
 		const auto& tech = m_Tech[TechKind::Preparation];
 		if (!tech.Researched) return std::nullopt;
 
-		auto result = OneSecond * 30;
+		auto result = OneMinute;
 		for(size_t i = 0; i < tech.CurrentLevel && result > ZeroTime; i++) {
 			result /= 2;
 		}
 
 		return result;
+	}
+
+	BaseTime WalkerRates::GetOfflineTimeCapacity() const {
+		const auto& tech = m_Tech[TechKind::OfflineCapacity];
+		auto bonus = tech.Researched
+			? tech.CurrentLevel
+			: 0;
+		auto bonusTime = std::chrono::duration_cast<BaseTime>(OneHour * bonus);
+		return m_MaxOfflineTime + bonusTime;
+	}
+
+	f32 WalkerRates::GetOfflineTimeEfficiency() const {
+		const auto& tech = m_Tech[TechKind::OfflineEfficiency];
+		auto bonus = tech.Researched
+			? static_cast<f32>(tech.CurrentLevel) * 0.1f
+			: 0.f;
+
+		return std::min(1.f, m_OfflineTimeEfficiency + bonus);
 	}
 
 	u64 WalkerRates::GetRebirthReward(Distance distance) const {

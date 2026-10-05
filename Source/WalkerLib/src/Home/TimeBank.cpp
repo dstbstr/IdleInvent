@@ -5,16 +5,25 @@
 #include <algorithm>
 
 namespace Walker {
+	TimeBank::TimeBank(const WalkerRates& rates) : m_Rates(rates) {}
+
 	void TimeBank::AddTime(BaseTime time) {
 		DR_ASSERT_MSG(time > ZeroTime, "Time must be greater than zero");
 		if(time > ZeroTime) {
-			m_Time += time;
+			auto efficiency = static_cast<f64>(m_Rates.GetOfflineTimeEfficiency());
+			auto effectiveTime = std::chrono::duration_cast<BaseTime>(efficiency * time);
+
+			auto capacity = m_Rates.GetOfflineTimeCapacity();
+			auto available = std::max(ZeroTime, capacity - m_Time);
+			m_Time += std::min(available, effectiveTime);
 		}
 	}
 
 	void TimeBank::SetRate(u64 rate) {
 		DR_ASSERT_MSG(rate > 0, "Rate must be greater than zero");
-		m_Rate = rate;
+		if(rate > 0) {
+			m_Rate = rate;
+		}
 	}
 
 	BaseTime TimeBank::Spend(BaseTime elapsed) {

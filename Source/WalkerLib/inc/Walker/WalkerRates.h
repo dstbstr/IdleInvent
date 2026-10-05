@@ -21,20 +21,22 @@ namespace Walker {
 		Money GetHireCost(u64 hiredCount, u64 count = 1) const;
 		u64 GetMaxHireCount(Money funds, u64 hiredCount) const;
 		std::optional<BaseTime> GetPreparationDuration() const;
-		u64 GetRebirthReward(Distance distance) const;
-		u64 GetPrestiegeReward(Distance distance) const;
-		u64 GetAscendReward(Distance distance) const;
 
+		BaseTime GetOfflineTimeCapacity() const;
+		f32 GetOfflineTimeEfficiency() const;
+
+		u64 GetRebirthReward(Distance distance) const;
 		WalkerProgression& GetRebirth() { return m_Rebirth; }
 		const WalkerProgression& GetRebirth() const { return m_Rebirth; }
 
+		u64 GetPrestiegeReward(Distance distance) const;
 		WalkerProgression& GetPrestiege() { return m_Prestiege; }
 		const WalkerProgression& GetPrestiege() const { return m_Prestiege; }
+		void Prestiege();
 
+		u64 GetAscendReward(Distance distance) const;
 		WalkerProgression& GetAscend() { return m_Ascend; }
 		const WalkerProgression& GetAscend() const { return m_Ascend; }
-
-		void Prestiege();
 		void Ascend();
 
 		std::pair<Quantity, double> GetBonus(u64 WalkerProgression::* points) const;
@@ -44,6 +46,8 @@ namespace Walker {
 		WorkRate m_BaseJobRate{10};
 		Money m_BaseHireCost{100};
 		f32 m_HireCostBase{2.f};
+		BaseTime m_MaxOfflineTime{OneHour};
+		f32 m_OfflineTimeEfficiency{ 0.5f };
 
 		const TechManager& m_Tech;
 		WalkerProgression m_Rebirth{};

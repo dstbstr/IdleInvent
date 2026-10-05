@@ -56,7 +56,6 @@ namespace Walker {
                 services.Reset<Journey>();
                 if(home.GetEndpoints().empty()) return;
 
-                // TODO: Consider unlocking auto-mission (through science?)
 			    index = std::min(*index, home.GetEndpoints().size() - 1);
 			    services.Set<Journey>(home.Vehicles.GetSelected(), home.GetEndpoints()[*index].get(), home);
             }
