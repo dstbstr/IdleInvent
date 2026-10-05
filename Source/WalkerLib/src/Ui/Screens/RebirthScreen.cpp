@@ -186,7 +186,6 @@ namespace {
     }
 
     void RenderContent() {
-        RenderStore();
 
         if(CurrentRebirthType) {
 			switch (*CurrentRebirthType) {
@@ -196,9 +195,10 @@ namespace {
 			    case Ascend: RenderAscend(); break;
 			}
         } else {
+            RenderStore();
             RenderControls();
+            RenderTotalBonuses();
         }
-        RenderTotalBonuses();
     }
 }
 

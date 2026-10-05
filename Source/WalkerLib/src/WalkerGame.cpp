@@ -85,6 +85,7 @@ namespace Walker {
         home.Rates.GetRebirth().AvailablePoints = 100;
 		home.Rates.GetPrestiege().AvailablePoints = 100;
         home.Rates.GetAscend().AvailablePoints = 100;
+        home.OfflineTime.AddTime(OneHour * 8);
         ////
 
         return WalkerUi::Layout::Initialize();
@@ -102,7 +103,21 @@ namespace Walker {
     void WalkerGame::DeleteGame() {}
 
     void WalkerGame::Tick(BaseTime elapsed) {
-        TickManager::Get().Tick(elapsed);
+        constexpr BaseTime::rep MaxSteps = 8;
+        if(elapsed > ZeroTime) {
+			auto& home = ServiceLocator::Get().GetRequired<HomeBase>();
+            home.Stats.Tick(elapsed);
+
+            auto remaining = home.OfflineTime.Spend(elapsed);
+            auto stepSize = std::max(BaseTime{20}, BaseTime{(remaining.count() + MaxSteps - 1) / MaxSteps});
+
+            while(remaining > ZeroTime) {
+                auto step = std::min(remaining, stepSize);
+                TickManager::Get().Tick(step);
+                remaining -= step;
+            }
+        }
+
         Graphics::Render(WalkerUi::Layout::Render);
     }
 }

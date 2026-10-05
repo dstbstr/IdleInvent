@@ -29,7 +29,6 @@ namespace Walker {
 	}
 
 	void HomeBase::Tick(BaseTime elapsed) {
-		Stats.Tick(elapsed);
 		Crew.Tick(elapsed, GetAvailableEndpointSlots());
 	}
 

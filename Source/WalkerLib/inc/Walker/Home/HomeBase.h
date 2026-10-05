@@ -6,6 +6,7 @@
 #include "Walker/Crew/CrewManager.h"
 #include "Walker/Crew/WalkerTech.h"
 #include "Walker/Home/Garage.h"
+#include "Walker/Home/TimeBank.h"
 #include "Walker/Home/Wallet.h"
 #include "Walker/Journey/Endpoints.h"
 #include "Walker/Travel/Vehicle.h"
@@ -29,6 +30,7 @@ namespace Walker {
 		Wallet Funds{};
 		Garage Vehicles{};
 		StatManager Stats{};
+		TimeBank OfflineTime{};
 
 		std::span<const std::unique_ptr<EndpointInstance>> GetEndpoints() const;
 		size_t GetAvailableEndpointSlots() const;
