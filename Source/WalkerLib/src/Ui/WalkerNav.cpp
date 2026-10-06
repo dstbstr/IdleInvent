@@ -1,8 +1,10 @@
 #include "Walker/Ui/WalkerNav.h"
 #include "Walker/Ui/Screens/WalkerScreens.h"
 
-#include <array>
+#include <Utilities/EnumUtils.h>
 #include <imgui.h>
+
+#include <array>
 
 namespace {
     auto TableFlags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_NoSavedSettings;
@@ -11,10 +13,11 @@ namespace {
 namespace Walker::WalkerUi::Nav {
     bool Initialize() { return true; }
     void Render() { 
-        constexpr std::array screens{Screen::Travel, Screen::Store, Screen::Crew, Screen::Rebirth};
-
-        if(ImGui::BeginTable("##WalkerNav", static_cast<int>(screens.size()), TableFlags)) {
+		auto screens = Enum::GetAllValues<Screen>();
+        if(ImGui::BeginTable("##WalkerNav", static_cast<int>(screens.size() - 1), TableFlags)) {
             for(auto screen : screens) {
+                if(screen == Screen::Settings) continue;
+
                 ImGui::TableNextColumn();
                 auto label = ToString(screen);
 

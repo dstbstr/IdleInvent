@@ -1,8 +1,9 @@
 #include "Walker/Ui/Screens/WalkerScreens.h"
 #include "Walker/Ui/Screens/CrewScreen.h"
-#include "Walker/Ui/Screens/StoreScreen.h"
+#include "Walker/Ui/Screens/MilestonesScreen.h"
 #include "Walker/Ui/Screens/RebirthScreen.h"
 #include "Walker/Ui/Screens/SettingsScreen.h"
+#include "Walker/Ui/Screens/StoreScreen.h"
 #include "Walker/Ui/Screens/TravelScreen.h"
 #include <Instrumentation/Logging.h>
 
@@ -19,6 +20,7 @@ namespace Walker::WalkerUi {
             case Store: return "Store";
             case Crew: return "Crew";
             case Rebirth: return "Rebirth";
+			case Milestones: return "Milestones";
             case Settings: return "Settings";
         }
 
@@ -33,6 +35,7 @@ namespace Walker::WalkerUi {
             success &= Store::Initialize();
             success &= Crew::Initialize();
             success &= Rebirth::Initialize();
+			success &= Milestones::Initialize();
             success &= Settings::Initialize();
 
             DR_ASSERT(success);
@@ -41,6 +44,7 @@ namespace Walker::WalkerUi {
 
         void ShutDown() {
             Settings::ShutDown();
+            Milestones::ShutDown();
             Rebirth::ShutDown();
             Crew::ShutDown();
             Store::ShutDown();
@@ -57,6 +61,7 @@ namespace Walker::WalkerUi {
 				case Store: ActiveScreenFn = Store::Render; break;
                 case Crew: ActiveScreenFn = Crew::Render; break;
                 case Rebirth: ActiveScreenFn = Rebirth::Render; break;
+				case Milestones: ActiveScreenFn = Milestones::Render; break;
                 case Settings: ActiveScreenFn = Settings::Render; break;
             }
         }

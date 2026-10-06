@@ -48,12 +48,12 @@ struct ServiceLocator {
     }
 
     template<typename T>
-    bool IsSet() const {
+    [[nodiscard]] bool IsSet() const {
         return services.contains(Type::Id<T>());
     }
 
     template<typename T>
-    T* Get() const {
+    [[nodiscard]] T* Get() const {
         auto id = Type::Id<T>();
         if (services.contains(id)) {
             return static_cast<T*>(services.at(id).get());
@@ -63,7 +63,7 @@ struct ServiceLocator {
     }
 
     template<typename T>
-    T& GetRequired() const {
+    [[nodiscard]] T& GetRequired() const {
         auto id = Type::Id<T>();
         DR_ASSERT_MSG_LAZY(services.contains(id), []{
             return std::format("Service {} not set", Type::Name<T>());
@@ -76,7 +76,7 @@ struct ServiceLocator {
     }
 
     template<typename T, typename... Args>
-    T& GetOrCreate(Args&&... args) {
+    [[nodiscard]] T& GetOrCreate(Args&&... args) {
         auto id = Type::Id<T>();
         if (!services.contains(id)) {
             Set<T>(std::forward<Args>(args)...);

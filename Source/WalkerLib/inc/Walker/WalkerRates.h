@@ -2,6 +2,7 @@
 
 #include "Walker/WalkerUnits.h"
 #include "Walker/Crew/WalkerTech.h"
+#include "Walker/Milestones/Milestones.h"
 #include "Walker/Rebirth/WalkerProgression.h"
 #include "Walker/Travel/Vehicle.h"
 
@@ -10,7 +11,7 @@
 namespace Walker {
 	class WalkerRates {
 	public:
-		WalkerRates(const TechManager& tech) : m_Tech(tech) {}
+		WalkerRates(const TechManager& tech, const MilestoneManager& milestones) : m_Tech(tech), m_Milestones(milestones) {}
 
 		WorkRate GetCargoWorkRate() const;
 		WorkRate GetJobWorkRate() const;
@@ -50,6 +51,7 @@ namespace Walker {
 		f32 m_OfflineTimeEfficiency{ 0.5f };
 
 		const TechManager& m_Tech;
+		const MilestoneManager& m_Milestones;
 		WalkerProgression m_Rebirth{};
 		WalkerProgression m_Prestiege{};
 		WalkerProgression m_Ascend{};

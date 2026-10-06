@@ -136,6 +136,10 @@ namespace {
         } else {
             ImGui::Text("[%s]", etaString.c_str());
         }
+        auto* endpoint = journey.GetEndpoint();
+        if(endpoint->RemainingCargo == Zero && endpoint->StationedCrew > 0) {
+			ImGui::Text("%llu stationed crew awaiting pickup", endpoint->StationedCrew);
+        }
 
         if (phase == Phase::Preparing) {
             RenderPreparing(journey);
@@ -146,13 +150,8 @@ namespace {
         else {
             auto ratio = phase == Phase::Loading ? journey.GetLoadingRatio() : journey.GetUnloadRatio();
             RenderLoading(ratio);
-            if(phase == Phase::Loading) {
-                if(ratio >= 1.f) {
-                    ImGui::TextUnformatted("Loading stationed crew");
-                }
-                if(ImGui::Button("Return early")) {
-                    journey.ReturnEarly();
-                }
+            if(phase == Phase::Loading && ImGui::Button("Return early")) {
+                journey.ReturnEarly();
             }
         }
 

@@ -4,7 +4,7 @@
 #include <string>
 
 namespace Walker::WalkerUi {
-    enum struct Screen : u8 { Travel, Store, Crew, Rebirth, Settings };
+    enum struct Screen : u8 { Travel, Store, Crew, Rebirth, Milestones, Settings, COUNT };
 
     std::string ToString(Screen screen);
 

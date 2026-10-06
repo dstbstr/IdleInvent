@@ -15,6 +15,11 @@
 
 namespace Walker {
     enum struct Phase { Preparing, Outbound, Loading, Returning, Unloading, Complete };
+    struct PhaseChanged {
+        Phase From;
+        Phase To;
+    };
+
     constexpr std::string_view ToString(Phase phase) {
         switch(phase) {
             using enum Phase;
@@ -39,6 +44,7 @@ namespace Walker {
 		bool ChangeVehicle(OwnedVehicle* vehicle);
 		bool ChangeEndpoint(EndpointInstance* end);
 		EndpointInstance* GetEndpoint() const { return m_End; }
+		VehicleKind GetVehicleKind() const { return m_Vehicle ? m_Vehicle->Kind : VehicleKind::Unset; }
 
         Distance GetCurrentDistance() const;
         Distance GetEndDistance() const { return m_End ? m_End->DistanceFromHome : Zero; }
@@ -59,7 +65,7 @@ namespace Walker {
 
         Time GetPhaseEta() const;
     private:
-        PubSub<Phase>& m_Ps;
+        PubSub<PhaseChanged>& m_Ps;
         OwnedVehicle* m_Vehicle;
         EndpointInstance* m_End{};
         HomeBase& m_Home;

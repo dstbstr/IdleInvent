@@ -17,10 +17,13 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/WalkerGame.cpp
 	src/WalkerRates.cpp
 
-	"src/Crew/CrewManager.cpp"
+	src/Crew/CrewManager.cpp
+	src/Crew/JobProgress.cpp
+	src/Crew/WalkerTech.cpp
+
 	src/Home/Garage.cpp
 	src/Home/HomeBase.cpp
-	"src/Crew/JobProgress.cpp"
+	src/Home/TimeBank.cpp
 
 	src/Journey/CargoTransfer.cpp
 	src/Journey/EndpointDetails.cpp
@@ -28,7 +31,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Journey/Endpoints.cpp
 	src/Journey/Journey.cpp
 
+	src/Milestones/WalkerStats.cpp
+
 	src/Travel/TravelLeg.cpp
+	src/Travel/Vehicle.cpp
 	src/Travel/VehicleDetails.cpp
 	
 	src/Ui/EtaProgress.cpp
@@ -44,4 +50,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/StoreScreen.cpp
 	src/Ui/Screens/TravelScreen.cpp
 	src/Ui/Screens/WalkerScreens.cpp
- "inc/Walker/Crew/WalkerTech.h" "src/Crew/WalkerTech.cpp" "inc/Walker/Rebirth/WalkerProgression.h" "src/Travel/Vehicle.cpp" "inc/Walker/WalkerStats.h" "src/WalkerStats.cpp" "inc/Walker/Home/TimeBank.h" "src/Home/TimeBank.cpp")
+  "src/Milestones/Milestones.cpp" "src/Milestones/MilestoneDetails.cpp" "inc/Walker/Ui/Screens/MilestonesScreen.h" "src/Ui/Screens/MilestonesScreen.cpp")

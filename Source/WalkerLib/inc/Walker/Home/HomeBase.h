@@ -2,17 +2,19 @@
 
 #include "Walker/WalkerUnits.h"
 #include "Walker/WalkerRates.h"
-#include "Walker/WalkerStats.h"
 #include "Walker/Crew/CrewManager.h"
 #include "Walker/Crew/WalkerTech.h"
 #include "Walker/Home/Garage.h"
 #include "Walker/Home/TimeBank.h"
 #include "Walker/Home/Wallet.h"
 #include "Walker/Journey/Endpoints.h"
+#include "Walker/Milestones/Milestones.h"
+#include "Walker/Milestones/WalkerStats.h"
 #include "Walker/Travel/Vehicle.h"
 
 #include <GameState/GameTime.h>
 #include <Platform/NumTypes.h>
+#include <Utilities/Handle.h>
 
 #include <memory>
 #include <optional>
@@ -24,6 +26,7 @@ namespace Walker {
 		HomeBase();
 
 		TechManager Tech{};
+		MilestoneManager Milestones{};
 		WalkerRates Rates;
 		CrewManager Crew;
 		TimeBank OfflineTime;
@@ -49,6 +52,9 @@ namespace Walker {
 
 	private:
 		std::vector<std::unique_ptr<EndpointInstance>> m_Endpoints{};
+		std::vector<ScopedHandle> m_Subs{};
 		size_t m_MaxEndpointSlots{50};
+
+		void TickJourney(BaseTime elapsed);
 	};
 }

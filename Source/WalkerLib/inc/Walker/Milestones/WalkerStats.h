@@ -2,8 +2,11 @@
 
 #include "Walker/WalkerUnits.h"
 #include "Walker/Journey/Endpoints.h"
+#include "Walker/Travel/Vehicle.h"
 
 #include <GameState/GameTime.h>
+
+#include <array>
 #include <functional>
 
 namespace Walker {
@@ -20,6 +23,8 @@ namespace Walker {
 
 		Mass TotalCargoDelivered{};
 		Mass TotalFuelBurned{};
+
+		std::array<Distance, static_cast<size_t>(VehicleKind::COUNT)> DistanceByVehicle{};
 	};
 
 	class StatManager {
@@ -32,7 +37,7 @@ namespace Walker {
 		void Tick(BaseTime elapsed);
 		void OnCrewHired(u64 count);
 		void OnCrewFound(u64 count);
-		void OnTravel(Distance distance, Mass fuelBurned);
+		void OnTravel(Distance distance, Mass fuelBurned, VehicleKind kind);
 		void OnArrival(EndpointKind kind, Distance distanceFromHome);
 		void OnCargoDelivered(Mass cargoDelivered);
 		void OnRoundTripComplete();

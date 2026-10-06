@@ -1,4 +1,4 @@
-#include "Walker/WalkerStats.h"
+#include "Walker/Milestones/WalkerStats.h"
 
 #include <algorithm>
 
@@ -28,10 +28,11 @@ namespace Walker {
 		});
 	}
 
-	void StatManager::OnTravel(Distance distance, Mass fuelBurned) {
-		Visit([distance, fuelBurned](WalkerStats& stats) {
+	void StatManager::OnTravel(Distance distance, Mass fuelBurned, VehicleKind kind) {
+		Visit([distance, fuelBurned, kind](WalkerStats& stats) {
 			stats.TotalDistance += distance;
 			stats.TotalFuelBurned += fuelBurned;
+			stats.DistanceByVehicle[static_cast<size_t>(kind)] += distance;
 		});
 	}
 

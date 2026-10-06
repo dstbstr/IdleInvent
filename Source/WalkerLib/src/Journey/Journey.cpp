@@ -6,7 +6,7 @@ namespace Walker {
     using namespace Walker::Literals;
 
 	Journey::Journey(OwnedVehicle* vehicle, EndpointInstance* end, HomeBase& home) 
-		: m_Ps(ServiceLocator::Get().GetRequired<PubSub<Phase>>())
+		: m_Ps(ServiceLocator::Get().GetRequired<PubSub<PhaseChanged>>())
 		, m_Vehicle(vehicle)
 		, m_End(end)
         , m_Home(home)
@@ -113,7 +113,7 @@ namespace Walker {
 
 		auto arrived = m_Travel->Advance(*m_Vehicle, elapsed);
 
-		m_Home.Stats.OnTravel(m_Travel->GetTraveled() - prevDist, prevFuel - m_Vehicle->FuelMass);
+		m_Home.Stats.OnTravel(m_Travel->GetTraveled() - prevDist, prevFuel - m_Vehicle->FuelMass, m_Vehicle->Kind);
         if(arrived) {
 			auto travelers = m_Home.Crew[CrewRole::Traveling] - 1;
             if(m_Phase == Phase::Outbound) {
@@ -218,7 +218,8 @@ namespace Walker {
 			m_Transfer.emplace(CargoTransfer{ .Target = m_Vehicle->CargoMass });
         }
 
+        auto prev = m_Phase;
         m_Phase = next;
-        m_Ps.Publish(m_Phase);
+        m_Ps.Publish({prev, next});
     }
 }
