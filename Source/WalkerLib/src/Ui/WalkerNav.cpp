@@ -2,6 +2,7 @@
 #include "Walker/Ui/Screens/WalkerScreens.h"
 
 #include <Utilities/EnumUtils.h>
+#include <Ui/UiUtil.h>
 #include <imgui.h>
 
 #include <array>
@@ -20,10 +21,12 @@ namespace Walker::WalkerUi::Nav {
 
                 ImGui::TableNextColumn();
                 auto label = ToString(screen);
+                ImGui::PushFont(GetFont(FontSizes::H2));
 
                 if(ImGui::Button(label.c_str(), ImVec2{ImGui::GetContentRegionAvail().x, 0.f})) {
                     Screens::SetActiveScreen(screen);
                 }
+                ImGui::PopFont();
             }
 
             ImGui::EndTable();

@@ -19,6 +19,7 @@ struct ButtonColors {
 enum struct FontSizes : u8 { H1, H2, H3, H4 };
 void InitializeFonts(const std::string& fontName = "DroidSans.ttf");
 ImFont* GetFont(FontSizes font);
+void PushFittedFont(FontSizes baseSize, const char* text, std::optional<ImVec2> availableSize = std::nullopt, std::optional<f32> minScale = std::nullopt, std::optional<f32> maxScale = std::nullopt);
 
 void TextCenteredX(const char* text);
 void TextCenterdY(const char* text);

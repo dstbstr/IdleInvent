@@ -1,7 +1,9 @@
 #include "Ui/UiUtil.h"
 #include "Ui/UiGeometry.h"
 #include "Platform/Graphics.h"
-#include "imgui.h"
+
+#include <imgui.h>
+#include <algorithm>
 
 namespace {
     bool fontsInitialized = false;
@@ -51,6 +53,27 @@ ImFont* GetFont(FontSizes fontSize) {
         case H4: return Graphics::GetFont("H4");
         default: return nullptr;
     }
+}
+
+void PushFittedFont(FontSizes baseSize, const char* text, std::optional<ImVec2> availableSize, std::optional<f32> minScale, std::optional<f32> maxScale) {
+    auto* font = GetFont(baseSize);
+
+    ImGui::PushFont(font, font->LegacySize);
+    auto basePixels = ImGui::GetStyle().FontSizeBase;
+    auto textSize = ImGui::CalcTextSize(text, nullptr, true);
+    ImGui::PopFont();
+
+	auto area = availableSize ? *availableSize : ImGui::GetContentRegionAvail();
+    auto scale = textSize.x > 0.f && textSize.y > 0.f 
+        ? std::min(area.x / textSize.x, area.y / textSize.y)
+        : 1.f;
+	scale = minScale ? std::max(scale, *minScale) : scale;
+	scale = maxScale ? std::min(scale, *maxScale) : scale;
+
+    auto size = basePixels * scale;
+    // minimum readable font size
+	size = std::max(size, 8.f);
+    ImGui::PushFont(font, size);
 }
 
 void DrawSprite(const Sprite& sprite, ImVec2 imageSize) {
