@@ -27,6 +27,15 @@ namespace Ui {
         m_PendingToasts.push(Toast{toast, {}, duration, duration});
 	}
 
+	void ToastManager::SetSlotPosition(size_t slotIndex, ImVec2 position) {
+		if (slotIndex >= m_Slots.size()) return;
+		auto& slot = m_Slots.at(slotIndex);
+		slot.Position = position;
+		if (slot.Active) {
+			slot.Active->Position = position;
+		}
+	}
+
 	void ToastManager::Tick(BaseTime elapsed) {
         auto seconds = static_cast<f32>(elapsed.count()) / 1000.f;
         for(auto& slot: m_Slots) {

@@ -71,6 +71,7 @@ namespace Walker {
             home.Milestones.UpdateMilestones(home.Stats.AllTime());
         }
 
+        WalkerUi::Layout::Tick(elapsed);
         Graphics::Render(WalkerUi::Layout::Render);
     }
 }

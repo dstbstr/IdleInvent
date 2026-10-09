@@ -175,14 +175,16 @@ namespace {
 	}
 
     void RenderTotalBonuses() {
-		auto formatBonus = [](const std::pair<Quantity, double>& bonus) {
-			return std::format("{}^{:.1f}", bonus.first.ToHumanReadable(2).value_or(bonus.first.ToScientific(2)), bonus.second);
+		auto formatBonus = [](const RateBonus& bonus) {
+			return std::format("(({} * {:.2f}) ^ {:.2f}) * {:.2f}", bonus.PreMul, bonus.PreMul, bonus.Exponent, bonus.PostMul);
 		};
+		ImGui::PushFont(GetFont(FontSizes::H3));
 		ImGui::Text("Cargo Loading: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::CargoWorkPoints)).c_str());
 		ImGui::Text("Job Work: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::JobWorkPoints)).c_str());
 		ImGui::Text("Acceleration: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::AccelPoints)).c_str());
 		ImGui::Text("Max Speed: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::MaxSpeedPoints)).c_str());
 		ImGui::Text("Max Capacity: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::MaxCapacityPoints)).c_str());
+        ImGui::PopFont();
     }
 
     void RenderContent() {

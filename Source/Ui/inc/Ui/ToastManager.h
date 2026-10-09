@@ -42,6 +42,8 @@ namespace Ui {
 		void AddToast(const std::string& toast, BaseTime duration);
         void AddToast(ToastImage image, BaseTime duration);
 
+		void SetSlotPosition(size_t slotIndex, ImVec2 position);
+
 		void Tick(BaseTime elapsed);
 		void Render() const;
 

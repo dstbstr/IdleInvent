@@ -4,6 +4,8 @@
 
 namespace {
 	using namespace Walker;
+
+
 	u64 GetReward(Distance d, Distance t, f64 growth) {
 		if(t <= Zero || !std::isfinite(growth) || growth <= 1.0) throw std::domain_error("Expected positive threshold and growth > 1");
 		if(d < t) return 0;
@@ -19,6 +21,13 @@ namespace {
 }
 
 namespace Walker {
+	Quantity RateBonus::Apply(Quantity base) const {
+		base *= PreMul;
+		base.Pow(Exponent);
+		base *= PostMul;
+		return base;
+	}
+
 	WorkRate WalkerRates::GetCargoWorkRate() const {
 		return Calculate(m_BaseCargoRate, &WalkerProgression::CargoWorkPoints);
 	}
@@ -114,17 +123,22 @@ namespace Walker {
 		m_Prestiege.Reset();
 	}
 
-	std::pair<Quantity, double> WalkerRates::GetBonus(u64 WalkerProgression::* points) const {
-		auto ascendBoost = Quantity{ m_Ascend.*points} + 1;
-		auto mul = (Quantity{ m_Rebirth.*points } + 1) * ascendBoost;
+	RateBonus WalkerRates::GetBonus(u64 WalkerProgression::* points) const {
+		auto ascendBoost = 1.0 + static_cast<f64>(m_Ascend.*points);
+		auto preMul = (1.0 + static_cast<f64>(m_Rebirth.*points)) * ascendBoost;
 		auto exp = 1.0 + static_cast<f64>(m_Prestiege.*points) * 0.1 * (1.0 + static_cast<f64>(m_Ascend.*points));
-
-		return {mul, exp};
+		auto postMul = 1.0;
+		if(points == &WalkerProgression::AccelPoints) {
+			postMul += static_cast<f64>(m_Milestones.GetUnlockedTier(MilestoneKind::Travel)) * 0.1;
+		}
+		return {
+			.PreMul = preMul,
+			.Exponent = exp,
+			.PostMul = postMul
+		};
 	}
 
 	Quantity WalkerRates::Calculate(Quantity base, u64 WalkerProgression::* points) const {
-		auto [mul, exp] = GetBonus(points);
-		auto result = base * mul;
-		return result.Pow(exp);
+		return GetBonus(points).Apply(base);
 	}
 }

@@ -9,6 +9,15 @@
 #include <optional>
 
 namespace Walker {
+	// ((Base * PreMul) ^ Exponent) * PostMul
+	struct RateBonus {
+		f64 PreMul{ 1 };
+		f64 Exponent{ 1.0 };
+		f64 PostMul{ 1 };
+
+		Quantity Apply(Quantity base) const;
+	};
+
 	class WalkerRates {
 	public:
 		WalkerRates(const TechManager& tech, const MilestoneManager& milestones) : m_Tech(tech), m_Milestones(milestones) {}
@@ -40,7 +49,7 @@ namespace Walker {
 		const WalkerProgression& GetAscend() const { return m_Ascend; }
 		void Ascend();
 
-		std::pair<Quantity, double> GetBonus(u64 WalkerProgression::* points) const;
+		RateBonus GetBonus(u64 WalkerProgression::* points) const;
 
 	private:
 		WorkRate m_BaseCargoRate{10'000};
