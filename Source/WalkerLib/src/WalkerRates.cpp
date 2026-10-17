@@ -1,10 +1,73 @@
 #include "Walker/WalkerRates.h"
 
+#include <array>
 #include <cmath>
+#include <limits>
+#include <optional>
 
 namespace {
 	using namespace Walker;
 
+	struct UpgradeCostDetails {
+		ProgressionPoints InitialCost;
+		f64 Growth;
+	};
+
+	static const auto UpgradeCosts = []{
+		std::array<std::optional<UpgradeCostDetails>, UpgradeKey::SlotCount> result{};
+		auto Global = [&](GlobalStat stat, ProgressionPoints initial, f64 growth) {
+			result.at(UpgradeKey::Global(stat).GetIndex()) = UpgradeCostDetails{ initial, growth };
+		};
+		auto Vehicle = [&](VehicleKind kind, VehicleStat stat, ProgressionPoints initial, f64 growth) {
+			result.at(UpgradeKey::Vehicle(kind, stat).GetIndex()) = UpgradeCostDetails{ initial, growth };
+		};
+		auto Crew = [&](CrewRole role, ProgressionPoints initial, f64 growth) {
+			result.at(UpgradeKey::Job(role).GetIndex()) = UpgradeCostDetails{ initial, growth };
+		};
+		Global(GlobalStat::CargoWork, 1, 1.2);
+		Global(GlobalStat::Jobs, 1, 1.2);
+		Global(GlobalStat::Accel, 1, 1.2);
+		Global(GlobalStat::Speed, 1, 1.2);
+		Global(GlobalStat::Capacity, 1, 1.2);
+
+		Vehicle(VehicleKind::Foot, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Foot, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Foot, VehicleStat::Capacity, 1, 1.2);
+		
+		Vehicle(VehicleKind::Bike, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Bike, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Bike, VehicleStat::Capacity, 1, 1.2);
+
+		Vehicle(VehicleKind::Car, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Car, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Car, VehicleStat::Capacity, 1, 1.2);
+
+		Vehicle(VehicleKind::Boat, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Boat, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Boat, VehicleStat::Capacity, 1, 1.2);
+
+		Vehicle(VehicleKind::Plane, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Plane, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Plane, VehicleStat::Capacity, 1, 1.2);
+
+		Vehicle(VehicleKind::Jet, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Jet, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Jet, VehicleStat::Capacity, 1, 1.2);
+
+		Vehicle(VehicleKind::Rocket, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Rocket, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Rocket, VehicleStat::Capacity, 1, 1.2);
+
+		Vehicle(VehicleKind::Starship, VehicleStat::Accel, 1, 1.2);
+		Vehicle(VehicleKind::Starship, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Starship, VehicleStat::Capacity, 1, 1.2);
+
+		Crew(CrewRole::Engineer, 1, 1.2);
+		Crew(CrewRole::Scout, 1, 1.2);
+		Crew(CrewRole::Scientist, 1, 1.2);
+
+		return result;
+	}();
 
 	u64 GetReward(Distance d, Distance t, f64 growth) {
 		if(t <= Zero || !std::isfinite(growth) || growth <= 1.0) throw std::domain_error("Expected positive threshold and growth > 1");
@@ -21,6 +84,10 @@ namespace {
 }
 
 namespace Walker {
+	WalkerRates::WalkerRates(const TechManager& tech, const MilestoneManager& milestones) 
+		: m_Tech(tech)
+		, m_Milestones(milestones) {}
+
 	Quantity RateBonus::Apply(Quantity base) const {
 		base *= PreMul;
 		base.Pow(Exponent);
@@ -29,27 +96,43 @@ namespace Walker {
 	}
 
 	WorkRate WalkerRates::GetCargoWorkRate() const {
-		return Calculate(m_BaseCargoRate, &WalkerProgression::CargoWorkPoints);
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::CargoWork));
+		return global.Apply(m_BaseCargoRate);
 	}
 
-	WorkRate WalkerRates::GetJobWorkRate() const {
-		return Calculate(m_BaseJobRate, &WalkerProgression::JobWorkPoints);
+	WorkRate WalkerRates::GetJobWorkRate(CrewRole role) const {
+		auto base = m_BaseJobRate;
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Jobs));
+		auto local = GetBonus(UpgradeKey::Job(role));
+		return global.Combine(local).Apply(base);
 	}
 
 	Acceleration WalkerRates::GetBaseAccel(VehicleKind kind) const {
-		return Calculate(GetVehicleDetails(kind).BaseAcceleration, &WalkerProgression::AccelPoints);
+		auto base = GetVehicleDetails(kind).BaseAcceleration;
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Accel));
+		auto local = GetBonus(UpgradeKey::Vehicle(kind, VehicleStat::Accel));
+		return global.Combine(local).Apply(base);
 	}
 
 	Acceleration WalkerRates::GetPoweredAccel(VehicleKind kind) const {
-		return Calculate(GetVehicleDetails(kind).PoweredAcceleration, &WalkerProgression::AccelPoints);
+		auto base = GetVehicleDetails(kind).PoweredAcceleration;
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Accel));
+		auto local = GetBonus(UpgradeKey::Vehicle(kind, VehicleStat::Accel));
+		return global.Combine(local).Apply(base);
 	}
 
 	Speed WalkerRates::GetVehicleMaxSpeed(VehicleKind kind) const {
-		return Calculate(GetVehicleDetails(kind).MaxSpeed, &WalkerProgression::MaxSpeedPoints);
+		auto base = GetVehicleDetails(kind).MaxSpeed;
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Speed));
+		auto local = GetBonus(UpgradeKey::Vehicle(kind, VehicleStat::Speed));
+		return global.Combine(local).Apply(base);
 	}
 
 	Mass WalkerRates::GetVehicleCapacity(VehicleKind kind) const {
-		return Calculate(GetVehicleDetails(kind).MaxCapacity, &WalkerProgression::MaxCapacityPoints);
+		auto base = GetVehicleDetails(kind).MaxCapacity;
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Capacity));
+		auto local = GetBonus(UpgradeKey::Vehicle(kind, VehicleStat::Capacity));
+		return global.Combine(local).Apply(base);
 	}
 
 	Money WalkerRates::GetHireCost(u64 hiredCount, u64 count) const {
@@ -85,6 +168,36 @@ namespace Walker {
 		return result;
 	}
 
+	Money WalkerRates::GetCargoValue(Mass amount, EndpointKind kind) const {
+		auto kindValue = static_cast<u8>(kind);
+		return m_CargoValue * amount * kindValue;
+	}
+
+	Money WalkerRates::GetVehicleCost(VehicleKind kind) const {
+		auto baseCost = GetVehicleDetails(kind).Cost;
+		// TODO: Balance as needed
+		return baseCost;
+	}
+
+	Work WalkerRates::GetScoutingWork(EndpointKind kind, size_t completions) const {
+		auto dest = static_cast<size_t>(kind);
+		auto baseWork = Work{ 10 }.Pow(dest) * (completions + 1);
+		// TODO: Balance as needed
+		return baseWork;
+	}
+
+	Work WalkerRates::GetResearchWork(TechKind kind) const {
+		auto baseWork = GetBaseScienceWork(kind);
+		// TODO: Balance as needed
+		return baseWork;
+	}
+
+	Work WalkerRates::GetEngineeringWork(TechKind kind, u64 currentLevel) const {
+		auto baseWork = GetBaseEngineeringWork(kind, currentLevel);
+		// TODO: Balance as needed
+		return baseWork;
+	}
+
 	BaseTime WalkerRates::GetOfflineTimeCapacity() const {
 		const auto& tech = m_Tech[TechKind::OfflineCapacity];
 		auto bonus = tech.Researched
@@ -103,11 +216,26 @@ namespace Walker {
 		return std::min(1.f, m_OfflineTimeEfficiency + bonus);
 	}
 
+	ProgressionPoints WalkerRates::GetNextLevelCost(const UpgradeKey& key, UpgradeLevel currentLevel) const {
+		auto details = UpgradeCosts.at(key.GetIndex());
+		DR_ASSERT(details);
+		if (!details) return std::numeric_limits<ProgressionPoints>::max();
+
+		auto [base, growth] = *details;
+		auto cost = std::ceil(static_cast<f64>(base) * std::pow(growth, currentLevel));
+
+		auto max = std::ldexp(1.0, std::numeric_limits<ProgressionPoints>::digits);
+		if(!std::isfinite(cost) || cost >= max) {
+			return std::numeric_limits<ProgressionPoints>::max();
+		}
+		return static_cast<ProgressionPoints>(cost);
+	}
+
 	u64 WalkerRates::GetRebirthReward(Distance distance) const {
 		return GetReward(distance, Distance::Pow10(6), 1.5);
 	}
 
-	u64 WalkerRates::GetPrestiegeReward(Distance distance) const {
+	u64 WalkerRates::GetPrestigeReward(Distance distance) const {
 		return GetReward(distance, Distance::Pow10(10), 2.5);
 	}
 
@@ -115,30 +243,22 @@ namespace Walker {
 		return GetReward(distance, Distance::Pow10(16), 3.75);
 	}
 
-	void WalkerRates::Prestiege() {
+	void WalkerRates::PrestigeReset() {
 		m_Rebirth.Reset();
 	}
 
-	void WalkerRates::Ascend() {
-		m_Prestiege.Reset();
+	void WalkerRates::AscendReset() {
+		m_Prestige.Reset();
 	}
 
-	RateBonus WalkerRates::GetBonus(u64 WalkerProgression::* points) const {
-		auto ascendBoost = 1.0 + static_cast<f64>(m_Ascend.*points);
-		auto preMul = (1.0 + static_cast<f64>(m_Rebirth.*points)) * ascendBoost;
-		auto exp = 1.0 + static_cast<f64>(m_Prestiege.*points) * 0.1 * (1.0 + static_cast<f64>(m_Ascend.*points));
-		auto postMul = 1.0;
-		if(points == &WalkerProgression::AccelPoints) {
-			postMul += static_cast<f64>(m_Milestones.GetUnlockedTier(MilestoneKind::Travel)) * 0.1;
-		}
+	RateBonus WalkerRates::GetBonus(UpgradeKey key) const {
+		auto rebirth = static_cast<f64>(m_Rebirth.GetLevel(key));
+		auto Prestige = static_cast<f64>(m_Prestige.GetLevel(key));
+		auto ascend = static_cast<f64>(m_Ascend.GetLevel(key));
+		ascend += 1.0;
 		return {
-			.PreMul = preMul,
-			.Exponent = exp,
-			.PostMul = postMul
+			.PreMul = (1.0 + rebirth) * ascend,
+			.Exponent = 1.0 + Prestige * 0.1 * ascend
 		};
-	}
-
-	Quantity WalkerRates::Calculate(Quantity base, u64 WalkerProgression::* points) const {
-		return GetBonus(points).Apply(base);
 	}
 }

@@ -6,7 +6,7 @@ static_assert(sizeof(SFixedInt<32>) == sizeof(u32));
 static_assert(sizeof(SFixedInt<33>) == sizeof(u32) * 2);
 
 // equality
-static_assert(UFixedInt<96>{} == UFixedInt<2>{0});
+static_assert(UFixedInt<96>{0} == UFixedInt<2>{0});
 static_assert(UFixedInt<96>{UFixedInt<12>{42}} == UFixedInt<96>{42});
 static_assert(UFixedInt<2>(0) == UFixedInt<2>(0));
 static_assert(UFixedInt<32>(42) == UFixedInt<24>(42));

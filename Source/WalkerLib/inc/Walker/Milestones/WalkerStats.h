@@ -14,6 +14,9 @@ namespace Walker {
 		BaseTime PlayTime{};
 		u64 TotalCrewHired{};
 		u64 TotalCrewFound{};
+		u64 RebirthCount{};
+		u64 PrestigeCount{};
+		u64 AscendCount{};
 
 		Distance TotalDistance{};
 		Distance FurthestEndpointDistance{};
@@ -30,7 +33,7 @@ namespace Walker {
 	class StatManager {
 	public:
 		const WalkerStats& SinceRebirth() const;
-		const WalkerStats& SincePrestiege() const;
+		const WalkerStats& SincePrestige() const;
 		const WalkerStats& SinceAscend() const;
 		const WalkerStats& AllTime() const;
 
@@ -43,13 +46,17 @@ namespace Walker {
 		void OnRoundTripComplete();
 		void OnEndpointComplete();
 
-		void Rebirth();
-		void Prestiege();
-		void Ascend();
+		void OnRebirth();
+		void OnPrestige();
+		void OnAscend();
+
+		void RebirthReset();
+		void PrestigeReset();
+		void AscendReset();
 
 	private:
 		WalkerStats m_RebirthStats{};
-		WalkerStats m_PrestiegeStats{};
+		WalkerStats m_PrestigeStats{};
 		WalkerStats m_AscendStats{};
 		WalkerStats m_AllTimeStats{};
 

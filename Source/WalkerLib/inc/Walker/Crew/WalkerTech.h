@@ -24,8 +24,8 @@ namespace Walker {
 		u64 CurrentLevel{1};
 	};
 
-	Work GetScienceCost(TechKind kind);
-	Work GetEngineeringCost(TechKind kind, u64 currentLevel);
+	Work GetBaseScienceWork(TechKind kind);
+	Work GetBaseEngineeringWork(TechKind kind, u64 currentLevel);
 	std::optional<u64> GetMaxLevel(TechKind kind);
 
 	class TechManager {

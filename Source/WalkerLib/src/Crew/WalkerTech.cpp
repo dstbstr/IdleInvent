@@ -14,7 +14,7 @@ namespace Walker {
 		return "Unknown";
 	}
 
-	Work GetScienceCost(TechKind kind) {
+	Work GetBaseScienceWork(TechKind kind) {
 		switch(kind) {
 			using enum TechKind;
 			case Preparation: return Work::Pow10(4);
@@ -25,7 +25,7 @@ namespace Walker {
 		return Zero;
 	}
 
-	Work GetEngineeringCost(TechKind kind, u64 currentLevel) {
+	Work GetBaseEngineeringWork(TechKind kind, u64 currentLevel) {
 		switch(kind) {
 			using enum TechKind;
 			case Preparation: return Work::Pow10(4).Pow(static_cast<u32>(currentLevel));

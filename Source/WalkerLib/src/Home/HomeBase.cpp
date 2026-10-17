@@ -35,7 +35,7 @@ namespace Walker {
 			}
 		});
 
-		Rebirth();
+		RebirthReset();
 	}
 
 	std::span<const std::unique_ptr<EndpointInstance>> HomeBase::GetEndpoints() const {
@@ -107,27 +107,58 @@ namespace Walker {
 		return false;
 	}
 
-	void HomeBase::Rebirth() {
+	bool HomeBase::TryRebirth() {
+		auto points = Rates.GetRebirthReward(Stats.SinceRebirth().TotalDistance);
+		if(points == 0) return false;
+		
+		Rates.GetRebirth().AddPoints(points);
+		RebirthReset();
+		Stats.OnRebirth();
+		return true;
+	}
+
+	bool HomeBase::TryPrestige() {
+		auto points = Rates.GetPrestigeReward(Stats.SincePrestige().TotalDistance);
+		if(points == 0) return false;
+
+		Rates.GetPrestige().AddPoints(points);
+		PrestigeReset();
+		Stats.OnPrestige();
+		return true;
+	}
+
+	bool HomeBase::TryAscend() {
+		auto points = Rates.GetAscendReward(Stats.SinceAscend().TotalDistance);
+		if (points == 0) return false;
+
+		Rates.GetAscend().AddPoints(points);
+		AscendReset();
+		Stats.OnAscend();
+		return true;
+	}
+
+	void HomeBase::RebirthReset() {
+		ServiceLocator::Get().Reset<Journey>();
 		FurthestEndpoint = EndpointKind::Unset;
 		Funds.Reset();
 		Vehicles.Reset();
 		m_Endpoints.clear();
 		m_Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::Neighborhood));
-		Crew.Rebirth();
-		Stats.Rebirth();
+		Crew.RebirthReset();
+		Stats.RebirthReset();
 	}
 
-	void HomeBase::Prestiege() {
+	void HomeBase::PrestigeReset() {
 		Tech.Reset();
-		Crew.Prestiege();
-		Rates.Prestiege();
-		Stats.Prestiege();
-		Rebirth();
+		Crew.PrestigeReset();
+		Rates.PrestigeReset();
+		Stats.PrestigeReset();
+		RebirthReset();
 	}
 
-	void HomeBase::Ascend() {
-		Rates.Ascend();
-		Stats.Ascend();
-		Prestiege();
+	void HomeBase::AscendReset() {
+		Rates.AscendReset();
+		Stats.AscendReset();
+		PrestigeReset();
 	}
 }

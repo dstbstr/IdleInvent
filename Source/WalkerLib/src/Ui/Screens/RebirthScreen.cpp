@@ -1,74 +1,42 @@
 #include "Walker/Ui/Screens/RebirthScreen.h"
+#include "Walker/Ui/UpgradeRow.h"
 #include "Walker/WalkerSettings.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/Journey.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <Ui/UiUtil.h>
+#include <Utilities/EnumUtils.h>
 
 #include <imgui.h>
 
 #include <algorithm>
 #include <format>
+#include <limits>
 
 namespace {
     using namespace Walker;
     HomeBase* Home{nullptr};
-    WalkerSettings* Settings{nullptr};
 
-    enum struct RebirthType { Rebirth, Prestiege, Ascend };
+    enum struct RebirthType { Rebirth, Prestige, Ascend };
 	std::optional<RebirthType> CurrentRebirthType{ std::nullopt };
 
-    void RenderProgressionStore(const char* title, WalkerProgression& progression, auto pointFormat) {
-		auto& points = progression.AvailablePoints;
-		ImGui::Text("Available %s Points: %llu", title, points);
-        ImGui::PushFont(GetFont(FontSizes::H3));
-		auto minCellWidth = ImGui::GetFontSize() * 8.f;
-		auto columns = ImGui::GetContentRegionAvail().x >= minCellWidth * 4.f ? 4 : 2;
-
-        ImGui::PushID(title);
-		if (ImGui::BeginTable("ProgressionUpgrades", columns, ImGuiTableFlags_SizingStretchSame)) {
-			auto Upgrade = [&](const char* label, u64& spent) {
-				ImGui::TableNextColumn();
-				ImGui::PushID(label);
-				auto startX = ImGui::GetCursorPosX();
-                auto width = ImGui::GetContentRegionAvail().x;
-
-				auto toSpend = GetPurchaseCount(points, Settings->PurchaseSetting);
-				ImGui::BeginDisabled(toSpend == 0);
-				if (ImGui::Button(label, ImVec2{ width, ImGui::GetFrameHeight() * 1.5f }) && points > 0) {
-                    spent += toSpend;
-                    points -= toSpend;
-                }
-                ImGui::EndDisabled();
-				auto text = pointFormat(spent);
-                auto offset = std::max(0.f, (width - ImGui::CalcTextSize(text.c_str()).x) * 0.5f);
-                ImGui::SetCursorPosX(startX + offset);
-                ImGui::TextUnformatted(text.c_str());
-                ImGui::PopID();
-            };
-            Upgrade("Cargo", progression.CargoWorkPoints);
-            Upgrade("Jobs", progression.JobWorkPoints);
-            Upgrade("Accel", progression.AccelPoints);
-            Upgrade("Speed", progression.MaxSpeedPoints);
-            Upgrade("Capacity", progression.MaxCapacityPoints);
-            ImGui::EndTable();
-        }
-        ImGui::PopID();
-        ImGui::PopFont();
-    }
-
     void RenderStore() {
-		RenderProgressionStore("Rebirth", Home->Rates.GetRebirth(), [](u64 spent) { 
-            return std::format("x{}", spent + 1); 
-        });
-		RenderProgressionStore("Prestiege", Home->Rates.GetPrestiege(), [](u64 spent) {
-			auto exponent = 1.0 + static_cast<f64>(spent) * 0.1;
-			return std::format("^{:.1f}", exponent);
-		});
-		RenderProgressionStore("Ascend", Home->Rates.GetAscend(), [](u64 spent) {
-			return std::format("+{}", spent);
-		});
+        ImGui::PushFont(GetFont(FontSizes::H3));
+        ImGui::SeparatorText("Global Upgrades");
+
+        auto Upgrade = [&](const char* label, GlobalStat stat) {
+            ImGui::TextUnformatted(label);
+			WalkerUi::RenderUpgradeRow(label, UpgradeKey::Global(stat), Home->Rates);
+        };
+
+		Upgrade("Cargo Work", GlobalStat::CargoWork);
+		Upgrade("All Jobs", GlobalStat::Jobs);
+		Upgrade("All Acceleration", GlobalStat::Accel);
+		Upgrade("All Speed", GlobalStat::Speed);
+		Upgrade("All Capacity", GlobalStat::Capacity);
+
+        ImGui::PopFont();
     }
 
     void RenderRebirth() {
@@ -86,10 +54,7 @@ namespace {
         ImGui::Separator();
         ImGui::Text("In exchange you'll receive %llu rebirth points", rebirthPoints);
 
-        if(ImGui::Button("Confirm") && rebirthPoints > 0) {
-            ServiceLocator::Get().Reset<Journey>();
-            Home->Rebirth();
-            Home->Rates.GetRebirth().AvailablePoints += rebirthPoints;
+        if(ImGui::Button("Confirm") && Home->TryRebirth()) {
 			CurrentRebirthType = std::nullopt;
         }
         ImGui::SameLine();
@@ -98,15 +63,15 @@ namespace {
 		}
     }
 
-    void RenderPrestiege() {
-        auto prestigePoints = Home->Rates.GetPrestiegeReward(Home->Stats.SincePrestiege().TotalDistance);
+    void RenderPrestige() {
+        auto prestigePoints = Home->Rates.GetPrestigeReward(Home->Stats.SincePrestige().TotalDistance);
 
         if (prestigePoints == 0) {
             CurrentRebirthType = std::nullopt;
             return;
         }
 
-        ImGui::TextUnformatted("Would you like to Prestiege?");
+        ImGui::TextUnformatted("Would you like to Prestige?");
         ImGui::TextUnformatted("This will reset the following in addition to rebirth:");
         ImGui::TextUnformatted("- Population");
         ImGui::TextUnformatted("- Tech");
@@ -114,10 +79,7 @@ namespace {
         ImGui::Separator();
         ImGui::Text("In exchange you'll receive %llu prestige points", prestigePoints);
 
-        if (ImGui::Button("Confirm") && prestigePoints > 0) {
-            ServiceLocator::Get().Reset<Journey>();
-            Home->Prestiege();
-            Home->Rates.GetPrestiege().AvailablePoints += prestigePoints;
+        if (ImGui::Button("Confirm") && Home->TryPrestige()) {
             CurrentRebirthType = std::nullopt;
         }
         ImGui::SameLine();
@@ -139,10 +101,7 @@ namespace {
         ImGui::Separator();
         ImGui::Text("In exchange you'll receive %llu ascend points", ascendPoints);
 
-        if (ImGui::Button("Confirm")) {
-            ServiceLocator::Get().Reset<Journey>();
-            Home->Ascend();
-            Home->Rates.GetAscend().AvailablePoints += ascendPoints;
+        if (ImGui::Button("Confirm") && Home->TryAscend()) {
             CurrentRebirthType = std::nullopt;
         }
         ImGui::SameLine();
@@ -159,10 +118,10 @@ namespace {
 		}
         ImGui::EndDisabled();
         
-		auto prestiegePoints = Home->Rates.GetPrestiegeReward(Home->Stats.SincePrestiege().TotalDistance);
-		ImGui::BeginDisabled(prestiegePoints == 0);
-		if (ImGui::Button("Prestiege")) {
-			CurrentRebirthType = RebirthType::Prestiege;
+		auto PrestigePoints = Home->Rates.GetPrestigeReward(Home->Stats.SincePrestige().TotalDistance);
+		ImGui::BeginDisabled(PrestigePoints == 0);
+		if (ImGui::Button("Prestige")) {
+			CurrentRebirthType = RebirthType::Prestige;
 		}
         ImGui::EndDisabled();
 
@@ -179,11 +138,14 @@ namespace {
 			return std::format("(({} * {:.2f}) ^ {:.2f}) * {:.2f}", bonus.PreMul, bonus.PreMul, bonus.Exponent, bonus.PostMul);
 		};
 		ImGui::PushFont(GetFont(FontSizes::H3));
+        // TODO: Consider a better way to show this
+        /*
 		ImGui::Text("Cargo Loading: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::CargoWorkPoints)).c_str());
 		ImGui::Text("Job Work: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::JobWorkPoints)).c_str());
 		ImGui::Text("Acceleration: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::AccelPoints)).c_str());
 		ImGui::Text("Max Speed: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::MaxSpeedPoints)).c_str());
 		ImGui::Text("Max Capacity: %s", formatBonus(Home->Rates.GetBonus(&WalkerProgression::MaxCapacityPoints)).c_str());
+        */
         ImGui::PopFont();
     }
 
@@ -193,7 +155,7 @@ namespace {
 			switch (*CurrentRebirthType) {
                 using enum RebirthType;
 			    case Rebirth: RenderRebirth(); break;
-			    case Prestiege: RenderPrestiege(); break;
+			    case Prestige: RenderPrestige(); break;
 			    case Ascend: RenderAscend(); break;
 			}
         } else {
@@ -208,13 +170,11 @@ namespace Walker::WalkerUi::Screens::Rebirth {
     bool Initialize() { 
 		auto& services = ServiceLocator::Get();
 		Home = &services.GetRequired<HomeBase>();
-		Settings = &services.GetRequired<WalkerSettings>();
         return true; 
     }
 
     void ShutDown() {
         Home = nullptr;
-        Settings = nullptr;
     }
 
     void Render() { 

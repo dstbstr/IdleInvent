@@ -16,7 +16,7 @@ Spiritist - Improve the available resources at locations
 Scientist - Improve the tool efficiency
 Use a secondary resource (media count? evidence? influence?)
 
-## Prestiege
+## Prestige
 Add team member?
 Unlock locations?
 Increase max Quality?

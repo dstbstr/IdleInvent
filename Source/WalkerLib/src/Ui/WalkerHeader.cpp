@@ -1,5 +1,6 @@
 #include "Walker/Ui/WalkerHeader.h"
 #include "Walker/Ui/Screens/WalkerScreens.h"
+#include "Walker/Ui/WalkerRebirthPallete.h"
 #include "Walker/WalkerSettings.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Home/TimeBank.h"
@@ -11,6 +12,7 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <format>
 #include <initializer_list>
 
@@ -23,6 +25,11 @@ namespace {
     ImFont* TopFont{nullptr};
     WalkerSettings* Settings{nullptr};
     HomeBase* Home{nullptr};
+
+	std::string GetPointStr(ProgressionPoints points) {
+		auto value = Quantity{ points };
+		return value.ToHumanReadable(0).value_or(value.ToScientific(0));
+	}
 
     void RenderFps() {
         const auto& frameRate = ImGui::GetIO().Framerate;
@@ -83,6 +90,37 @@ namespace {
 
         ImGui::PopID();
     }
+
+    void RenderProgressionPoints() {
+        const auto& stats = Home->Stats.AllTime();
+		const auto& rates = Home->Rates;
+		auto columns = (stats.RebirthCount > 0) + (stats.PrestigeCount > 0) + (stats.AscendCount > 0);
+        if(columns == 0) return;
+
+		if (ImGui::BeginTable("ProgressionPoints", columns, ImGuiTableFlags_SizingStretchSame)) {
+            ImGui::TableNextRow(ImGuiTableRowFlags_None, ImGui::GetFrameHeight());
+			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32_WHITE);
+            auto Badge = [&](const char* label, const WalkerProgression& progression, ImU32 color) {
+                ImGui::TableNextColumn();
+				ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+
+				auto text = std::format("{}: {}", label, GetPointStr(progression.GetAvailablePoints()));
+				auto width = ImGui::GetContentRegionAvail().x;
+				auto offset = std::max(0.f, (width - ImGui::CalcTextSize(text.c_str()).x) * 0.5f);
+
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + offset);
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text.c_str());
+            };
+            if(stats.RebirthCount > 0) Badge("R", rates.GetRebirth(), RebirthColor);
+			if (stats.PrestigeCount > 0) Badge("P", rates.GetPrestige(), PrestigeColor);
+			if (stats.AscendCount > 0) Badge("A", rates.GetAscend(), AscendColor);
+
+            ImGui::PopStyleColor();
+            ImGui::EndTable();
+        }
+    }
+
 } // namespace
 
 namespace Walker::WalkerUi::Header {
@@ -116,7 +154,15 @@ namespace Walker::WalkerUi::Header {
         ImGui::SameLine(0.f, ImGui::GetContentRegionAvail().x * 0.2f);
         RenderQuantitySelector();
 
-        RenderTimeBank(Home->OfflineTime);
+		if (ImGui::BeginTable("HeaderStatus", 2, ImGuiTableFlags_SizingStretchSame)) {
+			ImGui::TableNextColumn();
+			RenderTimeBank(Home->OfflineTime);
+
+			ImGui::TableNextColumn();
+			RenderProgressionPoints();
+
+			ImGui::EndTable();
+		}
         ImGui::PopFont();
     }
 

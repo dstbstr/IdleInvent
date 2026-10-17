@@ -1,26 +1,16 @@
 #include "Walker/Crew/CrewManager.h"
+#include "Walker/WalkerRates.h"
+
 #include <Utilities/EnumUtils.h>
 
 #include <algorithm>
 #include <numeric>
 
 namespace Walker {
-	std::string ToString(CrewRole role) {
-		switch (role) {
-			using enum CrewRole;
-			case Idle: return "Idle";
-			case Traveling: return "Traveling";
-			case Scout: return "Scout";
-			case Scientist: return "Scientist";
-			case Engineer: return "Engineer";
-		}
-		return "Unknown";
-	}
-
 	CrewManager::CrewManager(const WalkerRates& rates, TechManager& tech) 
 		: m_Rates(rates)
 		, m_Tech(tech) {
-		Rebirth();
+		RebirthReset();
 	}
 
 	u64 CrewManager::operator[](CrewRole role) const {
@@ -82,7 +72,7 @@ namespace Walker {
 		auto index = static_cast<size_t>(role);
 		const auto& state = m_State[index];
 		return state.Progress.and_then([&](const auto& progress) {
-			return progress.GetEta(m_Rates.GetJobWorkRate() * state.CrewCount);
+			return progress.GetEta(m_Rates.GetJobWorkRate(role) * state.CrewCount);
 		});
 	}
 
@@ -105,7 +95,7 @@ namespace Walker {
 		auto& techState = m_Tech[kind];
 		if (techState.Researched) return false;
 		state.Progress = JobProgress{
-			.RequiredWork = GetScienceCost(kind),
+			.RequiredWork = m_Rates.GetResearchWork(kind),
 			.CompletedWork = Zero,
 		};
 		state.TargetKind = static_cast<u8>(kind);
@@ -121,7 +111,7 @@ namespace Walker {
 		auto& techState = m_Tech[kind];
 		if (!techState.Researched) return false;
 		state.Progress = JobProgress{
-			.RequiredWork = GetEngineeringCost(kind, techState.CurrentLevel),
+			.RequiredWork = m_Rates.GetEngineeringWork(kind, techState.CurrentLevel),
 			.CompletedWork = Zero
 		};
 		state.TargetKind = static_cast<u8>(kind);
@@ -138,7 +128,7 @@ namespace Walker {
 			auto& state = m_State[static_cast<size_t>(job)];
 			if(state.Progress == std::nullopt || state.CrewCount == 0) continue;
 
-			auto numerator = m_Rates.GetJobWorkRate() * state.CrewCount * elapsedMs + state.WorkRemainder;
+			auto numerator = m_Rates.GetJobWorkRate(job) * state.CrewCount * elapsedMs + state.WorkRemainder;
 			auto work = numerator / MsPerSec;
 			state.WorkRemainder = numerator - work * MsPerSec;
 
@@ -157,7 +147,6 @@ namespace Walker {
 				state.WorkRemainder = Zero;
 			}
 		}
-
 	}
 
 	ScopedHandle CrewManager::Subscribe(const JobDoneFn& callback) {
@@ -168,7 +157,7 @@ namespace Walker {
 		subs.push_back(Subscribe(callback));
 	}
 
-	void CrewManager::Rebirth() {
+	void CrewManager::RebirthReset() {
 		auto count = std::max(1ull, GetCount());
 
 		m_State.fill({
@@ -185,7 +174,7 @@ namespace Walker {
 		StartScout();
 	}
 
-	void CrewManager::Prestiege() {
+	void CrewManager::PrestigeReset() {
 		m_State.fill({ .CrewCount = 0, .Progress = {}, .WorkRemainder = Zero });
 		m_State[static_cast<size_t>(CrewRole::Traveling)].CrewCount = 1;
 		m_HiredCount = 0;
@@ -198,7 +187,7 @@ namespace Walker {
 		auto current = static_cast<u8>(m_NextSearch);
 		state.TargetKind = current;
 		auto completions = m_ScoutCompletions[current];
-		auto requiredWork = Work{10}.Pow(current) * (completions + 1);
+		auto requiredWork = m_Rates.GetScoutingWork(m_NextSearch, completions + 1);
 		state.Progress = JobProgress{
 			.RequiredWork = requiredWork,
 			.CompletedWork = initialWork,

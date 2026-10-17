@@ -34,9 +34,12 @@ namespace Walker {
         home.Vehicles.Add(VehicleKind::Jet);
         home.Funds.Add(Money::Pow10(24));
         home.TryAddEndpoint(EndpointKind::InState);
-        home.Rates.GetRebirth().AvailablePoints = 100;
-		home.Rates.GetPrestiege().AvailablePoints = 100;
-        home.Rates.GetAscend().AvailablePoints = 100;
+        home.Rates.GetRebirth().AddPoints(100);
+		home.Rates.GetPrestige().AddPoints(100);
+        home.Rates.GetAscend().AddPoints(100);
+        home.Stats.OnRebirth();
+        home.Stats.OnPrestige();
+        home.Stats.OnAscend();
         home.OfflineTime.AddTime(OneHour * 8);
         ////
 

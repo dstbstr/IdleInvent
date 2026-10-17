@@ -2,6 +2,7 @@
 #include "Walker/WalkerSettings.h"
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Ui/Selectors.h"
+#include "Walker/Ui/UpgradeRow.h"
 
 #include <Utilities/EnumUtils.h>
 
@@ -14,30 +15,45 @@ namespace {
     WalkerSettings* Settings{nullptr};
     VehicleKind SelectedKind{VehicleKind::Foot};
 
-    void RenderStats(const VehicleDetails& details) {
-        ImGui::Text("Cost: %s", details.Cost.ToScientific().c_str());
-		ImGui::Text("Max Speed: %s", details.MaxSpeed.ToScientific().c_str());
-        ImGui::Text("Capacity: %s", details.MaxCapacity.ToScientific().c_str());
-		ImGui::Text("Base Acceleration: %s", details.BaseAcceleration.ToScientific().c_str());
-		ImGui::Text("Powered Acceleration: %s", details.PoweredAcceleration.ToScientific().c_str());
-		ImGui::Text("Fuel Efficiency: %s", details.FuelEfficiency.ToScientific().c_str());
+    void RenderStats(VehicleKind kind) {
+        const auto& rates = Home->Rates;
+		ImGui::Text("Cost: %s", rates.GetVehicleCost(kind).ToScientific().c_str());
+		ImGui::Text("Max Speed: %s", rates.GetVehicleMaxSpeed(kind).ToScientific().c_str());
+		ImGui::Text("Capacity: %s", rates.GetVehicleCapacity(kind).ToScientific().c_str());
+		ImGui::Text("Base Acceleration: %s", rates.GetBaseAccel(kind).ToScientific().c_str());
+		ImGui::Text("Powered Acceleration: %s", rates.GetPoweredAccel(kind).ToScientific().c_str());
+		//ImGui::Text("Fuel Efficiency: %s", rates.GetFuelEfficiency(kind).ToScientific().c_str());
     }
 
     void RenderSelector() {
         WalkerUi::VehicleSelector("VehicleSelector", Enum::GetAllValues<VehicleKind>(), SelectedKind);
 
-		const auto& details = GetVehicleDetails(SelectedKind);
-		RenderStats(details);
+		const auto& rates = Home->Rates;
+		auto cost = rates.GetVehicleCost(SelectedKind);
 
-        ImGui::BeginDisabled(Home->Vehicles.Contains(SelectedKind) || !Home->Funds.CanAfford(details.Cost));
+        ImGui::BeginDisabled(Home->Vehicles.Contains(SelectedKind) || !Home->Funds.CanAfford(cost));
         if(ImGui::Button("Purchase")) {
-            if(Home->Funds.Spend(details.Cost)) {
+            if(Home->Funds.Spend(cost)) {
                 if(!Home->Vehicles.Add(SelectedKind)) {
                     // refund
-					Home->Funds.Add(details.Cost);
+					Home->Funds.Add(cost);
                 }
             }
         }
+        ImGui::EndDisabled();
+
+        ImGui::BeginDisabled(!Home->Vehicles.Contains(SelectedKind));
+        ImGui::TextUnformatted("Acceleration");
+        ImGui::SameLine();
+		WalkerUi::RenderUpgradeRow("Acceleration", UpgradeKey::Vehicle(SelectedKind, VehicleStat::Accel), Home->Rates);
+
+        ImGui::TextUnformatted("Max Speed");
+		ImGui::SameLine();
+		WalkerUi::RenderUpgradeRow("Max Speed", UpgradeKey::Vehicle(SelectedKind, VehicleStat::Speed), Home->Rates);
+
+        ImGui::TextUnformatted("Capacity");
+		ImGui::SameLine();
+		WalkerUi::RenderUpgradeRow("Capacity", UpgradeKey::Vehicle(SelectedKind, VehicleStat::Capacity), Home->Rates);
         ImGui::EndDisabled();
     }
 }
@@ -57,5 +73,6 @@ namespace Walker::WalkerUi::Screens::Store {
 
     void Render() { 
         RenderSelector();
+        RenderStats(SelectedKind);
     }
 } // namespace Walker::WalkerUi::Screens::Store

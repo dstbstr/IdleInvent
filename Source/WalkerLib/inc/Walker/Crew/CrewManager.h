@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Walker/Crew/CrewRole.h"
 #include "Walker/Crew/JobProgress.h"
 #include "Walker/Crew/WalkerTech.h"
 #include "Walker/Journey/Endpoints.h"
 #include "Walker/WalkerUnits.h"
-#include "Walker/WalkerRates.h"
 
 #include <DesignPatterns/PubSub.h>
 #include <Platform/NumTypes.h>
@@ -15,18 +15,7 @@
 #include <string>
 
 namespace Walker {
-	enum struct CrewRole: u8 {
-		Idle,
-		Traveling, // TODO: split into navigator, pilot, other roles?
-		Stationed,
-		Scout,
-		Scientist,
-		Engineer,
-
-		COUNT
-	};
-
-	std::string ToString(CrewRole role);
+	class WalkerRates;
 
 	struct JobCompleted {
 		CrewRole Role{};
@@ -61,8 +50,8 @@ namespace Walker {
 		void Tick(BaseTime elapsed, size_t scoutSlots);
 		ScopedHandle Subscribe(const JobDoneFn& callback);
 		void Subscribe(std::vector<ScopedHandle>& subs, const JobDoneFn& callback);
-		void Rebirth();
-		void Prestiege();
+		void RebirthReset();
+		void PrestigeReset();
 
 	private:
 		struct State {

@@ -46,9 +46,10 @@ namespace Walker {
 		bool TryHireCrew(u64 count = 1);
 
 		void Tick(BaseTime elapsed);
-		void Rebirth();
-		void Prestiege();
-		void Ascend();
+
+		bool TryRebirth();
+		bool TryPrestige();
+		bool TryAscend();
 
 	private:
 		std::vector<std::unique_ptr<EndpointInstance>> m_Endpoints{};
@@ -56,5 +57,8 @@ namespace Walker {
 		size_t m_MaxEndpointSlots{50};
 
 		void TickJourney(BaseTime elapsed);
+		void RebirthReset();
+		void PrestigeReset();
+		void AscendReset();
 	};
 }

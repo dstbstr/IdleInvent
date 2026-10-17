@@ -17,6 +17,9 @@ namespace Walker {
     using Time = Quantity; // Millseconds
     using Money = Quantity; // millicopper pieces
 
+    using UpgradeLevel = u16;
+    using ProgressionPoints = u64;
+
     static constexpr BaseTime UpdateInterval = OneSecond;
     static constexpr Quantity StepMs{UpdateInterval.count()};
     static constexpr Quantity MsPerSec{OneSecond.count()};

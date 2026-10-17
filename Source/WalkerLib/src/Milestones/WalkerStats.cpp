@@ -4,7 +4,7 @@
 
 namespace Walker {
 	const WalkerStats& StatManager::SinceRebirth() const { return m_RebirthStats; }
-	const WalkerStats& StatManager::SincePrestiege() const { return m_PrestiegeStats; }
+	const WalkerStats& StatManager::SincePrestige() const { return m_PrestigeStats; }
 	const WalkerStats& StatManager::SinceAscend() const { return m_AscendStats; }
 	const WalkerStats& StatManager::AllTime() const { return m_AllTimeStats; }
 
@@ -61,23 +61,35 @@ namespace Walker {
 		});
 	}
 
-	void StatManager::Rebirth() {
+	void StatManager::OnRebirth() {
+		Visit([](WalkerStats& stats) { stats.RebirthCount++; });
+	}
+
+	void StatManager::OnPrestige() {
+		Visit([](WalkerStats& stats) { stats.PrestigeCount++; });
+	}
+
+	void StatManager::OnAscend() {
+		Visit([](WalkerStats& stats) { stats.AscendCount++; });
+	}
+
+	void StatManager::RebirthReset() {
 		m_RebirthStats = {};
 	}
 
-	void StatManager::Prestiege() {
-		m_PrestiegeStats = {};
-		Rebirth();
+	void StatManager::PrestigeReset() {
+		m_PrestigeStats = {};
+		RebirthReset();
 	}
 
-	void StatManager::Ascend() {
+	void StatManager::AscendReset() {
 		m_AscendStats = {};
-		Prestiege();
+		PrestigeReset();
 	}
 
 	void StatManager::Visit(std::function<void(WalkerStats& stats)> fn) {
 		fn(m_RebirthStats);
-		fn(m_PrestiegeStats);
+		fn(m_PrestigeStats);
 		fn(m_AscendStats);
 		fn(m_AllTimeStats);
 	}
