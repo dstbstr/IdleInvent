@@ -14,9 +14,9 @@ static_assert(BigInt::FromScientific(1'234, 11'997) > BigInt(std::numeric_limits
 static_assert(BigInt(42u) == BigInt(42u));
 static_assert(BigInt(42ull) == BigInt(42u));
 static_assert(BigInt(0) == BigInt(0u));
-static_assert(BigInt::MaxValue == BigInt::MaxValue);
-static_assert(BigInt::MinValue == BigInt::MinValue);
-static_assert(BigInt::MinValue < BigInt::MaxValue);
+static_assert(BigInt::GetMaxValue() == BigInt::GetMaxValue());
+static_assert(BigInt::GetMinValue() == BigInt::GetMinValue());
+static_assert(BigInt::GetMinValue() < BigInt::GetMaxValue());
 
 // positive comparisons
 static_assert(BigInt(123u) > BigInt(12u));
@@ -49,15 +49,15 @@ static_assert(BigInt(-7) + 7 == BigInt(0));
 
 // operator -
 static_assert(UBigInt(10) - UBigInt(3) == UBigInt(7));
-static_assert(UBigInt(10) - UBigInt(20) == UBigInt::MinValue);
+static_assert(UBigInt(10) - UBigInt(20) == UBigInt::GetMinValue());
 static_assert(UBigInt(10) - UBigInt(0) == UBigInt(10));
 
 // operator *
 static_assert(BigInt(12) * 30 == BigInt(360));
 static_assert(BigInt(-7) * 3 == BigInt(-21));
 static_assert(BigInt(-7) * -3 == BigInt(21));
-static_assert(BigInt::MaxValue * 0 == BigInt(0));
-static_assert(BigInt::MaxValue * 10 == BigInt::MaxValue);
+static_assert(BigInt::GetMaxValue() * 0 == BigInt(0));
+static_assert(BigInt::GetMaxValue() * 10 == BigInt::GetMaxValue());
 
 // operator * with float
 static_assert(BigInt(12) * 0.5f == BigInt(6));
@@ -141,11 +141,11 @@ static_assert(sizeof(TinyInt) == sizeof(u32));
 
 static_assert(TinyInt{255}.ToScientific() == "2.55e2");
 static_assert(TinyInt{256} == TinyInt{250});
-static_assert(TinyInt::Pow10(7) < TinyInt::MaxValue);
-static_assert(TinyInt::Pow10(8) == TinyInt::MaxValue);
-static_assert(TinyInt::MaxValue * 10 == TinyInt::MaxValue);
-static_assert(TinyInt::MinValue * 10 == TinyInt::MinValue);
+static_assert(TinyInt::Pow10(7) < TinyInt::GetMaxValue());
+static_assert(TinyInt::Pow10(8) == TinyInt::GetMaxValue());
+static_assert(TinyInt::GetMaxValue() * 10 == TinyInt::GetMaxValue());
+static_assert(TinyInt::GetMinValue() * 10 == TinyInt::GetMinValue());
 
 using UTiny = BigIntImpl<16, 8, false>;
-static_assert(UTiny::MinValue == UTiny{0});
-static_assert(UTiny::MaxValue == UTiny::FromScientific(65'535, 255));
+static_assert(UTiny::GetMinValue() == UTiny{0});
+static_assert(UTiny::GetMaxValue() == UTiny::FromScientific(65'535, 255));

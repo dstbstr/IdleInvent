@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Walker/WalkerUnits.h"
-#include "Walker/Home/HomeBase.h"
 #include "Walker/Journey/CargoTransfer.h"
 #include "Walker/Journey/Endpoints.h"
 #include "Walker/Travel/TravelLeg.h"
@@ -14,7 +13,9 @@
 #include <optional>
 
 namespace Walker {
-    enum struct Phase { Preparing, Outbound, Loading, Returning, Unloading, Complete };
+    struct HomeBase;
+
+    enum struct Phase { Preparing, Outbound, Loading, Returning, Unloading, Complete, Scouting };
     struct PhaseChanged {
         Phase From;
         Phase To;
@@ -29,13 +30,14 @@ namespace Walker {
             case Returning: return "Returning";
             case Unloading: return "Unloading Cargo...";
             case Complete: return "Complete";
+            case Scouting: return "Scouting";
         }
         return "Unknown";
     }
 
 	class Journey {
     public:
-        Journey(OwnedVehicle* vehicle, EndpointInstance* endpoint, HomeBase& home);
+        Journey(HomeBase& home);
 
         void Start();
         void Tick(BaseTime elasped);
@@ -66,7 +68,7 @@ namespace Walker {
         Time GetPhaseEta() const;
     private:
         PubSub<PhaseChanged>& m_Ps;
-        OwnedVehicle* m_Vehicle;
+        OwnedVehicle* m_Vehicle{nullptr};
         EndpointInstance* m_End{};
         HomeBase& m_Home;
         Phase m_Phase{Phase::Preparing};

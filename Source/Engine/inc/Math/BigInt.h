@@ -72,8 +72,8 @@ public:
     constexpr std::string ToScientific(size_t precision = 2, size_t scale = 0) const;
     static constexpr std::string ToTimeString(const BigIntImpl& milliseconds);
 
-    static const BigIntImpl MaxValue;
-    static const BigIntImpl MinValue;
+    static constexpr BigIntImpl GetMaxValue();
+    static constexpr BigIntImpl GetMinValue();
 
 private:
     static_assert(TCoefBits > 0 && TCoefBits <= 64); // TODO: consider relaxing this

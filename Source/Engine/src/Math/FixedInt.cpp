@@ -37,11 +37,11 @@ static_assert(SFixedInt<5>(-1) < SFixedInt<5>(1));
 static_assert(SFixedInt<20>(-2) < SFixedInt<40>(-1));
 
 // min/max
-static_assert(UFixedInt<8>::MinValue == UFixedInt<8>(0));
-static_assert(UFixedInt<8>::MaxValue == UFixedInt<8>(255));
-static_assert(SFixedInt<8>::MinValue == SFixedInt<8>(-128));
-static_assert(SFixedInt<8>::MaxValue == SFixedInt<8>(127));
-static_assert(UFixedInt<96>::MaxValue == -UFixedInt<96>(1));
+static_assert(UFixedInt<8>::GetMinValue() == UFixedInt<8>(0));
+static_assert(UFixedInt<8>::GetMaxValue() == UFixedInt<8>(255));
+static_assert(SFixedInt<8>::GetMinValue() == SFixedInt<8>(-128));
+static_assert(SFixedInt<8>::GetMaxValue() == SFixedInt<8>(127));
+static_assert(UFixedInt<96>::GetMaxValue() == -UFixedInt<96>(1));
 
 // unary minus
 static_assert(-SFixedInt<8>(42) == SFixedInt<8>(-42));
@@ -55,7 +55,7 @@ static_assert((UFixedInt<8>(12) | UFixedInt<8>(10)) == UFixedInt<8>(14));
 static_assert((UFixedInt<8>(12) ^ UFixedInt<8>(10)) == UFixedInt<8>(6));
 static_assert(~UFixedInt<5>(0) == UFixedInt<5>(31));
 static_assert(~SFixedInt<8>(0) == SFixedInt<8>(-1));
-static_assert(~UFixedInt<128>(0) == UFixedInt<128>::MaxValue);
+static_assert(~UFixedInt<128>(0) == UFixedInt<128>::GetMaxValue());
 
 static_assert([] {
     auto value = SFixedInt<40>{-42};
@@ -65,21 +65,21 @@ static_assert([] {
 // addition
 static_assert(UFixedInt<8>(24) + UFixedInt<8>(24) == UFixedInt<8>(48));
 static_assert(UFixedInt<8>(0) + UFixedInt<8>(32) == UFixedInt<8>(32));
-static_assert(UFixedInt<8>::MaxValue + UFixedInt<8>(1) == UFixedInt<8>(0));
+static_assert(UFixedInt<8>::GetMaxValue() + UFixedInt<8>(1) == UFixedInt<8>(0));
 static_assert(UFixedInt<16>(10) + UFixedInt<8>(1) == UFixedInt<16>(11));
 
 static_assert(SFixedInt<8>(24) + SFixedInt<8>(24) == SFixedInt<8>(48));
 static_assert(SFixedInt<8>(0) + SFixedInt<8>(32) == SFixedInt<8>(32));
-static_assert(SFixedInt<8>::MaxValue + SFixedInt<8>(1) == SFixedInt<8>::MinValue); // overflow, should wrap around
+static_assert(SFixedInt<8>::GetMaxValue() + SFixedInt<8>(1) == SFixedInt<8>::GetMinValue()); // overflow, should wrap around
 static_assert(SFixedInt<8>(-10) + SFixedInt<8>(5) == SFixedInt<8>(-5));
 static_assert(SFixedInt<8>(-10) + SFixedInt<8>(-5) == SFixedInt<8>(-15));
-static_assert(SFixedInt<8>::MinValue + SFixedInt<8>(-1) == SFixedInt<8>::MaxValue); // underflow, should wrap around
+static_assert(SFixedInt<8>::GetMinValue() + SFixedInt<8>(-1) == SFixedInt<8>::GetMaxValue()); // underflow, should wrap around
 static_assert(SFixedInt<16>(10) + SFixedInt<8>(1) == SFixedInt<16>(11));
 
 // subtraction
 static_assert(SFixedInt<8>(3) - SFixedInt<8>(7) == SFixedInt<8>(-4));
-static_assert(UFixedInt<8>(0) - UFixedInt<8>(1) == UFixedInt<8>::MaxValue);
-static_assert(SFixedInt<8>::MinValue - SFixedInt<8>(1) == SFixedInt<8>::MaxValue);
+static_assert(UFixedInt<8>(0) - UFixedInt<8>(1) == UFixedInt<8>::GetMaxValue());
+static_assert(SFixedInt<8>::GetMinValue() - SFixedInt<8>(1) == SFixedInt<8>::GetMaxValue());
 static_assert(SFixedInt<16>(10) - SFixedInt<8>(1) == SFixedInt<16>(9));
 
 // multiplication
@@ -94,7 +94,7 @@ static_assert(UFixedInt<8>(2) / UFixedInt<8>(3) == UFixedInt<8>(0)); // integer 
 static_assert(SFixedInt<8>(-12) / SFixedInt<8>(3) == SFixedInt<8>(-4));
 static_assert(SFixedInt<8>(-12) / SFixedInt<8>(5) == SFixedInt<8>(-2));
 static_assert(SFixedInt<8>(-12) / SFixedInt<8>(-5) == SFixedInt<8>(2));
-static_assert(SFixedInt<8>::MinValue / SFixedInt<8>(-1) == SFixedInt<8>::MinValue); // overflow, should remain the same
+static_assert(SFixedInt<8>::GetMinValue() / SFixedInt<8>(-1) == SFixedInt<8>::GetMinValue()); // overflow, should remain the same
 
 // modulo
 static_assert(UFixedInt<8>(12) % UFixedInt<8>(5) == UFixedInt<8>(2));
@@ -103,11 +103,11 @@ static_assert(SFixedInt<8>(-12) % SFixedInt<8>(5) == SFixedInt<8>(-2));
 static_assert(SFixedInt<8>(-12) % SFixedInt<8>(-5) == SFixedInt<8>(-2));
 
 // bit shifts
-static_assert(UFixedInt<8>(1) << 3 == UFixedInt<8>(8));
-static_assert(UFixedInt<8>(8) >> 3 == UFixedInt<8>(1));
-static_assert(UFixedInt<5>(16) << 1 == UFixedInt<5>::MinValue); // overflow, should wrap around
-static_assert(SFixedInt<5>(-3) >> 1 == SFixedInt<5>(-2)); // truncates away from 0
-static_assert(SFixedInt<5>(3) >> 1 == SFixedInt<5>(1));
+static_assert((UFixedInt<8>(1) << 3) == UFixedInt<8>(8));
+static_assert((UFixedInt<8>(8) >> 3) == UFixedInt<8>(1));
+static_assert((UFixedInt<5>(16) << 1) == UFixedInt<5>::GetMinValue()); // overflow, should wrap around
+static_assert((SFixedInt<5>(-3) >> 1) == SFixedInt<5>(-2)); // truncates away from 0
+static_assert((SFixedInt<5>(3) >> 1) == SFixedInt<5>(1));
 
 // to string
 static_assert(UFixedInt<8>(42).ToString() == "42");
@@ -115,7 +115,7 @@ static_assert(UFixedInt<128>(42).ToString() == "42");
 static_assert((UFixedInt<128>(1'000'000'000'000) * 1'000'000'000'000).ToString() == "1" + std::string(24, '0'));
 static_assert(SFixedInt<8>(-42).ToString() == "-42");
 static_assert(UFixedInt<8>(0).ToString() == "0");
-static_assert(SFixedInt<8>::MinValue.ToString() == "-128");
+static_assert(SFixedInt<8>::GetMinValue().ToString() == "-128");
 static_assert(UFixedInt<2>(3).ToString() == "3");
 
 
@@ -124,7 +124,7 @@ static_assert(UFixedInt<8>(0).BitWidth() == 0);
 static_assert(UFixedInt<8>(1).BitWidth() == 1);
 static_assert(UFixedInt<8>(255).BitWidth() == 8);
 static_assert(u128(256).BitWidth() == 9);
-static_assert(UFixedInt<33>::MaxValue.BitWidth() == 33);
+static_assert(UFixedInt<33>::GetMaxValue().BitWidth() == 33);
 
 // Log2Floor
 static_assert(u128(16).Log2Floor() == 4);
@@ -137,19 +137,19 @@ static_assert(s128(-2).Pow(3) == s128(-8));
 static_assert(s128(-2).Pow(4) == s128(16));
 static_assert(u128(42).Pow(0) == u128(1));
 static_assert(u128(0).Pow(0) == u128(1)); // 0^0 is defined as 1
-static_assert(UFixedInt<8>(2).Pow(8) == UFixedInt<8>::MinValue); // overflow, should wrap around
-static_assert(SFixedInt<8>(2).Pow(7) == SFixedInt<8>::MinValue);
+static_assert(UFixedInt<8>(2).Pow(8) == UFixedInt<8>::GetMinValue()); // overflow, should wrap around
+static_assert(SFixedInt<8>(2).Pow(7) == SFixedInt<8>::GetMinValue());
 
 // ToU64
 static_assert(u128(42).FitsU64());
-static_assert(u128::MaxValue.FitsU64() == false);
+static_assert(u128::GetMaxValue().FitsU64() == false);
 static_assert(u128(42).ToU64() == 42);
 
 // ToS64
 static_assert(u128(42).FitsS64());
 static_assert(s128(42).FitsS64());
 static_assert(s128(-42).FitsS64());
-static_assert(s128::MaxValue.FitsS64() == false);
-static_assert(s128::MinValue.FitsS64() == false);
+static_assert(s128::GetMaxValue().FitsS64() == false);
+static_assert(s128::GetMinValue().FitsS64() == false);
 static_assert(s128(42).ToS64() == 42);
 static_assert(s128(-42).ToS64() == -42);

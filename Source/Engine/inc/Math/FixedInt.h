@@ -26,8 +26,8 @@ public:
     constexpr FixedInt(s64 val) requires(TSigned);
     constexpr FixedInt(s32 val) requires(TSigned) : FixedInt(static_cast<s64>(val)) {}
 
-    static const FixedInt MinValue;
-    static const FixedInt MaxValue;
+    static constexpr FixedInt GetMinValue();
+    static constexpr FixedInt GetMaxValue();
 
     constexpr std::string ToString() const;
 

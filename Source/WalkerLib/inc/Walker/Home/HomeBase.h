@@ -8,6 +8,7 @@
 #include "Walker/Home/TimeBank.h"
 #include "Walker/Home/Wallet.h"
 #include "Walker/Journey/Endpoints.h"
+#include "Walker/Journey/Journey.h"
 #include "Walker/Milestones/Milestones.h"
 #include "Walker/Milestones/WalkerStats.h"
 #include "Walker/Travel/Vehicle.h"
@@ -37,6 +38,10 @@ namespace Walker {
 
 		std::span<const std::unique_ptr<EndpointInstance>> GetEndpoints() const;
 		size_t GetAvailableEndpointSlots() const;
+		
+		Journey& GetJourney() { return m_Journey; }
+		const Journey& GetJourney() const { return m_Journey; }
+
 		bool TryAddEndpoint(EndpointKind kind);
 		std::optional<size_t> RemoveEndpoint(u64 id);
 
@@ -55,6 +60,7 @@ namespace Walker {
 		std::vector<std::unique_ptr<EndpointInstance>> m_Endpoints{};
 		std::vector<ScopedHandle> m_Subs{};
 		size_t m_MaxEndpointSlots{50};
+		Journey m_Journey;
 
 		void TickJourney(BaseTime elapsed);
 		void RebirthReset();

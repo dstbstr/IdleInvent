@@ -140,7 +140,7 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator-=(const BigInt
     } else {
         if(other == BigIntImpl{}) return *this;
         if(other >= *this) {
-            *this = BigIntImpl::MinValue;
+            *this = BigIntImpl::GetMinValue();
             return *this;
         }
 
@@ -171,7 +171,7 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(const BigInt
     auto neg = IsNegative() != other.IsNegative();
 
     if(exp > ExponentMask.ToU64()) {
-        *this = neg ? MinValue : MaxValue;
+        *this = neg ? GetMinValue() : GetMaxValue();
     } else {
         *this = BigIntImpl(coef, static_cast<u32>(exp), neg);
     }
@@ -239,7 +239,7 @@ auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Pow(TExp exp) -> BigIntImpl& {
 	auto logResult = static_cast<f64>(exp) * (std::log10(static_cast<f64>(Coef())) + static_cast<f64>(Exponent()));
 	auto maxLog = static_cast<f64>(ExponentMask.ToU64()) + std::log10(static_cast<f64>(CoefMask.ToU64()));
     if(!std::isfinite(logResult) || logResult >= maxLog) {
-        *this = MaxValue;
+        *this = GetMaxValue();
         return *this;
     }
 
@@ -258,7 +258,7 @@ auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Pow(TExp exp) -> BigIntImpl& {
     }
 
 	if (exponent > static_cast<s64>(ExponentMask.ToU64())) {
-		*this = MaxValue;
+		*this = GetMaxValue();
 		return *this;
 	}
 
@@ -299,7 +299,7 @@ auto BigIntImpl<TCoefBits, TExpBits, TSigned>::ScaleByPower(TBase base, u32 exp)
     }
 
 	if (exponent > static_cast<s64>(ExponentMask.ToU64())) {
-		*this = IsNegative() ? MinValue : MaxValue;
+		*this = IsNegative() ? GetMinValue() : GetMaxValue();
         return *this;
 	}
 
@@ -554,7 +554,7 @@ constexpr u32 BigIntImpl<TCoefBits, TExpBits, TSigned>::DigitCount() const {
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 constexpr void BigIntImpl<TCoefBits, TExpBits, TSigned>::Align(u128& loCoef, u64& loExp, u128& hiCoef, u64& hiExp) {
-    constexpr auto limit = u128::MaxValue >> 1;
+    constexpr auto limit = u128::GetMaxValue() >> 1;
 
     while(loExp < hiExp && hiCoef <= limit / 10) {
         hiCoef *= 10;
@@ -570,14 +570,15 @@ constexpr void BigIntImpl<TCoefBits, TExpBits, TSigned>::Align(u128& loCoef, u64
 
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
-inline constexpr BigIntImpl<TCoefBits, TExpBits, TSigned> BigIntImpl<TCoefBits, TExpBits, TSigned>::MaxValue =
-    BigIntImpl(CoefMask.ToU64(), static_cast<u32>(ExponentMask.ToU64()), false);
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned> BigIntImpl<TCoefBits, TExpBits, TSigned>::GetMaxValue() {
+    return BigIntImpl(CoefMask.ToU64(), static_cast<u32>(ExponentMask.ToU64()), false);
+}
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
-inline constexpr BigIntImpl<TCoefBits, TExpBits, TSigned> BigIntImpl<TCoefBits, TExpBits, TSigned>::MinValue = [] {
+constexpr BigIntImpl<TCoefBits, TExpBits, TSigned> BigIntImpl<TCoefBits, TExpBits, TSigned>::GetMinValue() {
     if constexpr(TSigned) {
         return BigIntImpl(CoefMask.ToU64(), static_cast<u32>(ExponentMask.ToU64()), true);
     } else {
         return BigIntImpl{0};
     }
-}();
+};

@@ -34,6 +34,7 @@ namespace Walker {
 		// Bonuses
 		WorkRate GetCargoWorkRate() const;
 		WorkRate GetJobWorkRate(CrewRole role) const;
+		WorkRate GetDiscoveryWorkRate() const;
 		Acceleration GetBaseAccel(VehicleKind kind) const;
 		Acceleration GetPoweredAccel(VehicleKind kind) const;
 		Speed GetVehicleMaxSpeed(VehicleKind kind) const;
@@ -73,7 +74,9 @@ namespace Walker {
 	private:
 		WorkRate m_BaseCargoRate{10'000};
 		WorkRate m_BaseJobRate{10};
-		Money m_BaseHireCost{100};
+		WorkRate m_BaseDiscoveryRate{1};
+
+		Money m_BaseHireCost{100};		
 		f32 m_HireCostBase{2.f};
 		BaseTime m_MaxOfflineTime{OneHour};
 		f32 m_OfflineTimeEfficiency{ 0.5f };

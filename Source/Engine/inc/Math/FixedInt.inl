@@ -12,12 +12,12 @@ constexpr FixedInt<TBits, TSigned>::FixedInt(const FixedInt<TOtherBits, TSigned>
     m_Limbs.fill(negative ? ones : 0u);
 
     for(size_t i = 0; i < other.m_Limbs.size(); ++i) {
-        m_Limbs[i] = other.m_Limbs[i];
+        m_Limbs.at(i) = other.m_Limbs.at(i);
     }
 
     if(negative) {
         if constexpr(TOtherBits % 32 != 0) {
-            m_Limbs[other.m_Limbs.size() - 1] |= (ones << (TOtherBits % 32));
+            m_Limbs.at(other.m_Limbs.size() - 1) |= (ones << (TOtherBits % 32));
         }
     }
 
@@ -48,9 +48,9 @@ constexpr FixedInt<TBits, TSigned>::FixedInt(s64 val) requires (TSigned) {
     m_Limbs.fill(val < 0 ? std::numeric_limits<u32>::max() : 0u);
 
     auto bits = static_cast<u64>(val);
-    m_Limbs[0] = static_cast<u32>(bits);
+    m_Limbs.at(0) = static_cast<u32>(bits);
     if constexpr(LimbCount > 1) {
-        m_Limbs[1] = static_cast<u32>(bits >> 32);
+        m_Limbs.at(1) = static_cast<u32>(bits >> 32);
     }
 
     ClearUnusedBits();
@@ -114,7 +114,7 @@ constexpr auto FixedInt<TBits, TSigned>::operator+=(const FixedInt& other) -> Fi
 
     for(size_t i = 0; i < LimbCount; i++) {
         auto sum = static_cast<u64>(m_Limbs[i]) + static_cast<u64>(other.m_Limbs[i]) + carry;
-        m_Limbs[i] = static_cast<u32>(sum);
+        m_Limbs.at(i) = static_cast<u32>(sum);
         carry = sum >> 32;
     }
 
@@ -131,10 +131,10 @@ constexpr auto FixedInt<TBits, TSigned>::operator*=(const FixedInt& other) -> Fi
 
         for(size_t j = 0; j < LimbCount - i; j++) {
             auto index = i + j;
-            auto product = static_cast<u64>(m_Limbs[i]) * other.m_Limbs[j];
-            auto sum = product + result.m_Limbs[index] + carry;
+            auto product = static_cast<u64>(m_Limbs.at(i)) * other.m_Limbs.at(j);
+            auto sum = product + result.m_Limbs.at(index) + carry;
 
-            result.m_Limbs[index] = static_cast<u32>(sum);
+            result.m_Limbs.at(index) = static_cast<u32>(sum);
             carry = sum >> 32;
         }
     }
@@ -165,9 +165,9 @@ constexpr auto FixedInt<TBits, TSigned>::operator<<=(size_t shift) -> FixedInt& 
 
         for(size_t i = words; i < LimbCount; i++) {
             auto source = i - words;
-            result.m_Limbs[i] = m_Limbs[source] << bits;
+            result.m_Limbs.at(i) = m_Limbs.at(source) << bits;
             if(bits != 0 && source > 0) {
-                result.m_Limbs[i] |= m_Limbs[source - 1] >> (32 - bits);
+                result.m_Limbs.at(i) |= m_Limbs.at(source - 1) >> (32 - bits);
             }
         }
     }
@@ -188,9 +188,9 @@ constexpr auto FixedInt<TBits, TSigned>::operator>>=(size_t shift) -> FixedInt& 
 
         for(size_t i = 0; i < LimbCount; i++) {
             auto source = i + words;
-            result.m_Limbs[i] = ExtendedLimb(source) >> bits;
+            result.m_Limbs.at(i) = ExtendedLimb(source) >> bits;
             if(bits != 0 ) {
-                result.m_Limbs[i] |= ExtendedLimb(source + 1) << (32 - bits);
+                result.m_Limbs.at(i) |= ExtendedLimb(source + 1) << (32 - bits);
             }
         }
     }
@@ -213,7 +213,7 @@ constexpr auto FixedInt<TBits, TSigned>::operator~() const -> FixedInt {
 template<size_t TBits, bool TSigned>
 constexpr auto FixedInt<TBits, TSigned>::operator&=(const FixedInt<TBits, TSigned>& other) -> FixedInt& {
     for(size_t i =0; i < LimbCount; i++) {
-        m_Limbs[i] &= other.m_Limbs[i];
+        m_Limbs.at(i) &= other.m_Limbs.at(i);
     }
     return *this;
 }
@@ -221,7 +221,7 @@ constexpr auto FixedInt<TBits, TSigned>::operator&=(const FixedInt<TBits, TSigne
 template<size_t TBits, bool TSigned>
 constexpr auto FixedInt<TBits, TSigned>::operator|=(const FixedInt<TBits, TSigned>& other) -> FixedInt& {
     for(size_t i = 0; i < LimbCount; i++) {
-        m_Limbs[i] |= other.m_Limbs[i];
+        m_Limbs.at(i) |= other.m_Limbs.at(i);
     }
     return *this;
 }
@@ -229,7 +229,7 @@ constexpr auto FixedInt<TBits, TSigned>::operator|=(const FixedInt<TBits, TSigne
 template<size_t TBits, bool TSigned>
 constexpr auto FixedInt<TBits, TSigned>::operator^=(const FixedInt<TBits, TSigned>& other) -> FixedInt& {
     for(size_t i = 0; i < LimbCount; i++) {
-        m_Limbs[i] ^= other.m_Limbs[i];
+        m_Limbs.at(i) ^= other.m_Limbs.at(i);
     }
     return *this;
 }
@@ -238,8 +238,8 @@ template<size_t TBits, bool TSigned>
 constexpr size_t FixedInt<TBits, TSigned>::BitWidth() const requires(!TSigned) {
     for(size_t i = LimbCount; i > 0;) {
         i--;
-        if(m_Limbs[i] != 0) {
-            return std::bit_width(m_Limbs[i]) + i * 32;
+        if(m_Limbs.at(i) != 0) {
+            return std::bit_width(m_Limbs.at(i)) + i * 32;
         }
     }
 
@@ -276,9 +276,9 @@ template<size_t TBits, bool TSigned>
 constexpr u64 FixedInt<TBits, TSigned>::ToU64() const requires(!TSigned) {
     if(!FitsU64()) throw std::overflow_error("The FixedInt doesn't fit in a u64");
 
-    auto value = static_cast<u64>(m_Limbs[0]);
+    auto value = static_cast<u64>(m_Limbs.at(0));
     if constexpr(LimbCount > 1) {
-        value |= static_cast<u64>(m_Limbs[1]) << 32;
+        value |= static_cast<u64>(m_Limbs.at(1)) << 32;
     }
     return value;
 }
@@ -325,12 +325,12 @@ constexpr auto FixedInt<TBits, TSigned>::DivRem(const FixedInt& other) const -> 
     for(size_t bit = TBits; bit > 0;) {
         --bit;
         r += r;
-        auto incoming = (numer.m_Limbs[bit / 32] >> (bit % 32)) & 1u;
-        r.m_Limbs[0] |= incoming;
+        auto incoming = (numer.m_Limbs.at(bit / 32) >> (bit % 32)) & 1u;
+        r.m_Limbs.at(0) |= incoming;
 
         if(r >= denom) {
             r -= denom;
-            q.m_Limbs[bit / 32] |= (1u << (bit % 32));
+            q.m_Limbs.at(bit / 32) |= (1u << (bit % 32));
         }
     }
 
@@ -359,7 +359,7 @@ constexpr u32 FixedInt<TBits, TSigned>::ExtendedLimb(size_t index) const {
 
     if(index >= LimbCount) return negative ? ones : 0u;
 
-    auto limb = m_Limbs[index];
+    auto limb = m_Limbs.at(index);
     if constexpr(TBits % 32 != 0) {
         if(negative && index == LimbCount - 1) {
             limb |= (ones << (TBits % 32));
@@ -382,8 +382,8 @@ constexpr std::string FixedInt<TBits, TSigned>::ToString() const {
         u64 remainder = 0;
         for(size_t i = LimbCount; i > 0;) {
             --i;
-            auto current = (remainder << 32) | mag.m_Limbs[i];
-            mag.m_Limbs[i] = static_cast<u32>(current / 10);
+            auto current = (remainder << 32) | mag.m_Limbs.at(i);
+            mag.m_Limbs.at(i) = static_cast<u32>(current / 10);
             remainder = current % 10;
         }
 
@@ -403,16 +403,16 @@ constexpr void FixedInt<TBits, TSigned>::ClearUnusedBits() {
 }
 
 template<size_t TBits, bool TSigned>
-inline constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::MinValue = [] {
+constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::GetMinValue() {
     FixedInt<TBits, TSigned> result;
     if constexpr(TSigned) {
         result.m_Limbs.back() = SignMask;
     }
     return result;
-}();
+}
 
 template<size_t TBits, bool TSigned>
-inline constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::MaxValue = [] { 
+constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::GetMaxValue() {
     FixedInt<TBits, TSigned> result; 
     result.m_Limbs.fill(std::numeric_limits<u32>::max());
     if constexpr(TBits % 32 != 0) {
@@ -421,6 +421,5 @@ inline constexpr FixedInt<TBits, TSigned> FixedInt<TBits, TSigned>::MaxValue = [
     if constexpr(TSigned) {
         result.m_Limbs.back() &= ~SignMask;
     }
-
     return result;
-}();
+};

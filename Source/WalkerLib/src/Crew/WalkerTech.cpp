@@ -10,6 +10,7 @@ namespace Walker {
 			case Preparation: return "Preparation";
 			case OfflineEfficiency: return "Offline Efficiency";
 			case OfflineCapacity: return "Offline Capacity";
+			default: break;
 		}
 		return "Unknown";
 	}
@@ -20,6 +21,7 @@ namespace Walker {
 			case Preparation: return Work::Pow10(4);
 			case OfflineEfficiency: return Work::Pow10(5);
 			case OfflineCapacity: return Work::Pow10(6);
+			default: break;
 		}
 		DR_ASSERT_MSG(false, "Unknown tech kind");
 		return Zero;
@@ -31,6 +33,7 @@ namespace Walker {
 			case Preparation: return Work::Pow10(4).Pow(static_cast<u32>(currentLevel));
 			case OfflineEfficiency: return Work::Pow10(5).Pow(static_cast<u32>(currentLevel));
 			case OfflineCapacity: return Work::Pow10(6).Pow(static_cast<u32>(currentLevel));
+			default: break;
 		}
 		DR_ASSERT_MSG(false, "Unknown tech kind");
 		return Zero;

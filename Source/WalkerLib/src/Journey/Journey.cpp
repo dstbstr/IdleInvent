@@ -1,14 +1,13 @@
 #include "Walker/Journey/Journey.h"
+#include "Walker/Home/HomeBase.h"
 
 #include <algorithm>
 
 namespace Walker {
     using namespace Walker::Literals;
 
-	Journey::Journey(OwnedVehicle* vehicle, EndpointInstance* end, HomeBase& home) 
+	Journey::Journey(HomeBase& home) 
 		: m_Ps(ServiceLocator::Get().GetRequired<PubSub<PhaseChanged>>())
-		, m_Vehicle(vehicle)
-		, m_End(end)
         , m_Home(home)
 	{
 		m_Countdown = m_Home.Rates.GetPreparationDuration();
@@ -64,6 +63,7 @@ namespace Walker {
 					m_Countdown = m_Home.Rates.GetPreparationDuration();
                 }
                 break;
+            default: break;
         }
 	}
 

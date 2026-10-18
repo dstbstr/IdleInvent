@@ -86,6 +86,7 @@ namespace SampleUI::Screens::SampleAudio {
                             case Square: fn = Audio::ToneGenerator::Square; break;
                             case Sawtooth: fn = Audio::ToneGenerator::Sawtooth; break;
                             case Triangle: fn = Audio::ToneGenerator::Triangle; break;
+							case Pulse: break;
                         }
                         Tone = fn(Hz, Audio::Duration{Duration});
                     }

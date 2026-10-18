@@ -23,6 +23,7 @@ namespace Walker {
             case FarGalaxy: return "Far Galaxy";
             case EdgeOfUniverse: return "Edge Of The Universe";
             case GreatBeyond: return "The Great Beyond";
+            default:break;
         }
         return "Unknown";
     }

@@ -26,6 +26,7 @@ namespace {
 		};
 		Global(GlobalStat::CargoWork, 1, 1.2);
 		Global(GlobalStat::Jobs, 1, 1.2);
+		Global(GlobalStat::Discovery, 1, 1.2);
 		Global(GlobalStat::Accel, 1, 1.2);
 		Global(GlobalStat::Speed, 1, 1.2);
 		Global(GlobalStat::Capacity, 1, 1.2);
@@ -105,6 +106,11 @@ namespace Walker {
 		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Jobs));
 		auto local = GetBonus(UpgradeKey::Job(role));
 		return global.Combine(local).Apply(base);
+	}
+
+	WorkRate WalkerRates::GetDiscoveryWorkRate() const {
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Discovery));
+		return global.Apply(m_BaseDiscoveryRate);
 	}
 
 	Acceleration WalkerRates::GetBaseAccel(VehicleKind kind) const {

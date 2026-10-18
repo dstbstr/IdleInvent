@@ -97,15 +97,16 @@ namespace Walker {
 			auto target = tierDetails->Thresholds[tier - 1];
 			auto targetStr = target.ToHumanReadable(2, 3).value_or(target.ToScientific(2, 3));
 			switch(kind) {
-			case Travel: return std::format("Travel {}m or more", targetStr);
-			case Walking: return std::format("Walk {}m or more", targetStr);
+				case Travel: return std::format("Travel {}m or more", targetStr);
+				case Walking: return std::format("Walk {}m or more", targetStr);
+				default: break;
 			}
 		}
 		else if (const auto* oneTimeDetails = TryGetOneTimeMilestoneDetails(kind)) {
 			DR_ASSERT_MSG(tier == 1, "One-time milestones only have a single tier");
 			switch (kind) {
-			case JetToNeighbor: return "Take a jet somewhere in the neighborhood";
-			default: DR_ASSERT_MSG(false, "Unknown one-time milestone kind");
+				case JetToNeighbor: return "Take a jet somewhere in the neighborhood";
+				default: DR_ASSERT_MSG(false, "Unknown one-time milestone kind");
 			}
 		}
 		else {

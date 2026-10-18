@@ -9,14 +9,12 @@ namespace Walker {
 	HomeBase::HomeBase() 
 		: Rates(Tech, Milestones)
 		, Crew(Rates, Tech)
-		, OfflineTime(Rates) {
+		, OfflineTime(Rates)
+		, m_Journey(*this) {
 		ServiceLocator::Get().GetRequired<PubSub<PhaseChanged>>().Subscribe(m_Subs, [this](const PhaseChanged& change) {
-			auto* journey = ServiceLocator::Get().Get<Journey>();
-			if (!journey) return;
-
 			using enum Phase;
 			using enum MilestoneTriggerEvent;
-			auto Send = [&](MilestoneTriggerEvent trigger) { Milestones.OnEvent(trigger, *this, journey); };
+			auto Send = [&](MilestoneTriggerEvent trigger) { Milestones.OnEvent(trigger, *this, &m_Journey); };
 
 			if (change.To == Loading) {
 				Send(EndpointReached);
@@ -67,28 +65,16 @@ namespace Walker {
 	}
 
 	void HomeBase::TickJourney(BaseTime elapsed) {
-		auto& services = ServiceLocator::Get();
-		auto* journey = services.Get<Journey>();
-		if (!journey) {
-			auto* vehicle = Vehicles.GetSelected();
-			if (vehicle && m_Endpoints.size() > 0) {
-				services.Set<Journey>(vehicle, m_Endpoints.at(0).get(), *this);
-			}
-			return;
-		}
+		m_Journey.Tick(elapsed);
+		if (m_Journey.GetPhase() != Phase::Complete) return;
 
-		journey->Tick(elapsed);
-		if (journey->GetPhase() != Phase::Complete) return;
-
-		auto* endpoint = journey->GetEndpoint();
+		auto* endpoint = m_Journey.GetEndpoint();
 		FurthestEndpoint = std::max(FurthestEndpoint, endpoint->Kind);
 		auto endpointId = endpoint->Id;
-		services.Reset<Journey>();
 		if (auto index = RemoveEndpoint(endpointId)) {
 			if (m_Endpoints.empty()) return;
 
 			index = std::min(*index, m_Endpoints.size() - 1);
-			services.Set<Journey>(Vehicles.GetSelected(), m_Endpoints.at(*index).get(), *this);
 		}
 	}
 

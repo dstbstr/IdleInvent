@@ -19,6 +19,7 @@ namespace Walker {
 	enum struct GlobalStat : u8 {
 		Unset,
 		CargoWork,
+		Discovery,
 		Jobs,
 		Accel,
 		Speed,

@@ -126,57 +126,98 @@ namespace {
 
     void RenderJourney(Journey& journey) {
         auto phase = journey.GetPhase();
-        auto phaseStr = ToString(phase);
-        ImGui::TextUnformatted(phaseStr.data(), phaseStr.data() + phaseStr.size());
-        auto eta = journey.GetPhaseEta();
+
+		ImGui::Text("Vechicle: %s", ToString(journey.GetVehicleKind()).c_str());
         ImGui::SameLine();
-        auto etaString = Time::ToTimeString(eta);
-        if(phase == Phase::Preparing && !Home->Tech[TechKind::Preparation].Researched) {
-            ImGui::Text("Waiting for Start");
-        } else {
-            ImGui::Text("[%s]", etaString.c_str());
+        ImGui::BeginDisabled(phase != Phase::Preparing);
+        if(ImGui::Button("Trip setup")) {
+            ImGui::OpenPopup("TripSetup");
         }
-        auto* endpoint = journey.GetEndpoint();
-        if(endpoint->RemainingCargo == Zero && endpoint->StationedCrew > 0) {
-			ImGui::Text("%llu stationed crew awaiting pickup", endpoint->StationedCrew);
-        }
-
-        if (phase == Phase::Preparing) {
-            RenderPreparing(journey);
-        }
-        else if (phase == Phase::Outbound || phase == Phase::Returning) {
-            RenderTraveling(journey);
-        }
-        else {
-            auto ratio = phase == Phase::Loading ? journey.GetLoadingRatio() : journey.GetUnloadRatio();
-            RenderLoading(ratio);
-            if(phase == Phase::Loading && ImGui::Button("Return early")) {
-                journey.ReturnEarly();
-            }
-        }
-
-        auto ratio = journey.GetJourneyRatio();
-        const auto& endpointStr = journey.GetEndpoint()->Name;
-
-        ImGui::BeginDisabled();
-        ImGui::PushFont(GetFont(FontSizes::H3));
-        Ui::DotSlider("JourneySlider", ratio, "Home", endpointStr.c_str(), 9);
-        ImGui::PopFont();
         ImGui::EndDisabled();
+
+        auto popupWidth = std::min(480.f, ImGui::GetIO().DisplaySize.x * 0.9f);
+        ImGui::SetNextWindowSize(ImVec2{popupWidth, 0.f}, ImGuiCond_Appearing);
+        if(ImGui::BeginPopup("TripSetup")) {
+            if(phase != Phase::Preparing) {
+                ImGui::CloseCurrentPopup();
+            } else {
+                RenderGarage(journey);
+                RenderDestination(journey);
+                RenderFuel(journey);
+                RenderCrew(journey);
+
+                if(ImGui::Button("Done")) {
+					ImGui::CloseCurrentPopup();
+                }
+            }
+            ImGui::EndPopup();
+        }
+
+        auto* endpoint = journey.GetEndpoint();
+        ImGui::TextUnformatted(endpoint->Name.c_str());
+
+        auto phaseName = ToString(phase);
+		ImGui::TextUnformatted(phaseName.data(), phaseName.data() + phaseName.size());
+        ImGui::SameLine();
+		if (phase == Phase::Preparing && !Home->Tech[TechKind::Preparation].Researched) {
+			ImGui::Text("- waiting for departure");
+		} else {
+			auto eta = Time::ToTimeString(journey.GetPhaseEta());
+			ImGui::Text("[%s]", eta.c_str());
+		}
+
+        auto position = journey.GetJourneyRatio();
+        ImGui::BeginDisabled();
+		Ui::DotSlider("JourneySlider", position, "Home", endpoint->Name.c_str(), 9);
+        ImGui::EndDisabled();
+
+        const char* action = "Complete";
+        switch(phase) {
+            using enum Phase;
+            case Preparing: action = "Depart"; break;
+            case Outbound:
+            case Returning: action = "Help Travel"; break;
+            case Loading:
+            case Unloading: action = "Move Cargo"; break;
+            default: break;
+        }
+
+        auto buttonLabel = std::string{action} + "###PrimaryAction";
+        ImGui::BeginDisabled(phase == Phase::Complete);
+        if(ImGui::Button(buttonLabel.c_str(), ImVec2{-1.f, ImGui::GetFrameHeight() * 4.f})) {
+			phase == Phase::Preparing 
+                ? journey.Start()
+				: journey.Tick(OneSecond);
+        }
+        ImGui::EndDisabled();
+        ImGui::BeginDisabled(journey.GetPhase() != Phase::Loading);
+        if(ImGui::Button("Return early")) {
+            journey.ReturnEarly();
+        }
+        ImGui::EndDisabled();
+
+        ImGui::Text("Delivered: %.0f%% | Stationed here: %llu", 
+            journey.GetDeliveryRatio() * 100.f, 
+            endpoint->StationedCrew);
+
+		if (endpoint->RemainingCargo == Zero && endpoint->StationedCrew > 0) {
+			ImGui::Text("%llu stationed crew awaiting pickup", endpoint->StationedCrew);
+		} else {
+            ImGui::Dummy(ImVec2{0.f, ImGui::GetTextLineHeight()});
+        }
     }
 
     void RenderHome() {
-		ImGui::BeginDisabled(Home->GetEndpoints().empty() || !Home->Vehicles.GetSelected());
-        if (ImGui::Button("Start Journey")) {
-            Services->Reset<Journey>();
-            Services->Set<Journey>(Home->Vehicles.GetSelected(), Home->GetEndpoints()[0].get(), *Home);
-        }
-        ImGui::EndDisabled();
+		//ImGui::BeginDisabled(Home->GetEndpoints().empty() || !Home->Vehicles.GetSelected());
+  //      if (ImGui::Button("Start Journey")) {
+  //          Services->Reset<Journey>();
+  //          Services->Set<Journey>(Home->Vehicles.GetSelected(), Home->GetEndpoints()[0].get(), *Home);
+  //      }
+  //      ImGui::EndDisabled();
     }
 
     void RenderStats(Journey* journey) {
 		const auto* vehicle = Home->Vehicles.GetSelected();
-		ImGui::Text("$%s", Str(Home->Funds.GetBalance()).c_str());
         auto dist = journey ? journey->GetCurrentDistance() : Distance{ 0 };
         auto dest = journey ? journey->GetEndDistance() : Distance{ 0 };
         auto accel = journey ? journey->GetCurrentAcceleration() : Acceleration{ 0 };
@@ -217,9 +258,12 @@ namespace {
     }
 
     void RenderContent(Journey* journey) {
+		ImGui::Text("$%s", Str(Home->Funds.GetBalance()).c_str());
 		journey ? RenderJourney(*journey) : RenderHome();
 
-        RenderStats(journey);
+        if(ImGui::CollapsingHeader("Stats")) {
+            RenderStats(journey);
+        }
     }
 }
 
