@@ -25,57 +25,12 @@ namespace Walker {
 			}
 		});
 
-		Crew.Subscribe(m_Subs, [this](const JobCompleted& job) {
-			if (job.Role == CrewRole::Scout) {
-				auto endpoint = static_cast<EndpointKind>(job.CompletedKind);
-
-				TryAddEndpoint(endpoint);
-			}
-		});
-
 		RebirthReset();
 	}
 
-	std::span<const std::unique_ptr<EndpointInstance>> HomeBase::GetEndpoints() const {
-		return m_Endpoints;
-	}
-
-	size_t HomeBase::GetAvailableEndpointSlots() const {
-		return m_MaxEndpointSlots - m_Endpoints.size();
-	}
-
-	bool HomeBase::TryAddEndpoint(EndpointKind kind) {
-		if (m_Endpoints.size() >= m_MaxEndpointSlots) return false;
-		m_Endpoints.push_back(std::make_unique<EndpointInstance>(kind));
-		return true;
-	}
-
-	std::optional<size_t> HomeBase::RemoveEndpoint(u64 id) {
-		auto it = std::ranges::find_if(m_Endpoints, [id](const auto& e) { return e->Id == id; });
-		if (it == m_Endpoints.end()) return std::nullopt;
-
-		auto index = static_cast<size_t>(it - m_Endpoints.begin());
-		m_Endpoints.erase(it);
-		return index;
-	}
-
 	void HomeBase::Tick(BaseTime elapsed) {
-		TickJourney(elapsed);
-		Crew.Tick(elapsed, GetAvailableEndpointSlots());
-	}
-
-	void HomeBase::TickJourney(BaseTime elapsed) {
 		m_Journey.Tick(elapsed);
-		if (m_Journey.GetPhase() != Phase::Complete) return;
-
-		auto* endpoint = m_Journey.GetEndpoint();
-		FurthestEndpoint = std::max(FurthestEndpoint, endpoint->Kind);
-		auto endpointId = endpoint->Id;
-		if (auto index = RemoveEndpoint(endpointId)) {
-			if (m_Endpoints.empty()) return;
-
-			index = std::min(*index, m_Endpoints.size() - 1);
-		}
+		Crew.Tick(elapsed);
 	}
 
 	EndpointKind HomeBase::GetMaxScoutKind() const {
@@ -124,12 +79,11 @@ namespace Walker {
 	}
 
 	void HomeBase::RebirthReset() {
-		ServiceLocator::Get().Reset<Journey>();
+		m_Journey.Reset();
 		FurthestEndpoint = EndpointKind::Unset;
 		Funds.Reset();
 		Vehicles.Reset();
-		m_Endpoints.clear();
-		m_Endpoints.push_back(std::make_unique<EndpointInstance>(EndpointKind::Neighborhood));
+		m_Journey.ChangeVehicle(*Vehicles.GetSelected());
 		Crew.RebirthReset();
 		Stats.RebirthReset();
 	}

@@ -108,14 +108,6 @@ namespace {
 
     void RenderJobs() {
         RenderJob(CrewRole::Scout);
-        static auto kinds = Enum::GetAllValues<EndpointKind>();
-        auto count = static_cast<size_t>(Home->GetMaxScoutKind()) - static_cast<size_t>(EndpointKind::Neighborhood) + 1;
-		auto choices = std::span<const EndpointKind>(kinds).first(count);
-
-        auto& crew = Home->Crew;
-        if(WalkerUi::ScoutSelector("ScoutSelector", choices, NextSearch)) {
-            crew.SetNextSearch(NextSearch);
-        }
 
         // TODO: Block these behind achievements or something
         RenderTechnologies();

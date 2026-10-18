@@ -43,11 +43,10 @@ namespace Walker {
 		std::optional<Time> GetEta(CrewRole role) const;
 		std::optional<f32> GetProgress(CrewRole role) const;
 
-		void SetNextSearch(EndpointKind kind);
 		bool TryStartScience(TechKind kind);
 		bool TryStartEngineering(TechKind kind);
 
-		void Tick(BaseTime elapsed, size_t scoutSlots);
+		void Tick(BaseTime elapsed);
 		ScopedHandle Subscribe(const JobDoneFn& callback);
 		void Subscribe(std::vector<ScopedHandle>& subs, const JobDoneFn& callback);
 		void RebirthReset();
@@ -64,12 +63,9 @@ namespace Walker {
 		const WalkerRates& m_Rates;
 		TechManager& m_Tech;
 		std::array<State, static_cast<size_t>(CrewRole::COUNT)> m_State{};
-		std::array<u64, static_cast<size_t>(EndpointKind::COUNT)> m_ScoutCompletions{};
 		PubSub<JobCompleted> m_Ps{};
-		EndpointKind m_NextSearch{EndpointKind::Neighborhood};
 		u64 m_HiredCount{};
 
-		void StartScout(Work initialWork = Zero);
 		void FinishJob(CrewRole role);
 		bool CanAssign(CrewRole role, const State& state) const;
 		bool CanUnassign(CrewRole role, const State& state, u64 count) const;

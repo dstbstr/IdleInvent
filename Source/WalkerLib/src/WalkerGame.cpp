@@ -33,7 +33,6 @@ namespace Walker {
         
         home.Vehicles.Add(VehicleKind::Jet);
         home.Funds.Add(Money::Pow10(24));
-        home.TryAddEndpoint(EndpointKind::InState);
         home.Rates.GetRebirth().AddPoints(100);
 		home.Rates.GetPrestige().AddPoints(100);
         home.Rates.GetAscend().AddPoints(100);

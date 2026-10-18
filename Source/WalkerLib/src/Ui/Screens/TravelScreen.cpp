@@ -14,6 +14,7 @@
 #include <Ui/UiUtil.h>
 #include <Ui/Widgets/DotSlider.h>
 #include <Ui/Widgets/StackedProgress.h>
+#include <Utilities/EnumUtils.h>
 #include <Utilities/Handle.h>
 
 #include <imgui.h>
@@ -46,16 +47,21 @@ namespace {
         VehicleKind SelectedKind = garage.GetSelected()->Kind;
         if (WalkerUi::VehicleSelector("VehicleSelector", garage.GetAvailable(), SelectedKind)) {
             garage.Select(SelectedKind);
-            journey.ChangeVehicle(garage.GetSelected());
+            journey.ChangeVehicle(*garage.GetSelected());
             Home->Crew.ClearTravelers();
             garage.GetSelected()->SetCrew(1);
         }
     }
 
     void RenderDestination(Journey& journey) {
-        auto* selectedEndpoint = journey.GetEndpoint();
-        if (WalkerUi::EndpointSelector("EndpointSelector", Home->GetEndpoints(), selectedEndpoint)) {
-            journey.ChangeEndpoint(selectedEndpoint);
+        static auto kinds = Enum::GetAllValues<EndpointKind>();
+        auto selected = journey.GetNextScout();
+        auto count = static_cast<size_t>(Home->GetMaxScoutKind()) - static_cast<size_t>(EndpointKind::Neighborhood) + 1;
+
+        auto choices = std::span<const EndpointKind>(kinds).first(count);
+
+        if (WalkerUi::ScoutSelector("ScoutSelector", choices, selected)) {
+            journey.SetNextScout(selected);
         }
     }
 
@@ -100,7 +106,7 @@ namespace {
         ImGui::Text("Aboard: %llu | Idle: %llu | Stationed: %llu",
             crew[CrewRole::Traveling],
             crew[CrewRole::Idle],
-            journey.GetEndpoint()->StationedCrew);
+            crew[CrewRole::Stationed]);
     }
 
     void RenderPreparing(Journey& journey) {
@@ -109,7 +115,7 @@ namespace {
         RenderFuel(journey);
         RenderCrew(journey);
 
-        if (ImGui::Button("Start")) {
+        if (ImGui::Button("Start") && journey.GetEndpoint() && journey.GetVehicleKind() != VehicleKind::Unset) {
             journey.Start();
         }
     }
@@ -129,7 +135,7 @@ namespace {
 
 		ImGui::Text("Vechicle: %s", ToString(journey.GetVehicleKind()).c_str());
         ImGui::SameLine();
-        ImGui::BeginDisabled(phase != Phase::Preparing);
+        ImGui::BeginDisabled(phase != Phase::Preparing && phase != Phase::Scouting);
         if(ImGui::Button("Trip setup")) {
             ImGui::OpenPopup("TripSetup");
         }
@@ -138,7 +144,7 @@ namespace {
         auto popupWidth = std::min(480.f, ImGui::GetIO().DisplaySize.x * 0.9f);
         ImGui::SetNextWindowSize(ImVec2{popupWidth, 0.f}, ImGuiCond_Appearing);
         if(ImGui::BeginPopup("TripSetup")) {
-            if(phase != Phase::Preparing) {
+            if(phase != Phase::Preparing && phase != Phase::Scouting) {
                 ImGui::CloseCurrentPopup();
             } else {
                 RenderGarage(journey);
@@ -154,7 +160,7 @@ namespace {
         }
 
         auto* endpoint = journey.GetEndpoint();
-        ImGui::TextUnformatted(endpoint->Name.c_str());
+        ImGui::TextUnformatted(endpoint ? endpoint->Name.c_str() : "Scouting...");
 
         auto phaseName = ToString(phase);
 		ImGui::TextUnformatted(phaseName.data(), phaseName.data() + phaseName.size());
@@ -168,12 +174,13 @@ namespace {
 
         auto position = journey.GetJourneyRatio();
         ImGui::BeginDisabled();
-		Ui::DotSlider("JourneySlider", position, "Home", endpoint->Name.c_str(), 9);
+		Ui::DotSlider("JourneySlider", position, "Home", endpoint ? endpoint->Name.c_str() : "??", 9);
         ImGui::EndDisabled();
 
         const char* action = "Complete";
         switch(phase) {
             using enum Phase;
+            case Scouting: action = "Help Scout"; break;
             case Preparing: action = "Depart"; break;
             case Outbound:
             case Returning: action = "Help Travel"; break;
@@ -198,30 +205,21 @@ namespace {
 
         ImGui::Text("Delivered: %.0f%% | Stationed here: %llu", 
             journey.GetDeliveryRatio() * 100.f, 
-            endpoint->StationedCrew);
+            endpoint ? endpoint->StationedCrew : 0);
 
-		if (endpoint->RemainingCargo == Zero && endpoint->StationedCrew > 0) {
+		if (endpoint && endpoint->RemainingCargo == Zero && endpoint->StationedCrew > 0) {
 			ImGui::Text("%llu stationed crew awaiting pickup", endpoint->StationedCrew);
 		} else {
             ImGui::Dummy(ImVec2{0.f, ImGui::GetTextLineHeight()});
         }
     }
 
-    void RenderHome() {
-		//ImGui::BeginDisabled(Home->GetEndpoints().empty() || !Home->Vehicles.GetSelected());
-  //      if (ImGui::Button("Start Journey")) {
-  //          Services->Reset<Journey>();
-  //          Services->Set<Journey>(Home->Vehicles.GetSelected(), Home->GetEndpoints()[0].get(), *Home);
-  //      }
-  //      ImGui::EndDisabled();
-    }
-
-    void RenderStats(Journey* journey) {
+    void RenderStats(Journey& journey) {
 		const auto* vehicle = Home->Vehicles.GetSelected();
-        auto dist = journey ? journey->GetCurrentDistance() : Distance{ 0 };
-        auto dest = journey ? journey->GetEndDistance() : Distance{ 0 };
-        auto accel = journey ? journey->GetCurrentAcceleration() : Acceleration{ 0 };
-        auto speed = journey ? journey->GetCurrentSpeed() : Speed{ 0 };
+        auto dist = journey.GetCurrentDistance();
+        auto dest = journey.GetEndDistance();
+        auto accel = journey.GetCurrentAcceleration();
+        auto speed = journey.GetCurrentSpeed();
         auto cargo = vehicle ? vehicle->FillRatio(Home->Rates) : 0.f;
 
         ImGui::Text("CurrentDistance: %sm / %sm", Str(dist).c_str(), Str(dest).c_str());
@@ -230,16 +228,16 @@ namespace {
 
         ImGui::Text("Cargo Fill: %.1f%%", cargo * 100.f);
 
-        if (journey && vehicle) {
-            auto total = journey->GetInitialCargo();
+        if (vehicle) {
+            auto total = journey.GetInitialCargo();
             auto Fraction = [&](const Mass& amount) -> f32 {
                 return total > Zero ? static_cast<f32>(Mass::Ratio(amount, total)) : 0.f;
                 };
 
             auto segments = std::array<Ui::ProgressSegment, 3>{ {
-                {Fraction(journey->GetDeliveredCargo()), DeliveredColor},
+                {Fraction(journey.GetDeliveredCargo()), DeliveredColor},
                 {Fraction(vehicle->CargoMass), OnboardColor},
-                {Fraction(journey->GetEndpointCargo()), AwaitingColor}
+                {Fraction(journey.GetEndpointCargo()), AwaitingColor}
             } };
 
             ImGui::TextUnformatted("Cargo Progress");
@@ -257,9 +255,9 @@ namespace {
         }
     }
 
-    void RenderContent(Journey* journey) {
+    void RenderContent(Journey& journey) {
 		ImGui::Text("$%s", Str(Home->Funds.GetBalance()).c_str());
-		journey ? RenderJourney(*journey) : RenderHome();
+        RenderJourney(journey);
 
         if(ImGui::CollapsingHeader("Stats")) {
             RenderStats(journey);
@@ -283,6 +281,6 @@ namespace Walker::WalkerUi::Screens::Travel {
     }
 
     void Render() {
-        RenderContent(ServiceLocator::Get().Get<Journey>());
+        RenderContent(Home->GetJourney());
     }
 }

@@ -10,7 +10,20 @@ namespace Walker {
 		: m_Ps(ServiceLocator::Get().GetRequired<PubSub<PhaseChanged>>())
         , m_Home(home)
 	{
-		m_Countdown = m_Home.Rates.GetPreparationDuration();
+		Reset();
+    }
+
+    void Journey::Reset() {
+        m_Transfer.reset();
+		m_Travel.reset();
+        m_Scouting.reset();
+        m_Countdown.reset();
+        m_End.reset();
+		m_Vehicle = nullptr;
+		m_Phase = Phase::Scouting;
+        m_NextScout = EndpointKind::Neighborhood;
+        m_WorkRemainder = {};
+        BeginScouting();
     }
 
     Distance Journey::GetCurrentDistance() const {
@@ -35,23 +48,18 @@ namespace Walker {
         }
     }
 
-    bool Journey::ChangeVehicle(OwnedVehicle* vehicle) {
-        if(m_Phase != Phase::Preparing || !vehicle) return false;
-        m_Vehicle = vehicle;
-        return true;
-    }
-
-    bool Journey::ChangeEndpoint(EndpointInstance* end) {
-		if (m_Phase != Phase::Preparing || !end) return false;
-        m_End = end;
+    bool Journey::ChangeVehicle(OwnedVehicle& vehicle) {
+        if(m_Phase != Phase::Preparing && m_Phase != Phase::Scouting) return false;
+        m_Vehicle = &vehicle;
         return true;
     }
 
 	void Journey::Tick(BaseTime elapsed) { 
-		if(elapsed <= ZeroTime || m_Phase == Phase::Complete) return;
+		if(elapsed <= ZeroTime) return;
 
         switch(m_Phase) {
             using enum Phase;
+            case Scouting: TickScout(elapsed); break;
             case Outbound: case Returning: TickTravel(elapsed); break;
             case Loading: TickLoading(elapsed); break;
             case Unloading: TickUnloading(elapsed); break;
@@ -63,12 +71,13 @@ namespace Walker {
 					m_Countdown = m_Home.Rates.GetPreparationDuration();
                 }
                 break;
+            case Complete: ChangePhase(Phase::Scouting); break;
             default: break;
         }
 	}
 
 	f32 Journey::GetJourneyRatio() const {
-		auto result = static_cast<f32>(Distance::Ratio(GetCurrentDistance(), m_End->DistanceFromHome));
+		auto result = m_End ? static_cast<f32>(Distance::Ratio(GetCurrentDistance(), m_End->DistanceFromHome)) : 0.0f;
         return std::clamp(result, 0.f, 1.f);
 	}
 
@@ -81,21 +90,24 @@ namespace Walker {
     }
 
     f32 Journey::GetDeliveryRatio() const {
-        if(m_End->InitialCargo <= Zero) return 1.f;
+        if(!m_End || m_End->InitialCargo <= Zero) return 1.f;
 
         return std::clamp(static_cast<f32>(Mass::Ratio(m_End->DeliveredCargo, m_End->InitialCargo)), 0.f, 1.f);
     }
 
     f32 Journey::GetEndpointCargoRatio() const {
-        if(m_End->InitialCargo <= Zero) return 1.f;
+        if(!m_End || m_End->InitialCargo <= Zero) return 1.f;
         return std::clamp(static_cast<f32>(Mass::Ratio(m_End->RemainingCargo, m_End->InitialCargo)), 0.f, 1.f);
     }
 
     Time Journey::GetPhaseEta() const {
-		auto loadingWorkers = m_Home.Crew[CrewRole::Traveling] + m_End->StationedCrew;
-		auto unloadingWorkers = m_Home.Crew.GetCount() - m_Home.Crew[CrewRole::Stationed];
+		auto stationed = m_End ? m_End->StationedCrew : 0;
+        auto loadingWorkers = m_Home.Crew[CrewRole::Traveling] + stationed;
+        auto unloadingWorkers = m_Home.Crew.GetCount() - m_Home.Crew[CrewRole::Stationed];
+
         switch(m_Phase) {
             using enum Phase;
+		    case Scouting: return m_Scouting ? m_Scouting->Progress.GetEta(m_Home.Rates.GetDiscoveryWorkRate()).value_or(Zero) : Zero;
             case Loading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * loadingWorkers, m_End->UnitCargoWork).value_or(Zero) : Zero;
             case Unloading: return m_Transfer ? m_Transfer->GetEta(m_Home.Rates.GetCargoWorkRate() * unloadingWorkers, m_End->UnitCargoWork).value_or(Zero) : Zero;
             case Outbound: // fallthrough
@@ -105,6 +117,33 @@ namespace Walker {
         }
 
         return Zero;
+    }
+
+    void Journey::BeginScouting() {
+        m_End.reset();
+        m_Scouting = ScoutState{
+            .Target = m_NextScout,
+            .Progress = JobProgress{
+                .RequiredWork = m_Home.Rates.GetScoutingWork(m_NextScout, 0),
+				.CompletedWork = Zero
+            }
+        };
+    }
+
+    void Journey::TickScout(BaseTime elapsed) {
+        auto& scout = *m_Scouting;
+        auto rate = m_Home.Rates.GetDiscoveryWorkRate();
+
+		auto numerator = rate * ToWalkerTime(elapsed) + scout.WorkRemainder;
+        auto work = numerator / MsPerSec;
+		scout.WorkRemainder = numerator - work * MsPerSec;
+        scout.Progress.Advance(work);
+
+        if(scout.Progress.IsComplete()) {
+            m_End.emplace(scout.Target);
+            m_Scouting.reset();
+            ChangePhase(Phase::Preparing);
+        }
     }
 
     void Journey::TickTravel(BaseTime elapsed) {
@@ -199,11 +238,15 @@ namespace Walker {
 
     void Journey::ChangePhase(Phase next) {
 		if (next == m_Phase) return;
-		if (next == Phase::Preparing || next == Phase::Complete) {
+        if(next == Phase::Scouting) {
+            BeginScouting();
+        } else if (next == Phase::Preparing || next == Phase::Complete) {
 			m_Travel.reset();
 			m_Transfer.reset();
             if(next == Phase::Preparing) {
                 m_Countdown = m_Home.Rates.GetPreparationDuration();
+            } else {
+				m_Home.FurthestEndpoint = std::max(m_Home.FurthestEndpoint, m_End ? m_End->Kind : EndpointKind::Unset);
             }
 		} else if(next == Phase::Outbound || next == Phase::Returning) {
             m_Transfer.reset();

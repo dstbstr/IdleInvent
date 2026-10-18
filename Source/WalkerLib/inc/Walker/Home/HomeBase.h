@@ -36,14 +36,8 @@ namespace Walker {
 		Garage Vehicles{};
 		StatManager Stats{};
 
-		std::span<const std::unique_ptr<EndpointInstance>> GetEndpoints() const;
-		size_t GetAvailableEndpointSlots() const;
-		
 		Journey& GetJourney() { return m_Journey; }
 		const Journey& GetJourney() const { return m_Journey; }
-
-		bool TryAddEndpoint(EndpointKind kind);
-		std::optional<size_t> RemoveEndpoint(u64 id);
 
 		EndpointKind FurthestEndpoint{EndpointKind::Unset};
 		EndpointKind GetMaxScoutKind() const;
@@ -57,12 +51,9 @@ namespace Walker {
 		bool TryAscend();
 
 	private:
-		std::vector<std::unique_ptr<EndpointInstance>> m_Endpoints{};
 		std::vector<ScopedHandle> m_Subs{};
-		size_t m_MaxEndpointSlots{50};
 		Journey m_Journey;
 
-		void TickJourney(BaseTime elapsed);
 		void RebirthReset();
 		void PrestigeReset();
 		void AscendReset();

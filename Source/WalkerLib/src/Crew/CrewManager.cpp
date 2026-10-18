@@ -83,11 +83,6 @@ namespace Walker {
 		});
 	}
 
-	void CrewManager::SetNextSearch(EndpointKind kind) {
-		DR_ASSERT_MSG(kind > EndpointKind::Unset && kind < EndpointKind::COUNT, "Invalid endpoint");
-		m_NextSearch = kind;
-	}
-
 	bool CrewManager::TryStartScience(TechKind kind) {
 		if (kind <= TechKind::Unset || kind >= TechKind::COUNT) return false;
 		auto& state = m_State[static_cast<size_t>(CrewRole::Scientist)];
@@ -118,13 +113,12 @@ namespace Walker {
 		return true;
 	}
 
-	void CrewManager::Tick(BaseTime elapsed, size_t scoutSlots) {
+	void CrewManager::Tick(BaseTime elapsed) {
 		if(elapsed <= ZeroTime) return;
 		auto elapsedMs = ToWalkerTime(elapsed);
 
 		for(auto job : Enum::GetAllValues<CrewRole>()) {
-			if(job == CrewRole::Idle || job == CrewRole::Traveling) continue;
-			if(job == CrewRole::Scout && scoutSlots == 0) continue;
+			if(job != CrewRole::Scientist && job != CrewRole::Engineer) continue;
 			auto& state = m_State[static_cast<size_t>(job)];
 			if(state.Progress == std::nullopt || state.CrewCount == 0) continue;
 
@@ -134,17 +128,7 @@ namespace Walker {
 
 			state.Progress->Advance(work);
 			while(state.CrewCount > 0 && state.Progress && state.Progress->IsComplete()) {
-				if(job == CrewRole::Scout) {
-					if(scoutSlots == 0) break;
-					--scoutSlots;
-				}
 				FinishJob(job);
-			}
-
-			// keep at most one completed job ready, discarding excess
-			if(job == CrewRole::Scout && scoutSlots == 0 && state.Progress) {
-				state.Progress->CompletedWork = std::min(state.Progress->CompletedWork, state.Progress->RequiredWork);
-				state.WorkRemainder = Zero;
 			}
 		}
 	}
@@ -168,30 +152,12 @@ namespace Walker {
 		// player is always 'traveling'
 		m_State[static_cast<size_t>(CrewRole::Traveling)].CrewCount = 1;
 		m_State[static_cast<size_t>(CrewRole::Idle)].CrewCount = count - 1;
-		m_ScoutCompletions.fill(0);
-
-		m_NextSearch = EndpointKind::Neighborhood;
-		StartScout();
 	}
 
 	void CrewManager::PrestigeReset() {
 		m_State.fill({ .CrewCount = 0, .Progress = {}, .WorkRemainder = Zero });
 		m_State[static_cast<size_t>(CrewRole::Traveling)].CrewCount = 1;
 		m_HiredCount = 0;
-	}
-
-	void CrewManager::StartScout(Work initialWork) {
-		auto& state = m_State[static_cast<size_t>(CrewRole::Scout)];
-		if(state.Progress) return;
-
-		auto current = static_cast<u8>(m_NextSearch);
-		state.TargetKind = current;
-		auto completions = m_ScoutCompletions[current];
-		auto requiredWork = m_Rates.GetScoutingWork(m_NextSearch, completions + 1);
-		state.Progress = JobProgress{
-			.RequiredWork = requiredWork,
-			.CompletedWork = initialWork,
-		};
 	}
 
 	void CrewManager::FinishJob(CrewRole role) {
@@ -202,21 +168,16 @@ namespace Walker {
 		auto kind = static_cast<size_t>(state.TargetKind);
 		state.TargetKind = 0;
 
-		if (role == CrewRole::Scout) {
-			m_ScoutCompletions[kind]++;
-			StartScout(extraWork);
-		} else {
-			auto tech = static_cast<TechKind>(kind);
-			if(role == CrewRole::Scientist) {
-				m_Tech.CompleteResearch(tech);
-			}
-			else if (role == CrewRole::Engineer) {
-				m_Tech.CompleteUpgrade(tech);
-			}
-
-			TryUnassign(state.CrewCount, role); // roles which don't auto restart get unassigned
-			state.WorkRemainder = Zero;
+		auto tech = static_cast<TechKind>(kind);
+		if(role == CrewRole::Scientist) {
+			m_Tech.CompleteResearch(tech);
 		}
+		else if (role == CrewRole::Engineer) {
+			m_Tech.CompleteUpgrade(tech);
+		}
+
+		TryUnassign(state.CrewCount, role); // roles which don't auto restart get unassigned
+		state.WorkRemainder = Zero;
 
 		m_Ps.Publish({
 			.Role = role,

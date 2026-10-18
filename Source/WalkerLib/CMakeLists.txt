@@ -57,4 +57,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/StoreScreen.cpp
 	src/Ui/Screens/TravelScreen.cpp
 	src/Ui/Screens/WalkerScreens.cpp
- "inc/Walker/Ui/WalkerRebirthPallete.h")
+ "inc/Walker/Ui/WalkerRebirthPallete.h" "inc/Walker/Journey/ScoutState.h")

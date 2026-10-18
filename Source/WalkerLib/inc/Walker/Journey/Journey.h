@@ -3,6 +3,7 @@
 #include "Walker/WalkerUnits.h"
 #include "Walker/Journey/CargoTransfer.h"
 #include "Walker/Journey/Endpoints.h"
+#include "Walker/Journey/ScoutState.h"
 #include "Walker/Travel/TravelLeg.h"
 #include "Walker/Travel/Vehicle.h"
 
@@ -43,10 +44,14 @@ namespace Walker {
         void Tick(BaseTime elasped);
         f32 GetJourneyRatio() const;
         void ReturnEarly();
-		bool ChangeVehicle(OwnedVehicle* vehicle);
-		bool ChangeEndpoint(EndpointInstance* end);
-		EndpointInstance* GetEndpoint() const { return m_End; }
-		VehicleKind GetVehicleKind() const { return m_Vehicle ? m_Vehicle->Kind : VehicleKind::Unset; }
+		
+        VehicleKind GetVehicleKind() const { return m_Vehicle ? m_Vehicle->Kind : VehicleKind::Unset; }
+		bool ChangeVehicle(OwnedVehicle& vehicle);
+        
+		EndpointKind GetNextScout() const { return m_NextScout; }
+		void SetNextScout(EndpointKind kind) { m_NextScout = kind; }
+		const EndpointInstance* GetEndpoint() const { return m_End ? &(*m_End) : nullptr; }
+		//bool ChangeEndpoint(EndpointInstance* end);
 
         Distance GetCurrentDistance() const;
         Distance GetEndDistance() const { return m_End ? m_End->DistanceFromHome : Zero; }
@@ -66,10 +71,15 @@ namespace Walker {
         void RecoverCrew(u64 count);
 
         Time GetPhaseEta() const;
+        void Reset();
+
     private:
         PubSub<PhaseChanged>& m_Ps;
         OwnedVehicle* m_Vehicle{nullptr};
-        EndpointInstance* m_End{};
+
+        std::optional<EndpointInstance> m_End{};
+		EndpointKind m_NextScout{ EndpointKind::Neighborhood };
+
         HomeBase& m_Home;
         Phase m_Phase{Phase::Preparing};
 
@@ -77,10 +87,13 @@ namespace Walker {
 
         std::optional<BaseTime> m_Countdown{};
 
+        std::optional<ScoutState> m_Scouting{};
         std::optional<CargoTransfer> m_Transfer;
         std::optional<TravelLeg> m_Travel;
         WorkRate m_WorkRemainder{};
 
+        void BeginScouting();
+        void TickScout(BaseTime elapsed);
         void TickTravel(BaseTime elapsed);
         void TickLoading(BaseTime elapsed);
         void TickUnloading(BaseTime elapsed);
