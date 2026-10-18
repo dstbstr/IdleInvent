@@ -40,7 +40,7 @@ namespace Walker::WalkerUi {
 
 				ImGui::BeginDisabled(points < cost || capped || cost == unavailableCost);
 				ImGui::PushStyleColor(ImGuiCol_Button, color);
-				auto buttonText = priceText + "###Buy";
+				auto buttonText = std::format("{}|{}###Buy", level, priceText);
 				if (ImGui::Button(buttonText.c_str(), ImVec2{-1.f, 0.f}) && progression.TryPurchase(key, 1, cost)) {
 					changed = true;
 				}

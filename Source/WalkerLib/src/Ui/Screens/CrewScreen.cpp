@@ -3,6 +3,7 @@
 #include "Walker/Home/HomeBase.h"
 #include "Walker/Ui/EtaProgress.h"
 #include "Walker/Ui/Selectors.h"
+#include "Walker/Ui/UpgradeRow.h"
 
 #include <DesignPatterns/ServiceLocator.h>
 #include <Ui/UiUtil.h>
@@ -60,6 +61,8 @@ namespace {
             WalkerUi::EtaProgressBar(*progress, crew.GetEta(role));
             ImGui::PopFont();
         }
+
+        WalkerUi::RenderUpgradeRow(roleStr.c_str(), UpgradeKey::Job(role), Home->Rates);
         ImGui::PopID();
     }
 
