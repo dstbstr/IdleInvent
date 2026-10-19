@@ -29,6 +29,7 @@ namespace Walker {
         auto& home = services.GetOrCreate<HomeBase>();
 
         //// cheats
+        /*
         home.Crew.Add(9);
         
         home.Vehicles.Add(VehicleKind::Jet);
@@ -40,6 +41,7 @@ namespace Walker {
         home.Stats.OnPrestige();
         home.Stats.OnAscend();
         home.OfflineTime.AddTime(OneHour * 8);
+        */
         ////
 
         return WalkerUi::Layout::Initialize();

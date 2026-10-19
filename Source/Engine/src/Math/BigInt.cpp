@@ -63,6 +63,8 @@ static_assert(BigInt::GetMaxValue() * 10 == BigInt::GetMaxValue());
 static_assert(BigInt(12) * 0.5f == BigInt(6));
 static_assert(BigInt(12) * 1.5f == BigInt(18));
 static_assert(BigInt(7) * 0.5f == BigInt(3));
+static_assert(BigInt(0) * 0.5f == BigInt(0));
+static_assert(BigInt(0) * -0.5f == BigInt(0));
 
 // operator /
 static_assert(BigInt(12) / 2 == BigInt(6));

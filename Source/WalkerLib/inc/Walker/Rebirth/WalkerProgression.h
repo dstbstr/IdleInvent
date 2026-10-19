@@ -11,7 +11,7 @@ namespace Walker {
 	enum struct VehicleStat : u8 {
 		Unset,
 		Accel,
-		Speed,
+		Drag,
 		Capacity,
 
 		COUNT
@@ -22,7 +22,7 @@ namespace Walker {
 		Discovery,
 		Jobs,
 		Accel,
-		Speed,
+		Drag,
 		Capacity,
 
 		COUNT

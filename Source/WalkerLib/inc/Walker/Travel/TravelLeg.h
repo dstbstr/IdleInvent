@@ -24,7 +24,7 @@ namespace Walker {
     private:
         Distance m_TargetDistance{};
         Distance m_Traveled{};
-        Distance m_DistanceRemainder{};
+        Distance m_DistanceRemainder{}; // stored in micrometers
 
         Speed m_CurrentSpeed{};
         Speed m_ArrivalSpeed{};
@@ -33,7 +33,6 @@ namespace Walker {
         BaseTime m_PoweredTime{};
         const WalkerRates& m_Rates;
 
-        Speed CalculateTargetSpeed(const OwnedVehicle& vehicle) const;
         Time GetRemainingPoweredTime(const OwnedVehicle& vehicle) const;
         struct TravelSegment {
             BaseTime Duration{};
@@ -41,8 +40,7 @@ namespace Walker {
             bool Powered{};
         };
 
-		std::pair<Distance, Time> RequiredDistanceAndTime(const OwnedVehicle& vehicle, Speed peak, Time poweredMs) const;
         TravelSegment CalculateNextSegment(const OwnedVehicle& vehicle, BaseTime elapsed) const;
-		void ApplySegment(OwnedVehicle& vehicle, const TravelSegment& segment);
+		Distance ApplySegment(OwnedVehicle& vehicle, const TravelSegment& segment);
 	};
 }

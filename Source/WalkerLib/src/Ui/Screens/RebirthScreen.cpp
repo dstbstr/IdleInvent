@@ -34,7 +34,7 @@ namespace {
 		Upgrade("All Jobs", GlobalStat::Jobs);
 		Upgrade("Discovery", GlobalStat::Discovery);
 		Upgrade("All Acceleration", GlobalStat::Accel);
-		Upgrade("All Speed", GlobalStat::Speed);
+		Upgrade("All Aerodynamics", GlobalStat::Drag);
 		Upgrade("All Capacity", GlobalStat::Capacity);
 
         ImGui::PopFont();

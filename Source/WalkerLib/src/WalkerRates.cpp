@@ -28,39 +28,39 @@ namespace {
 		Global(GlobalStat::Jobs, 1, 1.2);
 		Global(GlobalStat::Discovery, 1, 1.2);
 		Global(GlobalStat::Accel, 1, 1.2);
-		Global(GlobalStat::Speed, 1, 1.2);
+		Global(GlobalStat::Drag, 1, 1.2);
 		Global(GlobalStat::Capacity, 1, 1.2);
 
 		Vehicle(VehicleKind::Foot, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Foot, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Foot, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Foot, VehicleStat::Capacity, 1, 1.2);
 		
 		Vehicle(VehicleKind::Bike, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Bike, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Bike, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Bike, VehicleStat::Capacity, 1, 1.2);
 
 		Vehicle(VehicleKind::Car, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Car, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Car, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Car, VehicleStat::Capacity, 1, 1.2);
 
 		Vehicle(VehicleKind::Boat, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Boat, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Boat, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Boat, VehicleStat::Capacity, 1, 1.2);
 
 		Vehicle(VehicleKind::Plane, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Plane, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Plane, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Plane, VehicleStat::Capacity, 1, 1.2);
 
 		Vehicle(VehicleKind::Jet, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Jet, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Jet, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Jet, VehicleStat::Capacity, 1, 1.2);
 
 		Vehicle(VehicleKind::Rocket, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Rocket, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Rocket, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Rocket, VehicleStat::Capacity, 1, 1.2);
 
 		Vehicle(VehicleKind::Starship, VehicleStat::Accel, 1, 1.2);
-		Vehicle(VehicleKind::Starship, VehicleStat::Speed, 1, 1.2);
+		Vehicle(VehicleKind::Starship, VehicleStat::Drag, 1, 1.2);
 		Vehicle(VehicleKind::Starship, VehicleStat::Capacity, 1, 1.2);
 
 		Crew(CrewRole::Engineer, 1, 1.2);
@@ -127,11 +127,30 @@ namespace Walker {
 		return global.Combine(local).Apply(base);
 	}
 
-	Speed WalkerRates::GetVehicleMaxSpeed(VehicleKind kind) const {
-		auto base = GetVehicleDetails(kind).MaxSpeed;
-		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Speed));
-		auto local = GetBonus(UpgradeKey::Vehicle(kind, VehicleStat::Speed));
-		return global.Combine(local).Apply(base);
+	Acceleration WalkerRates::GetDrag(VehicleKind kind, Speed speed) const {
+		if(speed <= Zero) return Zero;
+
+		const auto& details = GetVehicleDetails(kind);
+		DR_ASSERT(details.ReferenceSpeed > Zero);
+		if(details.ReferenceSpeed <= Zero) return Zero;
+
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Drag));
+		auto local = GetBonus(UpgradeKey::Vehicle(kind, VehicleStat::Drag));
+		auto ref = global.Combine(local).Apply(details.ReferenceSpeed);
+
+		return details.DragAtReference * speed / ref;
+	}
+
+	Time WalkerRates::GetDragResponseTime(VehicleKind kind) const {
+		const auto& details = GetVehicleDetails(kind);
+		DR_ASSERT(details.ReferenceSpeed > Zero && details.DragAtReference > Zero);
+		if (details.ReferenceSpeed <= Zero || details.DragAtReference <= Zero) return Zero;
+
+		auto global = GetBonus(UpgradeKey::Global(GlobalStat::Drag));
+		auto local = GetBonus(UpgradeKey::Vehicle(kind, VehicleStat::Drag));
+		auto ref = global.Combine(local).Apply(details.ReferenceSpeed);
+
+		return ref * MsPerSec / details.DragAtReference;
 	}
 
 	Mass WalkerRates::GetVehicleCapacity(VehicleKind kind) const {

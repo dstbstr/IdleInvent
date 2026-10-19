@@ -23,8 +23,9 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Main.cpp
 
   src/Combat/CombatRunner.test.cpp
-  "src/Combat/RoundRobinScheduler.test.cpp"
   src/Combat/Encounter.test.cpp
+  src/Combat/RealTimeScheduler.test.cpp
+  src/Combat/RoundRobinScheduler.test.cpp
 
   src/Constexpr/ConstexprMath.test.cpp
   src/Constexpr/ConstexprSaveUtils.test.cpp
@@ -39,6 +40,9 @@ target_sources(${PROJECT_NAME} PRIVATE
 
   src/Manage/EventManager.tests.cpp
   src/Manage/TickManager.test.cpp
+
+  src/Math/BigInt.test.cpp
+  src/Math/Kinematics.test.cpp
 
   src/Mechanics/Advancement.tests.cpp
   src/Mechanics/Purchasable.test.cpp
@@ -56,4 +60,4 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Utilities/TypeUtils.test.cpp
  
   src/World/AStar.test.cpp
- "src/Combat/RealTimeScheduler.test.cpp" "src/Math/BigInt.test.cpp")
+)

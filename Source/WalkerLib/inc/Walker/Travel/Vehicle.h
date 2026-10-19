@@ -16,7 +16,8 @@ namespace Walker {
         VehicleKind Kind{};
         Money Cost{};
         Mass MaxCapacity;
-        Speed MaxSpeed;
+        Speed ReferenceSpeed;
+        Acceleration DragAtReference;
         Acceleration BaseAcceleration;
         Acceleration PoweredAcceleration;
         FuelEfficiency FuelEfficiency;
@@ -28,7 +29,8 @@ namespace Walker {
         explicit OwnedVehicle(VehicleKind kind) : Kind(kind) {
             const auto& details = GetVehicleDetails(kind);
             TotalCapacity = details.MaxCapacity;
-            MaxSpeed = details.MaxSpeed;
+            ReferenceSpeed = details.ReferenceSpeed;
+			DragAtReference = details.DragAtReference;
             BaseAcceleration = details.BaseAcceleration;
             PoweredAcceleration = details.PoweredAcceleration;
             Efficiency = details.FuelEfficiency;
@@ -40,7 +42,8 @@ namespace Walker {
         Mass CrewMass{};
         Mass FuelMass{};
 
-        Speed MaxSpeed{};
+        Speed ReferenceSpeed{};
+		Acceleration DragAtReference{};
         Acceleration BaseAcceleration{};
         Acceleration PoweredAcceleration{};
 

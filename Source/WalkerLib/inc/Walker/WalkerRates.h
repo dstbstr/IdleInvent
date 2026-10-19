@@ -37,7 +37,8 @@ namespace Walker {
 		WorkRate GetDiscoveryWorkRate() const;
 		Acceleration GetBaseAccel(VehicleKind kind) const;
 		Acceleration GetPoweredAccel(VehicleKind kind) const;
-		Speed GetVehicleMaxSpeed(VehicleKind kind) const;
+		Acceleration GetDrag(VehicleKind kind, Speed speed) const;
+		Time GetDragResponseTime(VehicleKind kind) const;
 		Mass GetVehicleCapacity(VehicleKind kind) const;
 		Money GetCargoValue(Mass amount, EndpointKind kind) const;
 		std::optional<BaseTime> GetPreparationDuration() const;

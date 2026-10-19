@@ -18,7 +18,7 @@ namespace {
     void RenderStats(VehicleKind kind) {
         const auto& rates = Home->Rates;
 		ImGui::Text("Cost: %s", rates.GetVehicleCost(kind).ToScientific().c_str());
-		ImGui::Text("Max Speed: %s", rates.GetVehicleMaxSpeed(kind).ToScientific().c_str());
+        ImGui::Text("Drag response: %s", Time::ToTimeString(rates.GetDragResponseTime(kind)).c_str());
 		ImGui::Text("Capacity: %s", rates.GetVehicleCapacity(kind).ToScientific().c_str());
 		ImGui::Text("Base Acceleration: %s", rates.GetBaseAccel(kind).ToScientific().c_str());
 		ImGui::Text("Powered Acceleration: %s", rates.GetPoweredAccel(kind).ToScientific().c_str());
@@ -47,9 +47,9 @@ namespace {
         ImGui::SameLine();
 		WalkerUi::RenderUpgradeRow("Acceleration", UpgradeKey::Vehicle(SelectedKind, VehicleStat::Accel), Home->Rates);
 
-        ImGui::TextUnformatted("Max Speed");
+        ImGui::TextUnformatted("Aerodynamics");
 		ImGui::SameLine();
-		WalkerUi::RenderUpgradeRow("Max Speed", UpgradeKey::Vehicle(SelectedKind, VehicleStat::Speed), Home->Rates);
+		WalkerUi::RenderUpgradeRow("Aerodynamics", UpgradeKey::Vehicle(SelectedKind, VehicleStat::Drag), Home->Rates);
 
         ImGui::TextUnformatted("Capacity");
 		ImGui::SameLine();

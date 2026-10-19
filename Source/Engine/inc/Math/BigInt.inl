@@ -313,7 +313,7 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator*=(TMul mul) ->
     if(!(mul >= std::numeric_limits<TMul>::lowest() && mul <= std::numeric_limits<TMul>::max())) {
         throw std::domain_error("Invalid floating point value");
     }
-    if(mul == 0.0) {
+    if(mul == 0.0 || Coef() == 0) {
         *this = BigIntImpl(0);
         return *this;
     }
