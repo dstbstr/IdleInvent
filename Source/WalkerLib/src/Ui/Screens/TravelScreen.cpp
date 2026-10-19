@@ -27,8 +27,9 @@ namespace {
     using namespace Walker;
     HomeBase* Home{nullptr};
     WalkerSettings* Settings{nullptr};
-
     ServiceLocator* Services{nullptr};
+    std::optional<Time> LastEta{};
+    std::optional<Phase> LastPhase{};
 
     auto DeliveredColor = IM_COL32(0, 255, 0, 255);
     auto OnboardColor = IM_COL32(255, 255, 0, 255);
@@ -168,8 +169,16 @@ namespace {
 		if (phase == Phase::Preparing && !Home->Tech[TechKind::Preparation].Researched) {
 			ImGui::Text("- waiting for departure");
 		} else {
-			auto eta = Time::ToTimeString(journey.GetPhaseEta());
-			ImGui::Text("[%s]", eta.c_str());
+            auto eta = journey.GetPhaseEta();
+            if(!LastEta || LastPhase != phase) {
+                LastEta = eta;
+            } else {
+                LastEta = std::min(*LastEta, eta);
+            }
+            LastPhase = phase;
+
+            auto etaStr = Time::ToTimeString(*LastEta);
+			ImGui::Text("[%s]", etaStr.c_str());
 		}
 
         auto position = journey.GetJourneyRatio();

@@ -119,7 +119,7 @@ namespace Walker {
         }
 
         // narrow within 100 ms
-        while(high - low > Time{100}) {
+        while(high - low > Time{10}) {
             auto mid = low + (high - low) / 2;
             if(mid <= low || mid >= high) break;
             if(EstimateTrip(mid).DistanceNeeded < d) {

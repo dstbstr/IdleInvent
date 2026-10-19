@@ -39,6 +39,7 @@ public:
     constexpr BigIntImpl& operator-=(const BigIntImpl& other);
     constexpr BigIntImpl& operator*=(const BigIntImpl& other);
     constexpr BigIntImpl& operator/=(const BigIntImpl& other);
+    constexpr BigIntImpl& operator%=(const BigIntImpl& other);
     constexpr BigIntImpl& Pow(u32 pow);
 	
     template<std::floating_point TExp>
@@ -51,6 +52,7 @@ public:
     friend constexpr BigIntImpl operator-(BigIntImpl lhs, BigIntImpl rhs) { return lhs -= rhs; }
     friend constexpr BigIntImpl operator*(BigIntImpl lhs, BigIntImpl rhs) { return lhs *= rhs; }
     friend constexpr BigIntImpl operator/(BigIntImpl lhs, BigIntImpl rhs) { return lhs /= rhs; }
+	friend constexpr BigIntImpl operator%(BigIntImpl lhs, BigIntImpl rhs) { return lhs %= rhs; }
 
     template<std::floating_point TMul>
     constexpr BigIntImpl& operator*=(TMul mul);

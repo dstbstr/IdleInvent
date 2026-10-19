@@ -72,6 +72,12 @@ static_assert(BigInt(12) / 5 == BigInt(2));
 static_assert(BigInt(-12) / 2 == BigInt(-6));
 static_assert(BigInt(-12) / -2 == BigInt(6));
 
+// operator %
+static_assert(BigInt(12) % 10 == BigInt(2));
+static_assert(BigInt(12) % 3 == BigInt(0));
+static_assert(BigInt(-12) % BigInt(5) == BigInt(-2));
+static_assert(BigInt(-12) % BigInt(-5) == BigInt(-2));
+
 // Pow
 static_assert(BigInt(2).Pow(10) == BigInt(1'024));
 static_assert(BigInt(-3).Pow(3) == BigInt(-27));

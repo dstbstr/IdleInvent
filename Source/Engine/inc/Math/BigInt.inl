@@ -209,6 +209,43 @@ constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator/=(const BigInt
 }
 
 template<size_t TCoefBits, size_t TExpBits, bool TSigned>
+constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::operator%=(const BigIntImpl& other) -> BigIntImpl& {
+	if (other.Coef() == 0) throw std::domain_error("Divide by 0");
+	if (Coef() == 0) return *this;
+
+    auto rem = u128(Coef());
+    auto div = u128(other.Coef());
+    auto exp = Exponent();
+
+    if(exp < other.Exponent()) {
+        auto dif = other.Exponent() - exp;
+        while(dif != 0) {
+            div *= 10;
+            if(div > rem) return *this;
+            --dif;
+        }
+        rem %= div;
+    } else {
+        auto dif = exp - other.Exponent();
+        exp = other.Exponent();
+        rem %= div;
+
+        auto factor = u128(10) % div;
+        while(dif != 0) {
+            if((dif % 1u) != 0) {
+				rem = (rem * factor) % div;
+            }
+            dif >>= 1;
+			if (dif != 0) factor = (factor * factor) % div;
+        }
+    }
+
+    *this = BigIntImpl(rem, exp, IsNegative());
+    return *this;
+}
+
+
+template<size_t TCoefBits, size_t TExpBits, bool TSigned>
 constexpr auto BigIntImpl<TCoefBits, TExpBits, TSigned>::Pow(u32 pow) -> BigIntImpl& {
     auto base = *this;
     auto result = BigIntImpl(1);
