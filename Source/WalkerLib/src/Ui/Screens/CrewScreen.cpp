@@ -16,8 +16,6 @@ namespace {
     using namespace Walker;
     HomeBase* Home{nullptr};
     WalkerSettings* Settings{nullptr};
-    EndpointKind CurrentSearch{EndpointKind::Neighborhood};
-    EndpointKind NextSearch{EndpointKind::Neighborhood};
 
 	void RenderIdle() {
 		ImGui::TextUnformatted("Idle");
@@ -33,6 +31,10 @@ namespace {
             Home->TryHireCrew(purchaseCount);
         }
         ImGui::EndDisabled();
+        auto cost = Home->Rates.GetHireCost(Home->Crew.GetHiredCount());
+        auto costText = cost.ToHumanReadable(2).value_or(cost.ToScientific(2));
+        ImGui::SameLine();
+		ImGui::Text("Next hire: $%s", costText.c_str());
 	}
 
     void RenderJob(CrewRole role) {
@@ -107,8 +109,6 @@ namespace {
     }
 
     void RenderJobs() {
-        RenderJob(CrewRole::Scout);
-
         // TODO: Block these behind achievements or something
         RenderTechnologies();
         RenderJob(CrewRole::Scientist);
