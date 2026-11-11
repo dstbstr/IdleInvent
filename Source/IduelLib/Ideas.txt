@@ -1,0 +1,40 @@
+Ideal Idual Iduel Idle
+
+Two modes: vs and cooperative
+Timebox: 1 hour, 1 day, 1 week, 1 month
+Complexity: Simple, Standard, Complex
+
+
+In vs mode
+	Played against an AI
+	AI either plays optimially or through some AI training
+	AI effects are negative (1.0 - 0.5, purchase delay + 0.5, time limit - 10 seconds)
+In Cooperative mode
+	Work with the AI to achieve the maximum score
+	Player and AI both earn resources from generator, but have separate wallets
+	AI effects are positive (1.0 + 0.5, purchase delay - 0.5, time limit + 10 seconds)
+
+Player Bonuses
+	Score multiplier
+	Extra time
+	Resource head start
+	Resource multiplier
+	View AI's next purchase
+	ETA to purchase
+	Early termination (if player's score is higher than AI's final score, or if player + AI meets target score)
+	Eventual score
+	Taps per tap
+AI Effects
+	Score modifier
+	Purchase delay
+	Time limit
+	Taps per second
+
+Tap = money per tap
+Teenager = auto tap
+Store = Money per second
+Bigger Store = Money per store
+Entrepreneur = Auto buy Stores
+Investor = Current taps * (1.0 + 0.1 * investors)
+	Costs captial per second
+Invest Harder = investments per second

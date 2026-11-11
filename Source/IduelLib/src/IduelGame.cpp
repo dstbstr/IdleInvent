@@ -31,6 +31,9 @@ namespace Iduel {
 
     void IduelGame::Tick(BaseTime elapsed) {
         IduelUi::Layout::Tick(elapsed);
+        auto& tickManager = ServiceLocator::Get().GetRequired<TickManager>();
+        tickManager.Tick(elapsed);
+
         Graphics::Render(IduelUi::Layout::Render);
     }
 }
