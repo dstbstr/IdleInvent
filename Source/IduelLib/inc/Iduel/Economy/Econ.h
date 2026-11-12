@@ -6,13 +6,13 @@
 
 namespace Iduel {
 	struct Level {
-		static inline constexpr Quantity UnitScale{100};
-
+		static constexpr Quantity UnitsPerWhole = Quantity{10}.Pow(11);
 		Money BaseCost{};
 		f64 CostScale{1.0};
 		u32 PurchasedCount{};
 		u32 PowerCount{};
 		Quantity TotalCount{};
+		Quantity OutputPerSecond{};
 
 		Money GetPurchaseCost() const {
 			auto cost = BaseCost;
@@ -22,6 +22,12 @@ namespace Iduel {
 		Money GetPowerCost() const {
 			auto cost = BaseCost;
 			return cost.ScaleByPower(CostScale, PowerCount * 4);
+		}
+
+		Quantity GetProduction(Quantity ms) const {
+			auto scale = Level::UnitsPerWhole * Quantity{1000};
+			auto produced = TotalCount * OutputPerSecond * ms;
+			return produced / scale;
 		}
 
 		bool CanPurchase(Money balance) const {
@@ -34,7 +40,7 @@ namespace Iduel {
 
 			balance -= cost;
 			PurchasedCount++;
-            TotalCount += UnitScale;
+            TotalCount += UnitsPerWhole;
 			return true;
 		}
 
@@ -56,9 +62,12 @@ namespace Iduel {
                 m_Levels[i] = {
 					.BaseCost = Money{1'000} * Money{10}.Pow(i + 1),
 					.CostScale = 1.15 + (.1 * i),
+					.OutputRate = i == 0 
+						? 1.0 
+						: 0.2 * std::pow(0.1, static_cast<f64>(i - 1)),
 					.PurchasedCount = 0,
 					.PowerCount = 1,
-					.TotalCount = 0
+					.TotalCount = 0,
 				};
 			}
 		}
@@ -66,7 +75,7 @@ namespace Iduel {
 		Money GetBalance() const { return m_Balance; }
 		
 		void Tap() {
-			m_Balance += 1000;
+			m_Balance += 1;
 		}
 
 		void Tick(BaseTime elapsed) {
@@ -87,9 +96,10 @@ namespace Iduel {
 
 			for(size_t source = 1; source < m_Levels.size(); ++source) {
                 const auto& level = m_Levels[source];
-				production[source - 1] += level.TotalCount * seconds * level.PowerCount;
+				production[source - 1] += level.GetProduction(seconds);
 			}
-			m_Balance += m_Levels[0].TotalCount * (1'000 * seconds) * m_Levels[0].PowerCount;
+            auto money = m_Levels[0].TotalCount * (1'000 * seconds) * m_Levels[0].PowerCount;
+			m_Balance += money;
 			for(size_t level = 0; level < m_Levels.size(); ++level) {
 				m_Levels[level].TotalCount += production[level];
 			}

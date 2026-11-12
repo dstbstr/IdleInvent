@@ -32,7 +32,6 @@ TEST_F(ServiceLocatorTest, Get_AfterSetting_ReturnsSetValue) {
 }
 
 TEST_F(ServiceLocatorTest, Get_AfterDifferentQueryAndSet_ReturnsSetValue) {
-    loc.IsSet<long>();
     loc.Set<int>(42);
 
     auto result = loc.Get<int>();

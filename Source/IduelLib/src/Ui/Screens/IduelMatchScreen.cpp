@@ -25,7 +25,7 @@ namespace Iduel::IduelUi::Screens::Match {
 
     void Render() {
         auto balance = econ.GetBalance();
-        ImGui::Text("$%s", balance.ToHumanReadable(2, 3).value_or(balance.ToScientific(2, 3)).c_str());
+        ImGui::Text("$%s", balance.ToHumanReadable(2, 11).value_or(balance.ToScientific(2, 11)).c_str());
         if(ImGui::Button("Tap")) {
             econ.Tap();
         }
