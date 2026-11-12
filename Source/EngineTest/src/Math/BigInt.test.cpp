@@ -13,7 +13,7 @@ TEST(BigIntTest, Log10Ratio_WithPowersOfTen_ReturnsExpDiff) {
 
 TEST(BigIntTest, Log10Ratio_FractionalRatio_DoesNotTruncate) {
 	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ 3 }, BigInt{ 2 }), std::log10(1.5), 0.0001);
-	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ 2 }, BigInt{ 3 }), std::log10(1.5), 0.0001);
+	ASSERT_NEAR(BigInt::Log10Ratio(BigInt{ 2 }, BigInt{ 3 }), -std::log10(1.5), 0.0001);
 }
 
 TEST(BigIntTest, Log10Ratio_WithHugeValues_DoesNotOverflow) {
@@ -25,7 +25,7 @@ TEST(BigIntTest, Log10Ratio_WithHugeValues_DoesNotOverflow) {
 TEST(BigIntTest, Log10Ratio_BeyondDoubleRange_RemainsFinite) {
 	auto a = BigInt::Pow10(1000);
 	ASSERT_NEAR(BigInt::Log10Ratio(a, 1), 1000.0, 0.0001);
-	ASSERT_NEAR(BigInt::Log10Ratio(1, a), 1000.0, 0.0001);
+	ASSERT_NEAR(BigInt::Log10Ratio(1, a), -1000.0, 0.0001);
 }
 
 TEST(BigIntTest, Log10Ratio_WithTwoNegatives_ReturnsPositive) {

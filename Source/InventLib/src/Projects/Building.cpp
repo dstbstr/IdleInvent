@@ -432,9 +432,9 @@ namespace {
         {Building::SpaceStation, TimeCosts.at(6)}
     };
 
-    static const auto quickRate = Scale::FixedPointLog<f64, 120, 100>;
-    static const auto normalRate = Scale::FixedPointLog<f64, 130, 100>;
-    static const auto slowRate = Scale::FixedPointLog<f64, 150, 100>;
+    static const auto quickRate = [](size_t current) { return Scale::FixedPointExp<f64, 120, 100>(current, 1.0); };
+    static const auto normalRate = [](size_t current) { return Scale::FixedPointExp<f64, 130, 100>(current, 1.0); };
+    static const auto slowRate = [](size_t current) { return Scale::FixedPointExp<f64, 150, 100>(current, 1.0); };
 
     std::unordered_map<Building, std::function<f64(size_t)>> BuildingTimeScale{
         {Building::Staff, quickRate},

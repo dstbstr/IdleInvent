@@ -33,7 +33,12 @@ struct Modifier {
     }
 
     constexpr auto Apply(auto value) const {
-        return static_cast<decltype(value)>(static_cast<f32>(static_cast<s64>(value) + Add) * Mul);
+        using TValue = decltype(value);
+        if constexpr (std::floating_point<TValue>) {
+            return static_cast<TValue>((value + static_cast<TValue>(Add)) * Mul);
+        } else {
+            return static_cast<TValue>(static_cast<f32>(static_cast<s64>(value) + Add) * Mul);
+        }
     }
 
     constexpr f32 GetBonus() const { return static_cast<f32>(Add) * Mul; }
