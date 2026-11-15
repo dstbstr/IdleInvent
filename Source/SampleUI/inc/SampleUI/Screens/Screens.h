@@ -14,7 +14,8 @@ namespace SampleUI {
 		SampleGiantMap,
 		SampleCombat,
 		SampleAudio,
-		SampleBigNum
+		SampleBigNum,
+		SampleChart
 	};
 
     struct ScreenDefinition {
@@ -36,5 +37,52 @@ namespace SampleUI {
 		void Render();
 		void SetActiveScreen(Screen screen);
 		Screen GetActiveScreen();
+
+		namespace SampleAudio {
+			bool Initialize();
+			void ShutDown();
+
+			void Render();
+		}
+		namespace SampleBigNum {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
+		namespace SampleChart {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
+		namespace SampleCombat {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
+		namespace SampleGiantMap {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
+		namespace SampleNav {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
+		namespace SampleParticles {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
+		namespace SampleSimpleMap {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
+		namespace SampleTreePanel {
+			bool Initialize();
+			void ShutDown();
+			void Render();
+		}
 	}
 }

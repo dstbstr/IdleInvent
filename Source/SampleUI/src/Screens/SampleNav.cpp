@@ -1,4 +1,3 @@
-#include "SampleUI/Screens/SampleNav.h"
 #include "SampleUI/Screens/Screens.h"
 #include "SampleUI/Screens/SampleScreen.h"
 

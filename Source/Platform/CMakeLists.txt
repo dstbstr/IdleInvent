@@ -3,6 +3,7 @@ project(IdlePlatform LANGUAGES CXX)
 add_library(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PUBLIC
     imgui # TODO: Consider removing this separate the responsibility with IdleUi
+    implot
     stbimage
     miniaudio
 )

@@ -1,14 +1,6 @@
 #include "SampleUI/Screens/Screens.h"
 
 #include "SampleUI/Screens/Landing.h"
-#include "SampleUI/Screens/SampleAudio.h"
-#include "SampleUI/Screens/SampleBigNum.h"
-#include "SampleUI/Screens/SampleCombat.h"
-#include "SampleUI/Screens/SampleGiantMap.h"
-#include "SampleUI/Screens/SampleNav.h"
-#include "SampleUI/Screens/SampleParticles.h"
-#include "SampleUI/Screens/SampleSimpleMap.h"
-#include "SampleUI/Screens/SampleTreePanel.h"
 
 #include <Instrumentation/Logging.h>
 #include <Ui/Dialog.h>
@@ -88,6 +80,14 @@ namespace {
             .Initialize = Screens::SampleBigNum::Initialize,
             .ShutDown = Screens::SampleBigNum::ShutDown,
             .Render = Screens::SampleBigNum::Render
+        },
+        ScreenDefinition{
+            .Id = Screen::SampleChart,
+            .Name = "SampleChart",
+            .LandingLabel = "Chart",
+			.Initialize = Screens::SampleChart::Initialize,
+			.ShutDown = Screens::SampleChart::ShutDown,
+			.Render = Screens::SampleChart::Render
         }
     };
 

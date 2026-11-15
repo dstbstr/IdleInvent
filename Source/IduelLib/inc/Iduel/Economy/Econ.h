@@ -60,14 +60,12 @@ namespace Iduel {
 			m_Levels.resize(10);
 			for(size_t i = 0; i < m_Levels.size(); i++) {
                 m_Levels[i] = {
-					.BaseCost = Money{1'000} * Money{10}.Pow(i + 1),
+					.BaseCost = Money{10}.Pow(i + 1),
 					.CostScale = 1.15 + (.1 * i),
-					.OutputRate = i == 0 
-						? 1.0 
-						: 0.2 * std::pow(0.1, static_cast<f64>(i - 1)),
 					.PurchasedCount = 0,
 					.PowerCount = 1,
 					.TotalCount = 0,
+					.OutputPerSecond = Quantity{1}
 				};
 			}
 		}
@@ -82,6 +80,7 @@ namespace Iduel {
 			if(elapsed <= ZeroTime || m_Levels.empty()) return;
 
 			auto seconds = static_cast<f64>(elapsed.count()) / static_cast<f64>(OneSecond.count());
+			auto ms = seconds * 1000;
 
 			auto investorExpense = Money{m_Investors} * m_InvestorExpense * seconds;
             auto investorRate = 0.1 * m_Investors;
@@ -93,10 +92,10 @@ namespace Iduel {
             }
 
 			std::vector<Quantity> production(m_Levels.size(), Zero);
-
+			auto time = Quantity{static_cast<size_t>(ms)};
 			for(size_t source = 1; source < m_Levels.size(); ++source) {
                 const auto& level = m_Levels[source];
-				production[source - 1] += level.GetProduction(seconds);
+				production[source - 1] += level.GetProduction(time);
 			}
             auto money = m_Levels[0].TotalCount * (1'000 * seconds) * m_Levels[0].PowerCount;
 			m_Balance += money;

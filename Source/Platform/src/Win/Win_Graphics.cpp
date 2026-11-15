@@ -23,6 +23,7 @@ namespace {
     bool InitializeDx(Platform& platform) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        ImPlot::CreateContext();
         
         if(!ImGui_ImplWin32_Init(platform.GetWindow())) {
             IM_ASSERT(false);
@@ -57,6 +58,7 @@ namespace Graphics {
     void Shutdown() { 
         g_Ctx.reset();
         ImGui_ImplWin32_Shutdown();
+        ImPlot::DestroyContext();
         ImGui::DestroyContext();
 
         CheckForLeaks();

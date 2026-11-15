@@ -2,6 +2,7 @@
 
 #include "Platform.h"
 #include <imgui.h> // Do I want this dependency, or change ImTextureID to void*?
+#include <implot.h>
 #include <string>
 #include <utility>
 #include <vector>

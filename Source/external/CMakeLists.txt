@@ -25,5 +25,6 @@ if(UNIX AND NOT ANDROID AND NOT APPLE)
 endif()
 
 add_subdirectory(imgui)
+add_subdirectory(implot)
 add_subdirectory(stb-image)
 add_subdirectory(miniaudio)

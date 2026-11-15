@@ -63,6 +63,7 @@ namespace {
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+		ImPlot::CreateContext();
 
         if(!ImGui_ImplGlfw_InitForOpenGL(g_Window, true)) {
             IM_ASSERT(false);
@@ -105,6 +106,7 @@ namespace Graphics {
 
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
+        ImPlot::DestroyContext();
         ImGui::DestroyContext();
 
         g_Window = nullptr;

@@ -9,8 +9,6 @@
 #include "backends/imgui_impl_opengl3.h"
 #include <android_native_app_glue.h>
 
-#include "imgui.h"
-
 #include <optional>
 #include <sstream>
 #define STB_IMAGE_IMPLEMENTATION
@@ -139,6 +137,7 @@ namespace {
     void InitializeImGui() {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
 
         //iniFile = std::string(platform.GetInternalDataPath) + "/imgui.ini";
@@ -184,6 +183,7 @@ namespace Graphics {
 
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplAndroid_Shutdown();
+        ImPlot::DestroyContext();
         ImGui::DestroyContext();
 
         if(display != EGL_NO_DISPLAY) {
