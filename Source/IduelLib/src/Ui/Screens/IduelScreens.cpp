@@ -1,7 +1,4 @@
 #include "Iduel/Ui/Screens/IduelScreens.h"
-#include "Iduel/Ui/Screens/IduelMatchScreen.h"
-#include "Iduel/Ui/Screens/IduelStartScreen.h"
-#include "Iduel/Ui/Screens/IduelReviewScreen.h"
 #include <Instrumentation/Logging.h>
 
 namespace {
@@ -24,7 +21,13 @@ namespace {
 			.Initialize = Screens::Review::Initialize,
 			.ShutDown = Screens::Review::ShutDown,
 			.Render = Screens::Review::Render
-        }
+        },
+		Ui::ScreenDefinition<Screen>{
+			.Id = Screen::Editor,
+			.Initialize = Screens::Editor::Initialize,
+			.ShutDown = Screens::Editor::ShutDown,
+			.Render = Screens::Editor::Render
+		}
     };
 
     Ui::ScreenManager<Screen> Manager{Definitions};

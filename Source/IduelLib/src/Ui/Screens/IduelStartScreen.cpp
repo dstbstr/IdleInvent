@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Iduel/Ui/Screens/IduelScreens.h"
 #include <imgui.h>
 
-#include "Iduel/Ui/Screens/IduelScreens.h"
 
 namespace Iduel::IduelUi::Screens::Start {
     bool Initialize() { return true; }
@@ -12,6 +12,8 @@ namespace Iduel::IduelUi::Screens::Start {
         ImGui::Text("Start Screen");
         if(ImGui::Button("Start")) {
             GetScreenManager().SetActiveScreen(Screen::Match);
+        } else if(ImGui::Button("Editor")) {
+            GetScreenManager().SetActiveScreen(Screen::Editor);
         }
     }
 }
