@@ -37,6 +37,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Math/BigInt.cpp
 	src/Math/FixedInt.cpp
 	src/Math/Kinematics.cpp
+	src/Math/MathEval.cpp
 
 	src/Mechanics/Advancement.cpp
 	src/Mechanics/Modifier.cpp
@@ -47,8 +48,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Resources/Storage.cpp
 	src/Resources/ResourceConversion.cpp 
 	
-	
-
 	src/Social/Faction.cpp
 	src/Social/Faction.test.cpp
 

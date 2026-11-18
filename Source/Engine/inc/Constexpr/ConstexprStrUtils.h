@@ -18,6 +18,24 @@
 #endif
 
 namespace Constexpr {
+    constexpr bool IsDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+    constexpr bool IsAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+    constexpr bool IsAlnum(char c) {
+        return IsAlpha(c) || IsDigit(c);
+    }
+	constexpr bool IsSpace(char c) {
+		return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+	}
+
+    constexpr bool IsDigit(std::integral auto v) = delete;
+	constexpr bool IsAlpha(std::integral auto v) = delete;
+	constexpr bool IsAlnum(std::integral auto v) = delete;
+	constexpr bool IsSpace(std::integral auto v) = delete;
+
     constexpr std::string ToString(std::integral auto value) {
         std::array<char, 24> buf{};
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -149,9 +167,6 @@ namespace Constexpr {
         result += suffixes.at(suffixIndex);
         return result;
     }
-
-    constexpr bool IsDigit(char c) { return c >= '0' && c <= '9'; }
-    constexpr bool IsDigit(std::integral auto v) = delete;
 
     constexpr std::string TrimStart(std::string_view s, const std::vector<char>& toRemove = {' ', '\n', '\t', '\r'}) {
         return s | 
