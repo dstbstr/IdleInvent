@@ -60,4 +60,4 @@ target_sources(${PROJECT_NAME} PRIVATE
   src/Utilities/TypeUtils.test.cpp
  
   src/World/AStar.test.cpp
- "src/Math/MathEval.test.cpp" "src/Math/MathTokenizer.test.cpp")
+ "src/Math/MathEval.test.cpp" "src/Math/MathTokenizer.test.cpp" "src/Math/MathParser.test.cpp")
