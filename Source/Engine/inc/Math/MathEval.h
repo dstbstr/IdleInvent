@@ -3,9 +3,14 @@
 #include "Platform/NumTypes.h"
 
 #include <expected>
+#include <span>
 #include <string_view>
 
 namespace Math {
+	struct ExpressionToken;
+
 	f64 Eval(std::string_view expr, f64 x = 0.0);
 	std::expected<f64, std::string> TryEval(std::string_view expr, f64 x = 0.0);
+
+	f64 Eval(std::span<const ExpressionToken> postfix, f64 x = 0.0);
 }

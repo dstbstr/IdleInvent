@@ -4,6 +4,7 @@
 
 #include <span>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -22,8 +23,9 @@ namespace Math {
 
 	struct ExpressionToken {
 		ExpressionTokenType Type;
-		std::string_view Text;
+		std::string Text;
 
+		constexpr ExpressionToken(ExpressionTokenType type, std::string_view text) : Type(type), Text(text) {}
 		constexpr bool operator==(const ExpressionToken& other) const = default;
 	};
 

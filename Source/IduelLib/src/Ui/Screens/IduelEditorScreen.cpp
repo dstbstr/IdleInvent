@@ -16,6 +16,7 @@
 #include <array>
 #include <map>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace {
@@ -25,6 +26,11 @@ namespace {
     std::vector<ScopedHandle> TickHandles;
     int RandomPlayers = 3;
     f64 TargetAmount = 10'000.0;
+
+    struct CurveEditState {
+        std::string Draft;
+        std::optional<std::string> ErrorMessage;
+    };
 
     static constexpr std::array<f64, DataSize> XVals = [] {
         std::array<f64, DataSize> arr{};
@@ -37,6 +43,8 @@ namespace {
 	struct GeneratorPlot {
 		Generator Gen{};
 		bool Dirty{true};
+        CurveEditState IncomeState{Gen.Income.GetExpression(), std::nullopt};
+		CurveEditState CostState{ Gen.Cost.GetExpression(), std::nullopt };
 		std::array<f64, DataSize> IncomeData{};
 		std::array<f64, DataSize> CostData{};
 
@@ -177,7 +185,7 @@ namespace {
     void RenderIncomeCostPlot() {
         ImGui::Text("Cost vs Income");
         if (ImPlot::BeginPlot("Cost vs Income Plot")) {
-            ImPlot::SetupAxisScale(ImAxis_Y1, ImPlotScale_Log10);
+            ImPlot::SetupAxisScale(ImAxis_Y1, ImPlotScale_SymLog);
             for (size_t i = 0; i < GenPlots.size(); i++) {
                 RenderGeneratorGraph(GenPlots[i], i);
             }
@@ -209,27 +217,24 @@ namespace {
         }
     }
 
-    bool RenderTermControls(const char* label, CurveTerm& term) {
+    bool RenderCurveControls(const char* label, Curve& curve, CurveEditState& editState) {
         ImGui::PushID(label);
-        ImGui::TextUnformatted(label);
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5.f);
-        auto changed = ImGui::InputDouble("##Coef", &term.Coef, 0.0, 0.0, "%.2f");
-        ImGui::SameLine();
-        changed |= ImGui::Checkbox("* x", &term.ScaleX);
-        ImGui::PopID();
-        return changed;
-    }
 
-    bool RenderCurveControls(const char* label, Curve& curve) {
-        ImGui::PushID(label);
-        ImGui::TextUnformatted(label);
-        ImGui::TextUnformatted("A + B * (C ^ D)");
-
-        auto changed = RenderTermControls("A", curve.ConstTerm);
-        changed |= RenderTermControls("B", curve.LinearTerm);
-        changed |= RenderTermControls("C", curve.QuadTerm);
-        changed |= RenderTermControls("D", curve.ExpTerm);
+        std::array<char, 64> buf{};
+		editState.Draft.copy(buf.data(), buf.size() - 1);
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 20.f);
+        bool changed = false;
+        if(ImGui::InputText("##Curve", buf.data(), 64)) {
+            editState.Draft = buf.data();
+			auto result = Math::TryEval(editState.Draft, 1.0);
+            if(result) {
+				editState.ErrorMessage.reset();
+                curve.SetExpression(editState.Draft);
+                changed = true;
+            } else {
+                editState.ErrorMessage = result.error();
+            }
+        }
 
         ImGui::PopID();
         return changed;
@@ -244,10 +249,10 @@ namespace {
         }
 
         if (ImGui::CollapsingHeader("Income Curve")) {
-            gen.Dirty |= RenderCurveControls("Income Curve", gen.Gen.Income);
+            gen.Dirty |= RenderCurveControls("Income Curve", gen.Gen.Income, gen.IncomeState);
         }
         if (ImGui::CollapsingHeader("Cost Curve")) {
-            gen.Dirty |= RenderCurveControls("Cost Curve", gen.Gen.Cost);
+            gen.Dirty |= RenderCurveControls("Cost Curve", gen.Gen.Cost, gen.CostState);
         }
 
         if (ImGui::CollapsingHeader("Thresholds")) {
@@ -264,27 +269,43 @@ namespace {
     }
 
     void RenderControls() {
-        for (size_t genIndex = 0; genIndex < GenPlots.size(); genIndex++) {
-            ImGui::PushID(genIndex);
-            auto& generator = GenPlots[genIndex];
-            auto header = generator.Gen.Name + "###Generator";
-            if (ImGui::CollapsingHeader(header.c_str())) {
-                RenderGeneratorControls(generator);
+        if(ImGui::BeginTable("Generators", 3, ImGuiTableFlags_SizingStretchProp)) {
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch, 1.f);
+            ImGui::TableSetupColumn("Income", ImGuiTableColumnFlags_WidthStretch, 2.f);
+            ImGui::TableSetupColumn("Cost", ImGuiTableColumnFlags_WidthStretch, 2.f);
+            ImGui::TableHeadersRow();
+            for(size_t i = 0; i < GenPlots.size(); i++) {
+                auto& plot = GenPlots[i];
+                ImGui::PushID(static_cast<int>(i));
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                std::array<char, 64> name{};
+                plot.Gen.Name.copy(name.data(), name.size() - 1);
+                ImGui::SetNextItemWidth(-1.f);
+                if(ImGui::InputText("##Name", name.data(), name.size())) {
+					plot.Gen.Name = name.data();
+				}
+
+                ImGui::TableSetColumnIndex(1);
+				plot.Dirty |= RenderCurveControls("Income", plot.Gen.Income, plot.IncomeState);
+                ImGui::TableSetColumnIndex(2);
+				plot.Dirty |= RenderCurveControls("Cost", plot.Gen.Cost, plot.CostState);
+
+                ImGui::PopID();
             }
 
-            generator.Generate();
-            ImGui::PopID();
+            ImGui::EndTable();
+        }
+
+        for(auto& plot : GenPlots) {
+            plot.Generate();
         }
 
         if (ImGui::Button("Add Generator")) {
             auto z = GenPlots.size();
-            GenPlots.push_back({
-                .Gen {
-                    .Income = {},
-                    .Cost = {},
-                    .Name = "Gen" + std::to_string(z + 1)
-                }
-            });
+            GenPlots.push_back({});
+			GenPlots.back().Gen.Name = "Gen" + std::to_string(z + 1);
             GenPlots.back().Generate();
         }
 
@@ -311,19 +332,16 @@ namespace {
 
 namespace Iduel::IduelUi::Screens::Editor {
     bool Initialize() {
-        GenPlots.push_back({
-            .Gen {
-                .Income = {
-                    .ConstTerm = { 1.0, false },
-                    .LinearTerm = { 2.0, true }
-                },
-                .Cost = {
-                    .QuadTerm = { 1.1, false },
-                    .ExpTerm = { 1.0, true }
-                },
-                .Name = "Gen1"
-                }
-        });
+        GenPlots.reserve(8);
+        GenPlots.push_back({});
+		auto& gen = GenPlots.back().Gen;
+        gen.Income.SetExpression("2x^2");
+		gen.Cost.SetExpression("1.1 ^ x");
+        gen.Name = "Gen1";
+        auto& plot = GenPlots.back();
+        plot.IncomeState.Draft = plot.Gen.Income.GetExpression();
+		plot.CostState.Draft = plot.Gen.Cost.GetExpression();
+	
         for (auto& generator : GenPlots) {
             generator.Generate();
         }

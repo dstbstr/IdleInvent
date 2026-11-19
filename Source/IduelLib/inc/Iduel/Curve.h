@@ -1,28 +1,27 @@
 #pragma once
 
 #include "IduelTypes.h"
+#include "Math/MathEval.h"
+#include "Math/MathParser.h"
+
+#include <string>
 
 namespace Iduel {
-    struct CurveTerm {
-        f64 Coef{ 0.0 };
-        bool ScaleX{ false };
+    class Curve {
+    public:
+		void SetExpression(const std::string& expr) {
+			auto postfix = Math::ToPostfix(Math::Normalize(Math::Tokenize(expr)));
+            m_Expression = expr;
+			m_Postfix = std::move(postfix);
+		}
 
+        const std::string& GetExpression() const { return m_Expression; }
         f64 Evaluate(f64 x) const {
-            return Coef * (ScaleX ? x : 1.0);
+            return Math::Eval(m_Postfix, x);
         }
-    };
 
-    struct Curve {
-        CurveTerm ConstTerm{ 0.0, false };
-        CurveTerm LinearTerm{ 1.0, false };
-        CurveTerm QuadTerm{ 1.0, false };
-        CurveTerm ExpTerm{ 1.0, false };
-
-        // A + B * (C ^ D)
-        f64 Evaluate(f64 x) const {
-            return ConstTerm.Evaluate(x) +
-                LinearTerm.Evaluate(x) *
-                std::pow(QuadTerm.Evaluate(x), ExpTerm.Evaluate(x));
-        }
+    private:
+        std::string m_Expression{"1"};
+        std::vector<Math::ExpressionToken> m_Postfix{{Math::ExpressionTokenType::Number, "1"}};
     };
 }
