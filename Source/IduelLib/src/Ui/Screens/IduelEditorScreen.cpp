@@ -14,6 +14,7 @@
 #include <implot.h>
 
 #include <array>
+#include <cmath>
 #include <map>
 #include <memory>
 #include <optional>
@@ -41,7 +42,9 @@ namespace {
     }();
 
 	struct GeneratorPlot {
-		Generator Gen{};
+		Generator Gen{
+            .Thresholds = {{10}, {25}, {50}, {100}, {200}, {300}, {400}, {500}}
+        };
 		bool Dirty{true};
         CurveEditState IncomeState{Gen.Income.GetExpression(), std::nullopt};
 		CurveEditState CostState{ Gen.Cost.GetExpression(), std::nullopt };
@@ -126,12 +129,38 @@ namespace {
 
 	std::optional<ComparisonRun> CurrentRun{};
 
-    void RenderGeneratorGraph(const GeneratorPlot& gen, size_t index) {
+    void RenderIncomeAnchors(GeneratorPlot& plot, size_t index, const ImVec4& color) {
+        ImGui::PushID(static_cast<int>(index));
+
+        for(size_t i = 0; i < plot.Gen.Thresholds.size(); i++) {
+            auto& threshold = plot.Gen.Thresholds[i];
+            auto x = static_cast<f64>(threshold.Index);
+            auto seconds = static_cast<f64>(plot.Gen.GetTimePerPayout(threshold.Index).count()) / static_cast<f64>(OneSecond.count());
+			auto y = plot.Gen.GetIncomePerPayout(threshold.Index) / seconds;
+            if(!std::isfinite(y) || y <= 0.0) continue;
+
+            auto oldY = y;
+            if(ImPlot::DragPoint(static_cast<int>(i), &x, &y, color, 5.f, ImPlotDragToolFlags_Delayed)) {
+                auto mul = threshold.IncomeMultiplier * (y / oldY);
+                if(std::isfinite(mul) && mul > 0.0 && mul != threshold.IncomeMultiplier) {
+					threshold.IncomeMultiplier = mul;
+					plot.Dirty = true;
+				}
+            }
+        }
+
+        ImGui::PopID();
+    }
+
+    void RenderGeneratorGraph(GeneratorPlot& gen, size_t index) {
         auto label = gen.Gen.Name + "###Generator" + std::to_string(index);
         auto t = GenPlots.size() > 1
             ? static_cast<f32>(index) / static_cast<f32>(GenPlots.size() - 1)
             : 0.5f;
         auto color = ImPlot::SampleColormap(t, ImPlotColormap_Viridis);
+        RenderIncomeAnchors(gen, index, color);
+        gen.Generate();
+
         ImPlotSpec incomeStyle, costStyle;
         incomeStyle.LineColor = color;
         incomeStyle.LineWeight = 3.f;
@@ -194,29 +223,6 @@ namespace {
         }
     }
 
-    void RenderThresholdControls(GeneratorPlot& gen, Threshold& threshold) {
-        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 7.f);
-        if (ImGui::InputInt("##Lvl", &threshold.Index, 0)) {
-            gen.Dirty = true;
-        }
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.f);
-        if (ImGui::InputDouble("##Mul", &threshold.IncomeMultiplier, 0.0, 0.0, "%.2f")) {
-            gen.Dirty = true;
-        }
-        ImGui::SetNextItemWidth(ImGui::GetFontSize() * 6.f);
-        ImGui::SameLine();
-		if (ImGui::InputDouble("##Speed", &threshold.SpeedMultiplier, 0.0, 0.0, "%.2f")) {
-			gen.Dirty = true;
-		}
-        ImGui::SameLine();
-        if (ImGui::SmallButton("-")) {
-            threshold = gen.Gen.Thresholds.back();
-            gen.Gen.Thresholds.pop_back();
-            gen.Dirty = true;
-        }
-    }
-
     bool RenderCurveControls(const char* label, Curve& curve, CurveEditState& editState) {
         ImGui::PushID(label);
 
@@ -238,34 +244,6 @@ namespace {
 
         ImGui::PopID();
         return changed;
-    }
-
-    void RenderGeneratorControls(GeneratorPlot& gen) {
-        std::array<char, 64> buf{};
-        gen.Gen.Name.copy(buf.data(), buf.size() - 1);
-
-        if (ImGui::InputText("##Name", buf.data(), 64)) {
-            gen.Gen.Name = buf.data();
-        }
-
-        if (ImGui::CollapsingHeader("Income Curve")) {
-            gen.Dirty |= RenderCurveControls("Income Curve", gen.Gen.Income, gen.IncomeState);
-        }
-        if (ImGui::CollapsingHeader("Cost Curve")) {
-            gen.Dirty |= RenderCurveControls("Cost Curve", gen.Gen.Cost, gen.CostState);
-        }
-
-        if (ImGui::CollapsingHeader("Thresholds")) {
-            for (size_t i = 0; i < gen.Gen.Thresholds.size(); ++i) {
-                ImGui::PushID(i);
-                RenderThresholdControls(gen, gen.Gen.Thresholds[i]);
-                ImGui::PopID();
-            }
-            if (ImGui::SmallButton("+")) {
-                gen.Gen.Thresholds.push_back({ 1, 1.0 });
-                gen.Dirty = true;
-            }
-        }
     }
 
     void RenderControls() {
