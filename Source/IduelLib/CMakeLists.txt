@@ -23,4 +23,4 @@ target_sources(${PROJECT_NAME} PRIVATE
 	src/Ui/Screens/IduelMatchScreen.cpp
 	src/Ui/Screens/IduelStartScreen.cpp
 	src/Ui/Screens/IduelReviewScreen.cpp
- "inc/Iduel/Curve.h" "inc/Iduel/Economy/Generator.h" "inc/Iduel/Simulation/Simulation.h" "inc/Iduel/Simulation/IStrategy.h" "src/Ui/Screens/IduelEditorScreen.cpp" "src/Economy/Generator.cpp" "src/Simulation/Simulation.cpp" "inc/Iduel/Economy/EconomyState.h" "inc/Iduel/Simulation/ParticipantState.h" "src/Simulation/IStrategy.cpp" "inc/Iduel/Economy/GeneratorMarshaller.h" "src/Economy/GeneratorMarshaller.cpp")
+ "inc/Iduel/Curve.h" "inc/Iduel/Economy/Generator.h" "inc/Iduel/Simulation/Simulation.h" "inc/Iduel/Simulation/IStrategy.h" "src/Ui/Screens/IduelEditorScreen.cpp" "src/Economy/Generator.cpp" "src/Simulation/Simulation.cpp" "inc/Iduel/Economy/EconomyState.h" "inc/Iduel/Simulation/ParticipantState.h" "src/Simulation/IStrategy.cpp" "inc/Iduel/Economy/GeneratorMarshaller.h" "src/Economy/GeneratorMarshaller.cpp" "src/Simulation/SingleLookahead.cpp")

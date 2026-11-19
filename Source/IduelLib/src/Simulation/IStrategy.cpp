@@ -22,7 +22,7 @@ namespace {
 }
 
 namespace Iduel {
-	std::optional<Purchase> GreedyStrategy::ChoosePurchase(const EconomyState& economy, const ParticipantState& participant) {
+	std::optional<Purchase> GreedyStrategy::ChoosePurchase(const EconomyState& economy, const ParticipantState& participant, const StrategyContext& context) {
 		for(size_t i = economy.Generators.size(); i-- > 0;) {
 			auto& gen = economy.Generators[i];
 			auto count = economy.GenCounts[i];
@@ -35,7 +35,7 @@ namespace Iduel {
 		return std::nullopt;
 	}
 	
-	std::optional<Purchase> RandomStrategy::ChoosePurchase(const EconomyState& economy, const ParticipantState& participant) {
+	std::optional<Purchase> RandomStrategy::ChoosePurchase(const EconomyState& economy, const ParticipantState& participant, const StrategyContext& context) {
 		static auto& random = [] -> IRandom& {
 			auto& services = ServiceLocator::Get();
 			if(!services.IsSet<IRandom>()) {
