@@ -1,12 +1,15 @@
 #include "Iduel/Ui/Screens/IduelScreens.h"
 #include "Iduel/Economy/Generator.h"
+#include "Iduel/Economy/GeneratorMarshaller.h"
 #include "Iduel/Economy/EconomyState.h"
 #include "Iduel/Simulation/Simulation.h"
 #include "Iduel/Simulation/ParticipantState.h"
 #include "Iduel/Simulation/IStrategy.h"
 #include "Iduel/Curve.h"
 
+#include "DesignPatterns/ServiceLocator.h"
 #include "Manage/TickManager.h"
+#include "Platform/Platform.h"
 #include "Utilities/Handle.h"
 #include "Ui/UiUtil.h"
 
@@ -15,9 +18,11 @@
 
 #include <array>
 #include <cmath>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace {
@@ -27,6 +32,12 @@ namespace {
     std::vector<ScopedHandle> TickHandles;
     int RandomPlayers = 3;
     f64 TargetAmount = 10'000.0;
+    Platform* g_Platform = nullptr;
+    std::map<size_t, std::string> SavedEconomies;
+    std::optional<size_t> CurrentEconomyId;
+    std::string EconomyName{"Untitled"};
+    std::string FileError;
+    bool RefreshEconomies{true};
 
     struct CurveEditState {
         std::string Draft;
@@ -232,7 +243,7 @@ namespace {
         bool changed = false;
         if(ImGui::InputText("##Curve", buf.data(), 64)) {
             editState.Draft = buf.data();
-			auto result = Math::TryEval(editState.Draft, 1.0);
+			auto result = Math::TryEval(editState.Draft, DataSize);
             if(result) {
 				editState.ErrorMessage.reset();
                 curve.SetExpression(editState.Draft);
@@ -306,6 +317,133 @@ namespace {
 		if (!CurrentRun.has_value()) return;
 		CurrentRun->Tick(elapsed);
 	}
+
+    std::vector<size_t> FindSavedEconomies() {
+		using namespace std::string_view_literals;
+
+        auto dir = g_Platform->GetRootPath() / "economies";
+		std::filesystem::create_directories(dir);
+        std::vector<size_t> result;
+
+		for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+            if(entry.is_regular_file() && entry.path().extension() == ".txt") {
+				auto name = entry.path().stem().string();
+                if(!name.starts_with("economy_")) continue;
+                auto id = Constexpr::TryFromString<size_t>(name.substr("economy_"sv.size()));
+                if(id.has_value()) result.push_back(id.value());
+            }
+        }
+
+        return result;
+    }
+
+    void WriteSavedEconomy(const GeneratorFile& file, size_t econIndex) {
+		auto dir = g_Platform->GetRootPath() / "economies";
+        std::filesystem::create_directories(dir);
+        auto path = dir / ("economy_" + std::to_string(econIndex) + ".txt");
+		auto stream = std::ofstream(path);
+		if (!stream) throw std::runtime_error("Failed to open file for writing: " + path.string());
+		SerializeGenerators(file, stream);
+        stream.close();
+        
+		if (!stream) throw std::runtime_error("Failed to write to file: " + path.string());
+	}
+
+	GeneratorFile ReadSavedEconomy(size_t econIndex) {
+        auto dir = g_Platform->GetRootPath() / "economies";
+        auto path = dir / ("economy_" + std::to_string(econIndex) + ".txt");
+        auto file = std::ifstream(path);
+
+        if(file.is_open()) {
+            return DeserializeGenerators(file);
+        }
+
+		throw std::runtime_error("Failed to open economy file: " + path.string());
+    }
+
+    void RenderEconomyFiles() {
+        ImGui::SeparatorText("Economies");
+
+        try {
+            if(RefreshEconomies) {
+                auto ids = FindSavedEconomies();
+                SavedEconomies.clear();
+                for(auto id : ids) {
+                    SavedEconomies[id] = "Unreadable economy";
+                    try {
+						SavedEconomies[id] = ReadSavedEconomy(id).Name;
+                    } catch(const std::exception& err) {
+                        FileError = err.what();
+                    }
+                }
+                RefreshEconomies = false;
+            }
+
+            std::array<char, 128> name{};
+            EconomyName.copy(name.data(), name.size() - 1);
+			if (ImGui::InputText("Economy name", name.data(), name.size())) {
+				EconomyName = name.data();
+			}
+
+            if(ImGui::Button("New")) {
+                CurrentRun.reset();
+                CurrentEconomyId.reset();
+				EconomyName = "Untitled";
+                GenPlots.clear();
+                FileError.clear();
+            }
+            ImGui::SameLine();
+
+            if(ImGui::Button("Save")) {
+                GeneratorFile file{.Name = EconomyName};
+				file.Generators.reserve(GenPlots.size());
+                for(const auto& plot : GenPlots) {
+					file.Generators.push_back(plot.Gen);
+				}
+
+				auto nextId = SavedEconomies.empty() ? size_t{ 1 } : SavedEconomies.rbegin()->first + 1;
+				auto id = CurrentEconomyId.value_or(nextId);
+				WriteSavedEconomy(file, id);
+
+                CurrentEconomyId = id;
+				SavedEconomies[id] = EconomyName;
+                FileError.clear();
+            }
+
+            for(const auto& [id, name] : SavedEconomies) {
+                auto key = std::to_string(id);
+                ImGui::PushID(key.c_str());
+				auto load = ImGui::Button(name.empty() ? "(Unnamed)" : name.c_str());
+                ImGui::PopID();
+
+                if(load) {
+                    auto file = ReadSavedEconomy(id);
+                    std::vector<GeneratorPlot> plots;
+                    plots.reserve(file.Generators.size());
+
+                    for(auto& gen : file.Generators) {
+                        GeneratorPlot plot{.Gen = std::move(gen)};
+                        plot.Generate();
+                        plots.push_back(std::move(plot));
+                    }
+
+                    CurrentRun.reset();
+                    GenPlots = std::move(plots);
+                    EconomyName = std::move(file.Name);
+                    CurrentEconomyId = id;
+                    FileError.clear();
+                }
+			}
+        }
+        catch (const std::exception& err) {
+            FileError = err.what();
+            RefreshEconomies = false;
+        }
+
+        if(!FileError.empty()) {
+            ImGui::TextWrapped("%s", FileError.c_str());
+        }
+    }
 }
 
 namespace Iduel::IduelUi::Screens::Editor {
@@ -325,12 +463,19 @@ namespace Iduel::IduelUi::Screens::Editor {
         }
 
 		TickManager::Get().Register(TickHandles, TickComparison);
+
+		auto& services = ServiceLocator::Get();
+        g_Platform = &services.GetRequired<Platform>();
         return true;
     }
 
-    void ShutDown() {}
+    void ShutDown() {
+        g_Platform = nullptr;
+        TickHandles.clear();
+    }
 
     void Render() {
+		RenderEconomyFiles();
         RenderIncomeCostPlot();
         RenderControls();
         RenderComparisonPlot();

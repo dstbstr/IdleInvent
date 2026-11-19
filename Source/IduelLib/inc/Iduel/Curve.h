@@ -9,6 +9,11 @@
 namespace Iduel {
     class Curve {
     public:
+        Curve() = default;
+        explicit Curve(const std::string& expr) {
+			SetExpression(expr);
+		}
+
 		void SetExpression(const std::string& expr) {
 			auto postfix = Math::ToPostfix(Math::Normalize(Math::Tokenize(expr)));
             m_Expression = expr;

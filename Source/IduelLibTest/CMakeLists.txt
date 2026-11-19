@@ -1,0 +1,25 @@
+project(IduelLibTest)
+
+add_executable(${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  Engine
+  IduelLib
+
+  gtest
+  gmock
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+	inc
+)
+
+# Enable precompiled headers for build performance
+target_precompile_headers(${PROJECT_NAME} PRIVATE inc/pch.h)
+
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_NAME})
+
+target_sources(${PROJECT_NAME} PRIVATE
+  src/Main.cpp
+ "src/Economy/GeneratorMarshaller.test.cpp")

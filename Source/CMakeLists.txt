@@ -125,6 +125,7 @@ if(IncludeTests)
     add_subdirectory(InventLibTest)
     add_subdirectory(GhostHunterLibTest)
     add_subdirectory(PetPyramidLibTest)
+    add_subdirectory(IduelLibTest)
 endif()
 
 
@@ -133,7 +134,7 @@ foreach(target IN ITEMS IdlePlatform Engine InventLib IduelLib PetPyramidLib Wal
     target_compile_definitions(${target} PRIVATE ${compiler_definitions})
 endforeach()
 if(IncludeTests)
-    foreach(target IN ITEMS EngineTest InventLibTest GhostHunterLibTest PetPyramidLibTest)
+    foreach(target IN ITEMS EngineTest InventLibTest GhostHunterLibTest PetPyramidLibTest IduelLibTest)
         target_compile_definitions(${target} PRIVATE ${compiler_definitions} TEST)
     endforeach()
 endif()
